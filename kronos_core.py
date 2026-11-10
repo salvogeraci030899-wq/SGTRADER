@@ -26,6 +26,11 @@ ATR_MULT = float(os.environ.get("ATR_MULT", "1.5"))  # stop = ATR_MULT x ATR del
 RR_MAX = 3.0   # il target del modello non supera RR_MAX x il rischio
 MIN_RR = float(os.environ.get("MIN_RR", "1.5"))  # sotto questo R/R il segnale non è operativo
 
+# Costi per trade usati da backtest e track record (in %, applicati a ingresso e uscita)
+FEE_PCT = 0.1        # commissione exchange per lato
+SLIPPAGE_PCT = 0.05  # slippage stimato per lato
+TAX_RATE = 0.33      # tassa sulle plusvalenze, applicata ai trade in utile (stima prudente)
+
 ALL_ASSETS = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
 ALL_TIMEFRAMES = ["1d", "4h", "1h"]
 TF_DELTA = {"1d": pd.Timedelta(days=1), "4h": pd.Timedelta(hours=4), "1h": pd.Timedelta(hours=1)}

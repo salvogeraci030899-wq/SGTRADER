@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta
 
 import requests
 
+import track_record
 from kronos_core import (
     ALL_ASSETS, ALL_TIMEFRAMES, TF_DELTA, LOOKBACK, ATR_PERIOD, ATR_MULT, MIN_RR, MODEL_NAME,
     signal_from_prob, get_historical_data, klines_to_df, compute_atr, build_trade_plan,
@@ -241,6 +242,10 @@ def main():
     alerts_state = load_json("alerts_state.json")
     alerts_before = dict(alerts_state)
 
+    ledger = track_record.load_ledger()
+    frames = {}       # candele chiuse scaricate in questo giro, riusate per l'esito del track record
+    new_predictions = 0
+
     predictor = None  # caricato solo se c'è almeno una nuova candela da calcolare
     processed = []
     for symbol in ASSETS_TO_RUN:
@@ -256,6 +261,7 @@ def main():
                 continue
 
             key = f"{symbol}_{tf}"
+            frames[key] = df
             last_candle_ts = int(df['time'].iloc[-1].timestamp())
             prev = dashboard_data.get(key)
 
@@ -279,6 +285,8 @@ def main():
             payload = generate_payload(predictor, df, symbol, tf)
             dashboard_data[key] = payload
             processed.append((symbol, tf))
+            if track_record.record_prediction(ledger, symbol, tf, payload):
+                new_predictions += 1
 
     # Alert in un secondo passaggio, quando tutti i timeframe sono aggiornati.
     # Controllo tutte le coppie presenti (non solo quelle ricalcolate) così un segnale
@@ -287,17 +295,26 @@ def main():
                 if f"{s}_{t}" in dashboard_data]
     process_alerts(to_check, dashboard_data, alerts_state)
 
-    # Salvo (e quindi il workflow fa commit) solo se c'è qualcosa di nuovo: una candela ricalcolata
-    # o uno stato alert cambiato. Il solo aggiornamento del prezzo live non genera un commit:
-    # il frontend prende già il prezzo live da Bitget.
+    # Track record: esito delle previsioni con orizzonte passato (candele già scaricate sopra)
+    resolved_now = track_record.resolve(ledger, frames)
+    ledger_changed = new_predictions > 0 or resolved_now > 0
+    if ledger_changed:
+        print(f"Track record: {new_predictions} nuove previsioni, {resolved_now} chiuse.")
+
+    # Salvo (e quindi il workflow fa commit) solo se c'è qualcosa di nuovo: una candela ricalcolata,
+    # uno stato alert cambiato o il track record aggiornato. Il solo aggiornamento del prezzo live
+    # non genera un commit: il frontend prende già il prezzo live da Bitget.
     alerts_changed = alerts_state != alerts_before
-    if not processed and not alerts_changed:
-        print("Nessuna nuova candela e nessun cambio di stato alert: file non modificati.")
+    if not processed and not alerts_changed and not ledger_changed:
+        print("Nessuna nuova candela, nessun cambio di stato alert, track record invariato: file non modificati.")
         return
 
     # Prima lo stato alert: se qualcosa va storto dopo, almeno non si ripete un alert già inviato.
     save_json("alerts_state.json", alerts_state)
     save_json("dashboard.json", dashboard_data)
+    if ledger_changed:
+        track_record.save_ledger(ledger)
+        track_record.save_summary(track_record.build_summary(ledger))
     print("✅ dashboard.json e alerts_state.json aggiornati!")
 
 

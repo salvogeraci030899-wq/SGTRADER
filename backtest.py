@@ -6,15 +6,11 @@ import time
 import pandas as pd
 
 from kronos_core import (
-    ALL_ASSETS, ALL_TIMEFRAMES, LOOKBACK,
+    ALL_ASSETS, ALL_TIMEFRAMES, LOOKBACK, FEE_PCT, SLIPPAGE_PCT, TAX_RATE,
     get_historical_data, klines_to_df, compute_atr, build_trade_plan,
     load_predictor, generate_monte_carlo_forecast,
 )
 
-# Costi applicati a ogni trade
-FEE_PCT = 0.1
-SLIPPAGE_PCT = 0.05
-TAX_RATE = 0.33
 
 # Durata massima di un trade, in candele
 HOLD_CANDLES = {"1h": 24, "4h": 18, "1d": 7}

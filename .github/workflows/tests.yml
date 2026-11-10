@@ -1,0 +1,26 @@
+name: Test
+
+# Test automatici della logica del bot (track record). Leggeri: non installano il modello Kronos.
+on:
+  push:
+    branches: [main]
+    paths: ['**.py', 'tests/**', '.github/workflows/tests.yml']
+  pull_request:
+    paths: ['**.py', 'tests/**', '.github/workflows/tests.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installa dipendenze minime
+        run: pip install "pandas>=2.2.2" numpy requests
+      - name: Esegui i test
+        run: python tests/test_track_record.py

@@ -104,11 +104,64 @@ export async function takeSnapshot(btn) {
 }
 
 // --- DATA FETCHING ---
+// --- TRACK RECORD (affidabilità di Kronos, da track_record_summary.json scritto dal bot) ---
+let trSummary = null;
+
+async function loadTrackRecord() {
+    try {
+        const r = await fetch('./track_record_summary.json?t=' + Date.now());
+        trSummary = r.ok ? await r.json() : null;
+    } catch (e) { trSummary = null; }
+    renderTrackRecord();
+}
+
+const TF_HOURS = { '1h': 1, '4h': 4, '1d': 24 };
+const MIN_SAMPLE = 30; // sotto questa soglia le statistiche non dicono nulla
+const fmtSigned = (v, d = 2) => `${v >= 0 ? '+' : ''}${v.toFixed(d)}%`;
+
+function trItem(label, value, cls) {
+    return `<div class="filter-item ${cls}"><span class="f-label">${label}</span><span class="f-val">${value}</span></div>`;
+}
+
+// Mostra, per la coppia selezionata, quanto sono state affidabili le previsioni già verificate.
+// Finché non ci sono previsioni chiuse lo dice chiaramente: nessun numero inventato.
+export function renderTrackRecord() {
+    const grid = document.getElementById('trGrid'), foot = document.getElementById('trFoot'), badge = document.getElementById('tr-badge');
+    if (!grid || !foot || !badge) return;
+    const key = `${State.currentAsset}_${State.currentTF}`;
+    const pair = trSummary && trSummary.by_pair && trSummary.by_pair[key];
+    const pred = pair && pair.predictions;
+    const open = pair ? pair.open || 0 : 0;
+    const horizonH = (trSummary ? trSummary.horizon_candles : 7) * (TF_HOURS[State.currentTF] || 1);
+    if (!pred || !pred.n) {
+        badge.textContent = 'In raccolta';
+        grid.innerHTML = '';
+        foot.textContent = trSummary
+            ? `Nessuna previsione ${SYM(State.currentAsset)} ${State.currentTF.toUpperCase()} ancora verificata (${open} in attesa). Ogni previsione si verifica dopo ${horizonH >= 24 ? Math.round(horizonH / 24) + ' giorni' : horizonH + ' ore'}.`
+            : 'Track record non ancora disponibile: verrà creato dal bot alle prossime esecuzioni.';
+        return;
+    }
+    badge.textContent = `${pred.n} ${pred.n === 1 ? 'verificata' : 'verificate'}`;
+    const trd = pair.tradeable_signals || { n: 0 };
+    const hit = pred.direction_hit_rate;
+    const brierOk = pred.brier < pred.brier_baseline;
+    grid.innerHTML =
+        trItem('Direzione', hit == null ? '—' : `${hit.toFixed(0)}%`, hit == null ? 'neutral' : (hit > 50 ? 'pass' : 'fail')) +
+        trItem('Prob. vs caso', brierOk ? 'Meglio' : 'Peggio', brierOk ? 'pass' : 'fail') +
+        trItem('Operativi', trd.n ? `${trd.n} · WR ${trd.win_rate.toFixed(0)}%` : '0', 'neutral') +
+        trItem('Netto medio', trd.n ? fmtSigned(trd.avg_net_pct) : '—', !trd.n ? 'neutral' : (trd.avg_net_pct > 0 ? 'pass' : 'fail'));
+    const since = trSummary.since ? new Date(trSummary.since).toLocaleDateString('it-IT') : '—';
+    const small = pred.n < MIN_SAMPLE ? `Campione ancora piccolo (${pred.n}/${MIN_SAMPLE}): numeri non affidabili. ` : '';
+    foot.textContent = `${small}Dal ${since} · ${open} in attesa · netto di commissioni, slippage e tasse · Brier ${pred.brier.toFixed(3)} (caso ${pred.brier_baseline.toFixed(3)})`;
+    foot.classList.toggle('text-warning', !!small);
+}
+
 export async function loadData() {
     try {
         const res = await fetch('./dashboard.json?t=' + Date.now());
         State.allData = await res.json();
         updateChart();
+        loadTrackRecord();
         if (window.refreshKronosSignalsInMatrix) window.refreshKronosSignalsInMatrix();
     } catch (e) {
         State.lastHeaderPrice = null;
@@ -118,6 +171,7 @@ export async function loadData() {
 }
 
 export function updateChart() {
+    renderTrackRecord();
     if (!State.allData) return;
     const data = State.allData[`${State.currentAsset}_${State.currentTF}`];
     if (!data) {
