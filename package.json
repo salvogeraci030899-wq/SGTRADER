@@ -1,0 +1,12 @@
+{
+  "name": "sgtrader",
+  "version": "1.0.0",
+  "description": "SGTRADER - Trading Hub",
+  "private": true,
+  "engines": {
+    "node": "18.x"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
