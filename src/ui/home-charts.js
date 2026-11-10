@@ -1,0 +1,200 @@
+import { Logger } from '../core/logger.js';
+import { createChart, setCandles, setVolume } from './chart.js';
+
+const COINS = [
+    { symbol: 'BTCUSDT', label: 'BTC / USDT' },
+    { symbol: 'ETHUSDT', label: 'ETH / USDT' },
+    { symbol: 'SOLUSDT', label: 'SOL / USDT' }
+];
+const TF_MAP = { '1d': '1day', '4h': '4h', '1h': '1h' };
+
+const ICON_EXPAND = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>`;
+const ICON_COLLAPSE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>`;
+
+const charts = {};
+let initialized = false;
+let candleInterval = null;
+
+function createChartCard(coin) {
+    const card = document.createElement('div');
+    card.className = 'home-chart-item';
+    card.dataset.symbol = coin.symbol;
+    card.innerHTML = `
+        <div class="home-chart-header">
+            <button class="home-chart-fullscreen" data-symbol="${coin.symbol}" title="Schermo intero">
+                ${ICON_EXPAND}
+            </button>
+            <span class="home-chart-symbol">${coin.label}</span>
+            <div class="home-chart-tf-bar">
+                <button class="home-tf-btn active" data-tf="1d">1D</button>
+                <button class="home-tf-btn" data-tf="4h">4H</button>
+                <button class="home-tf-btn" data-tf="1h">1H</button>
+            </div>
+        </div>
+        <div class="home-chart-canvas" id="homeChart-${coin.symbol}"></div>
+    `;
+    return card;
+}
+
+function initChart(symbol) {
+    if (charts[symbol]) return;
+    const el = document.getElementById(`homeChart-${symbol}`);
+    if (!el) return;
+
+    try {
+        const handle = createChart(el, {
+            bgColor: 'transparent',
+            textColor: '#8e8e93',
+            gridColor: 'rgba(255,255,255,0.04)',
+            showVolume: true,
+            interactive: true
+        });
+        if (!handle) {
+            Logger.log('WARN', 'HOME_CHARTS', `Impossibile creare chart per ${symbol}`);
+            return;
+        }
+        charts[symbol] = { handle, tf: '1d', el };
+    } catch (e) {
+        Logger.log('ERROR', 'HOME_CHARTS', `Errore init chart ${symbol}: ${e.message}`);
+    }
+}
+
+async function loadCandles(symbol) {
+    const s = charts[symbol];
+    if (!s) return;
+    try {
+        const gran = TF_MAP[s.tf];
+        const url = `https://api.bitget.com/api/v2/spot/market/candles?symbol=${symbol}&granularity=${gran}&limit=200`;
+        const res = await fetch(url);
+        const json = await res.json();
+        if (!json.data || !Array.isArray(json.data)) return;
+
+        const seen = new Set();
+        const candles = [];
+        for (const d of json.data) {
+            const t = Math.floor(parseInt(d[0]) / 1000);
+            if (seen.has(t)) continue;
+            seen.add(t);
+            candles.push({
+                time: t,
+                open: parseFloat(d[1]), high: parseFloat(d[2]),
+                low: parseFloat(d[3]), close: parseFloat(d[4]),
+                volume: parseFloat(d[5])
+            });
+        }
+        candles.sort((a, b) => a.time - b.time);
+
+        setCandles(s.handle, candles.map(c => ({
+            time: c.time, open: c.open, high: c.high, low: c.low, close: c.close
+        })));
+        setVolume(s.handle, candles.map(c => ({
+            time: c.time, value: c.volume,
+            color: c.close >= c.open ? 'rgba(48,209,88,0.35)' : 'rgba(255,69,58,0.35)'
+        })));
+        s.handle.fitContent();
+    } catch (e) { /* silent */ }
+}
+
+export function toggleFullscreen(symbol) {
+    const card = document.querySelector(`.home-chart-item[data-symbol="${symbol}"]`);
+    if (!card) return;
+
+    const isEntering = !card.classList.contains('fullscreen');
+
+    card.classList.toggle('fullscreen', isEntering);
+    document.body.classList.toggle('chart-fullscreen', isEntering);
+
+    const btn = card.querySelector('.home-chart-fullscreen');
+    if (btn) {
+        btn.innerHTML = isEntering ? ICON_COLLAPSE : ICON_EXPAND;
+        btn.title = isEntering ? 'Chiudi' : 'Schermo intero';
+    }
+
+    setTimeout(() => {
+        const s = charts[symbol];
+        if (s && s.handle && s.el) {
+            const w = s.el.clientWidth;
+            const h = s.el.clientHeight;
+            if (w > 0 && h > 0) {
+                s.handle.chart.applyOptions({ width: w, height: h });
+                s.handle.fitContent();
+            }
+        }
+    }, 150);
+}
+
+export function goToHomeChart(idx) {
+    const list = document.getElementById('homeChartsList');
+    if (list) list.scrollTo({ left: idx * list.clientWidth, behavior: 'smooth' });
+}
+
+export function updateHomeChartDots() {
+    const list = document.getElementById('homeChartsList');
+    if (!list || list.clientWidth === 0) return;
+    const idx = Math.round(list.scrollLeft / list.clientWidth);
+    document.querySelectorAll('#homeChartDots .info-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+}
+
+export function refresh() {
+    if (!initialized) {
+        initHomeCharts();
+        return;
+    }
+    COINS.forEach(c => {
+        const s = charts[c.symbol];
+        if (!s || !s.el) return;
+        const w = s.el.clientWidth;
+        const h = s.el.clientHeight;
+        if (w > 0 && h > 0) s.handle.chart.applyOptions({ width: w, height: h });
+    });
+}
+
+export function initHomeCharts() {
+    if (initialized) { refresh(); return; }
+
+    const container = document.getElementById('homeChartsList');
+    if (!container) return;
+
+    for (const coin of COINS) {
+        container.appendChild(createChartCard(coin));
+    }
+    for (const coin of COINS) {
+        initChart(coin.symbol);
+    }
+
+    container.querySelectorAll('.home-chart-item').forEach(card => {
+        const symbol = card.dataset.symbol;
+        card.querySelectorAll('.home-tf-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                card.querySelectorAll('.home-tf-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                if (charts[symbol]) {
+                    charts[symbol].tf = btn.dataset.tf;
+                    loadCandles(symbol);
+                }
+            });
+        });
+        const fsBtn = card.querySelector('.home-chart-fullscreen');
+        if (fsBtn) {
+            fsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleFullscreen(symbol);
+            });
+        }
+    });
+
+    container.addEventListener('scroll', () => {
+        clearTimeout(window._homeChartsScrollTimeout);
+        window._homeChartsScrollTimeout = setTimeout(updateHomeChartDots, 50);
+    });
+
+    COINS.forEach(c => {
+        loadCandles(c.symbol);
+    });
+
+    candleInterval = setInterval(() => {
+        COINS.forEach(c => loadCandles(c.symbol));
+    }, 60000);
+
+    initialized = true;
+}
