@@ -33,6 +33,22 @@ export async function apiPost(path, body) {
 
 export const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+// Candele Bitget -> [{ ts, open, high, low, close, volume }] in ordine cronologico, senza doppioni.
+// Non si assume l'ordine della risposta: si ordina per data. Con tfMs scarta la candela ancora aperta.
+export function parseBitgetCandles(data, tfMs = 0) {
+    const byTs = new Map();
+    for (const c of data || []) {
+        const ts = parseInt(c[0], 10);
+        if (!Number.isFinite(ts)) continue;
+        byTs.set(ts, { ts, open: parseFloat(c[1]), high: parseFloat(c[2]), low: parseFloat(c[3]), close: parseFloat(c[4]), volume: parseFloat(c[5]) });
+    }
+    let candles = [...byTs.values()].sort((a, b) => a.ts - b.ts);
+    if (tfMs > 0) candles = candles.filter(c => c.ts + tfMs <= Date.now());
+    return candles;
+}
+
+export const TF_MS = { '1h': 3600e3, '4h': 4 * 3600e3, '1d': 24 * 3600e3 };
+
 export function fmtDateTime(ts) {
     if (!ts) return '—';
     const d = new Date(ts);

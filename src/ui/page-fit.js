@@ -7,7 +7,7 @@
 // I valori vanno in variabili CSS su <html> (non sulla pagina osservata), così non ci sono cicli.
 // La pagina Rischio ha la sua logica in calculator.js, il Manuale in manual.js.
 
-const PAGES = ['home', 'terminal', 'trade', 'journal', 'signals'];
+const PAGES = ['home', 'terminal', 'trade', 'journal', 'signals', 'test'];
 const MIN_ZOOM = 0.7;
 
 const root = document.documentElement;
