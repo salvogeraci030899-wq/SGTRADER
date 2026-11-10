@@ -415,8 +415,8 @@
                         <div class="rule-card-title blue">Architettura del Sistema</div>
                         <div class="rule-step"><div class="content"><b>Bot Python</b> su <em>GitHub Actions</em>. Scarica candele da Bitget, calcola indicatori tecnici, esegue simulazioni Monte Carlo, genera un piano operativo con entry/SL/TP, e scrive il tutto in <span class="mono">dashboard.json</span>.</div></div>
                         <div class="rule-step"><div class="content"><b>dashboard.json</b> è il file statico che contiene, per ogni coppia asset/timeframe: storico candele, forecast, bande di confidenza, probabilità di rialzo e piano operativo AI. Viene hostato su Vercel.</div></div>
-                        <div class="rule-step"><div class="content"><b>Vercel Serverless</b> fornisce due endpoint: <span class="mono">/api/trigger</span> per avviare il bot via webhook GitHub, e <span class="mono">/api/analyze</span> che fa da proxy verso Groq (Llama 3) per l'Analisi AI in tempo reale.</div></div>
-                        <div class="rule-step"><div class="content"><b>Frontend PWA</b> (questo file): single-file HTML/CSS/JS, Lightweight Charts 4.1.3, localStorage per persistenza, manifest e meta per comportamento nativo su iPhone.</div></div>
+                        <div class="rule-step"><div class="content"><b>Vercel Serverless</b> fornisce due endpoint: <span class="mono">/api/trigger</span> per avviare il bot via webhook GitHub, e <span class="mono">/api/analyze</span> che fa da proxy verso Groq (Llama 3.3) per l'Analisi AI in tempo reale.</div></div>
+                        <div class="rule-step"><div class="content"><b>Frontend PWA</b>: <span class="mono">index.html</span>, <span class="mono">style.css</span> e moduli JS in <span class="mono">src/</span>, Lightweight Charts 4.1.3, localStorage per persistenza, manifest e meta per comportamento nativo su iPhone.</div></div>
                         <div class="rule-step"><div class="content"><b>Bitget API</b>: prezzi live (tickers), candele storiche (per Signal Engine e Backtest). Nessuna chiave privata — tutto spot pubblico.</div></div>
                         <div class="rule-step"><div class="content"><b>Persistenza locale</b> su due chiavi separate: <span class="mono">kronos_state_v3</span> (trades) e <span class="mono">kronos_signals_v1</span> (segnali + impostazioni notifiche).</div></div>
                     </div>
@@ -804,6 +804,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=35"></script>
+<script type="module" src="./src/main.js?v=36"></script>
 </body>
 </html>

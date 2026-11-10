@@ -4,20 +4,44 @@ on:
   workflow_dispatch:
     inputs:
       symbol:
-        description: 'Asset (es. BTCUSDT)'
+        description: 'Asset'
         required: true
         default: 'BTCUSDT'
+        type: choice
+        options:
+          - BTCUSDT
+          - ETHUSDT
+          - SOLUSDT
       timeframe:
-        description: 'Timeframe (1h, 4h, 1d)'
+        description: 'Timeframe'
         required: true
         default: '4h'
+        type: choice
+        options:
+          - 1d
+          - 4h
+          - 1h
+      n_samples:
+        description: 'Campioni Monte Carlo per candela (il bot live ne usa 50)'
+        required: true
+        default: '20'
+      max_steps:
+        description: 'Candele da analizzare, le più recenti (0 = tutte)'
+        required: true
+        default: '300'
+
+# Un solo backtest alla volta per asset/timeframe
+concurrency:
+  group: backtest-${{ github.event.inputs.symbol }}-${{ github.event.inputs.timeframe }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
 
 jobs:
   run-backtest:
     runs-on: ubuntu-latest
     timeout-minutes: 360
-    permissions:
-      contents: write
     steps:
       - name: Checkout codice
         uses: actions/checkout@v4
@@ -25,29 +49,51 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
           cache: 'pip'
 
+      - name: Cache modelli Hugging Face
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-kronos-v1
+
+      # Stesse dipendenze del bot live: il modello arriva dal pacchetto kronos-model-arch
       - name: Installa dipendenze
-        run: |
-          pip install requests pandas numpy torch huggingface_hub
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        run: pip install -r requirements.txt
 
-      # SOLUZIONE: Scarichiamo direttamente il file model/kronos.py
-      # e lo salviamo come model.py nella root del progetto.
-      - name: Scarica il file model.py
-        run: |
-          curl -L -o model.py https://raw.githubusercontent.com/shiyu-coder/Kronos/master/model/kronos.py
-          echo "--- Contenuto di model.py (prime righe) ---"
-          head -n 10 model.py
-
+      # Gli input passano da variabili d'ambiente, mai incollati direttamente nel comando.
+      # --max-minutes ferma il backtest e salva il CSV prima del timeout del job.
       - name: Esegui Backtest
-        run: python backtest.py --symbol ${{ github.event.inputs.symbol }} --tf ${{ github.event.inputs.timeframe }}
+        env:
+          SYMBOL: ${{ github.event.inputs.symbol }}
+          TIMEFRAME: ${{ github.event.inputs.timeframe }}
+          N_SAMPLES: ${{ github.event.inputs.n_samples }}
+          MAX_STEPS: ${{ github.event.inputs.max_steps }}
+        run: |
+          python backtest.py --symbol "$SYMBOL" --tf "$TIMEFRAME" \
+            --n-samples "$N_SAMPLES" --max-steps "$MAX_STEPS" --max-minutes 300
 
       - name: Salva i risultati
+        if: always()
+        env:
+          SYMBOL: ${{ github.event.inputs.symbol }}
+          TIMEFRAME: ${{ github.event.inputs.timeframe }}
         run: |
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "actions@github.com"
-          git add *.csv
-          git commit -m "Risultati Backtest ${{ github.event.inputs.symbol }} ${{ github.event.inputs.timeframe }}" || exit 0
-          git push
+          FILE="trades_${SYMBOL}_${TIMEFRAME}.csv"
+          if [ ! -f "$FILE" ]; then
+            echo "Nessun CSV prodotto, niente da salvare."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$FILE"
+          git commit -m "Risultati Backtest ${SYMBOL} ${TIMEFRAME}" || { echo "Nessuna modifica da salvare"; exit 0; }
+          # Nel frattempo il bot può aver fatto push: riallineo e riprovo
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            echo "Push fallito (tentativo $i), riprovo..."
+            sleep $((i * 5))
+          done
+          echo "Impossibile fare push dei risultati."
+          exit 1

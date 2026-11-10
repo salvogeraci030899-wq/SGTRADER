@@ -1,7 +1,7 @@
 import { State } from '../core/state.js';
 import { CONFIG } from '../core/config.js';
 import { Logger } from '../core/logger.js';
-import { $, SYM, fetchT, fmtDateTime, fmtUsdt, calcPnl } from '../utils/helpers.js';
+import { $, SYM, fetchT, apiPost, escapeHtml, fmtDateTime, fmtUsdt, calcPnl } from '../utils/helpers.js';
 import * as Terminal from './terminal.js';
 import * as Calculator from './calculator.js';
 
@@ -273,18 +273,18 @@ export async function requestAIAnalysis(id) {
     document.getElementById('aiAnalysisModal').classList.add('active');
     
     try {
-        const res = await fetch('/api/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const res = await apiPost('/api/analyze', payload);
         const textData = await res.text();
         let result;
         try { result = JSON.parse(textData); } catch (e) { throw new Error(`Risposta non valida (HTTP ${res.status}): ${textData.substring(0, 100)}...`); }
         if (!res.ok) throw new Error(result.error || 'Errore durante l\'analisi');
         badgeEl.textContent = "Completata";
         badgeEl.className = `be-badge good`;
-        document.getElementById('aiAnalysisBody').innerHTML = result.analysis.replace(/\n/g, '<br>');
+        document.getElementById('aiAnalysisBody').innerHTML = escapeHtml(result.analysis).replace(/\n/g, '<br>');
     } catch (err) {
         badgeEl.textContent = "Errore";
         badgeEl.className = `be-badge bad`;
-        document.getElementById('aiAnalysisBody').innerHTML = `<div style="color: var(--danger); padding: 10px 0;"><b>Impossibile completare:</b><br>${err.message}</div>`;
+        document.getElementById('aiAnalysisBody').innerHTML = `<div style="color: var(--danger); padding: 10px 0;"><b>Impossibile completare:</b><br>${escapeHtml(err.message)}</div>`;
     }
 }
 

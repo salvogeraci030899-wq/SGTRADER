@@ -7,7 +7,8 @@ export function exportBackup() {
             _kronos_backup_version: 1,
             timestamp: new Date().toISOString(),
             simState: State.simState,
-            signalSettings: State.signalSettings,
+            // Il token del bot Telegram non finisce nel file: va reinserito a mano dopo un ripristino
+            signalSettings: { ...State.signalSettings, telegramBotToken: '' },
             signalHistory: State.signalHistory
         };
         
@@ -21,7 +22,7 @@ export function exportBackup() {
         a.click();
         
         URL.revokeObjectURL(url);
-        if (window.showAlert) window.showAlert('Backup Completato', 'Il file di backup è stato scaricato. Salvalo su iCloud o inviatelo su Telegram per tenerlo al sicuro.');
+        if (window.showAlert) window.showAlert('Backup Completato', 'Il file di backup è stato scaricato. Salvalo su iCloud per tenerlo al sicuro. Il token Telegram non è incluso.');
     } catch (e) {
         if (window.showAlert) window.showAlert('Errore', 'Impossibile creare il backup: ' + e.message);
     }
@@ -55,7 +56,10 @@ export function handleImportBackup(event) {
 
             // Ripristino dei dati
             State.simState = parsed.simState;
+            // I backup non contengono il token Telegram: tengo quello già salvato su questo dispositivo
+            const currentToken = State.signalSettings.telegramBotToken;
             State.signalSettings = { ...CONFIG.DEFAULT_SETTINGS, ...parsed.signalSettings };
+            if (!State.signalSettings.telegramBotToken) State.signalSettings.telegramBotToken = currentToken || '';
             State.signalHistory = parsed.signalHistory || [];
             State.signalPrevMatrix = {}; // Resetta per forzare una nuova scansione pulita
 

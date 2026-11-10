@@ -1,7 +1,7 @@
 import { State } from '../core/state.js';
 import { CONFIG } from '../core/config.js';
 import { Logger } from '../core/logger.js';
-import { $, SYM, fetchT, fmtUsd, cleanData, analyzeTrend, buildRiskData, calcEMA, fmtDateTime } from '../utils/helpers.js';
+import { $, SYM, fetchT, apiPost, fmtUsd, cleanData, analyzeTrend, buildRiskData, calcEMA, fmtDateTime } from '../utils/helpers.js';
 import { createChart, setCandles, setForecast, setBands, setMarkers, setPriceLines } from './chart.js';
 
 const chartContainer = document.getElementById('chart');
@@ -426,7 +426,7 @@ export async function triggerRefresh() {
         setTimeout(() => { if (btn.innerHTML === label) { btn.innerHTML = CONFIG.ICONS.REFRESH; btn.disabled = false; } }, delay);
     };
     try {
-        const r = await fetch('/api/trigger', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ symbol: State.currentAsset, timeframe: State.currentTF }) });
+        const r = await apiPost('/api/trigger', { symbol: State.currentAsset, timeframe: State.currentTF });
         if (!r.ok) throw new Error('HTTP ' + r.status);
         poll = setInterval(async () => {
             try {

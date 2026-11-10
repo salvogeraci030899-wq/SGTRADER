@@ -1,4 +1,4 @@
-name: Daily Proposal
+name: Kronos Bot
 
 on:
   # Ogni 30 minuti (minuti 17 e 47, per evitare i picchi di GitHub).
@@ -73,7 +73,6 @@ jobs:
           # Le esecuzioni manuali ricalcolano sempre; lo schedule solo se c'è una nuova candela chiusa
           FORCE: ${{ github.event_name == 'schedule' && '0' || '1' }}
           N_SAMPLES: ${{ vars.N_SAMPLES || '50' }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python run_bot.py
@@ -83,6 +82,13 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add dashboard.json alerts_state.json
-          git commit -m "chore: auto-update $(date -u +%Y-%m-%d_%H:%M)" || echo "Nessuna modifica da salvare"
-          git pull --rebase origin main
-          git push
+          git commit -m "chore: auto-update $(date -u +%Y-%m-%d_%H:%M)" || { echo "Nessuna modifica da salvare"; exit 0; }
+          # Lo stato degli alert deve arrivare sul repo: se il push viene rifiutato
+          # (qualcuno ha fatto push nel frattempo) riallineo e riprovo.
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            echo "Push fallito (tentativo $i), riprovo..."
+            sleep $((i * 5))
+          done
+          echo "Impossibile fare push dello stato aggiornato."
+          exit 1
