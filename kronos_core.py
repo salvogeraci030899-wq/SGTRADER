@@ -151,8 +151,9 @@ def load_predictor():
     return KronosPredictor(model=model, tokenizer=tokenizer, device="cpu", max_context=512)
 
 
-def generate_monte_carlo_forecast(predictor, context_df, freq, n_samples, pred_len=PRED_LEN):
-    """Ritorna (forecast, band_upper, band_lower, prob_up). Deterministica a parità di contesto."""
+def generate_monte_carlo_forecast(predictor, context_df, freq, n_samples, pred_len=PRED_LEN, return_paths=False):
+    """Ritorna (forecast, band_upper, band_lower, prob_up). Deterministica a parità di contesto.
+    Con return_paths aggiunge in coda tutte le traiettorie simulate (campioni x candele, chiusure)."""
     x_timestamp = pd.Series(context_df['time'].values, name='timestamps')
     start_date = context_df['time'].iloc[-1] + TF_DELTA[freq]
     y_dates = pd.date_range(start=start_date, periods=pred_len, freq=_FREQ_MAP[freq], tz='UTC')
@@ -201,4 +202,6 @@ def generate_monte_carlo_forecast(predictor, context_df, freq, n_samples, pred_l
         band_upper.append({"time": ts, "value": p90})
         band_lower.append({"time": ts, "value": p10})
 
+    if return_paths:
+        return forecast, band_upper, band_lower, round(prob_up, 1), paths
     return forecast, band_upper, band_lower, round(prob_up, 1)

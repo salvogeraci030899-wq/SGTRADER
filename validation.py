@@ -13,7 +13,8 @@ Regole:
 - stesso contesto del bot: stesso numero di candele che il bot riceve oggi da Bitget;
 - i punti vengono calcolati a passate sempre più fitte e in ordine sparso, così anche un calcolo
   interrotto copre tutto il periodo in modo uniforme e non solo gli ultimi mesi;
-- le righe già calcolate non si ricalcolano: ogni esecuzione aggiunge e basta.
+- le righe già calcolate non si ricalcolano: ogni esecuzione aggiunge e basta;
+- di ogni previsione si salvano tutte le traiettorie simulate, non solo la mediana.
 """
 import argparse
 import hashlib
@@ -152,7 +153,9 @@ def load_rows(path):
     if not os.path.exists(path):
         return []
     with open(path) as f:
-        return [json.loads(line) for line in f if line.strip()]
+        rows = [json.loads(line) for line in f if line.strip()]
+    # Una previsione ricalcolata (es. per aggiungere le traiettorie) sostituisce la riga precedente
+    return list({r["id"]: r for r in rows}.values())
 
 
 def save_rows(rows, path):
@@ -167,13 +170,17 @@ def save_rows(rows, path):
 
 def make_row(predictor, df, i, symbol, tf, context_len, n_samples, oos_start):
     context = df.iloc[i - context_len + 1: i + 1].copy()
-    forecast, band_upper, band_lower, prob_up = generate_monte_carlo_forecast(predictor, context, tf, n_samples)
+    forecast, band_upper, band_lower, prob_up, paths = generate_monte_carlo_forecast(predictor, context, tf, n_samples, return_paths=True)
+    ref_close = float(df["close"].iloc[i])
     r6 = lambda v: round(float(v), 6)
     candle_time = int(df["time"].iloc[i].timestamp())
     return {
         "id": f"{symbol}_{tf}_{candle_time}", "symbol": symbol, "tf": tf, "candle_time": candle_time,
         "ref_close": r6(df["close"].iloc[i]), "prob_up": prob_up, "atr": r6(compute_atr(context)),
         "forecast": [r6(f["close"]) for f in forecast],
+        # tutte le traiettorie simulate, come scarto dal prezzo di partenza in punti base (1 = 0,01%):
+        # servono a stimare la probabilità di toccare il target prima dello stop e il valore atteso
+        "paths": [[int(round((float(c) / ref_close - 1) * 10000)) for c in path] for path in paths],
         "p10": [r6(b["value"]) for b in band_lower], "p90": [r6(b["value"]) for b in band_upper],
         "past_close": r6(df["close"].iloc[i - MOMENTUM_LOOKBACK]),
         "horizon": [[r6(df[c].iloc[j]) for c in ("open", "high", "low", "close")] for j in range(i + 1, i + 1 + PRED_LEN)],
@@ -199,7 +206,8 @@ def run(symbol, tf, n_samples, max_minutes, max_points, oos_start=None, predicto
 
     path = predictions_path(symbol, tf)
     rows = load_rows(path)
-    done = {r["id"] for r in rows}
+    # Le righe calcolate prima che si salvassero le traiettorie vengono rifatte (stesso seme, stessi numeri)
+    done = {r["id"] for r in rows if "paths" in r}
     points = candidate_points(df, tf, context_len, oos_start, STRIDE[tf])
     todo = [i for i in points if f"{symbol}_{tf}_{int(df['time'].iloc[i].timestamp())}" not in done]
     missing = len(todo)

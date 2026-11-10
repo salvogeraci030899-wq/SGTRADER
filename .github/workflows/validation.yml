@@ -65,6 +65,7 @@ jobs:
         run: |
           python validation.py analyze > /dev/null
           python -c "import json; s=json.load(open('validation_summary.json')); print(s['counts'], s['oos_start'], s['overall']['verdict']); assert s['counts']['total'] == 7 and len(s['by_pair']) == 3, 'previsioni di prova mancanti'"
+          python -c "import json; r=[json.loads(l) for l in open('validation/predictions_BTCUSDT_1h.jsonl')]; assert all(len(x['paths']) == 10 and len(x['paths'][0]) == 7 for x in r), 'traiettorie mancanti'; print('traiettorie ok', r[0]['paths'][0])"
           cat validation/REPORT.md >> "$GITHUB_STEP_SUMMARY"
 
   run:
