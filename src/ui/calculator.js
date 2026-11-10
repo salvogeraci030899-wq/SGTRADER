@@ -21,13 +21,6 @@ export function initCalculator() {
     if (capInput) capInput.addEventListener('input', () => { State.capitalTouched = true; });
 
     initCalcAutoFit();
-
-    const hdr = document.querySelector('#page-calculator .calc-header span');
-    if (hdr) {
-        const lbl = document.createElement('small');
-        lbl.id = 'calcCtx';
-        hdr.appendChild(lbl);
-    }
 }
 
 export function setMarket(market) {
@@ -351,7 +344,8 @@ function fitCalcCard() {
     if (page.scrollHeight <= page.clientHeight + 1) return;
 
     const cs = getComputedStyle(page);
-    const available = page.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    // spazio per la scheda: dall'inizio della scheda (sotto l'intestazione della pagina) al margine in fondo
+    const available = page.clientHeight - (card.offsetTop - page.offsetTop) - parseFloat(cs.paddingBottom);
     let zoom = Math.max(MIN_CALC_ZOOM, Math.min(1, Math.floor((available / card.offsetHeight) * 100) / 100));
     page.style.setProperty('--calc-zoom', String(zoom));
     // Arrotondamenti e testi che vanno a capo: stringo a piccoli passi finché entra

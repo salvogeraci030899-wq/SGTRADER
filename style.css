@@ -49,17 +49,18 @@ main {
 #page-test.active { height: 100%; overflow-y: auto; }
 
 /* Adattamento automatico (src/ui/page-fit.js): margine in fondo se la pagina scende sotto la parte
-   visibile, zoom dei blocchi se il contenuto non entra. Valori in variabili CSS su <html>. */
-#page-home.active { padding-bottom: calc(10px + var(--fit-extra-bottom-home, 0px)); }
-#page-home.active > * { zoom: var(--fit-zoom-home, 1); }
-#page-terminal.active { padding-bottom: calc(10px + var(--fit-extra-bottom-terminal, 0px)); }
-#page-terminal.active > * { zoom: var(--fit-zoom-terminal, 1); }
-#page-trade.active { padding-bottom: calc(10px + var(--fit-extra-bottom-trade, 0px)); }
-#page-trade.active > * { zoom: var(--fit-zoom-trade, 1); }
-#page-journal.active { padding-bottom: calc(10px + var(--fit-extra-bottom-journal, 0px)); }
-#page-journal.active > * { zoom: var(--fit-zoom-journal, 1); }
-#page-signals.active { padding-bottom: calc(10px + var(--fit-extra-bottom-signals, 0px)); }
-#page-signals.active > * { zoom: var(--fit-zoom-signals, 1); }
+   visibile, zoom dei blocchi se il contenuto non entra (l'intestazione resta sempre uguale).
+   Valori in variabili CSS su <html>. */
+#page-home.active { padding-bottom: calc(10px + var(--fit-extra-bottom-home, 0px)); overflow-y: var(--fit-overflow-home, hidden); }
+#page-home.active > *:not(.header-row) { zoom: var(--fit-zoom-home, 1); }
+#page-terminal.active { padding-bottom: calc(10px + var(--fit-extra-bottom-terminal, 0px)); overflow-y: var(--fit-overflow-terminal, hidden); }
+#page-terminal.active > *:not(.header-row) { zoom: var(--fit-zoom-terminal, 1); }
+#page-trade.active { padding-bottom: calc(10px + var(--fit-extra-bottom-trade, 0px)); overflow-y: var(--fit-overflow-trade, hidden); }
+#page-trade.active > *:not(.header-row) { zoom: var(--fit-zoom-trade, 1); }
+#page-journal.active { padding-bottom: calc(10px + var(--fit-extra-bottom-journal, 0px)); overflow-y: var(--fit-overflow-journal, hidden); }
+#page-journal.active > *:not(.header-row) { zoom: var(--fit-zoom-journal, 1); }
+#page-signals.active { padding-bottom: calc(10px + var(--fit-extra-bottom-signals, 0px)); overflow-y: var(--fit-overflow-signals, hidden); }
+#page-signals.active > *:not(.header-row) { zoom: var(--fit-zoom-signals, 1); }
 
 /* --- UTILITY --- */
 .clickable { cursor: pointer; }
@@ -90,7 +91,9 @@ main {
 .card-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 12px; }
 
 /* --- HEADER --- */
-.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-shrink: 0; gap: 10px; }
+.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-shrink: 0; gap: 10px; min-height: 44px; }
+/* Titolo di sezione: unico stile per tutte le pagine (Diario, Segnali, Home...), con eventuale azione a destra */
+.section-title { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--text); margin: 4px 0 6px; flex-shrink: 0; min-height: 24px; }
 .header-title h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
 .header-title p { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
 .header-price { text-align: right; }
@@ -198,8 +201,6 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 #page-calculator .calc-card { zoom: var(--calc-zoom, 1); }
 /* Margine extra in fondo quando la pagina scende sotto la parte visibile (Safari mobile) */
 #page-calculator.active { padding-bottom: calc(10px + var(--calc-extra-bottom, 0px)); }
-.calc-header { font-size: 14px; font-weight: 700; color: var(--text); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 8px; }
-#calcCtx { font-size: 11px; color: var(--text-secondary); font-weight: 600; margin-left: 6px; }
 
 .market-toggle { display: flex; background: #000; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
 .market-toggle button { background: transparent; border: none; color: var(--text-secondary); padding: 8px 12px; font-size: 12px; font-weight: 700; cursor: pointer; min-height: 36px; }
@@ -239,8 +240,11 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 
 /* --- POSIZIONI --- */
 .capital-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; display: flex; align-items: center; justify-content: flex-end; }
-.capital-edit-btn { background: transparent; border: none; color: var(--text-secondary); margin-left: 4px; cursor: pointer; padding: 4px; }
-.capital-display { color: var(--accent); font-size: 20px; font-weight: 700; }
+.capital-edit-btn { background: transparent; border: none; color: var(--text-secondary); margin-left: 4px; cursor: pointer; padding: 2px 4px; line-height: 0; display: inline-flex; align-items: center; }
+/* area toccabile più ampia dell'icona, senza cambiare l'altezza dell'intestazione */
+.capital-edit-btn { position: relative; }
+.capital-edit-btn::after { content: ''; position: absolute; inset: -12px -10px; }
+.capital-display { color: var(--accent); font-size: 20px; font-weight: 700; line-height: 1.2; }
 
 #activeTradesList { flex: 1; min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); grid-auto-flow: column; grid-auto-columns: 100%; gap: 12px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 4px; }
 #activeTradesList::-webkit-scrollbar { display: none; }
@@ -273,7 +277,6 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 
 /* --- DIARIO --- */
 .sim-header { font-size: 16px; font-weight: 700; color: var(--text); display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-shrink: 0; }
-.perf-header-flex { display: flex; justify-content: space-between; align-items: center; margin-top: 0; margin-bottom: 6px; }
 
 #page-journal .be-card { padding: 10px 14px; margin-bottom: 6px; flex-shrink: 0; }
 #page-journal .be-numbers { margin-bottom: 6px; gap: 6px; }
@@ -282,15 +285,13 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 #page-journal .be-num .n-sub { font-size: 10px; margin-top: 1px; }
 #page-journal .be-bar-container { margin: 4px 0; height: 6px; }
 #page-journal .be-labels { font-size: 10px; margin-top: 2px; }
-#page-journal .perf-header { font-size: 13px; margin-bottom: 6px; flex-shrink: 0; margin-top: 2px; }
 #page-journal .perf-wrapper { padding: 10px !important; flex-shrink: 0; }
-#page-journal .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+#page-journal .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 0; }
 #page-journal .stat-item { padding: 8px 6px; }
 #page-journal .stat-item .s-label { font-size: 10px; margin-bottom: 2px; }
 #page-journal .stat-item .s-val { font-size: 12px; }
 #page-journal .btn-row { gap: 6px; margin-top: 0; }
 #page-journal .btn-row .btn-generic { padding: 10px; font-size: 12px; margin-top: 0; flex-shrink: 0; }
-#page-journal .log-header-bar { font-size: 13px; margin-top: 6px; margin-bottom: 6px; flex-shrink: 0; }
 #page-journal .log-list { flex: 1 1 0; min-height: 0; display: flex; flex-direction: row; align-items: stretch; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; gap: 10px; padding: 0 16px 12px 16px; margin: 0 -16px; scrollbar-width: none; -ms-overflow-style: none; }
 #page-journal .log-list::-webkit-scrollbar { display: none; }
 #page-journal .log-item { flex: 0 0 85vw; scroll-snap-align: center; scroll-snap-stop: always; display: flex; flex-direction: column; height: 100%; }
@@ -401,6 +402,8 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .signal-info-bar .badge-notif-off { color: var(--text-secondary); font-weight: 700; }
 
 .btn-link-secondary { background: transparent; border: none; color: var(--text-secondary); font-size: 11px; font-weight: 600; cursor: pointer; padding: 6px; }
+.btn-link-danger { color: var(--danger); }
+.section-actions { display: flex; align-items: center; gap: 2px; }
 
 .signal-history-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 12px; display: flex; flex-direction: column; gap: 6px; height: 100%; box-sizing: border-box; }
 .shi-row1 { display: flex; justify-content: space-between; align-items: center; }
@@ -425,24 +428,7 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
     padding: calc(env(safe-area-inset-top, 0px) + 14px) 0 10px 0;
 }
 
-.info-header {
-    text-align: center;
-    padding: 0 16px 10px 16px;
-    flex-shrink: 0;
-}
-.info-header h1 {
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    margin-bottom: 4px;
-}
-.info-header p {
-    font-size: 10px;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
-}
+#page-info .header-row { padding: 0 16px; }
 
 .info-carousel {
     flex: 1;
@@ -538,7 +524,7 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .home-card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
 .home-charts-section { flex: 1; display: flex; flex-direction: column; min-height: 0; margin-top: 4px; }
-.home-charts-section .home-card-header { margin-bottom: 6px; padding: 0 4px; }
+.home-charts-section .section-title { padding: 0 4px; }
 .home-charts-carousel-wrapper { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 
 .home-charts-list { flex: 1; min-height: 0; display: flex; flex-direction: row; gap: 10px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
@@ -567,7 +553,7 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 
 body.chart-fullscreen #page-home > .header-row,
 body.chart-fullscreen .home-container > .home-card,
-body.chart-fullscreen .home-charts-section > .home-card-header,
+body.chart-fullscreen .home-charts-section > .section-title,
 body.chart-fullscreen .home-chart-dots,
 body.chart-fullscreen .home-chart-item:not(.fullscreen),
 body.chart-fullscreen .nav-bar { display: none !important; }

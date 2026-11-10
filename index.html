@@ -30,7 +30,7 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=44">
+    <link rel="stylesheet" href="./style.css?v=45">
 </head>
 <body>
 
@@ -40,8 +40,8 @@
         <section class="page active" id="page-home">
             <div class="header-row">
                 <div class="header-title">
-                    <h1>SGTRADER</h1>
-                    <p>Hub operativo</p>
+                    <h1>Home</h1>
+                    <p>SGTRADER · Hub operativo</p>
                 </div>
                 <button class="header-icon-btn" onclick="openSettings()" title="Impostazioni">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -90,7 +90,7 @@
                 </div>
 
                 <div class="home-charts-section">
-                    <div class="home-card-header pad-x-4">
+                    <div class="section-title">
                         <span>Prezzi Live</span>
                     </div>
                     <div class="home-charts-carousel-wrapper">
@@ -185,14 +185,17 @@
 
         <!-- ==================== RISK MANAGER ==================== -->
         <section class="page" id="page-calculator">
-            <div class="calc-card">
-                <div class="calc-header">
-                    <span>Gestione Rischio</span>
-                    <div class="market-toggle">
-                        <button id="btn-market-spot" onclick="setMarket('SPOT')" class="active">Spot</button>
-                        <button id="btn-market-fut" onclick="setMarket('FUTURES')">Futures</button>
-                    </div>
+            <div class="header-row">
+                <div class="header-title">
+                    <h1>Rischio</h1>
+                    <p>Calcolo posizione · <span id="calcCtx">—</span></p>
                 </div>
+                <div class="market-toggle">
+                    <button id="btn-market-spot" onclick="setMarket('SPOT')" class="active">Spot</button>
+                    <button id="btn-market-fut" onclick="setMarket('FUTURES')">Futures</button>
+                </div>
+            </div>
+            <div class="calc-card">
                 <div class="input-grid">
                     <div class="input-group"><label>Capitale disponibile (USDT)</label><input type="number" id="calcCapital" value="2000" step="100"></div>
                     <div class="input-group"><label>Rischio Target (%)</label><input type="number" id="calcRisk" value="2" step="0.5" min="0.1"></div>
@@ -240,10 +243,10 @@
 
         <!-- ==================== POSIZIONI ==================== -->
         <section class="page" id="page-trade">
-            <div class="header-row mb-12">
+            <div class="header-row">
                 <div class="header-title">
-                    <h1>Posizioni Aperte</h1>
-                    <p>Trade attivi</p>
+                    <h1>Posizioni</h1>
+                    <p>Trade aperti</p>
                 </div>
                 <div class="text-right">
                     <div class="capital-label">
@@ -261,7 +264,13 @@
 
         <!-- ==================== DIARIO ==================== -->
         <section class="page" id="page-journal">
-            <div class="sim-header perf-header perf-header-flex">
+            <div class="header-row">
+                <div class="header-title">
+                    <h1>Diario</h1>
+                    <p>Statistiche e registro trade</p>
+                </div>
+            </div>
+            <div class="section-title">
                 <span>Stato Strategia</span>
                 <span class="be-badge neutral" id="beBadge">—</span>
             </div>
@@ -278,7 +287,7 @@
                 </div>
                 <div class="be-labels"><span>0%</span><span>50%</span><span>100%</span></div>
             </div>
-            <div class="sim-header perf-header"><span>Performance</span></div>
+            <div class="section-title"><span>Performance</span></div>
             <div class="perf-wrapper card-box">
                 <div class="stats-grid" id="statsGrid">
                     <div class="stat-item"><div class="s-label">Win Rate</div><div class="s-val" id="statWinRate">—</div></div>
@@ -288,12 +297,14 @@
                     <div class="stat-item"><div class="s-label">Avg Loss</div><div class="s-val text-danger" id="statAvgLoss">—</div></div>
                     <div class="stat-item"><div class="s-label">Max DD</div><div class="s-val" id="statMaxDD">—</div></div>
                 </div>
-                <div class="btn-row btn-row-tight">
-                    <button class="btn-generic btn-generic-tight" onclick="exportCSV()">Esporta CSV</button>
-                    <button class="btn-generic btn-generic-tight btn-danger-soft" onclick="confirmReset()">Reset</button>
-                </div>
             </div>
-            <div class="sim-header log-header-bar"><span>Registro Trade</span></div>
+            <div class="section-title">
+                <span>Registro Trade</span>
+                <span class="section-actions">
+                    <button class="btn-link-secondary" onclick="exportCSV()">Esporta CSV</button>
+                    <button class="btn-link-secondary btn-link-danger" onclick="confirmReset()">Reset</button>
+                </span>
+            </div>
             <div class="log-list" id="simHistory">
                 <div class="empty-hint">Nessun trade registrato</div>
             </div>
@@ -364,7 +375,7 @@
                 <span><span class="legend-dot short"></span>SHORT</span>
                 <span><span class="legend-dot"></span>Neutro</span>
             </div>
-            <div class="sim-header mt-8">
+            <div class="section-title">
                 <span>Storico Segnali</span>
                 <button class="btn-link-secondary" onclick="clearSignalHistory()">Svuota</button>
             </div>
@@ -376,9 +387,11 @@
 
         <!-- ==================== MANUALE (14 SLIDE COMPLETE) ==================== -->
         <section class="page" id="page-info">
-            <div class="info-header">
-                <h1>Manuale</h1>
-                <p>Regole operative</p>
+            <div class="header-row">
+                <div class="header-title">
+                    <h1>Manuale</h1>
+                    <p>Regole operative</p>
+                </div>
             </div>
             <div class="info-carousel" id="infoCarousel">
 
@@ -804,6 +817,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=42"></script>
+<script type="module" src="./src/main.js?v=43"></script>
 </body>
 </html>
