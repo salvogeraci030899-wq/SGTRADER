@@ -158,20 +158,26 @@ def test_download_a_pagine_e_ripresa():
         def raise_for_status(self): pass
         def json(self): return {"code": "00000", "data": self.data}
 
-    def fake_get(url, params=None, timeout=None):
-        calls.append(url)
-        page = [t for t in all_ts if t <= params["endTime"]][-params["limit"]:]
-        return Resp([[str(t), "50000", "50100", "49900", "50000", "5", "500", "500"] for t in page])
+    # Bitget arrotonda endTime alla candela; a seconda dell'endpoint la candela di endTime è esclusa
+    # o inclusa: in entrambi i casi lo storico scaricato non deve avere buchi tra una pagina e l'altra
+    for inclusive in (False, True):
+        def fake_get(url, params=None, timeout=None):
+            calls.append(url)
+            end = params["endTime"] // (H * 1000) * (H * 1000)
+            page = [t for t in all_ts if t < end or (inclusive and t == end)][-params["limit"]:]
+            return Resp([[str(t), "50000", "50100", "49900", "50000", "5", "500", "500"] for t in page])
 
-    orig = va.requests.get
-    va.requests.get = fake_get
-    try:
-        df = va.download_history("BTCUSDT", "1h", all_ts[300], now_ms=now * 1000, pause=0)
-    finally:
-        va.requests.get = orig
-    assert len(df) >= 700 and df["time"].is_monotonic_increasing and df["time"].is_unique
-    assert int(df["time"].iloc[0].timestamp()) * 1000 <= all_ts[300]
-    assert all(u == va.BITGET_HISTORY_URL for u in calls) and len(calls) == 4
+        calls.clear()
+        orig = va.requests.get
+        va.requests.get = fake_get
+        try:
+            df = va.download_history("BTCUSDT", "1h", all_ts[300], now_ms=now * 1000, pause=0)
+        finally:
+            va.requests.get = orig
+        assert len(df) >= 700 and df["time"].is_monotonic_increasing and df["time"].is_unique
+        assert int(df["time"].iloc[0].timestamp()) * 1000 <= all_ts[300]
+        assert set(df["time"].diff().dropna()) == {pd.Timedelta(hours=1)}       # nessuna candela persa
+        assert all(u == va.BITGET_HISTORY_URL for u in calls)
 
     with tempfile.TemporaryDirectory() as d:
         path = os.path.join(d, "v", "p.jsonl")

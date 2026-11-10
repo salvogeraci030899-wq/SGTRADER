@@ -101,9 +101,12 @@ def download_history(symbol, tf, start_ms, now_ms=None, pause=0.15):
                 rows[t] = row
                 new += 1
         oldest = min(int(float(row[0])) for row in data)
-        if new == 0 or oldest >= end:
-            break  # nessun passo indietro: l'archivio è finito
-        end = oldest - 1
+        if new == 0:
+            break  # nessuna candela nuova: l'archivio è finito
+        # Riparto dalla candela più vecchia ricevuta, non da un millisecondo prima: Bitget arrotonda
+        # endTime alla candela e la esclude, quindi con "oldest - 1" si perdeva una candela per pagina.
+        # Se invece la include, torna un doppione che viene scartato.
+        end = oldest
         time.sleep(pause)
     min_price = MIN_PRICE.get(symbol, 0)
     klines = [list(r[:6]) + [0, 0] for r in rows.values() if float(r[4]) >= min_price]
