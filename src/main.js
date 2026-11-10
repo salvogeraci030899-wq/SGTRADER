@@ -192,7 +192,11 @@ window.switchTab = (tabId) => {
             setTimeout(() => HomeCharts.refresh(), 60);
         }
     } else if (tabId === 'terminal') {
+        // il grafico va ridimensionato (e inquadrato) quando la pagina ha la misura definitiva:
+        // su iOS il layout si assesta più tardi, quindi ripeto dopo che si è stabilizzato
+        requestAnimationFrame(() => requestAnimationFrame(TerminalUI.resizeChart));
         setTimeout(TerminalUI.resizeChart, 50);
+        setTimeout(TerminalUI.resizeChart, 350);
     } else if (tabId === 'trade') {
         TradeUI.renderActiveTrades();
         TradeUI.renderActiveTradeDots();
@@ -214,6 +218,12 @@ window.switchTab = (tabId) => {
 
 document.addEventListener('DOMContentLoaded', () => {
     Logger.log('INFO', 'SYSTEM', 'SGTRADER avviato');
+
+    // Versione dell'app (da <meta name="app-version">, aggiornata da tools/bump_version.py):
+    // serve a verificare sul telefono di avere davvero l'ultima versione e non una in cache
+    const appVersion = document.querySelector('meta[name="app-version"]')?.content || '—';
+    const versionEl = document.getElementById('homeAppVersion');
+    if (versionEl) versionEl.textContent = 'v' + appVersion;
 
     document.body.classList.remove('chart-fullscreen', 'snapshot-mode');
 
