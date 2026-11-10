@@ -216,7 +216,7 @@ export function renderSignalGrid() {
             const agg = aggregateCellSignals(asset, tf);
             const key = `${asset}_${tf}`;
             if (!agg) {
-                html += `<div class="signal-cell loading"><div><div class="sc-asset">${SYM(asset)}</div><div class="sc-tf">${tf}</div></div><div class="sc-badge neutral">—</div><div class="sc-agree">—</div></div>`;
+                html += `<div class="signal-cell loading"><div class="sc-head"><span class="sc-asset">${SYM(asset)}</span><span class="sc-tf">${tf}</span></div><div class="sc-badge neutral">—</div><div class="sc-foot"><div class="sc-agree">—</div></div></div>`;
                 continue;
             }
             const cls = agg.consensus.toLowerCase();
@@ -232,10 +232,12 @@ export function renderSignalGrid() {
             const kLabel = kSig === 'NEUTRAL' ? 'K:—' : (kSig === 'LONG' ? 'K:LONG' : 'K:SHORT');
             const kLabelColor = kSig === 'LONG' ? 'var(--accent)' : (kSig === 'SHORT' ? 'var(--danger)' : 'var(--text-secondary)');
             html += `<div class="signal-cell ${cls}" onclick="openSignalDetail('${asset}','${tf}')">
-                <div><div class="sc-asset">${SYM(asset)}</div><div class="sc-tf">${tf}</div></div>
+                <div class="sc-head"><span class="sc-asset">${SYM(asset)}</span><span class="sc-tf">${tf}</span></div>
                 <div class="sc-badge ${cls}">${agg.consensus === 'NEUTRAL' ? '—' : agg.consensus + ' ' + agg.agreement + '/4'}</div>
-                <div class="sc-agree"><span class="sc-agree-dot ${kDotCls}"></span>${sDots}</div>
-                <div class="sc-kronos-label" style="color:${kLabelColor};">${kLabel}</div>
+                <div class="sc-foot">
+                    <div class="sc-agree"><span class="sc-agree-dot ${kDotCls}"></span>${sDots}</div>
+                    <span class="sc-kronos-label" style="color:${kLabelColor};">${kLabel}</span>
+                </div>
             </div>`;
         }
     }

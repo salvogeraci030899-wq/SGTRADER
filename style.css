@@ -48,6 +48,19 @@ main {
 #page-calculator.active,
 #page-test.active { height: 100%; overflow-y: auto; }
 
+/* Adattamento automatico (src/ui/page-fit.js): margine in fondo se la pagina scende sotto la parte
+   visibile, zoom dei blocchi se il contenuto non entra. Valori in variabili CSS su <html>. */
+#page-home.active { padding-bottom: calc(10px + var(--fit-extra-bottom-home, 0px)); }
+#page-home.active > * { zoom: var(--fit-zoom-home, 1); }
+#page-terminal.active { padding-bottom: calc(10px + var(--fit-extra-bottom-terminal, 0px)); }
+#page-terminal.active > * { zoom: var(--fit-zoom-terminal, 1); }
+#page-trade.active { padding-bottom: calc(10px + var(--fit-extra-bottom-trade, 0px)); }
+#page-trade.active > * { zoom: var(--fit-zoom-trade, 1); }
+#page-journal.active { padding-bottom: calc(10px + var(--fit-extra-bottom-journal, 0px)); }
+#page-journal.active > * { zoom: var(--fit-zoom-journal, 1); }
+#page-signals.active { padding-bottom: calc(10px + var(--fit-extra-bottom-signals, 0px)); }
+#page-signals.active > * { zoom: var(--fit-zoom-signals, 1); }
+
 /* --- UTILITY --- */
 .clickable { cursor: pointer; }
 .row-between { display: flex; justify-content: space-between; align-items: center; }
@@ -345,13 +358,13 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .btn-row-tight { gap: 6px; margin-top: 0; }
 
 /* --- SEGNALI --- */
-#page-signals .log-list { display: flex; flex-direction: row; align-items: stretch; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; gap: 10px; padding: 0 16px 12px 16px; margin: 0 -16px; scrollbar-width: none; -ms-overflow-style: none; height: 200px; }
+#page-signals .log-list { display: flex; flex-direction: row; align-items: stretch; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; gap: 10px; padding: 0 16px 12px 16px; margin: 0 -16px; scrollbar-width: none; -ms-overflow-style: none; flex: 1 1 0; min-height: 92px; }
 #page-signals .log-list::-webkit-scrollbar { display: none; }
 #page-signals .log-item { flex: 0 0 85vw; scroll-snap-align: center; scroll-snap-stop: always; display: flex; flex-direction: column; height: 100%; }
 .signal-actions { display: flex; gap: 8px; margin-bottom: 10px; flex-shrink: 0; }
 .signal-actions button { flex: 1; margin-top: 0; padding: 12px; font-size: 12px; }
 .signal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; flex-shrink: 0; }
-.signal-cell { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 8px 6px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; justify-content: space-between; min-height: 100px; }
+.signal-cell { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 8px 6px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; justify-content: space-between; gap: 2px; }
 .signal-cell.long { border-color: rgba(48, 209, 88, 0.5); background: rgba(48, 209, 88, 0.05); }
 .signal-cell.short { border-color: rgba(255, 69, 58, 0.5); background: rgba(255, 69, 58, 0.05); }
 .signal-cell.neutral { opacity: 0.6; }
@@ -363,6 +376,12 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .sc-badge.short { background: rgba(255, 69, 58, 0.2); color: var(--danger); }
 .sc-badge.neutral { background: rgba(142, 142, 147, 0.2); color: var(--text-secondary); }
 .signal-cell .sc-kronos-label { font-size: 9px; font-weight: 700; color: var(--blue); margin-top: 2px; letter-spacing: 0.3px; }
+/* Cella compatta su 3 righe: asset + timeframe, badge, pallini + etichetta K */
+.signal-cell { padding: 6px 4px; align-items: center; }
+.signal-cell .sc-head { display: flex; justify-content: center; align-items: baseline; gap: 4px; }
+.signal-cell .sc-head .sc-tf { margin-bottom: 0; }
+.signal-cell .sc-foot { display: flex; justify-content: center; align-items: center; gap: 6px; flex-wrap: wrap; }
+.signal-cell .sc-foot .sc-agree, .signal-cell .sc-foot .sc-kronos-label { margin-top: 0; }
 .signal-cell .sc-agree { font-size: 9px; color: var(--text-secondary); margin-top: 4px; display: flex; justify-content: center; align-items: center; gap: 3px; }
 .sc-agree-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
 .sc-agree-dot.kronos { width: 8px; height: 8px; border: 1.5px solid var(--blue); background: transparent; }
@@ -376,7 +395,7 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .legend-dot.k { width: 8px; height: 8px; border: 1.5px solid var(--blue); background: transparent; }
 .legend-dot.long { background: var(--accent); }
 .legend-dot.short { background: var(--danger); }
-.signal-info-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; font-size: 11px; color: var(--text-secondary); line-height: 1.5; flex-shrink: 0; }
+.signal-info-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 8px 12px; margin-bottom: 10px; font-size: 11px; color: var(--text-secondary); line-height: 1.5; flex-shrink: 0; }
 .signal-info-bar b { color: var(--text); }
 .signal-info-bar .badge-notif-on { color: var(--accent); font-weight: 700; }
 .signal-info-bar .badge-notif-off { color: var(--text-secondary); font-weight: 700; }
@@ -402,7 +421,8 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
     flex-direction: column;
     height: 100%;
     overflow: hidden;
-    padding: 14px 0 10px 0;
+    /* in alto la safe area come le altre pagine: in PWA il titolo non deve finire sotto la status bar */
+    padding: calc(env(safe-area-inset-top, 0px) + 14px) 0 10px 0;
 }
 
 .info-header {
