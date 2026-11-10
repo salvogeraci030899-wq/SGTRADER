@@ -213,7 +213,11 @@ async function loadFutures() {
     } catch (e) { futData = null; }
     futLoaded = true;
     renderFutures();
+    if (window.onFuturesData) window.onFuturesData();
 }
+
+// Dati futures di una coin (o null): usati anche dal calcolatore Rischio
+export const getFutures = symbol => (futData && futData.symbols && futData.symbols[symbol]) || null;
 
 function fmtUsdCompact(v) {
     if (v >= 1e9) return `$${(v / 1e9).toFixed(2)}B`;
@@ -603,7 +607,7 @@ export function sendToCalculator() {
         return;
     }
     State.calcContext = { asset: State.currentAsset, tf: State.currentTF };
-    $('calcDirection').value = State.currentAIPlan.direction || (State.currentAIPlan.bias === 'SHORT' ? 'SHORT' : 'LONG');
+    window.setCalcDirection(State.currentAIPlan.direction || (State.currentAIPlan.bias === 'SHORT' ? 'SHORT' : 'LONG'));
     $('calcEntry').value = State.currentAIPlan.entry;
     $('calcStop').value = State.currentAIPlan.stop_loss;
     $('calcTarget').value = State.currentAIPlan.take_profit;

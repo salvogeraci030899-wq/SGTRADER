@@ -181,7 +181,7 @@ export function applyBtParams() {
     const nd = entry >= 10 ? 2 : 4;
     State.calcContext = { asset: d.asset, tf: d.tf };
     if (window.setMarket) window.setMarket('SPOT');
-    $('calcDirection').value = 'LONG';
+    window.setCalcDirection('LONG');
     $('calcEntry').value = entry.toFixed(nd);
     $('calcStop').value = (entry * (1 - d.slPct)).toFixed(nd);
     $('calcTarget').value = (entry * (1 + d.tpPct)).toFixed(nd);

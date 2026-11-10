@@ -238,7 +238,8 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; justify-items: stretch; }
 .input-grid.three-col { grid-template-columns: 1fr 1fr 1fr; }
 .input-grid.single { grid-template-columns: 1fr; }
-.input-grid.single .input-group { max-width: 60%; margin: 0 auto; }
+.input-grid.single .input-group { max-width: 60%; width: 100%; margin: 0 auto; }
+.input-grid.single .option-toggle.compact { margin-bottom: 0; align-self: stretch; width: auto; }
 .input-group-left label { text-align: left !important; }
 
 .input-group { display: flex; flex-direction: column; gap: 4px; align-items: center; }
