@@ -39,8 +39,6 @@ window.updateInfoDots = () => {
     if (!carousel || carousel.clientWidth === 0) return;
     const idx = Math.round(carousel.scrollLeft / carousel.clientWidth);
     document.querySelectorAll('#infoDots .info-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
-    const counter = document.getElementById('infoCounter');
-    if (counter) counter.textContent = `${idx + 1} / 5`;
 };
 window.showAlert = (title, msg) => {
     const t = document.getElementById('alertTitle');
@@ -275,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window._signalHistoryScrollTimeout = setTimeout(SignalsUI.updateSignalHistoryDots, 50);
     });
 
-    // Info carousel: aggiorna dots e contatore on scroll
+    // Info carousel: aggiorna dots on scroll (senza contatore)
     const infoCarouselEl = document.getElementById('infoCarousel');
     if (infoCarouselEl) infoCarouselEl.addEventListener('scroll', () => {
         clearTimeout(window._infoScrollTimeout);
