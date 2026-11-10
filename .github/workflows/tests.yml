@@ -1,6 +1,6 @@
 name: Test
 
-# Test automatici della logica del bot (track record). Leggeri: non installano il modello Kronos.
+# Test automatici della logica del bot (track record, validazione). Leggeri: non installano il modello Kronos.
 on:
   push:
     branches: [main]
@@ -23,4 +23,6 @@ jobs:
       - name: Installa dipendenze minime
         run: pip install "pandas>=2.2.2" numpy requests
       - name: Esegui i test
-        run: python tests/test_track_record.py
+        run: |
+          python tests/test_track_record.py
+          python tests/test_validation.py

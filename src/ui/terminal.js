@@ -156,12 +156,57 @@ export function renderTrackRecord() {
     foot.classList.toggle('text-warning', !!small);
 }
 
+// --- VALIDAZIONE STORICA (validation_summary.json, scritto dal workflow "Validazione Kronos") ---
+// Stesse misure del track record, ma su mesi di storico fuori campione e con intervalli di
+// confidenza: un vantaggio è "dimostrato" solo se l'intero intervallo sta dalla parte giusta.
+let valSummary = null;
+let valLoaded = false;
+
+async function loadValidation() {
+    try {
+        const r = await fetch('./validation_summary.json?t=' + Date.now());
+        valSummary = r.ok ? await r.json() : null;
+    } catch (e) { valSummary = null; }
+    valLoaded = true;
+    renderValidation();
+}
+
+const VERDICT_LABEL = { positivo: 'Vantaggio dimostrato', negativo: 'Svantaggio dimostrato', non_dimostrato: 'Vantaggio non dimostrato', campione_insufficiente: 'Campione insufficiente' };
+const VERDICT_CLASS = { positivo: 'pass', negativo: 'fail', non_dimostrato: 'neutral', campione_insufficiente: 'neutral' };
+
+export function renderValidation() {
+    const grid = document.getElementById('valGrid'), foot = document.getElementById('valFoot'), badge = document.getElementById('val-badge');
+    if (!grid || !foot || !badge) return;
+    const pair = valSummary && valSummary.by_pair && valSummary.by_pair[`${State.currentAsset}_${State.currentTF}`];
+    foot.classList.remove('text-warning');
+    if (!pair || !pair.n) {
+        badge.textContent = '—';
+        grid.innerHTML = '';
+        foot.textContent = !valLoaded ? 'Validazione in caricamento…'
+            : `Validazione storica ${SYM(State.currentAsset)} ${State.currentTF.toUpperCase()} non ancora disponibile: va calcolata con il workflow "Validazione Kronos".`;
+        return;
+    }
+    const d = pair.direction, plan = pair.strategies.kronos_plan;
+    badge.textContent = `${pair.n} previsioni`;
+    const range = ci => ci ? `${ci[0].toFixed(2)} / ${ci[1].toFixed(2)}%` : 'n/d';
+    grid.innerHTML =
+        trItem('Direzione', d.hit_rate == null ? '—' : `${d.hit_rate.toFixed(0)}%`, VERDICT_CLASS[d.verdict_direction]) +
+        trItem('Prob. vs caso', { positivo: 'Meglio', negativo: 'Peggio' }[d.verdict_probability] || 'Incerto', VERDICT_CLASS[d.verdict_probability]) +
+        trItem('Operativi', plan.n ? `${plan.n} · WR ${plan.win_rate.toFixed(0)}%` : '0', 'neutral') +
+        trItem('Netto medio', plan.n ? fmtSigned(plan.avg_net_pct) : '—', VERDICT_CLASS[plan.verdict]);
+    const from = new Date(pair.from * 1000).toLocaleDateString('it-IT');
+    const mom = d.momentum_hit_rate == null ? '' : ` · momentum ${d.momentum_hit_rate.toFixed(0)}%`;
+    foot.textContent = `${VERDICT_LABEL[pair.verdict]} · dal ${from}${mom} · netto costi e tasse, intervallo 95%: ${plan.n ? range(plan.avg_net_ci) : 'n/d'}`;
+    foot.classList.toggle('text-warning', pair.verdict !== 'positivo');
+}
+
 export async function loadData() {
     try {
         const res = await fetch('./dashboard.json?t=' + Date.now());
         State.allData = await res.json();
         updateChart();
         loadTrackRecord();
+        loadValidation();
         if (window.refreshKronosSignalsInMatrix) window.refreshKronosSignalsInMatrix();
     } catch (e) {
         State.lastHeaderPrice = null;
@@ -172,6 +217,7 @@ export async function loadData() {
 
 export function updateChart() {
     renderTrackRecord();
+    renderValidation();
     if (!State.allData) return;
     const data = State.allData[`${State.currentAsset}_${State.currentTF}`];
     if (!data) {

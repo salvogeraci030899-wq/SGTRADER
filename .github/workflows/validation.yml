@@ -1,0 +1,151 @@
+name: Validazione Kronos
+
+# Validazione storica di Kronos (walk-forward, fuori campione, al netto dei costi).
+# - Avvio manuale: 9 job in parallelo (3 coin x 3 timeframe), ognuno calcola previsioni sullo
+#   storico finché ha tempo e riprende da dove era rimasta l'esecuzione precedente. Alla fine un
+#   job unico calcola le statistiche e fa commit di validation/ e validation_summary.json.
+# - Sulle PR che toccano questi file: prova veloce con il modello vero e Bitget vero (pochi punti),
+#   senza commit, per accorgersi dei problemi prima del merge.
+on:
+  workflow_dispatch:
+    inputs:
+      n_samples:
+        description: 'Campioni Monte Carlo per previsione (il bot live ne usa 50)'
+        required: true
+        default: '50'
+      max_minutes:
+        description: 'Minuti massimi di calcolo per coppia (limite GitHub: 360 per job)'
+        required: true
+        default: '320'
+  pull_request:
+    paths:
+      - 'validation.py'
+      - 'validation_stats.py'
+      - 'kronos_core.py'
+      - 'track_record.py'
+      - 'requirements.txt'
+      - '.github/workflows/validation.yml'
+
+# Una sola validazione alla volta: due esecuzioni insieme rifarebbero gli stessi calcoli
+concurrency:
+  group: validation-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Prova veloce (modello e dati veri)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Cache modelli Hugging Face
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-kronos-v1
+      - name: Installa dipendenze
+        run: pip install -r requirements.txt
+      # Pochi punti nuovi per due timeframe (1d usa un contesto più corto), poi le statistiche.
+      # I file già presenti nel repository vengono messi da parte: qui si prova solo il percorso.
+      - name: Previsioni di prova
+        run: |
+          rm -rf validation validation_summary.json
+          python validation.py run --symbol BTCUSDT --tf 1h --n-samples 10 --max-points 3
+          python validation.py run --symbol SOLUSDT --tf 1d --n-samples 10 --max-points 2
+          python validation.py run --symbol ETHUSDT --tf 4h --n-samples 10 --max-points 2
+      - name: Statistiche di prova
+        run: |
+          python validation.py analyze > /dev/null
+          python -c "import json; s=json.load(open('validation_summary.json')); print(s['counts'], s['oos_start'], s['overall']['verdict'])"
+          cat validation/REPORT.md >> "$GITHUB_STEP_SUMMARY"
+
+  run:
+    name: ${{ matrix.symbol }} ${{ matrix.tf }}
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    strategy:
+      fail-fast: false
+      matrix:
+        symbol: [BTCUSDT, ETHUSDT, SOLUSDT]
+        tf: ['1d', '4h', '1h']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Cache modelli Hugging Face
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-kronos-v1
+      - name: Installa dipendenze
+        run: pip install -r requirements.txt
+      # Gli input passano da variabili d'ambiente, mai incollati direttamente nel comando
+      - name: Calcola le previsioni sullo storico
+        env:
+          SYMBOL: ${{ matrix.symbol }}
+          TF: ${{ matrix.tf }}
+          N_SAMPLES: ${{ github.event.inputs.n_samples }}
+          MAX_MINUTES: ${{ github.event.inputs.max_minutes }}
+        run: python validation.py run --symbol "$SYMBOL" --tf "$TF" --n-samples "$N_SAMPLES" --max-minutes "$MAX_MINUTES"
+      - name: Consegna le previsioni
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: predictions-${{ matrix.symbol }}-${{ matrix.tf }}
+          path: validation/predictions_${{ matrix.symbol }}_${{ matrix.tf }}.jsonl
+          if-no-files-found: ignore
+          retention-days: 14
+
+  collect:
+    name: Statistiche e salvataggio
+    needs: run
+    if: always() && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      # Versione più recente del ramo: nel frattempo il bot ha fatto altri commit
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installa dipendenze minime
+        run: pip install "pandas>=2.2.2" numpy requests
+      # Ogni file consegnato contiene le righe già nel repository più quelle nuove
+      - name: Raccoglie le previsioni dei 9 job
+        uses: actions/download-artifact@v4
+        with:
+          pattern: predictions-*
+          path: validation
+          merge-multiple: true
+      - name: Calcola le statistiche
+        run: |
+          python validation.py analyze > /dev/null
+          if [ -f validation/REPORT.md ]; then cat validation/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - name: Salva i risultati
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add validation validation_summary.json 2>/dev/null || true
+          git commit -m "Validazione Kronos: risultati aggiornati $(date -u +%Y-%m-%d_%H:%M)" || { echo "Nessuna modifica da salvare"; exit 0; }
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            echo "Push fallito (tentativo $i), riprovo..."
+            sleep $((i * 5))
+          done
+          echo "Impossibile fare push dei risultati."
+          exit 1
