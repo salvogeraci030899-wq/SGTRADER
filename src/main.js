@@ -11,6 +11,7 @@ import * as BacktestUI from './ui/backtest.js';
 import * as HomeUI from './ui/home.js';
 import * as HomeCharts from './ui/home-charts.js';
 import * as Backup from './core/backup.js';
+import { initManual } from './ui/manual.js';
 
 State.loadState();
 State.loadSignalState();
@@ -221,6 +222,8 @@ document.addEventListener('DOMContentLoaded', () => {
     JournalUI.initJournal();
     SignalsUI.initSignals();
     HomeUI.initHome();
+
+    initManual();
 
     try {
         HomeCharts.initHomeCharts();

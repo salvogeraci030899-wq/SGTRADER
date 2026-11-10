@@ -159,6 +159,12 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .dashboard-dots { display: flex; justify-content: center; gap: 6px; padding: 4px 0 0 0; }
 .dashboard-dots .info-dot { width: 6px; height: 6px; }
 .dashboard-dots .info-dot.active { width: 16px; }
+/* Paragrafo singolo più alto di una pagina (caso limite): solo quella pagina scorre */
+.info-slide.info-slide-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+/* Pallini dimensionati da src/ui/manual.js in base al numero di pagine (sempre su una riga) */
+.info-dots.sized { gap: var(--dot-gap, 8px); }
+.info-dots.sized .info-dot { width: var(--dot-size, 8px); height: var(--dot-size, 8px); flex-shrink: 0; }
+.info-dots.sized .info-dot.active { width: calc(var(--dot-size, 8px) * 2.5); border-radius: calc(var(--dot-size, 8px) / 2); }
 
 .controls-row { display: flex; gap: 8px; flex-shrink: 0; padding-bottom: 8px; align-items: stretch; }
 
@@ -436,8 +442,7 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
     scroll-snap-stop: always;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow-y: hidden; /* niente scroll verticale: src/ui/manual.js divide il contenuto in più pagine */
     padding: 4px 16px 20px 16px;
     box-sizing: border-box;
     min-height: 0;
