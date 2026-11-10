@@ -1,0 +1,2914 @@
+{
+ "generated_at": "2026-11-10T17:49:00+00:00",
+ "model": [
+  "Kronos-small"
+ ],
+ "oos_start": 1751303050,
+ "oos_rule": "solo previsioni successive alla data di pubblicazione dei pesi del modello su Hugging Face",
+ "horizon_candles": 7,
+ "costs": {
+  "fee_pct_per_side": 0.1,
+  "slippage_pct_per_side": 0.05,
+  "tax_rate": 0.33
+ },
+ "params": {
+  "long_threshold": 80,
+  "short_threshold": 20,
+  "atr_mult": 1.5,
+  "min_rr": 1.5,
+  "rr_max": 3.0,
+  "momentum_lookback": 7
+ },
+ "confidence": {
+  "level": 95,
+  "method": "bootstrap a blocchi di tempo",
+  "n_boot": 2000,
+  "min_n": 30
+ },
+ "counts": {
+  "total": 444
+ },
+ "overall": {
+  "n": 444,
+  "from": 1751500800,
+  "to": 1793894400,
+  "direction": {
+   "n": 444,
+   "n_called": 437,
+   "hit_rate": 44.2,
+   "hit_rate_ci": [
+    37.9,
+    50.6
+   ],
+   "base_rate_up_pct": 48.0,
+   "momentum_hit_rate": 54.7,
+   "hit_minus_momentum_ci": [
+    -21.2,
+    0.0
+   ],
+   "brier": 0.3829,
+   "brier_coin": 0.25,
+   "brier_base_rate": 0.254,
+   "brier_skill_ci": [
+    -0.1776,
+    -0.0821
+   ],
+   "calibration": [
+    {
+     "range": "0-10",
+     "n": 72,
+     "predicted_up_pct": 3.7,
+     "realized_up_pct": 54.2
+    },
+    {
+     "range": "10-20",
+     "n": 55,
+     "predicted_up_pct": 14.1,
+     "realized_up_pct": 49.1
+    },
+    {
+     "range": "20-30",
+     "n": 40,
+     "predicted_up_pct": 23.8,
+     "realized_up_pct": 57.5
+    },
+    {
+     "range": "30-40",
+     "n": 44,
+     "predicted_up_pct": 33.7,
+     "realized_up_pct": 56.8
+    },
+    {
+     "range": "40-50",
+     "n": 36,
+     "predicted_up_pct": 44.3,
+     "realized_up_pct": 50.0
+    },
+    {
+     "range": "50-60",
+     "n": 40,
+     "predicted_up_pct": 54.1,
+     "realized_up_pct": 47.5
+    },
+    {
+     "range": "60-70",
+     "n": 39,
+     "predicted_up_pct": 63.7,
+     "realized_up_pct": 41.0
+    },
+    {
+     "range": "70-80",
+     "n": 29,
+     "predicted_up_pct": 74.6,
+     "realized_up_pct": 41.4
+    },
+    {
+     "range": "80-90",
+     "n": 40,
+     "predicted_up_pct": 83.9,
+     "realized_up_pct": 37.5
+    },
+    {
+     "range": "90-100",
+     "n": 49,
+     "predicted_up_pct": 95.8,
+     "realized_up_pct": 38.8
+    }
+   ],
+   "band_p10_p90_coverage_pct": 47.1,
+   "verdict_direction": "non_dimostrato",
+   "verdict_probability": "negativo"
+  },
+  "calibration_wf": {
+   "n_test": 340,
+   "brier_raw": 0.3751,
+   "brier_calibrated": 0.2548,
+   "brier_base_rate": 0.2537,
+   "improvement_ci": [
+    0.0698,
+    0.1726
+   ],
+   "calibrated_skill_ci": [
+    -0.0048,
+    0.0023
+   ],
+   "verdict_calibrated": "non_dimostrato",
+   "map": [
+    [
+     0,
+     37.5
+    ],
+    [
+     10,
+     48.8
+    ],
+    [
+     20,
+     48.8
+    ],
+    [
+     30,
+     48.8
+    ],
+    [
+     40,
+     48.8
+    ],
+    [
+     50,
+     48.8
+    ],
+    [
+     60,
+     48.8
+    ],
+    [
+     70,
+     48.8
+    ],
+    [
+     80,
+     48.8
+    ],
+    [
+     90,
+     48.8
+    ],
+    [
+     100,
+     48.8
+    ]
+   ]
+  },
+  "path_model": {
+   "n": 0
+  },
+  "strategies": {
+   "kronos_plan": {
+    "n": 25,
+    "win_rate": 44.0,
+    "avg_gross_pct": 0.464,
+    "avg_net_costs_pct": 0.164,
+    "avg_net_costs_ci": [
+     -2.0216,
+     2.6012
+    ],
+    "avg_net_pct": -0.441,
+    "avg_net_ci": [
+     -2.2124,
+     1.4058
+    ],
+    "total_net_pct": -11.02,
+    "profit_factor": 0.74,
+    "max_drawdown_pct": -30.33,
+    "verdict": "campione_insufficiente"
+   },
+   "kronos_ev": {
+    "n": 0,
+    "verdict": "campione_insufficiente"
+   },
+   "plan_all": {
+    "n": 0,
+    "verdict": "campione_insufficiente"
+   },
+   "kronos_signal": {
+    "n": 229,
+    "win_rate": 38.9,
+    "avg_gross_pct": -0.225,
+    "avg_net_costs_pct": -0.525,
+    "avg_net_costs_ci": [
+     -1.6138,
+     0.5387
+    ],
+    "avg_net_pct": -1.071,
+    "avg_net_ci": [
+     -2.0227,
+     -0.1919
+    ],
+    "total_net_pct": -245.25,
+    "profit_factor": 0.51,
+    "max_drawdown_pct": -274.99,
+    "verdict": "negativo"
+   },
+   "kronos_all": {
+    "n": 444,
+    "win_rate": 37.8,
+    "avg_gross_pct": -0.225,
+    "avg_net_costs_pct": -0.525,
+    "avg_net_costs_ci": [
+     -1.2033,
+     0.1468
+    ],
+    "avg_net_pct": -0.996,
+    "avg_net_ci": [
+     -1.6013,
+     -0.4228
+    ],
+    "total_net_pct": -442.39,
+    "profit_factor": 0.49,
+    "max_drawdown_pct": -471.18,
+    "verdict": "negativo"
+   },
+   "momentum": {
+    "n": 444,
+    "win_rate": 46.6,
+    "avg_gross_pct": 0.159,
+    "avg_net_costs_pct": -0.141,
+    "avg_net_costs_ci": [
+     -0.8865,
+     0.6147
+    ],
+    "avg_net_pct": -0.665,
+    "avg_net_ci": [
+     -1.3252,
+     -0.017
+    ],
+    "total_net_pct": -295.47,
+    "profit_factor": 0.62,
+    "max_drawdown_pct": -329.92,
+    "verdict": "negativo"
+   },
+   "always_long": {
+    "n": 444,
+    "win_rate": 41.2,
+    "avg_gross_pct": -0.06,
+    "avg_net_costs_pct": -0.36,
+    "avg_net_costs_ci": [
+     -1.3691,
+     0.734
+    ],
+    "avg_net_pct": -0.854,
+    "avg_net_ci": [
+     -1.7013,
+     -0.0002
+    ],
+    "total_net_pct": -379.29,
+    "profit_factor": 0.54,
+    "max_drawdown_pct": -434.31,
+    "verdict": "negativo"
+   }
+  },
+  "kronos_minus_momentum_ci": [
+   -1.5327,
+   0.7486
+  ],
+  "buy_hold": {
+   "gross_pct": -32.76,
+   "net_pct": -33.06
+  },
+  "verdict": "campione_insufficiente"
+ },
+ "by_tf": {
+  "1d": {
+   "n": 189,
+   "from": 1751904000,
+   "to": 1793376000,
+   "direction": {
+    "n": 189,
+    "n_called": 185,
+    "hit_rate": 50.8,
+    "hit_rate_ci": [
+     41.0,
+     61.0
+    ],
+    "base_rate_up_pct": 45.5,
+    "momentum_hit_rate": 51.4,
+    "hit_minus_momentum_ci": [
+     -15.6,
+     13.9
+    ],
+    "brier": 0.364,
+    "brier_coin": 0.25,
+    "brier_base_rate": 0.2546,
+    "brier_skill_ci": [
+     -0.1832,
+     -0.034
+    ],
+    "calibration": [
+     {
+      "range": "0-10",
+      "n": 43,
+      "predicted_up_pct": 3.1,
+      "realized_up_pct": 39.5
+     },
+     {
+      "range": "10-20",
+      "n": 20,
+      "predicted_up_pct": 14.4,
+      "realized_up_pct": 50.0
+     },
+     {
+      "range": "20-30",
+      "n": 12,
+      "predicted_up_pct": 22.8,
+      "realized_up_pct": 41.7
+     },
+     {
+      "range": "30-40",
+      "n": 11,
+      "predicted_up_pct": 34.9,
+      "realized_up_pct": 54.5
+     },
+     {
+      "range": "40-50",
+      "n": 6,
+      "predicted_up_pct": 43.7,
+      "realized_up_pct": 50.0
+     },
+     {
+      "range": "50-60",
+      "n": 9,
+      "predicted_up_pct": 53.6,
+      "realized_up_pct": 44.4
+     },
+     {
+      "range": "60-70",
+      "n": 12,
+      "predicted_up_pct": 63.0,
+      "realized_up_pct": 41.7
+     },
+     {
+      "range": "70-80",
+      "n": 17,
+      "predicted_up_pct": 75.1,
+      "realized_up_pct": 52.9
+     },
+     {
+      "range": "80-90",
+      "n": 22,
+      "predicted_up_pct": 84.1,
+      "realized_up_pct": 45.5
+     },
+     {
+      "range": "90-100",
+      "n": 37,
+      "predicted_up_pct": 96.1,
+      "realized_up_pct": 45.9
+     }
+    ],
+    "band_p10_p90_coverage_pct": 43.4,
+    "verdict_direction": "non_dimostrato",
+    "verdict_probability": "negativo"
+   },
+   "calibration_wf": {
+    "n_test": 85,
+    "brier_raw": 0.3422,
+    "brier_calibrated": 0.2512,
+    "brier_base_rate": 0.2524,
+    "improvement_ci": [
+     -0.0098,
+     0.1944
+    ],
+    "calibrated_skill_ci": [
+     -0.0154,
+     0.0176
+    ],
+    "verdict_calibrated": "non_dimostrato",
+    "map": [
+     [
+      0,
+      26.1
+     ],
+     [
+      10,
+      46.8
+     ],
+     [
+      20,
+      46.8
+     ],
+     [
+      30,
+      46.8
+     ],
+     [
+      40,
+      46.8
+     ],
+     [
+      50,
+      46.8
+     ],
+     [
+      60,
+      46.8
+     ],
+     [
+      70,
+      46.8
+     ],
+     [
+      80,
+      46.8
+     ],
+     [
+      90,
+      46.8
+     ],
+     [
+      100,
+      56.0
+     ]
+    ]
+   },
+   "path_model": {
+    "n": 0
+   },
+   "strategies": {
+    "kronos_plan": {
+     "n": 19,
+     "win_rate": 57.9,
+     "avg_gross_pct": 0.925,
+     "avg_net_costs_pct": 0.625,
+     "avg_net_costs_ci": [
+      -2.3026,
+      3.2594
+     ],
+     "avg_net_pct": -0.171,
+     "avg_net_ci": [
+      -2.5656,
+      1.8818
+     ],
+     "total_net_pct": -3.24,
+     "profit_factor": 0.9,
+     "max_drawdown_pct": -27.99,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_ev": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "plan_all": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_signal": {
+     "n": 128,
+     "win_rate": 49.2,
+     "avg_gross_pct": 0.169,
+     "avg_net_costs_pct": -0.131,
+     "avg_net_costs_ci": [
+      -2.054,
+      1.6782
+     ],
+     "avg_net_pct": -1.037,
+     "avg_net_ci": [
+      -2.6842,
+      0.4899
+     ],
+     "total_net_pct": -132.78,
+     "profit_factor": 0.64,
+     "max_drawdown_pct": -173.31,
+     "verdict": "non_dimostrato"
+    },
+    "kronos_all": {
+     "n": 189,
+     "win_rate": 48.1,
+     "avg_gross_pct": 0.128,
+     "avg_net_costs_pct": -0.172,
+     "avg_net_costs_ci": [
+      -1.6601,
+      1.3755
+     ],
+     "avg_net_pct": -1.093,
+     "avg_net_ci": [
+      -2.4243,
+      0.2182
+     ],
+     "total_net_pct": -206.67,
+     "profit_factor": 0.63,
+     "max_drawdown_pct": -248.54,
+     "verdict": "non_dimostrato"
+    },
+    "momentum": {
+     "n": 189,
+     "win_rate": 48.1,
+     "avg_gross_pct": 0.034,
+     "avg_net_costs_pct": -0.266,
+     "avg_net_costs_ci": [
+      -1.9422,
+      1.3602
+     ],
+     "avg_net_pct": -1.171,
+     "avg_net_ci": [
+      -2.609,
+      0.2468
+     ],
+     "total_net_pct": -221.39,
+     "profit_factor": 0.61,
+     "max_drawdown_pct": -258.92,
+     "verdict": "non_dimostrato"
+    },
+    "always_long": {
+     "n": 189,
+     "win_rate": 43.4,
+     "avg_gross_pct": -0.186,
+     "avg_net_costs_pct": -0.486,
+     "avg_net_costs_ci": [
+      -2.6907,
+      1.6338
+     ],
+     "avg_net_pct": -1.36,
+     "avg_net_ci": [
+      -3.2292,
+      0.3639
+     ],
+     "total_net_pct": -257.1,
+     "profit_factor": 0.57,
+     "max_drawdown_pct": -330.19,
+     "verdict": "non_dimostrato"
+    }
+   },
+   "kronos_minus_momentum_ci": [
+    -2.4211,
+    2.569
+   ],
+   "buy_hold": {
+    "gross_pct": -37.05,
+    "net_pct": -37.35
+   },
+   "verdict": "campione_insufficiente"
+  },
+  "4h": {
+   "n": 120,
+   "from": 1752422400,
+   "to": 1793894400,
+   "direction": {
+    "n": 120,
+    "n_called": 118,
+    "hit_rate": 36.4,
+    "hit_rate_ci": [
+     26.0,
+     46.7
+    ],
+    "base_rate_up_pct": 54.2,
+    "momentum_hit_rate": 54.2,
+    "hit_minus_momentum_ci": [
+     -35.3,
+     -0.8
+    ],
+    "brier": 0.4192,
+    "brier_coin": 0.25,
+    "brier_base_rate": 0.2545,
+    "brier_skill_ci": [
+     -0.2418,
+     -0.0903
+    ],
+    "calibration": [
+     {
+      "range": "0-10",
+      "n": 15,
+      "predicted_up_pct": 5.5,
+      "realized_up_pct": 73.3
+     },
+     {
+      "range": "10-20",
+      "n": 21,
+      "predicted_up_pct": 14.2,
+      "realized_up_pct": 57.1
+     },
+     {
+      "range": "20-30",
+      "n": 13,
+      "predicted_up_pct": 24.5,
+      "realized_up_pct": 61.5
+     },
+     {
+      "range": "30-40",
+      "n": 13,
+      "predicted_up_pct": 32.2,
+      "realized_up_pct": 76.9
+     },
+     {
+      "range": "40-50",
+      "n": 11,
+      "predicted_up_pct": 43.5,
+      "realized_up_pct": 54.5
+     },
+     {
+      "range": "50-60",
+      "n": 17,
+      "predicted_up_pct": 54.2,
+      "realized_up_pct": 58.8
+     },
+     {
+      "range": "60-70",
+      "n": 9,
+      "predicted_up_pct": 63.1,
+      "realized_up_pct": 33.3
+     },
+     {
+      "range": "70-80",
+      "n": 4,
+      "predicted_up_pct": 73.5,
+      "realized_up_pct": 0.0
+     },
+     {
+      "range": "80-90",
+      "n": 12,
+      "predicted_up_pct": 82.8,
+      "realized_up_pct": 25.0
+     },
+     {
+      "range": "90-100",
+      "n": 5,
+      "predicted_up_pct": 96.4,
+      "realized_up_pct": 40.0
+     }
+    ],
+    "band_p10_p90_coverage_pct": 42.5,
+    "verdict_direction": "negativo",
+    "verdict_probability": "negativo"
+   },
+   "calibration_wf": {
+    "n_test": 20
+   },
+   "path_model": {
+    "n": 0
+   },
+   "strategies": {
+    "kronos_plan": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_ev": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "plan_all": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_signal": {
+     "n": 56,
+     "win_rate": 28.6,
+     "avg_gross_pct": -1.066,
+     "avg_net_costs_pct": -1.366,
+     "avg_net_costs_ci": [
+      -2.1565,
+      -0.5876
+     ],
+     "avg_net_pct": -1.468,
+     "avg_net_ci": [
+      -2.2181,
+      -0.7324
+     ],
+     "total_net_pct": -82.22,
+     "profit_factor": 0.12,
+     "max_drawdown_pct": -82.22,
+     "verdict": "negativo"
+    },
+    "kronos_all": {
+     "n": 120,
+     "win_rate": 32.5,
+     "avg_gross_pct": -0.779,
+     "avg_net_costs_pct": -1.079,
+     "avg_net_costs_ci": [
+      -1.6574,
+      -0.4915
+     ],
+     "avg_net_pct": -1.275,
+     "avg_net_ci": [
+      -1.8249,
+      -0.7446
+     ],
+     "total_net_pct": -152.98,
+     "profit_factor": 0.24,
+     "max_drawdown_pct": -152.98,
+     "verdict": "negativo"
+    },
+    "momentum": {
+     "n": 120,
+     "win_rate": 50.0,
+     "avg_gross_pct": 0.327,
+     "avg_net_costs_pct": 0.027,
+     "avg_net_costs_ci": [
+      -0.6539,
+      0.7175
+     ],
+     "avg_net_pct": -0.334,
+     "avg_net_ci": [
+      -0.9552,
+      0.2475
+     ],
+     "total_net_pct": -40.07,
+     "profit_factor": 0.69,
+     "max_drawdown_pct": -72.07,
+     "verdict": "non_dimostrato"
+    },
+    "always_long": {
+     "n": 120,
+     "win_rate": 47.5,
+     "avg_gross_pct": 0.29,
+     "avg_net_costs_pct": -0.01,
+     "avg_net_costs_ci": [
+      -0.916,
+      0.9877
+     ],
+     "avg_net_pct": -0.366,
+     "avg_net_ci": [
+      -1.1376,
+      0.4044
+     ],
+     "total_net_pct": -43.94,
+     "profit_factor": 0.66,
+     "max_drawdown_pct": -81.22,
+     "verdict": "non_dimostrato"
+    }
+   },
+   "kronos_minus_momentum_ci": [
+    -2.313,
+    0.0549
+   ],
+   "buy_hold": {
+    "gross_pct": -34.76,
+    "net_pct": -35.06
+   },
+   "verdict": "campione_insufficiente"
+  },
+  "1h": {
+   "n": 135,
+   "from": 1751500800,
+   "to": 1793534400,
+   "direction": {
+    "n": 135,
+    "n_called": 134,
+    "hit_rate": 41.8,
+    "hit_rate_ci": [
+     32.6,
+     50.8
+    ],
+    "base_rate_up_pct": 45.9,
+    "momentum_hit_rate": 59.7,
+    "hit_minus_momentum_ci": [
+     -34.4,
+     -1.5
+    ],
+    "brier": 0.3772,
+    "brier_coin": 0.25,
+    "brier_base_rate": 0.2554,
+    "brier_skill_ci": [
+     -0.1861,
+     -0.0615
+    ],
+    "calibration": [
+     {
+      "range": "0-10",
+      "n": 14,
+      "predicted_up_pct": 3.7,
+      "realized_up_pct": 78.6
+     },
+     {
+      "range": "10-20",
+      "n": 14,
+      "predicted_up_pct": 13.4,
+      "realized_up_pct": 35.7
+     },
+     {
+      "range": "20-30",
+      "n": 15,
+      "predicted_up_pct": 24.0,
+      "realized_up_pct": 66.7
+     },
+     {
+      "range": "30-40",
+      "n": 20,
+      "predicted_up_pct": 34.1,
+      "realized_up_pct": 45.0
+     },
+     {
+      "range": "40-50",
+      "n": 19,
+      "predicted_up_pct": 45.1,
+      "realized_up_pct": 47.4
+     },
+     {
+      "range": "50-60",
+      "n": 14,
+      "predicted_up_pct": 54.3,
+      "realized_up_pct": 35.7
+     },
+     {
+      "range": "60-70",
+      "n": 18,
+      "predicted_up_pct": 64.4,
+      "realized_up_pct": 44.4
+     },
+     {
+      "range": "70-80",
+      "n": 8,
+      "predicted_up_pct": 74.0,
+      "realized_up_pct": 37.5
+     },
+     {
+      "range": "80-90",
+      "n": 6,
+      "predicted_up_pct": 85.7,
+      "realized_up_pct": 33.3
+     },
+     {
+      "range": "90-100",
+      "n": 7,
+      "predicted_up_pct": 94.0,
+      "realized_up_pct": 0.0
+     }
+    ],
+    "band_p10_p90_coverage_pct": 56.3,
+    "verdict_direction": "non_dimostrato",
+    "verdict_probability": "negativo"
+   },
+   "calibration_wf": {
+    "n_test": 33,
+    "brier_raw": 0.3958,
+    "brier_calibrated": 0.2604,
+    "brier_base_rate": 0.2522,
+    "improvement_ci": [
+     -0.0239,
+     0.3099
+    ],
+    "calibrated_skill_ci": [
+     -0.0167,
+     0.0009
+    ],
+    "verdict_calibrated": "non_dimostrato",
+    "map": [
+     [
+      0,
+      45.9
+     ],
+     [
+      10,
+      45.9
+     ],
+     [
+      20,
+      45.9
+     ],
+     [
+      30,
+      45.9
+     ],
+     [
+      40,
+      45.9
+     ],
+     [
+      50,
+      45.9
+     ],
+     [
+      60,
+      45.9
+     ],
+     [
+      70,
+      45.9
+     ],
+     [
+      80,
+      45.9
+     ],
+     [
+      90,
+      45.9
+     ],
+     [
+      100,
+      45.9
+     ]
+    ]
+   },
+   "path_model": {
+    "n": 0
+   },
+   "strategies": {
+    "kronos_plan": {
+     "n": 6,
+     "win_rate": 0.0,
+     "avg_gross_pct": -0.995,
+     "avg_net_costs_pct": -1.295,
+     "avg_net_costs_ci": null,
+     "avg_net_pct": -1.295,
+     "avg_net_ci": null,
+     "total_net_pct": -7.77,
+     "profit_factor": 0.0,
+     "max_drawdown_pct": -7.77,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_ev": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "plan_all": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_signal": {
+     "n": 45,
+     "win_rate": 22.2,
+     "avg_gross_pct": -0.299,
+     "avg_net_costs_pct": -0.599,
+     "avg_net_costs_ci": [
+      -1.0791,
+      -0.1129
+     ],
+     "avg_net_pct": -0.672,
+     "avg_net_ci": [
+      -1.1046,
+      -0.2729
+     ],
+     "total_net_pct": -30.25,
+     "profit_factor": 0.18,
+     "max_drawdown_pct": -30.25,
+     "verdict": "negativo"
+    },
+    "kronos_all": {
+     "n": 135,
+     "win_rate": 28.1,
+     "avg_gross_pct": -0.227,
+     "avg_net_costs_pct": -0.527,
+     "avg_net_costs_ci": [
+      -0.8216,
+      -0.2544
+     ],
+     "avg_net_pct": -0.613,
+     "avg_net_ci": [
+      -0.8847,
+      -0.3732
+     ],
+     "total_net_pct": -82.75,
+     "profit_factor": 0.22,
+     "max_drawdown_pct": -82.75,
+     "verdict": "negativo"
+    },
+    "momentum": {
+     "n": 135,
+     "win_rate": 41.5,
+     "avg_gross_pct": 0.186,
+     "avg_net_costs_pct": -0.114,
+     "avg_net_costs_ci": [
+      -0.3993,
+      0.1819
+     ],
+     "avg_net_pct": -0.252,
+     "avg_net_ci": [
+      -0.4974,
+      -0.0119
+     ],
+     "total_net_pct": -34.01,
+     "profit_factor": 0.53,
+     "max_drawdown_pct": -39.02,
+     "verdict": "negativo"
+    },
+    "always_long": {
+     "n": 135,
+     "win_rate": 32.6,
+     "avg_gross_pct": -0.194,
+     "avg_net_costs_pct": -0.494,
+     "avg_net_costs_ci": [
+      -0.8427,
+      -0.1665
+     ],
+     "avg_net_pct": -0.58,
+     "avg_net_ci": [
+      -0.8977,
+      -0.2822
+     ],
+     "total_net_pct": -78.24,
+     "profit_factor": 0.23,
+     "max_drawdown_pct": -80.31,
+     "verdict": "negativo"
+    }
+   },
+   "kronos_minus_momentum_ci": [
+    -0.9623,
+    0.0836
+   ],
+   "buy_hold": {
+    "gross_pct": -26.45,
+    "net_pct": -26.75
+   },
+   "verdict": "campione_insufficiente"
+  }
+ },
+ "by_pair": {
+  "BTCUSDT_1d": {
+   "n": 74,
+   "from": 1751904000,
+   "to": 1793376000,
+   "direction": {
+    "n": 74,
+    "n_called": 72,
+    "hit_rate": 51.4,
+    "hit_rate_ci": [
+     39.1,
+     63.0
+    ],
+    "base_rate_up_pct": 43.2,
+    "momentum_hit_rate": 45.8,
+    "hit_minus_momentum_ci": [
+     -13.9,
+     23.3
+    ],
+    "brier": 0.3448,
+    "brier_coin": 0.25,
+    "brier_base_rate": 0.2504,
+    "brier_skill_ci": [
+     -0.185,
+     -0.0073
+    ],
+    "calibration": [
+     {
+      "range": "0-10",
+      "n": 15,
+      "predicted_up_pct": 3.1,
+      "realized_up_pct": 26.7
+     },
+     {
+      "range": "10-20",
+      "n": 6,
+      "predicted_up_pct": 15.3,
+      "realized_up_pct": 50.0
+     },
+     {
+      "range": "20-30",
+      "n": 6,
+      "predicted_up_pct": 24.0,
+      "realized_up_pct": 50.0
+     },
+     {
+      "range": "30-40",
+      "n": 3,
+      "predicted_up_pct": 35.3,
+      "realized_up_pct": 33.3
+     },
+     {
+      "range": "40-50",
+      "n": 2,
+      "predicted_up_pct": 45.0,
+      "realized_up_pct": 100.0
+     },
+     {
+      "range": "50-60",
+      "n": 3,
+      "predicted_up_pct": 52.7,
+      "realized_up_pct": 33.3
+     },
+     {
+      "range": "60-70",
+      "n": 5,
+      "predicted_up_pct": 63.2,
+      "realized_up_pct": 40.0
+     },
+     {
+      "range": "70-80",
+      "n": 10,
+      "predicted_up_pct": 75.4,
+      "realized_up_pct": 50.0
+     },
+     {
+      "range": "80-90",
+      "n": 9,
+      "predicted_up_pct": 83.3,
+      "realized_up_pct": 44.4
+     },
+     {
+      "range": "90-100",
+      "n": 15,
+      "predicted_up_pct": 96.8,
+      "realized_up_pct": 46.7
+     }
+    ],
+    "band_p10_p90_coverage_pct": 47.3,
+    "verdict_direction": "non_dimostrato",
+    "verdict_probability": "negativo"
+   },
+   "calibration_wf": {
+    "n_test": 0
+   },
+   "path_model": {
+    "n": 0
+   },
+   "strategies": {
+    "kronos_plan": {
+     "n": 6,
+     "win_rate": 83.3,
+     "avg_gross_pct": 1.49,
+     "avg_net_costs_pct": 1.19,
+     "avg_net_costs_ci": [
+      -1.179,
+      3.1725
+     ],
+     "avg_net_pct": 0.566,
+     "avg_net_ci": [
+      -1.4827,
+      2.1256
+     ],
+     "total_net_pct": 3.4,
+     "profit_factor": 1.81,
+     "max_drawdown_pct": -4.2,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_ev": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "plan_all": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_signal": {
+     "n": 47,
+     "win_rate": 53.2,
+     "avg_gross_pct": 0.445,
+     "avg_net_costs_pct": 0.145,
+     "avg_net_costs_ci": [
+      -1.4578,
+      1.7361
+     ],
+     "avg_net_pct": -0.542,
+     "avg_net_ci": [
+      -1.9484,
+      0.7917
+     ],
+     "total_net_pct": -25.46,
+     "profit_factor": 0.72,
+     "max_drawdown_pct": -41.73,
+     "verdict": "non_dimostrato"
+    },
+    "kronos_all": {
+     "n": 74,
+     "win_rate": 48.6,
+     "avg_gross_pct": 0.502,
+     "avg_net_costs_pct": 0.202,
+     "avg_net_costs_ci": [
+      -1.2683,
+      1.5725
+     ],
+     "avg_net_pct": -0.564,
+     "avg_net_ci": [
+      -1.8831,
+      0.5895
+     ],
+     "total_net_pct": -41.71,
+     "profit_factor": 0.73,
+     "max_drawdown_pct": -75.73,
+     "verdict": "non_dimostrato"
+    },
+    "momentum": {
+     "n": 74,
+     "win_rate": 41.9,
+     "avg_gross_pct": 0.237,
+     "avg_net_costs_pct": -0.063,
+     "avg_net_costs_ci": [
+      -1.5103,
+      1.4717
+     ],
+     "avg_net_pct": -0.79,
+     "avg_net_ci": [
+      -2.0096,
+      0.4643
+     ],
+     "total_net_pct": -58.49,
+     "profit_factor": 0.65,
+     "max_drawdown_pct": -77.56,
+     "verdict": "non_dimostrato"
+    },
+    "always_long": {
+     "n": 74,
+     "win_rate": 39.2,
+     "avg_gross_pct": -0.466,
+     "avg_net_costs_pct": -0.766,
+     "avg_net_costs_ci": [
+      -2.4753,
+      0.9259
+     ],
+     "avg_net_pct": -1.38,
+     "avg_net_ci": [
+      -2.8501,
+      0.0545
+     ],
+     "total_net_pct": -102.11,
+     "profit_factor": 0.47,
+     "max_drawdown_pct": -118.08,
+     "verdict": "non_dimostrato"
+    }
+   },
+   "kronos_minus_momentum_ci": [
+    -2.342,
+    2.7342
+   ],
+   "buy_hold": {
+    "gross_pct": -30.02,
+    "net_pct": -30.32
+   },
+   "verdict": "campione_insufficiente",
+   "n_samples": [
+    50
+   ],
+   "context_len": [
+    299
+   ]
+  },
+  "BTCUSDT_1h": {
+   "n": 36,
+   "from": 1751500800,
+   "to": 1793534400,
+   "direction": {
+    "n": 36,
+    "n_called": 36,
+    "hit_rate": 36.1,
+    "hit_rate_ci": [
+     19.4,
+     50.0
+    ],
+    "base_rate_up_pct": 47.2,
+    "momentum_hit_rate": 61.1,
+    "hit_minus_momentum_ci": [
+     -47.2,
+     0.0
+    ],
+    "brier": 0.3518,
+    "brier_coin": 0.25,
+    "brier_base_rate": 0.2505,
+    "brier_skill_ci": [
+     -0.1901,
+     -0.0192
+    ],
+    "calibration": [
+     {
+      "range": "0-10",
+      "n": 3,
+      "predicted_up_pct": 5.3,
+      "realized_up_pct": 66.7
+     },
+     {
+      "range": "10-20",
+      "n": 5,
+      "predicted_up_pct": 13.2,
+      "realized_up_pct": 0.0
+     },
+     {
+      "range": "20-30",
+      "n": 5,
+      "predicted_up_pct": 24.4,
+      "realized_up_pct": 80.0
+     },
+     {
+      "range": "30-40",
+      "n": 5,
+      "predicted_up_pct": 36.0,
+      "realized_up_pct": 60.0
+     },
+     {
+      "range": "40-50",
+      "n": 4,
+      "predicted_up_pct": 45.5,
+      "realized_up_pct": 100.0
+     },
+     {
+      "range": "50-60",
+      "n": 6,
+      "predicted_up_pct": 55.7,
+      "realized_up_pct": 50.0
+     },
+     {
+      "range": "60-70",
+      "n": 5,
+      "predicted_up_pct": 65.6,
+      "realized_up_pct": 20.0
+     },
+     {
+      "range": "70-80",
+      "n": 1,
+      "predicted_up_pct": 72.0,
+      "realized_up_pct": 0.0
+     },
+     {
+      "range": "90-100",
+      "n": 2,
+      "predicted_up_pct": 96.0,
+      "realized_up_pct": 0.0
+     }
+    ],
+    "band_p10_p90_coverage_pct": 66.7,
+    "verdict_direction": "non_dimostrato",
+    "verdict_probability": "negativo"
+   },
+   "calibration_wf": {
+    "n_test": 0
+   },
+   "path_model": {
+    "n": 0
+   },
+   "strategies": {
+    "kronos_plan": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_ev": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "plan_all": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_signal": {
+     "n": 11,
+     "win_rate": 36.4,
+     "avg_gross_pct": 0.189,
+     "avg_net_costs_pct": -0.111,
+     "avg_net_costs_ci": [
+      -0.4908,
+      0.4144
+     ],
+     "avg_net_pct": -0.184,
+     "avg_net_ci": [
+      -0.4965,
+      0.2082
+     ],
+     "total_net_pct": -2.03,
+     "profit_factor": 0.45,
+     "max_drawdown_pct": -2.03,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_all": {
+     "n": 36,
+     "win_rate": 25.0,
+     "avg_gross_pct": -0.148,
+     "avg_net_costs_pct": -0.448,
+     "avg_net_costs_ci": [
+      -0.6888,
+      -0.2106
+     ],
+     "avg_net_pct": -0.487,
+     "avg_net_ci": [
+      -0.7038,
+      -0.2872
+     ],
+     "total_net_pct": -17.53,
+     "profit_factor": 0.14,
+     "max_drawdown_pct": -17.53,
+     "verdict": "negativo"
+    },
+    "momentum": {
+     "n": 36,
+     "win_rate": 36.1,
+     "avg_gross_pct": -0.093,
+     "avg_net_costs_pct": -0.393,
+     "avg_net_costs_ci": [
+      -0.6602,
+      -0.1581
+     ],
+     "avg_net_pct": -0.423,
+     "avg_net_ci": [
+      -0.6785,
+      -0.1986
+     ],
+     "total_net_pct": -15.23,
+     "profit_factor": 0.13,
+     "max_drawdown_pct": -15.23,
+     "verdict": "negativo"
+    },
+    "always_long": {
+     "n": 36,
+     "win_rate": 30.6,
+     "avg_gross_pct": -0.084,
+     "avg_net_costs_pct": -0.384,
+     "avg_net_costs_ci": [
+      -0.6389,
+      -0.1442
+     ],
+     "avg_net_pct": -0.422,
+     "avg_net_ci": [
+      -0.6604,
+      -0.2102
+     ],
+     "total_net_pct": -15.2,
+     "profit_factor": 0.16,
+     "max_drawdown_pct": -15.22,
+     "verdict": "negativo"
+    }
+   },
+   "kronos_minus_momentum_ci": [
+    -0.3636,
+    0.2941
+   ],
+   "buy_hold": {
+    "gross_pct": -28.59,
+    "net_pct": -28.89
+   },
+   "verdict": "campione_insufficiente",
+   "n_samples": [
+    50
+   ],
+   "context_len": [
+    400
+   ]
+  },
+  "BTCUSDT_4h": {
+   "n": 50,
+   "from": 1752422400,
+   "to": 1793894400,
+   "direction": {
+    "n": 50,
+    "n_called": 48,
+    "hit_rate": 37.5,
+    "hit_rate_ci": [
+     25.0,
+     50.0
+    ],
+    "base_rate_up_pct": 58.0,
+    "momentum_hit_rate": 52.1,
+    "hit_minus_momentum_ci": [
+     -35.4,
+     6.2
+    ],
+    "brier": 0.4144,
+    "brier_coin": 0.25,
+    "brier_base_rate": 0.2522,
+    "brier_skill_ci": [
+     -0.2442,
+     -0.079
+    ],
+    "calibration": [
+     {
+      "range": "0-10",
+      "n": 4,
+      "predicted_up_pct": 4.5,
+      "realized_up_pct": 75.0
+     },
+     {
+      "range": "10-20",
+      "n": 9,
+      "predicted_up_pct": 15.1,
+      "realized_up_pct": 55.6
+     },
+     {
+      "range": "20-30",
+      "n": 8,
+      "predicted_up_pct": 23.2,
+      "realized_up_pct": 75.0
+     },
+     {
+      "range": "30-40",
+      "n": 6,
+      "predicted_up_pct": 31.7,
+      "realized_up_pct": 100.0
+     },
+     {
+      "range": "40-50",
+      "n": 5,
+      "predicted_up_pct": 43.6,
+      "realized_up_pct": 20.0
+     },
+     {
+      "range": "50-60",
+      "n": 7,
+      "predicted_up_pct": 52.9,
+      "realized_up_pct": 71.4
+     },
+     {
+      "range": "60-70",
+      "n": 3,
+      "predicted_up_pct": 62.7,
+      "realized_up_pct": 33.3
+     },
+     {
+      "range": "70-80",
+      "n": 2,
+      "predicted_up_pct": 74.0,
+      "realized_up_pct": 0.0
+     },
+     {
+      "range": "80-90",
+      "n": 5,
+      "predicted_up_pct": 83.6,
+      "realized_up_pct": 20.0
+     },
+     {
+      "range": "90-100",
+      "n": 1,
+      "predicted_up_pct": 94.0,
+      "realized_up_pct": 100.0
+     }
+    ],
+    "band_p10_p90_coverage_pct": 50.0,
+    "verdict_direction": "non_dimostrato",
+    "verdict_probability": "negativo"
+   },
+   "calibration_wf": {
+    "n_test": 0
+   },
+   "path_model": {
+    "n": 0
+   },
+   "strategies": {
+    "kronos_plan": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_ev": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "plan_all": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_signal": {
+     "n": 22,
+     "win_rate": 27.3,
+     "avg_gross_pct": -0.7,
+     "avg_net_costs_pct": -1.0,
+     "avg_net_costs_ci": [
+      -1.7596,
+      -0.4077
+     ],
+     "avg_net_pct": -1.032,
+     "avg_net_ci": [
+      -1.7945,
+      -0.4511
+     ],
+     "total_net_pct": -22.71,
+     "profit_factor": 0.06,
+     "max_drawdown_pct": -22.71,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_all": {
+     "n": 50,
+     "win_rate": 32.0,
+     "avg_gross_pct": -0.474,
+     "avg_net_costs_pct": -0.774,
+     "avg_net_costs_ci": [
+      -1.3148,
+      -0.244
+     ],
+     "avg_net_pct": -0.878,
+     "avg_net_ci": [
+      -1.4001,
+      -0.3955
+     ],
+     "total_net_pct": -43.88,
+     "profit_factor": 0.19,
+     "max_drawdown_pct": -43.88,
+     "verdict": "negativo"
+    },
+    "momentum": {
+     "n": 50,
+     "win_rate": 46.0,
+     "avg_gross_pct": -0.057,
+     "avg_net_costs_pct": -0.357,
+     "avg_net_costs_ci": [
+      -0.9413,
+      0.2126
+     ],
+     "avg_net_pct": -0.516,
+     "avg_net_ci": [
+      -1.0387,
+      -0.0391
+     ],
+     "total_net_pct": -25.8,
+     "profit_factor": 0.38,
+     "max_drawdown_pct": -29.2,
+     "verdict": "negativo"
+    },
+    "always_long": {
+     "n": 50,
+     "win_rate": 44.0,
+     "avg_gross_pct": 0.043,
+     "avg_net_costs_pct": -0.257,
+     "avg_net_costs_ci": [
+      -0.8413,
+      0.3504
+     ],
+     "avg_net_pct": -0.431,
+     "avg_net_ci": [
+      -0.9441,
+      0.0657
+     ],
+     "total_net_pct": -21.56,
+     "profit_factor": 0.45,
+     "max_drawdown_pct": -24.12,
+     "verdict": "non_dimostrato"
+    }
+   },
+   "kronos_minus_momentum_ci": [
+    -1.2536,
+    0.317
+   ],
+   "buy_hold": {
+    "gross_pct": -36.24,
+    "net_pct": -36.54
+   },
+   "verdict": "campione_insufficiente",
+   "n_samples": [
+    50
+   ],
+   "context_len": [
+    400
+   ]
+  },
+  "ETHUSDT_1d": {
+   "n": 53,
+   "from": 1752940800,
+   "to": 1793376000,
+   "direction": {
+    "n": 53,
+    "n_called": 52,
+    "hit_rate": 51.9,
+    "hit_rate_ci": [
+     38.2,
+     66.7
+    ],
+    "base_rate_up_pct": 45.3,
+    "momentum_hit_rate": 55.8,
+    "hit_minus_momentum_ci": [
+     -23.5,
+     16.3
+    ],
+    "brier": 0.3705,
+    "brier_coin": 0.25,
+    "brier_base_rate": 0.2557,
+    "brier_skill_ci": [
+     -0.224,
+     -0.0057
+    ],
+    "calibration": [
+     {
+      "range": "0-10",
+      "n": 13,
+      "predicted_up_pct": 3.2,
+      "realized_up_pct": 46.2
+     },
+     {
+      "range": "10-20",
+      "n": 10,
+      "predicted_up_pct": 15.2,
+      "realized_up_pct": 50.0
+     },
+     {
+      "range": "20-30",
+      "n": 4,
+      "predicted_up_pct": 22.0,
+      "realized_up_pct": 25.0
+     },
+     {
+      "range": "30-40",
+      "n": 3,
+      "predicted_up_pct": 37.3,
+      "realized_up_pct": 66.7
+     },
+     {
+      "range": "40-50",
+      "n": 3,
+      "predicted_up_pct": 42.7,
+      "realized_up_pct": 33.3
+     },
+     {
+      "range": "50-60",
+      "n": 3,
+      "predicted_up_pct": 52.7,
+      "realized_up_pct": 33.3
+     },
+     {
+      "range": "60-70",
+      "n": 1,
+      "predicted_up_pct": 64.0,
+      "realized_up_pct": 100.0
+     },
+     {
+      "range": "70-80",
+      "n": 3,
+      "predicted_up_pct": 75.3,
+      "realized_up_pct": 66.7
+     },
+     {
+      "range": "80-90",
+      "n": 5,
+      "predicted_up_pct": 85.6,
+      "realized_up_pct": 20.0
+     },
+     {
+      "range": "90-100",
+      "n": 8,
+      "predicted_up_pct": 94.5,
+      "realized_up_pct": 50.0
+     }
+    ],
+    "band_p10_p90_coverage_pct": 41.5,
+    "verdict_direction": "non_dimostrato",
+    "verdict_probability": "negativo"
+   },
+   "calibration_wf": {
+    "n_test": 0
+   },
+   "path_model": {
+    "n": 0
+   },
+   "strategies": {
+    "kronos_plan": {
+     "n": 5,
+     "win_rate": 60.0,
+     "avg_gross_pct": 2.765,
+     "avg_net_costs_pct": 2.465,
+     "avg_net_costs_ci": [
+      -1.3549,
+      6.3943
+     ],
+     "avg_net_pct": 1.278,
+     "avg_net_ci": [
+      -1.8168,
+      4.2125
+     ],
+     "total_net_pct": 6.39,
+     "profit_factor": 2.13,
+     "max_drawdown_pct": -4.49,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_ev": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "plan_all": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_signal": {
+     "n": 39,
+     "win_rate": 43.6,
+     "avg_gross_pct": -0.539,
+     "avg_net_costs_pct": -0.839,
+     "avg_net_costs_ci": [
+      -3.605,
+      1.9079
+     ],
+     "avg_net_pct": -1.746,
+     "avg_net_ci": [
+      -4.2008,
+      0.5953
+     ],
+     "total_net_pct": -68.08,
+     "profit_factor": 0.51,
+     "max_drawdown_pct": -78.51,
+     "verdict": "non_dimostrato"
+    },
+    "kronos_all": {
+     "n": 53,
+     "win_rate": 47.2,
+     "avg_gross_pct": -0.997,
+     "avg_net_costs_pct": -1.297,
+     "avg_net_costs_ci": [
+      -4.0017,
+      1.2281
+     ],
+     "avg_net_pct": -2.141,
+     "avg_net_ci": [
+      -4.5969,
+      0.0979
+     ],
+     "total_net_pct": -113.47,
+     "profit_factor": 0.44,
+     "max_drawdown_pct": -125.26,
+     "verdict": "non_dimostrato"
+    },
+    "momentum": {
+     "n": 53,
+     "win_rate": 50.9,
+     "avg_gross_pct": -0.763,
+     "avg_net_costs_pct": -1.063,
+     "avg_net_costs_ci": [
+      -3.6515,
+      1.289
+     ],
+     "avg_net_pct": -1.942,
+     "avg_net_ci": [
+      -4.2726,
+      0.1419
+     ],
+     "total_net_pct": -102.91,
+     "profit_factor": 0.48,
+     "max_drawdown_pct": -118.44,
+     "verdict": "non_dimostrato"
+    },
+    "always_long": {
+     "n": 53,
+     "win_rate": 45.3,
+     "avg_gross_pct": 0.249,
+     "avg_net_costs_pct": -0.051,
+     "avg_net_costs_ci": [
+      -2.8011,
+      2.6568
+     ],
+     "avg_net_pct": -1.104,
+     "avg_net_ci": [
+      -3.3224,
+      1.0936
+     ],
+     "total_net_pct": -58.53,
+     "profit_factor": 0.66,
+     "max_drawdown_pct": -97.33,
+     "verdict": "non_dimostrato"
+    }
+   },
+   "kronos_minus_momentum_ci": [
+    -3.1708,
+    2.8201
+   ],
+   "buy_hold": {
+    "gross_pct": -40.91,
+    "net_pct": -41.21
+   },
+   "verdict": "campione_insufficiente",
+   "n_samples": [
+    50
+   ],
+   "context_len": [
+    299
+   ]
+  },
+  "ETHUSDT_1h": {
+   "n": 49,
+   "from": 1751500800,
+   "to": 1793534400,
+   "direction": {
+    "n": 49,
+    "n_called": 49,
+    "hit_rate": 42.9,
+    "hit_rate_ci": [
+     28.6,
+     57.1
+    ],
+    "base_rate_up_pct": 46.9,
+    "momentum_hit_rate": 55.1,
+    "hit_minus_momentum_ci": [
+     -38.8,
+     10.3
+    ],
+    "brier": 0.3842,
+    "brier_coin": 0.25,
+    "brier_base_rate": 0.2544,
+    "brier_skill_ci": [
+     -0.218,
+     -0.0528
+    ],
+    "calibration": [
+     {
+      "range": "0-10",
+      "n": 5,
+      "predicted_up_pct": 2.4,
+      "realized_up_pct": 80.0
+     },
+     {
+      "range": "10-20",
+      "n": 6,
+      "predicted_up_pct": 13.0,
+      "realized_up_pct": 50.0
+     },
+     {
+      "range": "20-30",
+      "n": 4,
+      "predicted_up_pct": 23.0,
+      "realized_up_pct": 50.0
+     },
+     {
+      "range": "30-40",
+      "n": 8,
+      "predicted_up_pct": 34.0,
+      "realized_up_pct": 50.0
+     },
+     {
+      "range": "40-50",
+      "n": 7,
+      "predicted_up_pct": 44.9,
+      "realized_up_pct": 42.9
+     },
+     {
+      "range": "50-60",
+      "n": 5,
+      "predicted_up_pct": 53.2,
+      "realized_up_pct": 40.0
+     },
+     {
+      "range": "60-70",
+      "n": 6,
+      "predicted_up_pct": 65.7,
+      "realized_up_pct": 50.0
+     },
+     {
+      "range": "70-80",
+      "n": 3,
+      "predicted_up_pct": 74.7,
+      "realized_up_pct": 66.7
+     },
+     {
+      "range": "80-90",
+      "n": 3,
+      "predicted_up_pct": 86.7,
+      "realized_up_pct": 0.0
+     },
+     {
+      "range": "90-100",
+      "n": 2,
+      "predicted_up_pct": 92.0,
+      "realized_up_pct": 0.0
+     }
+    ],
+    "band_p10_p90_coverage_pct": 51.0,
+    "verdict_direction": "non_dimostrato",
+    "verdict_probability": "negativo"
+   },
+   "calibration_wf": {
+    "n_test": 0
+   },
+   "path_model": {
+    "n": 0
+   },
+   "strategies": {
+    "kronos_plan": {
+     "n": 3,
+     "win_rate": 0.0,
+     "avg_gross_pct": -1.451,
+     "avg_net_costs_pct": -1.751,
+     "avg_net_costs_ci": null,
+     "avg_net_pct": -1.751,
+     "avg_net_ci": null,
+     "total_net_pct": -5.25,
+     "profit_factor": 0.0,
+     "max_drawdown_pct": -5.25,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_ev": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "plan_all": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_signal": {
+     "n": 18,
+     "win_rate": 11.1,
+     "avg_gross_pct": -0.279,
+     "avg_net_costs_pct": -0.579,
+     "avg_net_costs_ci": [
+      -1.2763,
+      0.2158
+     ],
+     "avg_net_pct": -0.675,
+     "avg_net_ci": [
+      -1.3149,
+      -0.0343
+     ],
+     "total_net_pct": -12.15,
+     "profit_factor": 0.22,
+     "max_drawdown_pct": -12.15,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_all": {
+     "n": 49,
+     "win_rate": 22.4,
+     "avg_gross_pct": -0.355,
+     "avg_net_costs_pct": -0.655,
+     "avg_net_costs_ci": [
+      -1.0493,
+      -0.2563
+     ],
+     "avg_net_pct": -0.729,
+     "avg_net_ci": [
+      -1.1017,
+      -0.3778
+     ],
+     "total_net_pct": -35.7,
+     "profit_factor": 0.17,
+     "max_drawdown_pct": -35.7,
+     "verdict": "negativo"
+    },
+    "momentum": {
+     "n": 49,
+     "win_rate": 36.7,
+     "avg_gross_pct": 0.215,
+     "avg_net_costs_pct": -0.085,
+     "avg_net_costs_ci": [
+      -0.4886,
+      0.3201
+     ],
+     "avg_net_pct": -0.237,
+     "avg_net_ci": [
+      -0.5884,
+      0.0981
+     ],
+     "total_net_pct": -11.6,
+     "profit_factor": 0.57,
+     "max_drawdown_pct": -14.71,
+     "verdict": "non_dimostrato"
+    },
+    "always_long": {
+     "n": 49,
+     "win_rate": 28.6,
+     "avg_gross_pct": -0.249,
+     "avg_net_costs_pct": -0.549,
+     "avg_net_costs_ci": [
+      -0.9516,
+      -0.1582
+     ],
+     "avg_net_pct": -0.633,
+     "avg_net_ci": [
+      -1.0142,
+      -0.2762
+     ],
+     "total_net_pct": -31.02,
+     "profit_factor": 0.21,
+     "max_drawdown_pct": -32.73,
+     "verdict": "negativo"
+    }
+   },
+   "kronos_minus_momentum_ci": [
+    -1.3273,
+    0.1781
+   ],
+   "buy_hold": {
+    "gross_pct": -12.19,
+    "net_pct": -12.49
+   },
+   "verdict": "campione_insufficiente",
+   "n_samples": [
+    50
+   ],
+   "context_len": [
+    400
+   ]
+  },
+  "ETHUSDT_4h": {
+   "n": 35,
+   "from": 1752422400,
+   "to": 1793548800,
+   "direction": {
+    "n": 35,
+    "n_called": 35,
+    "hit_rate": 34.3,
+    "hit_rate_ci": [
+     17.1,
+     48.6
+    ],
+    "base_rate_up_pct": 51.4,
+    "momentum_hit_rate": 54.3,
+    "hit_minus_momentum_ci": [
+     -45.7,
+     5.7
+    ],
+    "brier": 0.4283,
+    "brier_coin": 0.25,
+    "brier_base_rate": 0.2519,
+    "brier_skill_ci": [
+     -0.2771,
+     -0.0779
+    ],
+    "calibration": [
+     {
+      "range": "0-10",
+      "n": 3,
+      "predicted_up_pct": 6.7,
+      "realized_up_pct": 100.0
+     },
+     {
+      "range": "10-20",
+      "n": 8,
+      "predicted_up_pct": 14.0,
+      "realized_up_pct": 62.5
+     },
+     {
+      "range": "20-30",
+      "n": 3,
+      "predicted_up_pct": 27.3,
+      "realized_up_pct": 66.7
+     },
+     {
+      "range": "30-40",
+      "n": 5,
+      "predicted_up_pct": 33.6,
+      "realized_up_pct": 40.0
+     },
+     {
+      "range": "40-50",
+      "n": 3,
+      "predicted_up_pct": 46.0,
+      "realized_up_pct": 66.7
+     },
+     {
+      "range": "50-60",
+      "n": 3,
+      "predicted_up_pct": 56.0,
+      "realized_up_pct": 66.7
+     },
+     {
+      "range": "60-70",
+      "n": 5,
+      "predicted_up_pct": 63.6,
+      "realized_up_pct": 20.0
+     },
+     {
+      "range": "80-90",
+      "n": 4,
+      "predicted_up_pct": 81.5,
+      "realized_up_pct": 25.0
+     },
+     {
+      "range": "90-100",
+      "n": 1,
+      "predicted_up_pct": 100.0,
+      "realized_up_pct": 0.0
+     }
+    ],
+    "band_p10_p90_coverage_pct": 40.0,
+    "verdict_direction": "negativo",
+    "verdict_probability": "negativo"
+   },
+   "calibration_wf": {
+    "n_test": 0
+   },
+   "path_model": {
+    "n": 0
+   },
+   "strategies": {
+    "kronos_plan": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_ev": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "plan_all": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_signal": {
+     "n": 16,
+     "win_rate": 18.8,
+     "avg_gross_pct": -1.768,
+     "avg_net_costs_pct": -2.068,
+     "avg_net_costs_ci": [
+      -3.1615,
+      -1.0529
+     ],
+     "avg_net_pct": -2.081,
+     "avg_net_ci": [
+      -3.1665,
+      -1.0771
+     ],
+     "total_net_pct": -33.3,
+     "profit_factor": 0.01,
+     "max_drawdown_pct": -33.3,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_all": {
+     "n": 35,
+     "win_rate": 31.4,
+     "avg_gross_pct": -0.62,
+     "avg_net_costs_pct": -0.92,
+     "avg_net_costs_ci": [
+      -2.1443,
+      0.5971
+     ],
+     "avg_net_pct": -1.194,
+     "avg_net_ci": [
+      -2.2382,
+      -0.0705
+     ],
+     "total_net_pct": -41.8,
+     "profit_factor": 0.32,
+     "max_drawdown_pct": -50.29,
+     "verdict": "negativo"
+    },
+    "momentum": {
+     "n": 35,
+     "win_rate": 48.6,
+     "avg_gross_pct": 0.071,
+     "avg_net_costs_pct": -0.229,
+     "avg_net_costs_ci": [
+      -1.6872,
+      1.0004
+     ],
+     "avg_net_pct": -0.597,
+     "avg_net_ci": [
+      -1.9568,
+      0.4826
+     ],
+     "total_net_pct": -20.91,
+     "profit_factor": 0.56,
+     "max_drawdown_pct": -33.21,
+     "verdict": "non_dimostrato"
+    },
+    "always_long": {
+     "n": 35,
+     "win_rate": 48.6,
+     "avg_gross_pct": 0.63,
+     "avg_net_costs_pct": 0.33,
+     "avg_net_costs_ci": [
+      -0.9424,
+      1.7742
+     ],
+     "avg_net_pct": -0.13,
+     "avg_net_ci": [
+      -1.1497,
+      0.9772
+     ],
+     "total_net_pct": -4.55,
+     "profit_factor": 0.88,
+     "max_drawdown_pct": -27.01,
+     "verdict": "non_dimostrato"
+    }
+   },
+   "kronos_minus_momentum_ci": [
+    -3.0448,
+    2.2126
+   ],
+   "buy_hold": {
+    "gross_pct": -24.64,
+    "net_pct": -24.94
+   },
+   "verdict": "campione_insufficiente",
+   "n_samples": [
+    50
+   ],
+   "context_len": [
+    400
+   ]
+  },
+  "SOLUSDT_1d": {
+   "n": 62,
+   "from": 1751904000,
+   "to": 1793376000,
+   "direction": {
+    "n": 62,
+    "n_called": 61,
+    "hit_rate": 49.2,
+    "hit_rate_ci": [
+     36.2,
+     61.6
+    ],
+    "base_rate_up_pct": 48.4,
+    "momentum_hit_rate": 54.1,
+    "hit_minus_momentum_ci": [
+     -23.3,
+     13.6
+    ],
+    "brier": 0.3813,
+    "brier_coin": 0.25,
+    "brier_base_rate": 0.2542,
+    "brier_skill_ci": [
+     -0.2224,
+     -0.031
+    ],
+    "calibration": [
+     {
+      "range": "0-10",
+      "n": 15,
+      "predicted_up_pct": 3.1,
+      "realized_up_pct": 46.7
+     },
+     {
+      "range": "10-20",
+      "n": 4,
+      "predicted_up_pct": 11.0,
+      "realized_up_pct": 50.0
+     },
+     {
+      "range": "20-30",
+      "n": 2,
+      "predicted_up_pct": 21.0,
+      "realized_up_pct": 50.0
+     },
+     {
+      "range": "30-40",
+      "n": 5,
+      "predicted_up_pct": 33.2,
+      "realized_up_pct": 60.0
+     },
+     {
+      "range": "40-50",
+      "n": 1,
+      "predicted_up_pct": 44.0,
+      "realized_up_pct": 0.0
+     },
+     {
+      "range": "50-60",
+      "n": 3,
+      "predicted_up_pct": 55.3,
+      "realized_up_pct": 66.7
+     },
+     {
+      "range": "60-70",
+      "n": 6,
+      "predicted_up_pct": 62.7,
+      "realized_up_pct": 33.3
+     },
+     {
+      "range": "70-80",
+      "n": 4,
+      "predicted_up_pct": 74.0,
+      "realized_up_pct": 50.0
+     },
+     {
+      "range": "80-90",
+      "n": 8,
+      "predicted_up_pct": 84.0,
+      "realized_up_pct": 62.5
+     },
+     {
+      "range": "90-100",
+      "n": 14,
+      "predicted_up_pct": 96.1,
+      "realized_up_pct": 42.9
+     }
+    ],
+    "band_p10_p90_coverage_pct": 40.3,
+    "verdict_direction": "non_dimostrato",
+    "verdict_probability": "negativo"
+   },
+   "calibration_wf": {
+    "n_test": 0
+   },
+   "path_model": {
+    "n": 0
+   },
+   "strategies": {
+    "kronos_plan": {
+     "n": 8,
+     "win_rate": 37.5,
+     "avg_gross_pct": -0.65,
+     "avg_net_costs_pct": -0.95,
+     "avg_net_costs_ci": [
+      -4.9016,
+      3.8315
+     ],
+     "avg_net_pct": -1.629,
+     "avg_net_ci": [
+      -4.9632,
+      2.1685
+     ],
+     "total_net_pct": -13.03,
+     "profit_factor": 0.46,
+     "max_drawdown_pct": -23.96,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_ev": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "plan_all": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_signal": {
+     "n": 42,
+     "win_rate": 50.0,
+     "avg_gross_pct": 0.519,
+     "avg_net_costs_pct": 0.219,
+     "avg_net_costs_ci": [
+      -2.5224,
+      2.8309
+     ],
+     "avg_net_pct": -0.934,
+     "avg_net_ci": [
+      -3.2796,
+      1.2752
+     ],
+     "total_net_pct": -39.24,
+     "profit_factor": 0.71,
+     "max_drawdown_pct": -83.27,
+     "verdict": "non_dimostrato"
+    },
+    "kronos_all": {
+     "n": 62,
+     "win_rate": 48.4,
+     "avg_gross_pct": 0.643,
+     "avg_net_costs_pct": 0.343,
+     "avg_net_costs_ci": [
+      -1.6429,
+      2.3925
+     ],
+     "avg_net_pct": -0.83,
+     "avg_net_ci": [
+      -2.4766,
+      0.8353
+     ],
+     "total_net_pct": -51.49,
+     "profit_factor": 0.74,
+     "max_drawdown_pct": -74.68,
+     "verdict": "non_dimostrato"
+    },
+    "momentum": {
+     "n": 62,
+     "win_rate": 53.2,
+     "avg_gross_pct": 0.473,
+     "avg_net_costs_pct": 0.173,
+     "avg_net_costs_ci": [
+      -1.8255,
+      2.2852
+     ],
+     "avg_net_pct": -0.968,
+     "avg_net_ci": [
+      -2.6593,
+      0.801
+     ],
+     "total_net_pct": -59.99,
+     "profit_factor": 0.71,
+     "max_drawdown_pct": -89.16,
+     "verdict": "non_dimostrato"
+    },
+    "always_long": {
+     "n": 62,
+     "win_rate": 46.8,
+     "avg_gross_pct": -0.223,
+     "avg_net_costs_pct": -0.523,
+     "avg_net_costs_ci": [
+      -2.9498,
+      1.9122
+     ],
+     "avg_net_pct": -1.556,
+     "avg_net_ci": [
+      -3.5902,
+      0.3905
+     ],
+     "total_net_pct": -96.46,
+     "profit_factor": 0.57,
+     "max_drawdown_pct": -117.29,
+     "verdict": "non_dimostrato"
+    }
+   },
+   "kronos_minus_momentum_ci": [
+    -3.0915,
+    3.3356
+   ],
+   "buy_hold": {
+    "gross_pct": -40.23,
+    "net_pct": -40.53
+   },
+   "verdict": "campione_insufficiente",
+   "n_samples": [
+    50
+   ],
+   "context_len": [
+    299
+   ]
+  },
+  "SOLUSDT_1h": {
+   "n": 50,
+   "from": 1751500800,
+   "to": 1793534400,
+   "direction": {
+    "n": 50,
+    "n_called": 49,
+    "hit_rate": 44.9,
+    "hit_rate_ci": [
+     30.6,
+     59.2
+    ],
+    "base_rate_up_pct": 44.0,
+    "momentum_hit_rate": 63.3,
+    "hit_minus_momentum_ci": [
+     -40.8,
+     4.1
+    ],
+    "brier": 0.3886,
+    "brier_coin": 0.25,
+    "brier_base_rate": 0.2551,
+    "brier_skill_ci": [
+     -0.2189,
+     -0.0499
+    ],
+    "calibration": [
+     {
+      "range": "0-10",
+      "n": 6,
+      "predicted_up_pct": 4.0,
+      "realized_up_pct": 83.3
+     },
+     {
+      "range": "10-20",
+      "n": 3,
+      "predicted_up_pct": 14.7,
+      "realized_up_pct": 66.7
+     },
+     {
+      "range": "20-30",
+      "n": 6,
+      "predicted_up_pct": 24.3,
+      "realized_up_pct": 66.7
+     },
+     {
+      "range": "30-40",
+      "n": 7,
+      "predicted_up_pct": 32.9,
+      "realized_up_pct": 28.6
+     },
+     {
+      "range": "40-50",
+      "n": 8,
+      "predicted_up_pct": 45.0,
+      "realized_up_pct": 25.0
+     },
+     {
+      "range": "50-60",
+      "n": 3,
+      "predicted_up_pct": 53.3,
+      "realized_up_pct": 0.0
+     },
+     {
+      "range": "60-70",
+      "n": 7,
+      "predicted_up_pct": 62.6,
+      "realized_up_pct": 57.1
+     },
+     {
+      "range": "70-80",
+      "n": 4,
+      "predicted_up_pct": 74.0,
+      "realized_up_pct": 25.0
+     },
+     {
+      "range": "80-90",
+      "n": 3,
+      "predicted_up_pct": 84.7,
+      "realized_up_pct": 66.7
+     },
+     {
+      "range": "90-100",
+      "n": 3,
+      "predicted_up_pct": 94.0,
+      "realized_up_pct": 0.0
+     }
+    ],
+    "band_p10_p90_coverage_pct": 54.0,
+    "verdict_direction": "non_dimostrato",
+    "verdict_probability": "negativo"
+   },
+   "calibration_wf": {
+    "n_test": 0
+   },
+   "path_model": {
+    "n": 0
+   },
+   "strategies": {
+    "kronos_plan": {
+     "n": 3,
+     "win_rate": 0.0,
+     "avg_gross_pct": -0.539,
+     "avg_net_costs_pct": -0.839,
+     "avg_net_costs_ci": null,
+     "avg_net_pct": -0.839,
+     "avg_net_ci": null,
+     "total_net_pct": -2.52,
+     "profit_factor": 0.0,
+     "max_drawdown_pct": -2.52,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_ev": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "plan_all": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_signal": {
+     "n": 16,
+     "win_rate": 25.0,
+     "avg_gross_pct": -0.657,
+     "avg_net_costs_pct": -0.957,
+     "avg_net_costs_ci": [
+      -1.6497,
+      -0.3439
+     ],
+     "avg_net_pct": -1.005,
+     "avg_net_ci": [
+      -1.6696,
+      -0.4329
+     ],
+     "total_net_pct": -16.07,
+     "profit_factor": 0.09,
+     "max_drawdown_pct": -16.07,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_all": {
+     "n": 50,
+     "win_rate": 36.0,
+     "avg_gross_pct": -0.159,
+     "avg_net_costs_pct": -0.459,
+     "avg_net_costs_ci": [
+      -0.8874,
+      -0.0139
+     ],
+     "avg_net_pct": -0.59,
+     "avg_net_ci": [
+      -0.9794,
+      -0.1978
+     ],
+     "total_net_pct": -29.52,
+     "profit_factor": 0.31,
+     "max_drawdown_pct": -29.52,
+     "verdict": "negativo"
+    },
+    "momentum": {
+     "n": 50,
+     "win_rate": 50.0,
+     "avg_gross_pct": 0.357,
+     "avg_net_costs_pct": 0.057,
+     "avg_net_costs_ci": [
+      -0.3527,
+      0.4761
+     ],
+     "avg_net_pct": -0.144,
+     "avg_net_ci": [
+      -0.4867,
+      0.1996
+     ],
+     "total_net_pct": -7.18,
+     "profit_factor": 0.74,
+     "max_drawdown_pct": -9.77,
+     "verdict": "non_dimostrato"
+    },
+    "always_long": {
+     "n": 50,
+     "win_rate": 38.0,
+     "avg_gross_pct": -0.219,
+     "avg_net_costs_pct": -0.519,
+     "avg_net_costs_ci": [
+      -0.9571,
+      -0.0807
+     ],
+     "avg_net_pct": -0.64,
+     "avg_net_ci": [
+      -1.0356,
+      -0.2524
+     ],
+     "total_net_pct": -32.02,
+     "profit_factor": 0.28,
+     "max_drawdown_pct": -33.16,
+     "verdict": "negativo"
+    }
+   },
+   "kronos_minus_momentum_ci": [
+    -1.3293,
+    0.2739
+   ],
+   "buy_hold": {
+    "gross_pct": -38.58,
+    "net_pct": -38.88
+   },
+   "verdict": "campione_insufficiente",
+   "n_samples": [
+    50
+   ],
+   "context_len": [
+    400
+   ]
+  },
+  "SOLUSDT_4h": {
+   "n": 35,
+   "from": 1752422400,
+   "to": 1793548800,
+   "direction": {
+    "n": 35,
+    "n_called": 35,
+    "hit_rate": 37.1,
+    "hit_rate_ci": [
+     20.0,
+     54.3
+    ],
+    "base_rate_up_pct": 51.4,
+    "momentum_hit_rate": 57.1,
+    "hit_minus_momentum_ci": [
+     -48.6,
+     8.6
+    ],
+    "brier": 0.4169,
+    "brier_coin": 0.25,
+    "brier_base_rate": 0.2519,
+    "brier_skill_ci": [
+     -0.2819,
+     -0.0557
+    ],
+    "calibration": [
+     {
+      "range": "0-10",
+      "n": 8,
+      "predicted_up_pct": 5.5,
+      "realized_up_pct": 62.5
+     },
+     {
+      "range": "10-20",
+      "n": 4,
+      "predicted_up_pct": 12.5,
+      "realized_up_pct": 50.0
+     },
+     {
+      "range": "20-30",
+      "n": 2,
+      "predicted_up_pct": 25.0,
+      "realized_up_pct": 0.0
+     },
+     {
+      "range": "30-40",
+      "n": 2,
+      "predicted_up_pct": 30.0,
+      "realized_up_pct": 100.0
+     },
+     {
+      "range": "40-50",
+      "n": 3,
+      "predicted_up_pct": 40.7,
+      "realized_up_pct": 100.0
+     },
+     {
+      "range": "50-60",
+      "n": 7,
+      "predicted_up_pct": 54.9,
+      "realized_up_pct": 42.9
+     },
+     {
+      "range": "60-70",
+      "n": 1,
+      "predicted_up_pct": 62.0,
+      "realized_up_pct": 100.0
+     },
+     {
+      "range": "70-80",
+      "n": 2,
+      "predicted_up_pct": 73.0,
+      "realized_up_pct": 0.0
+     },
+     {
+      "range": "80-90",
+      "n": 3,
+      "predicted_up_pct": 83.3,
+      "realized_up_pct": 33.3
+     },
+     {
+      "range": "90-100",
+      "n": 3,
+      "predicted_up_pct": 96.0,
+      "realized_up_pct": 33.3
+     }
+    ],
+    "band_p10_p90_coverage_pct": 34.3,
+    "verdict_direction": "non_dimostrato",
+    "verdict_probability": "negativo"
+   },
+   "calibration_wf": {
+    "n_test": 0
+   },
+   "path_model": {
+    "n": 0
+   },
+   "strategies": {
+    "kronos_plan": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_ev": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "plan_all": {
+     "n": 0,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_signal": {
+     "n": 18,
+     "win_rate": 38.9,
+     "avg_gross_pct": -0.887,
+     "avg_net_costs_pct": -1.187,
+     "avg_net_costs_ci": [
+      -2.7182,
+      0.2889
+     ],
+     "avg_net_pct": -1.456,
+     "avg_net_ci": [
+      -2.8727,
+      -0.1273
+     ],
+     "total_net_pct": -26.21,
+     "profit_factor": 0.27,
+     "max_drawdown_pct": -26.21,
+     "verdict": "campione_insufficiente"
+    },
+    "kronos_all": {
+     "n": 35,
+     "win_rate": 34.3,
+     "avg_gross_pct": -1.372,
+     "avg_net_costs_pct": -1.672,
+     "avg_net_costs_ci": [
+      -2.9676,
+      -0.4865
+     ],
+     "avg_net_pct": -1.923,
+     "avg_net_ci": [
+      -3.1235,
+      -0.8581
+     ],
+     "total_net_pct": -67.3,
+     "profit_factor": 0.21,
+     "max_drawdown_pct": -67.3,
+     "verdict": "negativo"
+    },
+    "momentum": {
+     "n": 35,
+     "win_rate": 57.1,
+     "avg_gross_pct": 1.133,
+     "avg_net_costs_pct": 0.833,
+     "avg_net_costs_ci": [
+      -0.3797,
+      2.1422
+     ],
+     "avg_net_pct": 0.19,
+     "avg_net_ci": [
+      -0.7961,
+      1.1875
+     ],
+     "total_net_pct": 6.64,
+     "profit_factor": 1.17,
+     "max_drawdown_pct": -14.91,
+     "verdict": "non_dimostrato"
+    },
+    "always_long": {
+     "n": 35,
+     "win_rate": 51.4,
+     "avg_gross_pct": 0.302,
+     "avg_net_costs_pct": 0.002,
+     "avg_net_costs_ci": [
+      -1.3355,
+      1.4268
+     ],
+     "avg_net_pct": -0.509,
+     "avg_net_ci": [
+      -1.6527,
+      0.628
+     ],
+     "total_net_pct": -17.83,
+     "profit_factor": 0.67,
+     "max_drawdown_pct": -32.99,
+     "verdict": "non_dimostrato"
+    }
+   },
+   "kronos_minus_momentum_ci": [
+    -4.9921,
+    -0.2787
+   ],
+   "buy_hold": {
+    "gross_pct": -43.41,
+    "net_pct": -43.71
+   },
+   "verdict": "campione_insufficiente",
+   "n_samples": [
+    50
+   ],
+   "context_len": [
+    400
+   ]
+  }
+ }
+}
