@@ -121,6 +121,10 @@ main {
     display: flex; align-items: center; justify-content: center;
 }
 .pill-btn.active { background: rgba(48, 209, 88, 0.15); border-color: var(--accent); color: var(--accent); }
+/* Scelta della strategia a 3 tasti (Verifica Strategia in Grafici e Backtest), stesso stile di asset/timeframe */
+.strategy-toggle { display: flex; gap: 6px; width: 100%; }
+.strategy-toggle.compact { margin-bottom: 8px; }
+.strategy-toggle.compact .pill-btn { padding: 8px 4px; min-height: 36px; font-size: 11px; }
 
 /* --- CHART --- */
 .chart-container { flex: 1; min-height: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; position: relative; margin-bottom: 8px; }
@@ -150,7 +154,6 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .tech-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .tech-title { font-size: 11px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.5px; }
 .tech-trend-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); }
-.tech-strategy-select { width: 100%; background: #000; border: 1px solid var(--border); color: #fff; padding: 8px; border-radius: 8px; font-size: 12px; margin-bottom: 8px; outline: none; text-align: center; -webkit-appearance: none; appearance: none; }
 
 .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .filter-item { background: #000; border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
