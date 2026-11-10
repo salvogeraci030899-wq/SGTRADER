@@ -1,0 +1,81 @@
+name: Validazione strategie tecniche
+
+# Misura Breakout, Mean Reversion, MA Crossover e il loro consenso sullo storico Bitget, con lo
+# stesso metro usato per Kronos (costi, tasse, intervalli di confidenza). Nessun modello: pochi minuti.
+# - Avvio manuale: tutto lo storico disponibile, poi commit di strategies_summary.json e validation/STRATEGIE.md.
+# - Sulle PR che toccano questi file: prova veloce su un periodo breve con Bitget vero, senza commit.
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        description: 'Data di inizio (AAAA-MM-GG). Bitget restituisce quello che ha da quella data in poi'
+        required: true
+        default: '2018-01-01'
+  pull_request:
+    paths:
+      - 'strategies_validation.py'
+      - 'validation.py'
+      - 'validation_stats.py'
+      - 'kronos_core.py'
+      - 'track_record.py'
+      - '.github/workflows/strategies.yml'
+
+concurrency:
+  group: strategies-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Prova veloce (dati veri)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installa dipendenze minime
+        run: pip install "pandas>=2.2.2" numpy requests
+      - name: Strategie su un periodo breve
+        run: |
+          python strategies_validation.py --start 2025-09-01 --symbols BTCUSDT SOLUSDT --tfs 1h 1d | tail -n 40
+          python -c "import json; s=json.load(open('strategies_summary.json')); assert len(s['by_pair']) == 4, s['by_pair'].keys(); print({k: v['period'] for k, v in s['by_pair'].items()})"
+
+  run:
+    name: Tutto lo storico
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installa dipendenze minime
+        run: pip install "pandas>=2.2.2" numpy requests
+      # L'input passa da una variabile d'ambiente, mai incollato direttamente nel comando
+      - name: Calcola
+        env:
+          START: ${{ github.event.inputs.start }}
+        run: |
+          python strategies_validation.py --start "$START" > /dev/null
+          cat validation/STRATEGIE.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Salva i risultati
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add strategies_summary.json validation/STRATEGIE.md
+          git commit -m "Validazione strategie tecniche: risultati aggiornati $(date -u +%Y-%m-%d_%H:%M)" || { echo "Nessuna modifica da salvare"; exit 0; }
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            echo "Push fallito (tentativo $i), riprovo..."
+            sleep $((i * 5))
+          done
+          echo "Impossibile fare push dei risultati."
+          exit 1
