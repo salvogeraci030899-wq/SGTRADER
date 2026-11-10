@@ -12,6 +12,7 @@ import * as HomeUI from './ui/home.js';
 import * as HomeCharts from './ui/home-charts.js';
 import * as Backup from './core/backup.js';
 import { initManual } from './ui/manual.js';
+import { initPageFit } from './ui/page-fit.js';
 
 State.loadState();
 State.loadSignalState();
@@ -224,6 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
     HomeUI.initHome();
 
     initManual();
+    initPageFit();
 
     try {
         HomeCharts.initHomeCharts();
