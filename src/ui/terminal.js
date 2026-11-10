@@ -35,6 +35,12 @@ function initChart() {
         showBands: true,
         interactive: true
     });
+    // Il grafico segue sempre la misura reale del contenitore (cambio tab, barra di Safari,
+    // altezza dello schermo che si assesta all'avvio della PWA, pannelli che cambiano altezza)
+    if (chartContainer && 'ResizeObserver' in window && !initChart.observer) {
+        initChart.observer = new ResizeObserver(() => resizeChart());
+        initChart.observer.observe(chartContainer);
+    }
 }
 
 // --- CHART ACTIONS ---
@@ -171,11 +177,7 @@ export function updateChart() {
         setBands(chartHandle, cleanData(data.band_upper), cleanData(data.band_lower));
         setForecast(chartHandle, cleanData(data.forecast));
         State.candleTimes = hist.map(d => d.time);
-        const key = `${State.currentAsset}_${State.currentTF}`;
-        if (key !== State.viewKey) {
-            State.viewKey = key;
-            chartHandle.chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, hist.length - 60), to: hist.length + 8 });
-        }
+        applyDefaultViewIfNeeded();
     }
     refreshMarkers();
     updatePriceLines();
@@ -461,6 +463,21 @@ export function sendToCalculator() {
     if (window.calc) window.calc();
 }
 
+// Inquadratura iniziale (ultime 60 candele) per l'asset/timeframe corrente. Va applicata solo quando
+// il grafico ha una larghezza reale: all'avvio i dati arrivano con la pagina Grafici nascosta
+// (larghezza 0) e la libreria calcolerebbe la spaziatura minima, con tutte le candele schiacciate.
+// In quel caso resta in attesa e viene applicata al primo ridimensionamento con larghezza > 0.
+function applyDefaultViewIfNeeded() {
+    if (!chartHandle || !chartContainer || chartContainer.clientWidth === 0) return;
+    const key = `${State.currentAsset}_${State.currentTF}`;
+    const n = State.candleTimes.length;
+    if (key === State.viewKey || n === 0) return;
+    chartHandle.resize(); // la spaziatura si calcola sulla larghezza attuale del grafico
+    State.viewKey = key;
+    chartHandle.chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, n - 60), to: n + 8 });
+}
+
 export function resizeChart() {
     if (chartHandle) chartHandle.resize();
+    applyDefaultViewIfNeeded();
 }
