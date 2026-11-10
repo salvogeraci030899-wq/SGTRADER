@@ -273,7 +273,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window._signalHistoryScrollTimeout = setTimeout(SignalsUI.updateSignalHistoryDots, 50);
     });
 
-    // Info carousel: aggiorna dots on scroll (senza contatore)
     const infoCarouselEl = document.getElementById('infoCarousel');
     if (infoCarouselEl) infoCarouselEl.addEventListener('scroll', () => {
         clearTimeout(window._infoScrollTimeout);
