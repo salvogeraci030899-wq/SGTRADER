@@ -247,6 +247,26 @@ document.addEventListener('DOMContentLoaded', () => {
             window._navScrollTimeout = setTimeout(updateNavDots, 50);
         });
         updateNavDots();
+
+        // In PWA la fila di icone non è scorrevole al tocco (vedi style.css, html.pwa-mode):
+        // il passaggio tra le due pagine della navbar lo gestisce questo swipe.
+        if (document.documentElement.classList.contains('pwa-mode')) {
+            let startX = null, startY = null;
+            navScroll.addEventListener('touchstart', e => {
+                startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+            }, { passive: true });
+            navScroll.addEventListener('touchend', e => {
+                if (startX === null) return;
+                const dx = e.changedTouches[0].clientX - startX;
+                const dy = e.changedTouches[0].clientY - startY;
+                startX = startY = null;
+                if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+                const pages = navScroll.querySelectorAll('.nav-page').length;
+                const current = Math.round(navScroll.scrollLeft / navScroll.clientWidth);
+                const next = Math.max(0, Math.min(pages - 1, current + (dx < 0 ? 1 : -1)));
+                if (next !== current) window.scrollNavTo(next);
+            }, { passive: true });
+        }
     }
 
     const dashCarousel = document.getElementById('dashboardCarousel');
