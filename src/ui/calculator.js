@@ -9,8 +9,9 @@ export function initCalculator() {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', calc);
     });
-    const dirEl = document.getElementById('calcDirection');
-    if (dirEl) dirEl.addEventListener('change', calc);
+    // Commissione futures: finché non la cambi a mano segue la commissione taker reale di Bitget
+    const feeInput = document.getElementById('calcFee');
+    if (feeInput) feeInput.addEventListener('input', () => { futFeeTouched = true; });
 
     ['calcEntry', 'calcStop', 'calcTarget'].forEach(id => {
         const el = document.getElementById(id);
@@ -23,12 +24,43 @@ export function initCalculator() {
     initCalcAutoFit();
 }
 
+let futFeeTouched = false;
+const TF_HOURS = { '1h': 1, '4h': 4, '1d': 24 };
+const HORIZON_CANDLES = 7;        // durata di un segnale Kronos, in candele
+const FALLBACK_MMR = 0.005;       // margine di mantenimento usato se le fasce di Bitget non sono disponibili
+
+const calcCtx = () => State.calcContext || { asset: State.currentAsset, tf: State.currentTF };
+const fmtPrice = p => p.toLocaleString('en-US', { minimumFractionDigits: p >= 10 ? 2 : 4, maximumFractionDigits: p >= 10 ? 2 : 4 });
+
+// Direzione a tasti (niente menu a tendina): aggiorna il campo nascosto e il tasto evidenziato
+export function setCalcDirection(dir) {
+    const input = document.getElementById('calcDirection');
+    if (!input) return;
+    input.value = dir === 'SHORT' ? 'SHORT' : 'LONG';
+    document.querySelectorAll('.option-toggle[data-target="calcDirection"] button')
+        .forEach(b => b.classList.toggle('active', b.dataset.value === input.value));
+}
+
+function applyFuturesFee() {
+    const fut = Terminal.getFutures(calcCtx().asset);
+    const feeInput = document.getElementById('calcFee');
+    if (!futFeeTouched && feeInput && fut && typeof fut.taker_fee_pct === 'number') feeInput.value = fut.taker_fee_pct;
+}
+
+// Chiamata quando arrivano (o si aggiornano) i dati futures del bot
+export function onFuturesData() {
+    applyFuturesFee();
+    if (State.currentMarket === 'FUTURES') calc();
+}
+
 export function setMarket(market) {
     State.currentMarket = market;
     document.getElementById('btn-market-spot').classList.toggle('active', market === 'SPOT');
     document.getElementById('btn-market-fut').classList.toggle('active', market === 'FUTURES');
     if (market === 'FUTURES') { document.getElementById('lev-grid').style.display = 'grid'; document.getElementById('spot-grid').style.display = 'none'; }
     else { document.getElementById('lev-grid').style.display = 'none'; document.getElementById('spot-grid').style.display = 'grid'; }
+    document.querySelectorAll('#page-calculator .fut-only').forEach(el => { el.style.display = market === 'FUTURES' ? '' : 'none'; });
+    if (market === 'FUTURES') applyFuturesFee();
     calc();
 }
 
@@ -82,6 +114,7 @@ export function calc() {
     const resRR = document.getElementById('resRR'), resMargin = document.getElementById('resMargin'), resSize = document.getElementById('resSize'),
           resRiskEur = document.getElementById('resRiskEur'), resGross = document.getElementById('resGross'), resCosts = document.getElementById('resCosts'),
           resTax = document.getElementById('resTax'), resNet = document.getElementById('resNet'),
+          resLiq = document.getElementById('resLiq'), resFunding = document.getElementById('resFunding'), resFundingLabel = document.getElementById('resFundingLabel'),
           calcWarning = document.getElementById('calcWarning'), calcError = document.getElementById('calcError');
 
     resTax.previousElementSibling.textContent = `Tasse (${Math.round(CONFIG.TAX_RATE * 100)}%)`;
@@ -90,7 +123,7 @@ export function calc() {
 
     const clearAll = () => {
         resRR.textContent = resMargin.textContent = resSize.textContent = resRiskEur.textContent =
-        resGross.textContent = resCosts.textContent = resTax.textContent = resNet.textContent = '—';
+        resGross.textContent = resCosts.textContent = resTax.textContent = resNet.textContent = resLiq.textContent = resFunding.textContent = '—';
     };
     const fail = (msg) => { calcError.textContent = msg; calcError.style.display = 'block'; clearAll(); };
 
@@ -117,14 +150,34 @@ export function calc() {
     const grossProfit = sizeNominal * targetDistPct;
     const exitNotional = isLong ? sizeNominal + grossProfit : sizeNominal - grossProfit;
     const totalFees = sizeNominal * feePct + exitNotional * feePct;
-    const taxes = Math.max(0, grossProfit - totalFees) * CONFIG.TAX_RATE;
-    const netProfit = grossProfit - totalFees - taxes;
+
+    // Futures: liquidazione (margine isolato) e funding, con le regole reali del contratto Bitget
+    // quando il bot le ha salvate. Sono stime: il funding cambia a ogni scadenza.
+    let liqPrice = null, liqDistPct = null, fundingCost = 0, fundingKnown = false, holdHours = 0;
+    if (State.currentMarket === 'FUTURES') {
+        const ctx = calcCtx();
+        const fut = Terminal.getFutures(ctx.asset);
+        const tiers = fut && Array.isArray(fut.tiers) && fut.tiers.length ? fut.tiers : null;
+        const tier = tiers ? (tiers.find(t => sizeNominal <= t.up_to_usdt) || tiers[tiers.length - 1]) : null;
+        if (tier && leverage > tier.max_leverage) return fail(`Per una posizione di ${Math.round(sizeNominal)} USDT su ${SYM(ctx.asset)} Bitget concede al massimo leva ${tier.max_leverage}x.`);
+        liqDistPct = 1 / leverage - (tier ? tier.mmr_pct / 100 : FALLBACK_MMR);
+        liqPrice = isLong ? entry * (1 - liqDistPct) : entry * (1 + liqDistPct);
+        if (stopDistPct >= liqDistPct) return fail(`Con leva ${leverage}x la liquidazione stimata (${fmtPrice(Math.max(liqPrice, 0))}) arriva prima dello stop: perderesti tutto il margine. Riduci la leva o avvicina lo stop.`);
+        holdHours = HORIZON_CANDLES * (TF_HOURS[ctx.tf] || 1);
+        if (fut && typeof fut.funding_rate_pct === 'number') {
+            fundingKnown = true;
+            // positivo = lo paghi (long con funding positivo, short con funding negativo)
+            fundingCost = sizeNominal * (fut.funding_rate_pct / 100) * (holdHours / (fut.funding_interval_h || 8)) * (isLong ? 1 : -1);
+        }
+    }
+
+    const taxes = Math.max(0, grossProfit - totalFees - fundingCost) * CONFIG.TAX_RATE;
+    const netProfit = grossProfit - totalFees - fundingCost - taxes;
 
     const notes = [];
     if (capped) notes.push(`<b>Size al massimo consentito dal capitale.</b><br>Con stop del ${(stopDistPct * 100).toFixed(2)}% il rischio massimo è <b>${realRiskPct.toFixed(2)}%</b>, non ${riskPct}%.`);
-    if (State.currentMarket === 'FUTURES' && leverage > 1) {
-        const liqDistPct = 1 / leverage;
-        if (stopDistPct >= liqDistPct * 0.8) notes.push(`Con leva ${leverage}x la liquidazione è a ~${(liqDistPct * 100).toFixed(1)}%.`);
+    if (liqDistPct !== null && leverage > 1 && stopDistPct >= liqDistPct * 0.8) {
+        notes.push(`Lo stop è vicino alla liquidazione stimata (${fmtPrice(liqPrice)}, a ${(liqDistPct * 100).toFixed(1)}% dall'entry): basta poco slippage per perdere tutto il margine.`);
     }
     if (rr < 1.5) notes.push('R:R inferiore a 1.5. Trade sconsigliato.');
     
@@ -138,6 +191,11 @@ export function calc() {
     resCosts.textContent = `-${Math.round(totalFees)} USDT`;
     resTax.textContent = `-${Math.round(taxes)} USDT`;
     resNet.textContent = `${netProfit > 0 ? '+' : ''}${Math.round(netProfit)} USDT`;
+    if (liqPrice !== null) {
+        resLiq.textContent = liqPrice > 0 ? `${fmtPrice(liqPrice)} (${isLong ? '-' : '+'}${(liqDistPct * 100).toFixed(1)}%)` : 'Nessuna';
+        resFundingLabel.textContent = `Funding stimato (${holdHours >= 48 ? Math.round(holdHours / 24) + ' giorni' : holdHours + ' h'})`;
+        resFunding.textContent = fundingKnown ? `${fundingCost > 0 ? '-' : '+'}${Math.abs(fundingCost).toFixed(2)} USDT` : '—';
+    }
 
     resRR.className = rr < 1.5 ? 'res-val danger' : (rr < 2.0 ? 'res-val tax' : 'res-val safe');
     resNet.className = netProfit >= 0 ? 'res-val safe' : 'res-val danger';
@@ -226,7 +284,7 @@ export function sendToCalculator() {
         return; 
     }
     State.calcContext = { asset: State.currentAsset, tf: State.currentTF };
-    $('calcDirection').value = State.currentAIPlan.direction || (State.currentAIPlan.bias === 'SHORT' ? 'SHORT' : 'LONG');
+    setCalcDirection(State.currentAIPlan.direction || (State.currentAIPlan.bias === 'SHORT' ? 'SHORT' : 'LONG'));
     $('calcEntry').value = State.currentAIPlan.entry;
     $('calcStop').value = State.currentAIPlan.stop_loss;
     $('calcTarget').value = State.currentAIPlan.take_profit;

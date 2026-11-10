@@ -78,6 +78,8 @@ window.closeForceTradeModal = CalculatorUI.closeForceTradeModal;
 window.confirmForceTrade = CalculatorUI.confirmForceTrade;
 window.setCtxLabel = CalculatorUI.setCtxLabel;
 window.sendToCalculator = CalculatorUI.sendToCalculator;
+window.setCalcDirection = CalculatorUI.setCalcDirection;
+window.onFuturesData = CalculatorUI.onFuturesData;
 
 // Trade
 window.startTimer = TradeUI.startTimer;
