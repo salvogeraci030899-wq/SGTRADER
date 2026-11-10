@@ -177,6 +177,8 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .calc-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; flex: 1; justify-content: space-evenly; text-align: center; }
 /* Rimpicciolita da src/ui/calculator.js (fitCalcCard) quando non entra nello schermo */
 #page-calculator .calc-card { zoom: var(--calc-zoom, 1); }
+/* Margine extra in fondo quando la pagina scende sotto la parte visibile (Safari mobile) */
+#page-calculator.active { padding-bottom: calc(10px + var(--calc-extra-bottom, 0px)); }
 .calc-header { font-size: 14px; font-weight: 700; color: var(--text); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 8px; }
 #calcCtx { font-size: 11px; color: var(--text-secondary); font-weight: 600; margin-left: 6px; }
 

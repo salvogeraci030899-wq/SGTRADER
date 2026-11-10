@@ -322,18 +322,37 @@ export async function confirmForceTrade() {
 // Sotto MIN_CALC_ZOOM non si rimpicciolisce oltre: resta lo scroll come ultima risorsa.
 const MIN_CALC_ZOOM = 0.6;
 
+// Quanto la pagina scende oltre la parte di schermo davvero visibile: in Safari mobile il contenitore
+// dell'app può essere più alto dell'area visibile (barra degli strumenti) e il fondo finisce sotto la
+// navbar. Calcolato dal layout (offsetHeight, scrollTop) e non da getBoundingClientRect della pagina,
+// così l'animazione di apertura della tab (translateY) non falsa la misura.
+function calcPageOvershoot(page) {
+    const main = page.closest('main');
+    if (!main) return 0;
+    const pageBottom = main.getBoundingClientRect().top - main.scrollTop + page.offsetTop - main.offsetTop + page.offsetHeight;
+    let limit = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    const nav = document.querySelector('.nav-bar');
+    // getClientRects vuoto = navbar nascosta (es. grafico a schermo intero); offsetParent non va bene: è null per gli elementi fixed
+    if (nav && nav.getClientRects().length > 0) limit = Math.min(limit, nav.getBoundingClientRect().top);
+    return Math.max(0, Math.ceil(pageBottom - limit));
+}
+
 function fitCalcCard() {
     const page = document.getElementById('page-calculator');
     const card = page && page.querySelector('.calc-card');
     if (!page || !card || !page.classList.contains('active')) return;
 
+    // 1) margine in fondo pari alla parte di pagina non visibile (non cambia l'altezza della pagina:
+    //    nessun ciclo con il ResizeObserver)
+    page.style.setProperty('--calc-extra-bottom', calcPageOvershoot(page) + 'px');
+
+    // 2) se il contenuto deborda ancora, rimpicciolisco la scheda quanto basta
     page.style.setProperty('--calc-zoom', '1');
     if (page.scrollHeight <= page.clientHeight + 1) return;
 
     const cs = getComputedStyle(page);
     const available = page.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
-    const needed = card.getBoundingClientRect().height;
-    let zoom = Math.max(MIN_CALC_ZOOM, Math.floor((available / needed) * 100) / 100);
+    let zoom = Math.max(MIN_CALC_ZOOM, Math.min(1, Math.floor((available / card.offsetHeight) * 100) / 100));
     page.style.setProperty('--calc-zoom', String(zoom));
     // Arrotondamenti e testi che vanno a capo: stringo a piccoli passi finché entra
     while (page.scrollHeight > page.clientHeight + 1 && zoom > MIN_CALC_ZOOM) {
@@ -358,5 +377,7 @@ function initCalcAutoFit() {
     new MutationObserver(scheduleFit).observe(card, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['style', 'class'] });
     window.addEventListener('resize', scheduleFit);
     window.addEventListener('orientationchange', scheduleFit);
+    // Safari mobile: la barra degli strumenti che compare/sparisce cambia l'area visibile
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', scheduleFit);
     scheduleFit();
 }
