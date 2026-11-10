@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta
 
 import requests
 
+import futures_data
 import track_record
 from kronos_core import (
     ALL_ASSETS, ALL_TIMEFRAMES, TF_DELTA, LOOKBACK, ATR_PERIOD, ATR_MULT, MIN_RR, MODEL_NAME,
@@ -300,6 +301,13 @@ def main():
     ledger_changed = new_predictions > 0 or resolved_now > 0
     if ledger_changed:
         print(f"Track record: {new_predictions} nuove previsioni, {resolved_now} chiuse.")
+
+    # Dati futures (funding, open interest, long/short): una volta per ora, in file separati.
+    # Solo raccolti e mostrati, non entrano nei segnali. Un errore qui non deve fermare il bot.
+    try:
+        futures_data.collect()
+    except Exception as e:
+        print(f"Dati futures non aggiornati: {e}")
 
     # Salvo (e quindi il workflow fa commit) solo se c'è qualcosa di nuovo: una candela ricalcolata,
     # uno stato alert cambiato o il track record aggiornato. Il solo aggiornamento del prezzo live

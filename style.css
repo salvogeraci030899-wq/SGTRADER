@@ -176,7 +176,7 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .tech-title { font-size: 11px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.5px; }
 .tech-trend-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); }
 /* Affidabilità Kronos (track record) e Validazione storica, per coppia: stesso stile di Verifica Strategia */
-#tr-panel, #val-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 10px 12px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
+#tr-panel, #val-panel, #fut-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 10px 12px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
 .tr-foot { font-size: 10px; color: var(--text-secondary); line-height: 1.4; text-align: center; }
 .tr-foot.text-warning { color: var(--warning); }
 .filter-item.neutral { border-color: var(--border); }
