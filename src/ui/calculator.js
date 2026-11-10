@@ -20,6 +20,8 @@ export function initCalculator() {
     const capInput = $('calcCapital');
     if (capInput) capInput.addEventListener('input', () => { State.capitalTouched = true; });
 
+    initCalcAutoFit();
+
     const hdr = document.querySelector('#page-calculator .calc-header span');
     if (hdr) {
         const lbl = document.createElement('small');
@@ -311,4 +313,50 @@ export async function confirmForceTrade() {
     document.getElementById('forceTradeModal').classList.remove('active');
     if (!State.pendingTradePayload || !State.pendingTradePayload.livePrice) return;
     if (window.executeTradeOpen) await window.executeTradeOpen();
+}
+
+// --- Pagina Rischio sempre senza scroll ---
+// Se la scheda non entra nello spazio disponibile (schermi bassi, avvisi e suggerimenti visibili),
+// viene rimpicciolita con CSS zoom quanto basta. Si ricalcola quando cambia la misura della pagina
+// (rotazione, cambio tab, navbar) o il contenuto della scheda (risultati, avvisi, Spot/Futures).
+// Sotto MIN_CALC_ZOOM non si rimpicciolisce oltre: resta lo scroll come ultima risorsa.
+const MIN_CALC_ZOOM = 0.6;
+
+function fitCalcCard() {
+    const page = document.getElementById('page-calculator');
+    const card = page && page.querySelector('.calc-card');
+    if (!page || !card || !page.classList.contains('active')) return;
+
+    page.style.setProperty('--calc-zoom', '1');
+    if (page.scrollHeight <= page.clientHeight + 1) return;
+
+    const cs = getComputedStyle(page);
+    const available = page.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    const needed = card.getBoundingClientRect().height;
+    let zoom = Math.max(MIN_CALC_ZOOM, Math.floor((available / needed) * 100) / 100);
+    page.style.setProperty('--calc-zoom', String(zoom));
+    // Arrotondamenti e testi che vanno a capo: stringo a piccoli passi finché entra
+    while (page.scrollHeight > page.clientHeight + 1 && zoom > MIN_CALC_ZOOM) {
+        zoom = Math.max(MIN_CALC_ZOOM, Math.round((zoom - 0.02) * 100) / 100);
+        page.style.setProperty('--calc-zoom', String(zoom));
+    }
+}
+
+let fitScheduled = false;
+function scheduleFit() {
+    if (fitScheduled) return;
+    fitScheduled = true;
+    requestAnimationFrame(() => { fitScheduled = false; fitCalcCard(); });
+}
+
+function initCalcAutoFit() {
+    const page = document.getElementById('page-calculator');
+    const card = page && page.querySelector('.calc-card');
+    if (!page || !card) return;
+    // Lo zoom sta in una variabile su page: la scheda osservata non cambia attributi, niente loop
+    if ('ResizeObserver' in window) new ResizeObserver(scheduleFit).observe(page);
+    new MutationObserver(scheduleFit).observe(card, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['style', 'class'] });
+    window.addEventListener('resize', scheduleFit);
+    window.addEventListener('orientationchange', scheduleFit);
+    scheduleFit();
 }
