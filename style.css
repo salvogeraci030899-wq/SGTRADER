@@ -591,6 +591,13 @@ html.pwa-mode .nav-scroll { overflow: hidden; touch-action: manipulation; -webki
 .nav-item.active svg { color: var(--accent); }
 .nav-item svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
+/* PWA: navbar più grande, più comoda da toccare sullo schermo dell'iPhone */
+html.pwa-mode .nav-scroll,
+html.pwa-mode .nav-page,
+html.pwa-mode .nav-item { height: 62px; }
+html.pwa-mode .nav-item { font-size: 11px; gap: 4px; }
+html.pwa-mode .nav-item svg { width: 22px; height: 22px; }
+
 /* --- MODALI --- */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
 .modal-overlay.active { display: flex; }
