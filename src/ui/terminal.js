@@ -200,6 +200,52 @@ export function renderValidation() {
     foot.classList.toggle('text-warning', pair.verdict !== 'positivo');
 }
 
+// --- FUTURES (futures_data.json, scritto dal bot una volta per ora) ---
+// Funding, open interest, long/short e premio dei futures USDT di Bitget per la coin selezionata.
+// Solo informativi: non entrano ancora nei segnali, quindi nessun colore verde/rosso.
+let futData = null;
+let futLoaded = false;
+
+async function loadFutures() {
+    try {
+        const r = await fetch('./futures_data.json?t=' + Date.now());
+        futData = r.ok ? await r.json() : null;
+    } catch (e) { futData = null; }
+    futLoaded = true;
+    renderFutures();
+}
+
+function fmtUsdCompact(v) {
+    if (v >= 1e9) return `$${(v / 1e9).toFixed(2)}B`;
+    if (v >= 1e6) return `$${(v / 1e6).toFixed(0)}M`;
+    return `$${Math.round(v).toLocaleString('en-US')}`;
+}
+
+export function renderFutures() {
+    const grid = document.getElementById('futGrid'), foot = document.getElementById('futFoot'), badge = document.getElementById('fut-badge');
+    if (!grid || !foot || !badge) return;
+    const f = futData && futData.symbols && futData.symbols[State.currentAsset];
+    if (!f) {
+        badge.textContent = '—';
+        grid.innerHTML = '';
+        foot.textContent = !futLoaded ? 'Dati futures in caricamento…'
+            : `Dati futures ${SYM(State.currentAsset)} non ancora disponibili: il bot li raccoglie una volta per ora.`;
+        return;
+    }
+    const has = v => v !== null && v !== undefined;
+    badge.textContent = `${SYM(State.currentAsset)} perpetuo`;
+    const every = has(f.funding_interval_h) ? ` ogni ${f.funding_interval_h} h` : '';
+    grid.innerHTML =
+        trItem('Funding', has(f.funding_rate_pct) ? fmtSigned(f.funding_rate_pct, 4) : '—', 'neutral') +
+        trItem('Open int.', has(f.open_interest_usd) ? fmtUsdCompact(f.open_interest_usd) : '—', 'neutral') +
+        trItem('Conti long', has(f.long_accounts_pct) ? `${f.long_accounts_pct.toFixed(0)}%` : '—', 'neutral') +
+        trItem('Premio', has(f.premium_pct) ? fmtSigned(f.premium_pct, 3) : '—', 'neutral');
+    const when = new Date(f.t * 1000).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    const oi = has(f.open_interest_change_24h_pct) ? ` · open interest 24 h ${fmtSigned(f.open_interest_change_24h_pct, 1)}` : '';
+    const pos = has(f.long_positions_pct) ? ` · posizioni long ${f.long_positions_pct.toFixed(0)}%` : '';
+    foot.textContent = `Bitget, ${when} · funding${every}: positivo = i long pagano gli short${oi}${pos} · solo informativi, non usati nei segnali`;
+}
+
 export async function loadData() {
     try {
         const res = await fetch('./dashboard.json?t=' + Date.now());
@@ -207,6 +253,7 @@ export async function loadData() {
         updateChart();
         loadTrackRecord();
         loadValidation();
+        loadFutures();
         if (window.refreshKronosSignalsInMatrix) window.refreshKronosSignalsInMatrix();
     } catch (e) {
         State.lastHeaderPrice = null;
@@ -218,6 +265,7 @@ export async function loadData() {
 export function updateChart() {
     renderTrackRecord();
     renderValidation();
+    renderFutures();
     if (!State.allData) return;
     const data = State.allData[`${State.currentAsset}_${State.currentTF}`];
     if (!data) {
