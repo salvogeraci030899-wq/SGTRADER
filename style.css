@@ -25,7 +25,7 @@ main {
     width: 100%; height: 100%;
     overflow-y: auto; overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(56px + var(--nav-safe-bottom));
     box-sizing: border-box;
 }
 
@@ -543,6 +543,13 @@ body.chart-fullscreen .home-chart-dots,
 body.chart-fullscreen .home-chart-item:not(.fullscreen),
 body.chart-fullscreen .nav-bar { display: none !important; }
 
+/* Spazio sotto la navbar. In Safari resta la safe area intera.
+   Da PWA (classe pwa-mode, messa da index.html) la riduco al 40%: la barra home dell'iPhone
+   occupa poco e la safe area piena (~34px) appare come una fascia vuota che alza la navbar.
+   Per cambiare lo spazio: modifica il moltiplicatore (0 = navbar a filo, 1 = safe area piena). */
+:root { --nav-safe-bottom: env(safe-area-inset-bottom, 0px); }
+html.pwa-mode { --nav-safe-bottom: calc(env(safe-area-inset-bottom, 0px) * 0.4); }
+
 /* --- NAV BAR --- */
 .nav-bar {
     position: fixed;
@@ -551,7 +558,7 @@ body.chart-fullscreen .nav-bar { display: none !important; }
     flex-direction: column;
     background: var(--surface);
     border-top: 1px solid var(--border);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-bottom: var(--nav-safe-bottom);
     z-index: 9999;
 }
 .nav-dots { display: flex; justify-content: center; align-items: center; gap: 4px; height: 8px; padding: 0; box-sizing: border-box; }
