@@ -7,3 +7,6 @@ requirements.txt
 alerts_state.json
 trades_*.csv
 .github
+validation.py
+validation_stats.py
+validation
