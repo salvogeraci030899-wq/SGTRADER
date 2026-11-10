@@ -1,0 +1,254 @@
+{
+ "updated_at": "2026-11-10T21:40:16+00:00",
+ "product_type": "USDT-FUTURES",
+ "symbols": {
+  "BTCUSDT": {
+   "symbol": "BTCUSDT",
+   "last": 73863.5,
+   "mark": 73864.5,
+   "index": 73897.2897826087,
+   "premium_pct": -0.0444,
+   "funding_rate_pct": 0.01,
+   "funding_interval_h": 8.0,
+   "next_funding_ts": 1794355200,
+   "open_interest": 38416.387500000004,
+   "open_interest_usd": 2837607254.0,
+   "long_accounts_pct": 80.02,
+   "long_positions_pct": 49.56,
+   "maker_fee_pct": 0.02,
+   "taker_fee_pct": 0.06,
+   "max_leverage": 150.0,
+   "tiers": [
+    {
+     "up_to_usdt": 200000.0,
+     "max_leverage": 150.0,
+     "mmr_pct": 0.4
+    },
+    {
+     "up_to_usdt": 1000000.0,
+     "max_leverage": 100.0,
+     "mmr_pct": 0.5
+    },
+    {
+     "up_to_usdt": 5000000.0,
+     "max_leverage": 75.0,
+     "mmr_pct": 0.7
+    },
+    {
+     "up_to_usdt": 15000000.0,
+     "max_leverage": 50.0,
+     "mmr_pct": 1.0
+    },
+    {
+     "up_to_usdt": 50000000.0,
+     "max_leverage": 25.0,
+     "mmr_pct": 2.0
+    },
+    {
+     "up_to_usdt": 100000000.0,
+     "max_leverage": 20.0,
+     "mmr_pct": 3.0
+    },
+    {
+     "up_to_usdt": 150000000.0,
+     "max_leverage": 10.0,
+     "mmr_pct": 6.0
+    },
+    {
+     "up_to_usdt": 300000000.0,
+     "max_leverage": 5.0,
+     "mmr_pct": 12.0
+    },
+    {
+     "up_to_usdt": 500000000.0,
+     "max_leverage": 4.0,
+     "mmr_pct": 15.0
+    },
+    {
+     "up_to_usdt": 700000000.0,
+     "max_leverage": 3.0,
+     "mmr_pct": 20.0
+    },
+    {
+     "up_to_usdt": 900000000.0,
+     "max_leverage": 2.0,
+     "mmr_pct": 30.0
+    },
+    {
+     "up_to_usdt": 1200000000.0,
+     "max_leverage": 1.0,
+     "mmr_pct": 60.0
+    }
+   ],
+   "t": 1794346816,
+   "open_interest_change_24h_pct": null
+  },
+  "ETHUSDT": {
+   "symbol": "ETHUSDT",
+   "last": 2056.77,
+   "mark": 2056.98,
+   "index": 2058.126304347826,
+   "premium_pct": -0.0557,
+   "funding_rate_pct": 0.0031,
+   "funding_interval_h": 8.0,
+   "next_funding_ts": 1794355200,
+   "open_interest": 788912.0699999998,
+   "open_interest_usd": 1622776350.0,
+   "long_accounts_pct": 84.25,
+   "long_positions_pct": 49.46,
+   "maker_fee_pct": 0.02,
+   "taker_fee_pct": 0.06,
+   "max_leverage": 150.0,
+   "tiers": [
+    {
+     "up_to_usdt": 200000.0,
+     "max_leverage": 150.0,
+     "mmr_pct": 0.4
+    },
+    {
+     "up_to_usdt": 1000000.0,
+     "max_leverage": 100.0,
+     "mmr_pct": 0.5
+    },
+    {
+     "up_to_usdt": 3000000.0,
+     "max_leverage": 75.0,
+     "mmr_pct": 1.0
+    },
+    {
+     "up_to_usdt": 12000000.0,
+     "max_leverage": 50.0,
+     "mmr_pct": 1.5
+    },
+    {
+     "up_to_usdt": 40000000.0,
+     "max_leverage": 25.0,
+     "mmr_pct": 2.0
+    },
+    {
+     "up_to_usdt": 70000000.0,
+     "max_leverage": 20.0,
+     "mmr_pct": 3.0
+    },
+    {
+     "up_to_usdt": 100000000.0,
+     "max_leverage": 10.0,
+     "mmr_pct": 5.0
+    },
+    {
+     "up_to_usdt": 150000000.0,
+     "max_leverage": 8.0,
+     "mmr_pct": 7.0
+    },
+    {
+     "up_to_usdt": 200000000.0,
+     "max_leverage": 7.0,
+     "mmr_pct": 8.0
+    },
+    {
+     "up_to_usdt": 250000000.0,
+     "max_leverage": 6.0,
+     "mmr_pct": 9.0
+    },
+    {
+     "up_to_usdt": 300000000.0,
+     "max_leverage": 5.0,
+     "mmr_pct": 12.0
+    },
+    {
+     "up_to_usdt": 400000000.0,
+     "max_leverage": 4.0,
+     "mmr_pct": 15.0
+    },
+    {
+     "up_to_usdt": 500000000.0,
+     "max_leverage": 3.0,
+     "mmr_pct": 20.0
+    },
+    {
+     "up_to_usdt": 800000000.0,
+     "max_leverage": 2.0,
+     "mmr_pct": 30.0
+    },
+    {
+     "up_to_usdt": 1200000000.0,
+     "max_leverage": 1.0,
+     "mmr_pct": 60.0
+    }
+   ],
+   "t": 1794346816,
+   "open_interest_change_24h_pct": null
+  },
+  "SOLUSDT": {
+   "symbol": "SOLUSDT",
+   "last": 83.329,
+   "mark": 83.331,
+   "index": 83.37934782608696,
+   "premium_pct": -0.058,
+   "funding_rate_pct": -0.001,
+   "funding_interval_h": 8.0,
+   "next_funding_ts": 1794355200,
+   "open_interest": 4296981.89999996,
+   "open_interest_usd": 358071799.0,
+   "long_accounts_pct": 88.92,
+   "long_positions_pct": 49.88,
+   "maker_fee_pct": 0.02,
+   "taker_fee_pct": 0.06,
+   "max_leverage": 100.0,
+   "tiers": [
+    {
+     "up_to_usdt": 50000.0,
+     "max_leverage": 100.0,
+     "mmr_pct": 0.5
+    },
+    {
+     "up_to_usdt": 100000.0,
+     "max_leverage": 75.0,
+     "mmr_pct": 0.8
+    },
+    {
+     "up_to_usdt": 1000000.0,
+     "max_leverage": 50.0,
+     "mmr_pct": 1.0
+    },
+    {
+     "up_to_usdt": 5000000.0,
+     "max_leverage": 25.0,
+     "mmr_pct": 2.0
+    },
+    {
+     "up_to_usdt": 10000000.0,
+     "max_leverage": 20.0,
+     "mmr_pct": 3.0
+    },
+    {
+     "up_to_usdt": 30000000.0,
+     "max_leverage": 10.0,
+     "mmr_pct": 5.0
+    },
+    {
+     "up_to_usdt": 60000000.0,
+     "max_leverage": 5.0,
+     "mmr_pct": 12.0
+    },
+    {
+     "up_to_usdt": 80000000.0,
+     "max_leverage": 4.0,
+     "mmr_pct": 15.0
+    },
+    {
+     "up_to_usdt": 150000000.0,
+     "max_leverage": 2.0,
+     "mmr_pct": 30.0
+    },
+    {
+     "up_to_usdt": 300000000.0,
+     "max_leverage": 1.0,
+     "mmr_pct": 60.0
+    }
+   ],
+   "t": 1794346816,
+   "open_interest_change_24h_pct": null
+  }
+ }
+}
