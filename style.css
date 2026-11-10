@@ -550,22 +550,24 @@ body.chart-fullscreen .nav-bar { display: none !important; }
 :root { --nav-safe-bottom: env(safe-area-inset-bottom, 0px); }
 html.pwa-mode { --nav-safe-bottom: calc(env(safe-area-inset-bottom, 0px) * 0.4); }
 
-/* PWA iOS: in standalone iOS può calcolare l'area per gli elementi fixed più corta dello schermo,
-   così una navbar "fixed; bottom: 0" si ferma sopra la zona della barra home lasciando un vuoto.
-   Qui tutto il layout prende l'altezza piena dello schermo (lvh) e #app diventa una colonna:
-   main occupa lo spazio sopra, la navbar sta sotto nel flusso normale. Niente sovrapposizioni,
-   così iOS non può disegnare il contenitore a scorrimento di main sopra la navbar. */
+/* PWA iOS: in standalone iOS può calcolare l'area dello schermo più corta del display reale.
+   Effetti visti: con la navbar "fixed; bottom: 0" restava una fascia vuota sotto; agganciandola al
+   fondo reale, il primo frame mostrava le icone e poi sparivano, perché iOS ritaglia a quell'area
+   corta i livelli grafici separati (elementi fixed, contenitori a scorrimento, transform).
+   In PWA quindi:
+   - html, body e #app prendono l'altezza piena dello schermo (lvh) e non sono fixed;
+   - #app è una colonna: main sopra, navbar sotto nel flusso normale;
+   - la navbar non ha nulla che crei livelli separati: niente transform e la fila di icone
+     non è scorrevole al tocco (il cambio pagina con lo swipe lo gestisce src/main.js). */
+html.pwa-mode,
+html.pwa-mode body { position: static; overflow: hidden; }
 html.pwa-mode,
 html.pwa-mode body,
 html.pwa-mode #app { height: 100vh; height: 100lvh; }
 html.pwa-mode #app { display: flex; flex-direction: column; }
 html.pwa-mode main { flex: 1 1 auto; min-height: 0; height: auto; padding-bottom: 0; }
-html.pwa-mode .nav-bar {
-    position: relative;
-    flex: 0 0 auto;
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-}
+html.pwa-mode .nav-bar { position: relative; flex: 0 0 auto; }
+html.pwa-mode .nav-scroll { overflow: hidden; touch-action: manipulation; -webkit-overflow-scrolling: auto; }
 
 /* --- NAV BAR --- */
 .nav-bar {
