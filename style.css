@@ -386,7 +386,7 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .shi-strat-tag.short { background: rgba(255, 69, 58, 0.15); color: var(--danger); }
 .shi-strat-tag.kronos { background: rgba(10, 132, 255, 0.15); color: var(--blue); }
 
-/* --- MANUALE (Identico all'originale) --- */
+/* --- MANUALE (v35: Centratura perfetta, 14 slide) --- */
 #page-info.active {
     display: flex;
     flex-direction: column;
@@ -417,6 +417,7 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .info-carousel {
     flex: 1;
     display: flex;
+    align-items: stretch;
     overflow-x: auto;
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
@@ -427,111 +428,79 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .info-carousel::-webkit-scrollbar { display: none; }
 
 .info-slide {
-    flex: 0 0 100%;
+    flex: 0 0 100vw;
+    width: 100vw;
+    max-width: 100vw;
     scroll-snap-align: start;
     scroll-snap-stop: always;
-    display: flex;
-    flex-direction: column;
+    display: block;
     overflow-y: auto;
+    overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     padding: 4px 16px 20px 16px;
     box-sizing: border-box;
-    min-height: 0;
+    height: 100%;
+    margin: 0 auto;
+}
+
+.info-slide > .rule-card:last-child,
+.info-slide > .warning-highlight:last-child,
+.info-slide > .highlight-box:last-child {
+    margin-bottom: 0;
 }
 
 .info-dots {
     flex-shrink: 0;
     display: flex;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     padding: 6px 0 2px 0;
+    flex-wrap: nowrap;
 }
 .info-dot {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: var(--surface-hover);
     transition: all 0.2s;
     cursor: pointer;
+    flex-shrink: 0;
 }
 .info-dot.active {
     background: var(--accent);
-    width: 24px;
-    border-radius: 4px;
-}
-.info-counter {
-    text-align: center;
-    font-size: 10px;
-    color: var(--text-secondary);
-    padding-bottom: 0;
-    font-weight: 600;
-    flex-shrink: 0;
+    width: 16px;
+    border-radius: 3px;
 }
 
-.rule-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 16px 16px;
-    margin-bottom: 12px;
-}
+.rule-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
 .rule-card:last-child { margin-bottom: 0; }
-.rule-card-title {
-    font-size: 15px;
-    font-weight: 800;
-    margin-bottom: 12px;
-    text-align: center;
-    text-wrap: balance;
-}
+.rule-card-intro { border-color: rgba(48,209,88,0.4); background: linear-gradient(135deg, rgba(48,209,88,0.08), rgba(48,209,88,0.02)); }
+.intro-text { font-size: 14px; line-height: 1.7; color: var(--text); text-align: center; padding: 0 4px; }
+.final-text { font-size: 15px; line-height: 1.7; color: var(--text); padding-top: 4px; text-align: center; text-wrap: pretty; }
+.final-call { color: var(--accent); font-size: 18px; }
+.final-footer { text-align: center; padding: 24px 0 8px 0; color: var(--text-secondary); font-size: 11px; line-height: 1.6; text-wrap: pretty; }
+.final-disclaimer { opacity: 0.6; }
+
+.rule-card-title { font-size: 15px; font-weight: 800; margin-bottom: 12px; text-align: center; text-wrap: balance; }
 .rule-card-title.green { color: var(--accent); }
 .rule-card-title.red { color: var(--danger); }
 .rule-card-title.yellow { color: var(--warning); }
 .rule-card-title.blue { color: var(--blue); }
-
-.rule-step {
-    display: block;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-    line-height: 1.5;
-    text-align: center;
-}
+.rule-card-title.default { color: var(--text); }
+.rule-step { display: block; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; line-height: 1.5; text-align: center; }
 .rule-step:last-child { border-bottom: none; padding-bottom: 0; }
 .rule-step:first-of-type { padding-top: 0; }
-.rule-step .content { 
-    color: var(--text-secondary); 
-    text-align: center; 
-    text-wrap: pretty;
-}
+.rule-step .content { color: var(--text-secondary); text-align: center; text-wrap: pretty; }
 .rule-step .content b { color: var(--text); font-weight: 700; }
 .rule-step .content em { color: var(--warning); font-style: normal; font-weight: 600; }
-
-.highlight-box {
-    background: rgba(10, 132, 255, 0.1);
-    border: 1px solid rgba(10, 132, 255, 0.3);
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-top: 12px;
-    font-size: 12px;
-    line-height: 1.5;
-    color: #cbd5e1;
-    text-align: center;
-    text-wrap: pretty;
-}
+.rule-step .content .mono { font-family: var(--mono); color: var(--accent); font-weight: 700; }
+.rule-step .content .lbl-blue { color: var(--blue); font-weight: 700; }
+.rule-step .content .lbl-red { color: var(--danger); font-weight: 700; }
+.rule-step .content .lbl-green { color: var(--accent); font-weight: 700; }
+.rule-step .content .lbl-yellow { color: var(--warning); font-weight: 700; }
+.highlight-box { background: rgba(10, 132, 255, 0.1); border: 1px solid rgba(10, 132, 255, 0.3); border-radius: 10px; padding: 10px 12px; margin-top: 12px; font-size: 12px; line-height: 1.5; color: #cbd5e1; text-align: center; text-wrap: pretty; }
 .highlight-box b { color: var(--blue); }
-
-.warning-highlight {
-    background: rgba(255, 159, 10, 0.1);
-    border: 1px solid rgba(255, 159, 10, 0.3);
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-top: 12px;
-    font-size: 12px;
-    line-height: 1.5;
-    color: #fbbf24;
-    text-align: center;
-    text-wrap: pretty;
-}
+.warning-highlight { background: rgba(255, 159, 10, 0.1); border: 1px solid rgba(255, 159, 10, 0.3); border-radius: 10px; padding: 10px 12px; margin-top: 12px; margin-bottom: 12px; font-size: 12px; line-height: 1.5; color: #fbbf24; text-align: center; text-wrap: pretty; }
 .warning-highlight b { color: var(--warning); }
 
 /* --- HOME --- */
