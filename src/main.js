@@ -125,10 +125,11 @@ window.goToSignalSlide = SignalsUI.goToSignalSlide;
 window.renderSignalHistoryDots = SignalsUI.renderSignalHistoryDots;
 window.updateSignalHistoryDots = SignalsUI.updateSignalHistoryDots;
 
-// Scelta strategia a 3 tasti: aggiorna il campo nascosto indicato da data-target (letto dal codice
-// con .value come prima con la tendina) e richiama la funzione in data-onchange, se c'è
-window.selectStrategy = (btn) => {
-    const group = btn.closest('.strategy-toggle');
+// Scelta a tasti (strategia, coin, timeframe): aggiorna il campo nascosto indicato da data-target
+// (letto dal codice con .value come prima con le tendine), evidenzia il tasto e richiama la
+// funzione in data-onchange, se c'è
+window.selectOption = (btn) => {
+    const group = btn.closest('.option-toggle');
     const input = group && document.getElementById(group.dataset.target);
     if (!input) return;
     input.value = btn.dataset.value;

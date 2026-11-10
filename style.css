@@ -45,8 +45,8 @@ main {
 #page-journal.active,
 #page-signals.active,
 #page-info.active { height: 100%; overflow: hidden; }
-#page-calculator.active,
-#page-test.active { height: 100%; overflow-y: auto; }
+#page-calculator.active { height: 100%; overflow-y: auto; }
+#page-test.active { height: 100%; overflow: hidden; }
 
 /* Adattamento automatico (src/ui/page-fit.js): margine in fondo se la pagina scende sotto la parte
    visibile, zoom dei blocchi se il contenuto non entra (l'intestazione resta sempre uguale).
@@ -61,6 +61,8 @@ main {
 #page-journal.active > *:not(.header-row) { zoom: var(--fit-zoom-journal, 1); }
 #page-signals.active { padding-bottom: calc(10px + var(--fit-extra-bottom-signals, 0px)); overflow-y: var(--fit-overflow-signals, hidden); }
 #page-signals.active > *:not(.header-row) { zoom: var(--fit-zoom-signals, 1); }
+#page-test.active { padding-bottom: calc(10px + var(--fit-extra-bottom-test, 0px)); overflow-y: var(--fit-overflow-test, hidden); }
+#page-test.active > *:not(.header-row) { zoom: var(--fit-zoom-test, 1); }
 
 /* --- UTILITY --- */
 .clickable { cursor: pointer; }
@@ -87,7 +89,6 @@ main {
 .empty-hint { color: var(--text-secondary); font-size: 12px; text-align: center; padding: 20px; width: 100%; }
 .gap-8-row { display: flex; gap: 8px; margin-bottom: 10px; }
 .grid-3-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-.hint-text { font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4; }
 .card-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 12px; }
 
 /* --- HEADER --- */
@@ -121,10 +122,30 @@ main {
     display: flex; align-items: center; justify-content: center;
 }
 .pill-btn.active { background: rgba(48, 209, 88, 0.15); border-color: var(--accent); color: var(--accent); }
-/* Scelta della strategia a 3 tasti (Verifica Strategia in Grafici e Backtest), stesso stile di asset/timeframe */
-.strategy-toggle { display: flex; gap: 6px; width: 100%; }
-.strategy-toggle.compact { margin-bottom: 8px; }
-.strategy-toggle.compact .pill-btn { padding: 8px 4px; min-height: 36px; font-size: 11px; }
+/* Scelta a 3 tasti (strategia, coin, timeframe), stesso stile dei tasti asset/timeframe di Grafici */
+.option-toggle { display: flex; gap: 6px; width: 100%; }
+.option-toggle.compact { margin-bottom: 8px; }
+.option-toggle.compact .pill-btn, .bt-controls .pill-btn { padding: 8px 4px; min-height: 38px; font-size: 12px; }
+
+/* --- BACKTEST (una sola pagina, senza scroll) --- */
+.bt-controls { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; margin-bottom: 8px; }
+.bt-field label { display: block; font-size: 11px; color: var(--text-secondary); font-weight: 500; margin-bottom: 4px; }
+.bt-params { margin-bottom: 0; }
+.bt-params .input-group input { min-height: 38px; padding: 8px 4px; }
+.bt-run { width: 100%; }
+.bt-results { flex: 0 0 auto; display: flex; flex-direction: column; }
+.bt-results .empty-hint { padding: 12px; }
+.bt-meta { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; }
+.bt-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px; }
+.bt-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 6px 4px; text-align: center; }
+.bt-tile .s-label { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.3px; }
+.bt-tile .s-val { font-size: 13px; font-weight: 700; font-family: var(--mono); margin-top: 2px; }
+.bt-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.bt-table th { color: var(--text-secondary); font-size: 10px; font-weight: 600; padding: 6px 4px; }
+.bt-table td { padding: 6px 4px; border-top: 1px solid var(--border); font-family: var(--mono); }
+.bt-table td:first-child, .bt-table th:first-child { text-align: left; padding-left: 10px; font-family: var(--font); }
+.bt-error { color: var(--danger); text-align: center; padding: 12px; font-size: 12px; }
+.bt-note { font-size: 11px; color: var(--warning); text-align: center; margin-top: 8px; line-height: 1.4; }
 
 /* --- CHART --- */
 .chart-container { flex: 1; min-height: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; position: relative; margin-bottom: 8px; }
@@ -232,7 +253,6 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .res-val.tax { color: var(--warning); }
 .res-item.full { grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: 6px; margin-top: 2px; }
 
-.results-simple { background: #000; padding: 12px; border-radius: 10px; font-size: 12px; border: 1px solid var(--border); line-height: 1.5; }
 
 .warning-box { background: rgba(255, 159, 10, 0.15); border: 1px solid var(--warning); color: var(--warning); padding: 8px; border-radius: 10px; font-size: 11px; font-weight: 500; text-align: center; display: none; margin-top: 6px; line-height: 1.3; width: 100%; text-wrap: pretty; }
 .error-box { background: rgba(255, 69, 58, 0.15); border: 1px solid var(--danger); color: var(--danger); padding: 8px; border-radius: 10px; font-size: 11px; font-weight: 600; text-align: center; display: none; margin-top: 6px; line-height: 1.3; width: 100%; text-wrap: pretty; }

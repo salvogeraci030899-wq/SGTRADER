@@ -1,7 +1,7 @@
 import { State } from '../core/state.js';
 import { CONFIG } from '../core/config.js';
 import { Logger } from '../core/logger.js';
-import { $, SYM, fetchT, fmtDateTime, analyzeTrend, buildRiskData, calcEMA } from '../utils/helpers.js';
+import { $, SYM, fetchT, fmtDateTime, analyzeTrend, buildRiskData, calcEMA, parseBitgetCandles } from '../utils/helpers.js';
 
 export function initSignals() {
     updateSignalNotifStatus();
@@ -18,7 +18,7 @@ async function fetchCandlesForSignal(asset, tf, limit = 300) {
         if (!r.ok) return null;
         const j = await r.json();
         if (j.code !== '00000' || !j.data) return null;
-        return j.data.reverse().map(c => ({ ts: parseInt(c[0]), open: parseFloat(c[1]), high: parseFloat(c[2]), low: parseFloat(c[3]), close: parseFloat(c[4]), volume: parseFloat(c[5]) }));
+        return parseBitgetCandles(j.data);
     } catch(e) { return null; }
 }
 

@@ -1,6 +1,6 @@
 import { State } from '../core/state.js';
 import { CONFIG } from '../core/config.js';
-import { $, fetchT, calcEMA, analyzeTrend, buildRiskData } from '../utils/helpers.js';
+import { $, SYM, fetchT, calcEMA, analyzeTrend, buildRiskData, parseBitgetCandles, TF_MS } from '../utils/helpers.js';
 
 function statsFromRets(rets) {
     const n = rets.length; const wins = rets.filter(r => r > 0), losses = rets.filter(r => r < 0);
@@ -28,6 +28,54 @@ function simulateTrade(candles, i, maxBars, slPct, tpPct, equity) {
     return { net, ret: net / equity, exitReason, exitBar, entryBar: i, entryPrice: entry, exitPrice, entryTime, exitTime };
 }
 
+const TARGET_CANDLES = 3000;
+const PAGE_LIMIT = 1000;
+
+// Storico Bitget a blocchi da 1000, andando indietro nel tempo. Ogni blocco chiede le candele
+// precedenti alla più vecchia già ricevuta (qualunque sia l'ordine della risposta); ci si ferma
+// quando non arrivano candele più vecchie. Solo candele chiuse, in ordine cronologico, senza doppioni.
+async function fetchHistory(asset, tf, onProgress) {
+    const gran = tf === '1d' ? '1day' : tf;
+    const byTs = new Map();
+    let endTime = Date.now();
+    for (let page = 0; page < Math.ceil(TARGET_CANDLES / PAGE_LIMIT) + 1 && byTs.size < TARGET_CANDLES; page++) {
+        const r = await fetchT(`https://api.bitget.com/api/v2/spot/market/candles?symbol=${asset}&granularity=${gran}&limit=${PAGE_LIMIT}&endTime=${endTime}`, 10000);
+        if (!r.ok) throw new Error(`Bitget ha risposto ${r.status}`);
+        const j = await r.json();
+        if (j.code !== '00000' || !Array.isArray(j.data)) throw new Error(j.msg || 'Risposta Bitget non valida');
+        const batch = parseBitgetCandles(j.data);
+        const before = byTs.size;
+        batch.forEach(c => byTs.set(c.ts, c));
+        if (batch.length === 0 || byTs.size === before) break;     // niente di più vecchio
+        endTime = batch[0].ts - 1;                                   // batch ordinato: [0] è la più vecchia
+        if (onProgress) onProgress(byTs.size);
+        await new Promise(res => setTimeout(res, 150));
+    }
+    const tfMs = TF_MS[tf];
+    return [...byTs.values()].sort((a, b) => a.ts - b.ts).filter(c => c.ts + tfMs <= Date.now()).slice(-TARGET_CANDLES);
+}
+
+function isSignal(strategy, slice, price) {
+    const closes = slice.map(c => c.close);
+    const trend = analyzeTrend(slice, price);
+    if (strategy === 'breakout') {
+        const riskData = buildRiskData(slice.slice(0, -1), price);
+        return trend.direction === 'bullish' && trend.duration >= 2 && riskData.breakoutPass && trend.volRatio >= 1.5 && trend.rsi >= 55 && riskData.macroPass;
+    }
+    if (strategy === 'mean_reversion') {
+        return !!trend.rsi && trend.rsi < 35 && price > calcEMA(closes, 200) * 0.95;
+    }
+    if (strategy === 'ma_crossover') {
+        const ema20 = calcEMA(closes, 20), ema50 = calcEMA(closes, 50), ema200 = calcEMA(closes, 200);
+        return ema20 > ema50 && price > ema50 && ema50 > ema200;
+    }
+    return false;
+}
+
+const STRATEGY_LABEL = { breakout: 'Breakout', mean_reversion: 'Mean Rev.', ma_crossover: 'MA Cross' };
+const fmtPct = (v, d = 1) => `${v >= 0 ? '+' : ''}${v.toFixed(d)}%`;
+const fmtDay = ts => new Date(ts).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' });
+
 export async function runBacktestSingle() {
     const btn = $('btnRunBt');
     const resultsDiv = $('btResults');
@@ -37,96 +85,73 @@ export async function runBacktestSingle() {
     const slPct = parseFloat($('btSL').value) / 100;
     const tpPct = parseFloat($('btTP').value) / 100;
     const timerH = parseFloat($('btTimer').value);
+    if (!(slPct > 0) || !(tpPct > 0) || !(timerH > 0)) {
+        resultsDiv.innerHTML = `<div class="bt-error">SL, TP e Timer devono essere maggiori di zero.</div>`;
+        return;
+    }
     btn.disabled = true;
     btn.textContent = 'Download dati...';
-    resultsDiv.style.display = 'none';
     State.lastBacktestData = null;
 
     try {
-        const gran = tf === '1d' ? '1day' : tf;
-        let allCandles = [];
-        let endTime = Date.now();
-        for (let i=0; i<3; i++) {
-            const r = await fetchT(`https://api.bitget.com/api/v2/spot/market/candles?symbol=${asset}&granularity=${gran}&limit=1000&endTime=${endTime}`);
-            if (!r.ok) break;
-            const j = await r.json();
-            if (j.code !== '00000' || !j.data) break;
-            const batch = j.data.reverse().map(c => ({ ts: parseInt(c[0]), open: parseFloat(c[1]), high: parseFloat(c[2]), low: parseFloat(c[3]), close: parseFloat(c[4]), volume: parseFloat(c[5]) }));
-            allCandles = batch.concat(allCandles);
-            if (batch.length > 0) endTime = batch[0].ts - 1;
-            await new Promise(r => setTimeout(r, 200));
-        }
-        if (allCandles.length < 500) throw new Error('Dati insufficienti.');
+        const candles = await fetchHistory(asset, tf, n => { btn.textContent = `Download dati... ${n}`; });
+        if (candles.length < 500) throw new Error(`Dati insufficienti (${candles.length} candele).`);
         btn.textContent = 'Analisi in corso...';
-        const mpc = tf === '1h' ? 60 : (tf === '4h' ? 240 : 1440);
+        await new Promise(res => setTimeout(res, 20)); // lascia aggiornare il testo del pulsante
+
+        const mpc = { '1h': 60, '4h': 240, '1d': 1440 }[tf];
         const maxBars = Math.max(1, Math.round((timerH * 60) / mpc));
-        const startIdx = 210;
-        let equity = 1000;
+        const startIdx = 210;                        // servono ~200 candele per l'EMA200
+        const startEquity = 1000;
+        let equity = startEquity;
         const trades = [];
-        
-        for (let i = startIdx; i < allCandles.length - maxBars - 1; i++) {
-            const slice = allCandles.slice(Math.max(0, i - 300), i + 1);
-            const price = allCandles[i].close;
-            const closes = slice.map(c => c.close);
-            const trend = analyzeTrend(slice, price);
-            const riskData = buildRiskData(slice.slice(0, -1), price);
-            let isSignal = false;
-            if (strategy === 'breakout') {
-                if (trend.direction === 'bullish' && trend.duration >= 2 && riskData.breakoutPass && trend.volRatio >= 1.5 && trend.rsi >= 55 && riskData.macroPass) isSignal = true;
-            } else if (strategy === 'mean_reversion') {
-                const ema200 = calcEMA(closes, 200);
-                if (trend.rsi && trend.rsi < 35 && price > (ema200 * 0.95)) isSignal = true;
-            } else if (strategy === 'ma_crossover') {
-                const ema20 = calcEMA(closes, 20), ema50 = calcEMA(closes, 50), ema200 = calcEMA(closes, 200);
-                if (ema20 > ema50 && price > ema50 && ema50 > ema200) isSignal = true;
-            }
-            if (isSignal) {
-                const t = simulateTrade(allCandles, i, maxBars, slPct, tpPct, equity);
-                equity += t.net;
-                trades.push(t);
-                i = t.exitBar;
-            }
+
+        // Segnale sulla chiusura della candela i, ingresso all'apertura della successiva
+        for (let i = startIdx; i < candles.length - maxBars - 1; i++) {
+            const slice = candles.slice(Math.max(0, i - 300), i + 1);
+            if (!isSignal(strategy, slice, candles[i].close)) continue;
+            const t = simulateTrade(candles, i, maxBars, slPct, tpPct, equity);
+            equity += t.net;
+            trades.push(t);
+            i = t.exitBar;                           // un trade alla volta
         }
 
-        const splitIdx = startIdx + Math.floor((allCandles.length - 1 - startIdx) * 0.7);
-        const trainRets = trades.filter(t => t.entryBar < splitIdx).map(t => t.ret);
-        const testRets = trades.filter(t => t.entryBar >= splitIdx).map(t => t.ret);
-        const statsAll = statsFromRets(trades.map(t => t.ret));
-        const statsTrain = statsFromRets(trainRets);
-        const statsTest = statsFromRets(testRets);
-        const bh = (allCandles[allCandles.length-1].close / allCandles[startIdx].close - 1) * 100;
-        
-        State.lastBacktestData = { trades, asset, tf, strategy, equity, splitIdx };
-        
-        resultsDiv.style.display = 'block';
+        const splitIdx = startIdx + Math.floor((candles.length - 1 - startIdx) * 0.7);
+        const all = statsFromRets(trades.map(t => t.ret));
+        const train = statsFromRets(trades.filter(t => t.entryBar < splitIdx).map(t => t.ret));
+        const test = statsFromRets(trades.filter(t => t.entryBar >= splitIdx).map(t => t.ret));
+        const bh = (candles[candles.length - 1].close / candles[startIdx].close - 1) * 100;
+        const totRet = (equity / startEquity - 1) * 100;
+
+        State.lastBacktestData = { trades, asset, tf, strategy, equity, splitIdx, slPct, tpPct, timerH, lastClose: candles[candles.length - 1].close };
+
+        const row = (label, st) => `<tr><td>${label}</td><td>${st.n}</td><td>${st.n ? st.wr.toFixed(0) + '%' : '—'}</td>` +
+            `<td class="${st.n ? (st.pf >= 1.2 ? 'text-accent' : 'text-danger') : ''}">${st.n ? st.pf.toFixed(2) : '—'}</td><td>${st.n ? fmtPct(st.avg, 2) : '—'}</td></tr>`;
         resultsDiv.innerHTML = `
-            <div style="background:rgba(255,255,255,.03); padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid var(--border);">
-                <div style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; margin-bottom:6px;">Risultati su ${allCandles.length} candele</div>
-                <div style="font-size:12px; color:var(--text); line-height:1.6;">
-                    Capitale Finale: <b style="color:var(--accent);">${equity.toFixed(0)} USDT</b><br>
-                    Trade Totali: <b>${statsAll.n}</b><br>
-                    Buy & Hold: <b style="color:${bh >= 0 ? 'var(--accent)' : 'var(--danger)'};">${bh >= 0 ? '+' : ''}${bh.toFixed(1)}%</b>
-                </div>
+            <div class="section-title">
+                <span>Risultati</span>
+                <span class="section-actions">
+                    <button class="btn-link-secondary" onclick="applyBtParams()">Applica a Rischio</button>
+                    <button class="btn-link-secondary" onclick="exportBacktestCSV()">CSV</button>
+                </span>
             </div>
-            <table style="width:100%; border-collapse:collapse; font-size:12px; text-align:center;">
-                <thead><tr><th style="text-align:left; padding:6px; color:#8e8e93; font-size:10px;">Periodo</th><th style="padding:6px; color:#8e8e93; font-size:10px;">N</th><th style="padding:6px; color:#8e8e93; font-size:10px;">WR</th><th style="padding:6px; color:#8e8e93; font-size:10px;">PF</th><th style="padding:6px; color:#8e8e93; font-size:10px;">Media</th></tr></thead>
-                <tbody>
-                    <tr style="border-top:1px solid var(--border);"><td style="text-align:left; padding:8px;">Totale</td><td>${statsAll.n}</td><td>${statsAll.n ? statsAll.wr.toFixed(0)+'%' : '-'}</td><td style="color:${statsAll.pf>=1.2?'var(--accent)':'var(--danger)'};">${statsAll.pf.toFixed(2)}</td><td>${statsAll.avg.toFixed(2)}%</td></tr>
-                    <tr style="border-top:1px solid var(--border);"><td style="text-align:left; padding:8px;">Train (70%)</td><td>${statsTrain.n}</td><td>${statsTrain.n ? statsTrain.wr.toFixed(0)+'%' : '-'}</td><td style="color:${statsTrain.pf>=1.2?'var(--accent)':'var(--danger)'};">${statsTrain.pf.toFixed(2)}</td><td>${statsTrain.avg.toFixed(2)}%</td></tr>
-                    <tr style="border-top:1px solid var(--border);"><td style="text-align:left; padding:8px;">Test (30%)</td><td>${statsTest.n}</td><td>${statsTest.n ? statsTest.wr.toFixed(0)+'%' : '-'}</td><td style="color:${statsTest.pf>=1.2?'var(--accent)':'var(--danger)'};">${statsTest.pf.toFixed(2)}</td><td>${statsTest.avg.toFixed(2)}%</td></tr>
-                </tbody>
+            <div class="bt-meta">${SYM(asset)} · ${tf.toUpperCase()} · ${STRATEGY_LABEL[strategy]} · ${candles.length} candele (${fmtDay(candles[0].ts)} – ${fmtDay(candles[candles.length - 1].ts)})</div>
+            <div class="bt-tiles">
+                <div class="bt-tile"><div class="s-label">Rendimento</div><div class="s-val ${totRet >= 0 ? 'text-accent' : 'text-danger'}">${fmtPct(totRet)}</div></div>
+                <div class="bt-tile"><div class="s-label">Buy &amp; Hold</div><div class="s-val ${bh >= 0 ? 'text-accent' : 'text-danger'}">${fmtPct(bh)}</div></div>
+                <div class="bt-tile"><div class="s-label">Trade</div><div class="s-val">${all.n}</div></div>
+                <div class="bt-tile"><div class="s-label">Win rate</div><div class="s-val">${all.n ? all.wr.toFixed(0) + '%' : '—'}</div></div>
+            </div>
+            <table class="bt-table">
+                <thead><tr><th>Periodo</th><th>N</th><th>WR</th><th>PF</th><th>Media</th></tr></thead>
+                <tbody>${row('Totale', all)}${row('Train 70%', train)}${row('Test 30%', test)}</tbody>
             </table>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
-                <button style="background:var(--surface-hover); color:var(--text); border:none; padding:10px; border-radius:8px; width:100%; font-weight:700; font-size:12px; cursor:pointer;" onclick="applyBtParams(${slPct*100}, ${tpPct*100}, ${timerH})">Applica a Risk</button>
-                <button style="background:var(--blue); color:#fff; border:none; padding:10px; border-radius:8px; width:100%; font-weight:700; font-size:12px; cursor:pointer;" onclick="exportBacktestCSV()">Esporta CSV</button>
-            </div>
-        `;
-    } catch(e) {
-        resultsDiv.style.display = 'block';
-        resultsDiv.innerHTML = `<div style="color:var(--danger); text-align:center; padding:10px;">Errore: ${e.message}</div>`;
+            ${all.n === 0 ? `<div class="bt-note">Nessun segnale in questo periodo: le condizioni di ${STRATEGY_LABEL[strategy]} non si sono mai verificate su ${SYM(asset)} ${tf.toUpperCase()}. Prova un altro timeframe o un'altra strategia.</div>` : ''}`;
+    } catch (e) {
+        resultsDiv.innerHTML = `<div class="bt-error">Errore: ${String(e.message || e).replace(/[<>&]/g, '')}</div>`;
     } finally {
         btn.disabled = false;
-        btn.textContent = 'Esegui Backtest (3000 candele)';
+        btn.textContent = 'Esegui Backtest';
     }
 }
 
@@ -147,7 +172,21 @@ export function exportBacktestCSV() {
     a.click();
 }
 
-export function applyBtParams(sl, tp, timer) {
+// Porta SL e TP del backtest nel calcolatore Rischio: entry al prezzo attuale (o all'ultima
+// chiusura del backtest), LONG e Spot come nella simulazione.
+export function applyBtParams() {
+    const d = State.lastBacktestData;
+    if (!d) return;
+    const entry = State.livePx[d.asset] || d.lastClose;
+    const nd = entry >= 10 ? 2 : 4;
+    State.calcContext = { asset: d.asset, tf: d.tf };
+    if (window.setMarket) window.setMarket('SPOT');
+    $('calcDirection').value = 'LONG';
+    $('calcEntry').value = entry.toFixed(nd);
+    $('calcStop').value = (entry * (1 - d.slPct)).toFixed(nd);
+    $('calcTarget').value = (entry * (1 + d.tpPct)).toFixed(nd);
+    if (window.setCtxLabel) window.setCtxLabel();
     if (window.switchTab) window.switchTab('calculator');
-    if (window.showAlert) window.showAlert('Configurazione Backtest', `Usa SL: ${sl}%, TP: ${tp}%, Timer: ${timer}h.`);
+    if (window.calc) window.calc();
+    if (window.updateCalcHints) window.updateCalcHints();
 }

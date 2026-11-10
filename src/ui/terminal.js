@@ -1,7 +1,7 @@
 import { State } from '../core/state.js';
 import { CONFIG } from '../core/config.js';
 import { Logger } from '../core/logger.js';
-import { $, SYM, fetchT, apiPost, fmtUsd, cleanData, analyzeTrend, buildRiskData, calcEMA, fmtDateTime } from '../utils/helpers.js';
+import { $, SYM, fetchT, apiPost, fmtUsd, cleanData, analyzeTrend, buildRiskData, calcEMA, fmtDateTime, parseBitgetCandles } from '../utils/helpers.js';
 import { createChart, setCandles, setForecast, setBands, setMarkers, setPriceLines } from './chart.js';
 
 const chartContainer = document.getElementById('chart');
@@ -322,7 +322,8 @@ export async function loadTechData() {
         if (!r.ok) return;
         const j = await r.json();
         if (j.code !== '00000' || !j.data) return;
-        const candles = j.data.reverse().map(c => ({ ts: parseInt(c[0]), open: parseFloat(c[1]), high: parseFloat(c[2]), low: parseFloat(c[3]), close: parseFloat(c[4]), volume: parseFloat(c[5]) }));
+        const candles = parseBitgetCandles(j.data);
+        if (candles.length === 0) return;
         const price = State.livePx[State.currentAsset] || candles[candles.length-1].close;
         const closes = candles.slice(0, -1).map(c => c.close);
         techData = {
