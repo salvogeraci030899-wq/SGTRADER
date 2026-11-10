@@ -550,6 +550,16 @@ body.chart-fullscreen .nav-bar { display: none !important; }
 :root { --nav-safe-bottom: env(safe-area-inset-bottom, 0px); }
 html.pwa-mode { --nav-safe-bottom: calc(env(safe-area-inset-bottom, 0px) * 0.4); }
 
+/* PWA iOS: in standalone iOS può calcolare l'area per gli elementi fixed più corta dello schermo,
+   così una navbar "fixed; bottom: 0" si ferma sopra la zona della barra home lasciando un vuoto.
+   Qui tutto il layout prende l'altezza piena dello schermo (lvh) e la navbar si aggancia
+   al fondo di #app invece che all'area calcolata da iOS. */
+html.pwa-mode,
+html.pwa-mode body,
+html.pwa-mode #app { height: 100vh; height: 100lvh; }
+html.pwa-mode #app { position: relative; }
+html.pwa-mode .nav-bar { position: absolute; }
+
 /* --- NAV BAR --- */
 .nav-bar {
     position: fixed;
