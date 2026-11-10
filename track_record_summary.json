@@ -1,0 +1,101 @@
+{
+ "generated_at": "2026-11-10T15:42:39+00:00",
+ "since": "2026-11-10T15:36:54+00:00",
+ "counts": {
+  "total": 6,
+  "open": 6,
+  "resolved": 0,
+  "expired": 0
+ },
+ "costs": {
+  "fee_pct_per_side": 0.1,
+  "slippage_pct_per_side": 0.05,
+  "tax_rate": 0.33
+ },
+ "horizon_candles": 7,
+ "overall": {
+  "predictions": {
+   "n": 0
+  },
+  "directional_signals": {
+   "n": 0
+  },
+  "tradeable_signals": {
+   "n": 0
+  }
+ },
+ "by_pair": {
+  "BTCUSDT_1h": {
+   "predictions": {
+    "n": 0
+   },
+   "directional_signals": {
+    "n": 0
+   },
+   "tradeable_signals": {
+    "n": 0
+   },
+   "open": 1
+  },
+  "BTCUSDT_4h": {
+   "predictions": {
+    "n": 0
+   },
+   "directional_signals": {
+    "n": 0
+   },
+   "tradeable_signals": {
+    "n": 0
+   },
+   "open": 1
+  },
+  "ETHUSDT_1h": {
+   "predictions": {
+    "n": 0
+   },
+   "directional_signals": {
+    "n": 0
+   },
+   "tradeable_signals": {
+    "n": 0
+   },
+   "open": 1
+  },
+  "ETHUSDT_4h": {
+   "predictions": {
+    "n": 0
+   },
+   "directional_signals": {
+    "n": 0
+   },
+   "tradeable_signals": {
+    "n": 0
+   },
+   "open": 1
+  },
+  "SOLUSDT_1h": {
+   "predictions": {
+    "n": 0
+   },
+   "directional_signals": {
+    "n": 0
+   },
+   "tradeable_signals": {
+    "n": 0
+   },
+   "open": 1
+  },
+  "SOLUSDT_4h": {
+   "predictions": {
+    "n": 0
+   },
+   "directional_signals": {
+    "n": 0
+   },
+   "tradeable_signals": {
+    "n": 0
+   },
+   "open": 1
+  }
+ }
+}
