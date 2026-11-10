@@ -238,11 +238,12 @@ export function renderFutures() {
     grid.innerHTML =
         trItem('Funding', has(f.funding_rate_pct) ? fmtSigned(f.funding_rate_pct, 4) : '—', 'neutral') +
         trItem('Open int.', has(f.open_interest_usd) ? fmtUsdCompact(f.open_interest_usd) : '—', 'neutral') +
-        trItem('Long/Short', has(f.long_pct) ? `${f.long_pct.toFixed(0)} / ${f.short_pct.toFixed(0)}%` : '—', 'neutral') +
+        trItem('Conti long', has(f.long_accounts_pct) ? `${f.long_accounts_pct.toFixed(0)}%` : '—', 'neutral') +
         trItem('Premio', has(f.premium_pct) ? fmtSigned(f.premium_pct, 3) : '—', 'neutral');
     const when = new Date(f.t * 1000).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
     const oi = has(f.open_interest_change_24h_pct) ? ` · open interest 24 h ${fmtSigned(f.open_interest_change_24h_pct, 1)}` : '';
-    foot.textContent = `Bitget, ${when} · funding${every}: positivo = i long pagano gli short${oi} · solo informativi, non usati nei segnali`;
+    const pos = has(f.long_positions_pct) ? ` · posizioni long ${f.long_positions_pct.toFixed(0)}%` : '';
+    foot.textContent = `Bitget, ${when} · funding${every}: positivo = i long pagano gli short${oi}${pos} · solo informativi, non usati nei segnali`;
 }
 
 export async function loadData() {

@@ -29,13 +29,14 @@ SNAPSHOT_PATH = "futures_data.json"
 HISTORY_PATH = "futures_history.jsonl"
 HOUR = 3600
 
-# Rapporto long/short: Bitget ha più endpoint con nomi di campo diversi; si usa il primo che risponde.
-# (percorso, campo long, campo short, cosa misura)
+# Rapporto long/short: due misure diverse, salvate separate (mai mescolate nello stesso campo).
+# "conti" = quota di conti con posizione long; "posizioni" = quota del valore delle posizioni long.
+# (campo salvato, percorso, campo long, campo short)
 LONG_SHORT_SOURCES = [
-    ("/api/v2/mix/market/account-long-short", "longAccountRatio", "shortAccountRatio", "conti"),
-    ("/api/v2/mix/market/position-long-short", "longPositionRatio", "shortPositionRatio", "posizioni"),
-    ("/api/v2/mix/market/long-short", "longRatio", "shortRatio", "volumi"),
+    ("long_accounts_pct", "/api/v2/mix/market/account-long-short", "longAccountRatio", "shortAccountRatio"),
+    ("long_positions_pct", "/api/v2/mix/market/position-long-short", "longPositionRatio", "shortPositionRatio"),
 ]
+LONG_SHORT_PAUSE = 1.1  # questi endpoint accettano circa una chiamata al secondo
 
 
 def _get(path, **params):
@@ -59,13 +60,13 @@ def _first(data):
     return data[0] if isinstance(data, list) and data else data if isinstance(data, dict) else {}
 
 
-def fetch_snapshot(symbol, get=None):
+def fetch_snapshot(symbol, get=None, pause=LONG_SHORT_PAUSE):
     """Fotografia dei futures di una coin. I campi non ottenuti restano None; gli errori finiscono in 'errors'."""
     get = get or _get
     snap = {"symbol": symbol, "last": None, "mark": None, "index": None, "premium_pct": None,
             "funding_rate_pct": None, "funding_interval_h": None, "next_funding_ts": None,
             "open_interest": None, "open_interest_usd": None,
-            "long_pct": None, "short_pct": None, "long_short_basis": None, "errors": []}
+            "long_accounts_pct": None, "long_positions_pct": None, "errors": []}
 
     try:
         t = _first(get("/api/v2/mix/market/ticker", symbol=symbol, productType=PRODUCT_TYPE))
@@ -94,26 +95,27 @@ def fetch_snapshot(symbol, get=None):
         except Exception as e:
             snap["errors"].append(f"open interest: {e}")
 
-    ls_errors = []
-    for path, long_key, short_key, basis in LONG_SHORT_SOURCES:
-        try:
-            rows = get(path, symbol=symbol, period="1h")
-            rows = rows if isinstance(rows, list) else [rows]
-            rows = [r for r in rows if isinstance(r, dict) and _num(r.get(long_key)) is not None and _num(r.get(short_key)) is not None]
-            if not rows:
-                raise RuntimeError("risposta senza dati")
-            last = max(rows, key=lambda r: _num(r.get("ts")) or 0)
-            lo, sh = _num(last[long_key]), _num(last[short_key])
-            if lo + sh <= 0:
-                raise RuntimeError("valori nulli")
-            snap["long_pct"] = round(lo / (lo + sh) * 100, 2)
-            snap["short_pct"] = round(100 - snap["long_pct"], 2)
-            snap["long_short_basis"] = basis
-            break
-        except Exception as e:
-            ls_errors.append(f"long/short ({basis}): {e}")
-    if snap["long_pct"] is None:
-        snap["errors"] += ls_errors
+    for field, path, long_key, short_key in LONG_SHORT_SOURCES:
+        error = None
+        for attempt in range(2):  # un secondo tentativo dopo la pausa: il limite di frequenza è stretto
+            time.sleep(pause)
+            try:
+                rows = get(path, symbol=symbol, period="1h")
+                rows = rows if isinstance(rows, list) else [rows]
+                rows = [r for r in rows if isinstance(r, dict) and _num(r.get(long_key)) is not None and _num(r.get(short_key)) is not None]
+                if not rows:
+                    raise RuntimeError("risposta senza dati")
+                last = max(rows, key=lambda r: _num(r.get("ts")) or 0)
+                lo, sh = _num(last[long_key]), _num(last[short_key])
+                if lo + sh <= 0:
+                    raise RuntimeError("valori nulli")
+                snap[field] = round(lo / (lo + sh) * 100, 2)
+                error = None
+                break
+            except Exception as e:
+                error = f"{field}: {e}"
+        if error:
+            snap["errors"].append(error)
 
     if snap["mark"] and snap["index"]:
         snap["premium_pct"] = round((snap["mark"] - snap["index"]) / snap["index"] * 100, 4)
@@ -135,7 +137,7 @@ def load_history(path=HISTORY_PATH):
 def history_row(snap, hour_ts):
     return {"t": hour_ts, "symbol": snap["symbol"], "mark": snap["mark"], "index": snap["index"],
             "funding_rate_pct": snap["funding_rate_pct"], "open_interest": snap["open_interest"],
-            "long_pct": snap["long_pct"], "long_short_basis": snap["long_short_basis"]}
+            "long_accounts_pct": snap["long_accounts_pct"], "long_positions_pct": snap["long_positions_pct"]}
 
 
 def oi_change_pct(history, symbol, hour_ts, hours=24):
@@ -160,7 +162,7 @@ def _write_atomic(path, text):
         raise
 
 
-def collect(now_ts=None, get=None, snapshot_path=SNAPSHOT_PATH, history_path=HISTORY_PATH):
+def collect(now_ts=None, get=None, snapshot_path=SNAPSHOT_PATH, history_path=HISTORY_PATH, pause=LONG_SHORT_PAUSE):
     """Una volta per ora: scarica la fotografia di ogni coin, aggiunge le righe allo storico e
     riscrive futures_data.json. Ritorna True se ha scritto qualcosa (quindi serve un commit)."""
     now_ts = int(now_ts or time.time())
@@ -174,7 +176,7 @@ def collect(now_ts=None, get=None, snapshot_path=SNAPSHOT_PATH, history_path=HIS
     for symbol in ALL_ASSETS:
         if symbol in done:
             continue
-        snap = fetch_snapshot(symbol, get)
+        snap = fetch_snapshot(symbol, get, pause)
         for err in snap["errors"]:
             print(f"Futures {symbol}: {err}")
         if snap["mark"] is None and snap["funding_rate_pct"] is None and snap["open_interest"] is None:
