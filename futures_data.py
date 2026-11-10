@@ -66,7 +66,8 @@ def fetch_snapshot(symbol, get=None, pause=LONG_SHORT_PAUSE):
     snap = {"symbol": symbol, "last": None, "mark": None, "index": None, "premium_pct": None,
             "funding_rate_pct": None, "funding_interval_h": None, "next_funding_ts": None,
             "open_interest": None, "open_interest_usd": None,
-            "long_accounts_pct": None, "long_positions_pct": None, "errors": []}
+            "long_accounts_pct": None, "long_positions_pct": None,
+            "maker_fee_pct": None, "taker_fee_pct": None, "max_leverage": None, "tiers": None, "errors": []}
 
     try:
         t = _first(get("/api/v2/mix/market/ticker", symbol=symbol, productType=PRODUCT_TYPE))
@@ -116,6 +117,29 @@ def fetch_snapshot(symbol, get=None, pause=LONG_SHORT_PAUSE):
                 error = f"{field}: {e}"
         if error:
             snap["errors"].append(error)
+
+    # Regole del contratto, usate dal calcolatore Rischio: commissioni e fasce di margine
+    # (più la posizione è grande, meno leva è concessa e più margine di mantenimento serve).
+    try:
+        c = _first(get("/api/v2/mix/market/contracts", symbol=symbol, productType=PRODUCT_TYPE))
+        maker, taker = _num(c.get("makerFeeRate")), _num(c.get("takerFeeRate"))
+        snap["maker_fee_pct"] = None if maker is None else round(maker * 100, 4)
+        snap["taker_fee_pct"] = None if taker is None else round(taker * 100, 4)
+        snap["max_leverage"] = _num(c.get("maxLever"))
+    except Exception as e:
+        snap["errors"].append(f"contratto: {e}")
+    try:
+        rows = get("/api/v2/mix/market/query-position-lever", symbol=symbol, productType=PRODUCT_TYPE)
+        tiers = []
+        for r in rows if isinstance(rows, list) else []:
+            end, lev, mmr = _num(r.get("endUnit")), _num(r.get("leverage")), _num(r.get("keepMarginRate"))
+            if end is not None and lev and mmr is not None:
+                tiers.append({"up_to_usdt": end, "max_leverage": lev, "mmr_pct": round(mmr * 100, 4)})
+        if not tiers:
+            raise RuntimeError("risposta senza fasce")
+        snap["tiers"] = sorted(tiers, key=lambda t: t["up_to_usdt"])
+    except Exception as e:
+        snap["errors"].append(f"fasce di margine: {e}")
 
     if snap["mark"] and snap["index"]:
         snap["premium_pct"] = round((snap["mark"] - snap["index"]) / snap["index"] * 100, 4)
@@ -215,8 +239,9 @@ if __name__ == "__main__":
     ok = True
     for sym in ALL_ASSETS:
         s = fetch_snapshot(sym)
-        print(json.dumps(s, indent=1))
-        if s["mark"] is None or s["funding_rate_pct"] is None or s["open_interest"] is None:
+        tiers = s["tiers"] or []
+        print(json.dumps({**s, "tiers": f"{len(tiers)} fasce, prime 3: {tiers[:3]}"}, indent=1))
+        if s["mark"] is None or s["funding_rate_pct"] is None or s["open_interest"] is None or s["taker_fee_pct"] is None or not s["tiers"]:
             ok = False
     if "--check" in sys.argv and not ok:
-        sys.exit("Dati essenziali mancanti (prezzo mark, funding o open interest).")
+        sys.exit("Dati essenziali mancanti (prezzo mark, funding, open interest, commissioni o fasce di margine).")

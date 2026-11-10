@@ -28,6 +28,11 @@ def fake(oi="1000", fail=(), flaky=None):
             return [{"longAccountRatio": "0.5", "shortAccountRatio": "0.5", "ts": "1"}, {"longAccountRatio": "0.6", "shortAccountRatio": "0.4", "ts": "2"}]
         if path.endswith("/position-long-short"):
             return [{"longPositionRatio": "0.52", "shortPositionRatio": "0.48", "ts": "2"}]
+        if path.endswith("/contracts"):
+            return [{"symbol": params["symbol"], "makerFeeRate": "0.0002", "takerFeeRate": "0.0006", "maxLever": "125"}]
+        if path.endswith("/query-position-lever"):
+            return [{"level": "2", "startUnit": "150000", "endUnit": "900000", "leverage": "100", "keepMarginRate": "0.005"},
+                    {"level": "1", "startUnit": "0", "endUnit": "150000", "leverage": "125", "keepMarginRate": "0.004"}]
         raise RuntimeError("endpoint sconosciuto")
     return get
 
@@ -38,6 +43,9 @@ def test_fotografia_completa():
     assert s["funding_rate_pct"] == 0.012 and s["funding_interval_h"] == 8 and s["next_funding_ts"] == NOW + H
     assert s["premium_pct"] == 0.1001 and s["open_interest"] == 1000 and s["open_interest_usd"] == 50_000_000
     assert s["long_accounts_pct"] == 60.0 and s["long_positions_pct"] == 52.0  # riga più recente; misure separate
+    assert s["maker_fee_pct"] == 0.02 and s["taker_fee_pct"] == 0.06 and s["max_leverage"] == 125
+    assert s["tiers"] == [{"up_to_usdt": 150000, "max_leverage": 125, "mmr_pct": 0.4},
+                          {"up_to_usdt": 900000, "max_leverage": 100, "mmr_pct": 0.5}]            # ordinate per dimensione
 
 
 def test_campi_indipendenti_e_ripieghi():
@@ -45,7 +53,9 @@ def test_campi_indipendenti_e_ripieghi():
     s = fd.fetch_snapshot("BTCUSDT", fake(fail=("current-fund-rate", "long-short")), pause=0)
     assert s["funding_rate_pct"] == 0.01 and s["funding_interval_h"] is None
     assert s["long_accounts_pct"] is None and s["long_positions_pct"] is None
-    assert s["mark"] == 50000 and len(s["errors"]) == 1 + len(fd.LONG_SHORT_SOURCES)
+    assert s["mark"] == 50000 and len(s["errors"]) == 1 + len(fd.LONG_SHORT_SOURCES) and s["tiers"]
+    s = fd.fetch_snapshot("BTCUSDT", fake(fail=("contracts", "position-lever")), pause=0)
+    assert s["taker_fee_pct"] is None and s["tiers"] is None and s["mark"] == 50000 and len(s["errors"]) == 2
     # ticker giù: open interest dall'endpoint dedicato, niente prezzo mark
     s = fd.fetch_snapshot("BTCUSDT", fake(fail=("/ticker",)), pause=0)
     assert s["mark"] is None and s["open_interest"] == 900 and s["open_interest_usd"] is None and s["funding_rate_pct"] == 0.012
