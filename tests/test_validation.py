@@ -1,4 +1,5 @@
 """Test della validazione storica (senza modello). `python3 tests/test_validation.py` oppure pytest."""
+import json
 import os
 import sys
 import tempfile
@@ -56,6 +57,34 @@ def test_esiti_di_una_previsione():
     # segnale con R/R troppo basso: direzionale ma non operativo
     e = vs.enrich(row(prob_up=90, forecast_move=1.0))
     assert e["gross"]["kronos_plan"] is None and e["gross"]["kronos_signal"] is not None
+
+
+def test_traiettorie_e_valore_atteso():
+    # 10 traiettorie: 6 toccano il target (+3%), 3 lo stop (-1.5%), 1 resta ferma. Piano LONG: stop 98.5, target 103.
+    up = [100, 200, 320, 320, 320, 320, 320]
+    down = [-50, -160, -160, -160, -160, -160, -160]
+    flat = [0, 10, -10, 0, 10, 0, 0]
+    r = row(prob_up=90, forecast_move=3.0)
+    r["paths"] = [up] * 6 + [down] * 3 + [flat]
+    plan = vs.build_trade_plan(100.0, 1.0, 90.0, [{"close": 103.0}] * PRED_LEN)
+    net = vs.path_plan_net(plan, r["paths"], 100.0)
+    win, loss = (3.0 - COSTS) * (1 - TAX_RATE), -1.5 - COSTS
+    assert np.allclose(sorted(net), sorted([win] * 6 + [loss] * 3 + [-COSTS]))
+    e = vs.enrich(r)
+    assert abs(e["p_profit"] - 0.6) < 1e-12 and abs(e["ev_net"] - (6 * win + 3 * loss - COSTS) / 10) < 1e-9
+    assert e["plan_win"] == 1.0 and e["gross"]["kronos_ev"] is not None and e["gross"]["plan_all"] is not None
+    # prima lo stop e poi il target nella stessa traiettoria: conta ciò che arriva prima
+    assert np.allclose(vs.path_plan_net(plan, [[-200, 400, 400, 400, 400, 400, 400]], 100.0), [loss])
+    # traiettorie tutte contrarie: valore atteso negativo, il filtro non opera ma il piano "su tutto" sì
+    r["paths"] = [down] * 10
+    e = vs.enrich(r)
+    assert e["ev_net"] < 0 and e["gross"]["kronos_ev"] is None and e["gross"]["plan_all"] is not None
+    # SHORT: speculare
+    plan_s = vs.build_trade_plan(100.0, 1.0, 10.0, [{"close": 97.0}] * PRED_LEN)
+    assert np.allclose(vs.path_plan_net(plan_s, [[-100, -320, 0, 0, 0, 0, 0], [160, 0, 0, 0, 0, 0, 0]], 100.0), [win, loss])
+    # righe vecchie senza traiettorie: niente stima, nessun errore
+    e = vs.enrich(row())
+    assert e["p_profit"] is None and e["gross"]["kronos_ev"] is None and e["gross"]["plan_all"] is None
 
 
 def test_isotonica_crescente():
@@ -116,7 +145,24 @@ def test_riepilogo():
     assert o["kronos_minus_momentum_ci"][0] > 0
     assert o["calibration_wf"]["n_test"] > 300 and len(o["calibration_wf"]["map"]) == 11
     assert s["by_pair"]["BTCUSDT_1h"]["n_samples"] == [50]
+    assert o["path_model"] == {"n": 0} and o["strategies"]["kronos_ev"]["n"] == 0   # righe senza traiettorie
     assert "Validazione storica" in vs.to_markdown(s)
+    # con le traiettorie: modello "onesto" (60% di traiettorie vincenti quando poi vince 6 volte su 10 circa)
+    good, bad = [100, 200, 420, 420, 420, 420, 420], [-50, -160, -160, -160, -160, -160, -160]
+    rows = []
+    for k in range(300):
+        strong = k % 2 == 0
+        wins = rng.random() < (0.8 if strong else 0.2)
+        r = row(k=k, prob_up=90, move=4.5 if wins else -2.0)
+        r["paths"] = [good] * (8 if strong else 2) + [bad] * (2 if strong else 8)
+        rows.append(r)
+    o = vs.build_summary(rows)["overall"]
+    pm = o["path_model"]
+    assert pm["n"] == 300 and pm["verdict"] == "positivo" and pm["brier"] < pm["brier_base_rate"]
+    assert [b["range"] for b in pm["calibration"]] == ["20-40", "80-100"]
+    assert o["strategies"]["plan_all"]["n"] == 300 and o["strategies"]["kronos_ev"]["n"] == 150
+    assert o["strategies"]["kronos_ev"]["avg_net_pct"] > o["strategies"]["plan_all"]["avg_net_pct"]
+    assert "valore atteso netto" in vs.to_markdown(vs.build_summary(rows)).lower()
     # previsioni a caso: nessun vantaggio dimostrato
     rows = [row(k=k, prob_up=float(rng.choice([10, 90])), move=float(rng.choice([-2, 2]))) for k in range(300)]
     for r in rows:
@@ -184,6 +230,11 @@ def test_download_a_pagine_e_ripresa():
         va.save_rows([row(k=2), row(k=1)], path)
         back = va.load_rows(path)
         assert [r["candle_time"] for r in back] == sorted(r["candle_time"] for r in back) and len(back) == 2
+        # una riga ricalcolata (con le traiettorie) sostituisce quella vecchia con lo stesso id
+        with open(path, "a") as f:
+            f.write(json.dumps(dict(row(k=1), paths=[[1] * PRED_LEN])) + "\n")
+        back = va.load_rows(path)
+        assert len(back) == 2 and sum("paths" in r for r in back) == 1
 
 
 if __name__ == "__main__":

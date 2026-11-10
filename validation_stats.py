@@ -69,8 +69,22 @@ def enrich(row):
         if plan["tradeable"]:
             strategies["kronos_plan"] = tr.simulate_plan(plan, horizon)["gross_pct"]
 
+    # Con le traiettorie salvate: il piano viene simulato su ognuna, ottenendo la probabilità che
+    # chiuda in utile e il valore atteso netto SECONDO IL MODELLO, da confrontare con l'esito reale.
+    p_profit = ev_net = plan_win = None
+    strategies["plan_all"] = strategies["kronos_ev"] = None
+    if row.get("paths"):
+        model_net = path_plan_net(plan, row["paths"], ref)
+        p_profit, ev_net = float((model_net > 0).mean()), float(model_net.mean())
+        real_gross = tr.simulate_plan(plan, horizon)["gross_pct"]
+        plan_win = 1.0 if after_costs(real_gross)[1] > 0 else 0.0
+        strategies["plan_all"] = real_gross                      # il piano su ogni previsione, senza filtri
+        if ev_net > 0:
+            strategies["kronos_ev"] = real_gross                 # solo se il valore atteso netto del modello è positivo
+
     p10, p90 = row["p10"][-1], row["p90"][-1]
     return {
+        "p_profit": p_profit, "ev_net": ev_net, "plan_win": plan_win,
         "symbol": row["symbol"], "tf": row["tf"], "t": row["candle_time"],
         "end": row["candle_time"] + (PRED_LEN + 1) * tf_seconds(row["tf"]),  # da qui l'esito è noto
         "p": row["prob_up"] / 100, "up": 1.0 if close_h > ref else 0.0,
@@ -78,6 +92,24 @@ def enrich(row):
         "in_band": 1.0 if p10 <= close_h <= p90 else 0.0,
         "ref": ref, "close_h": close_h, "gross": strategies,
     }
+
+
+def path_plan_net(plan, paths_bps, ref):
+    """Netto % (costi e tasse) del piano su ogni traiettoria simulata. Le traiettorie hanno solo le
+    chiusure: stop e target si considerano toccati quando una chiusura li supera."""
+    prices = ref * (1 + np.asarray(paths_bps, dtype=float) / 10000)
+    entry, sl, tp = plan["entry"], plan["stop_loss"], plan["take_profit"]
+    long = plan["direction"] == "LONG"
+    hit_sl = prices <= sl if long else prices >= sl
+    hit_tp = prices >= tp if long else prices <= tp
+    n = prices.shape[1]
+    first_sl = np.where(hit_sl.any(axis=1), hit_sl.argmax(axis=1), n)
+    first_tp = np.where(hit_tp.any(axis=1), hit_tp.argmax(axis=1), n)
+    exit_price = np.where(first_sl <= first_tp, sl, tp)          # a pari candela conta lo stop
+    exit_price = np.where((first_sl == n) & (first_tp == n), prices[:, -1], exit_price)
+    gross = (exit_price - entry) / entry * 100 * (1 if long else -1)
+    pre_tax = gross - COST_ROUND_TRIP
+    return np.where(pre_tax > 0, pre_tax * (1 - TAX_RATE), pre_tax)
 
 
 # =========================
@@ -155,14 +187,14 @@ def walk_forward_calibration(points):
     return cal
 
 
-def walk_forward_base_rate(points):
-    """Frequenza dei rialzi osservata fino a quel momento (0.5 finché non c'è storico concluso)."""
+def walk_forward_base_rate(points, key="up"):
+    """Frequenza dell'esito (di base: rialzo) osservata fino a quel momento (0.5 finché non c'è storico concluso)."""
     order = sorted(range(len(points)), key=lambda i: points[i]["t"])
     by_end = sorted(order, key=lambda i: points[i]["end"])
     out, ups, n, k = np.full(len(points), 0.5), 0.0, 0, 0
     for i in order:
         while k < len(by_end) and points[by_end[k]]["end"] <= points[i]["t"]:
-            ups += points[by_end[k]]["up"]
+            ups += points[by_end[k]][key]
             n += 1
             k += 1
         if n >= MIN_N:
@@ -242,6 +274,37 @@ def _calibration_stats(points, clusters):
     }
 
 
+def _path_model_stats(points, clusters):
+    """La probabilità di chiudere in utile calcolata dalle traiettorie è affidabile? (solo righe con traiettorie)"""
+    idx = [i for i, x in enumerate(points) if x["p_profit"] is not None]
+    if len(idx) < MIN_N:
+        return {"n": len(idx)}
+    sub_points = [points[i] for i in idx]
+    p = np.array([x["p_profit"] for x in sub_points])
+    win = np.array([x["plan_win"] for x in sub_points])
+    ev = np.array([x["ev_net"] for x in sub_points])
+    base = walk_forward_base_rate(sub_points, "plan_win")
+    skill_ci = cluster_ci((base - win) ** 2 - (p - win) ** 2, clusters[idx])
+    bins = []
+    for lo in range(0, 100, 20):
+        sel = (p * 100 >= lo) & ((p * 100 < lo + 20) | (lo == 80))
+        if sel.any():
+            bins.append({"range": f"{lo}-{lo + 20}", "n": int(sel.sum()),
+                         "predicted_win_pct": round(float(p[sel].mean() * 100), 1),
+                         "realized_win_pct": round(float(win[sel].mean() * 100), 1)})
+    return {
+        "n": len(idx),
+        "realized_win_pct": round(float(win.mean() * 100), 1),
+        "predicted_win_pct": round(float(p.mean() * 100), 1),
+        "brier": round(float(((p - win) ** 2).mean()), 4),
+        "brier_base_rate": round(float(((base - win) ** 2).mean()), 4),
+        "brier_skill_ci": skill_ci,
+        "positive_ev_share_pct": round(float((ev > 0).mean() * 100), 1),
+        "calibration": bins,
+        "verdict": verdict(skill_ci, len(idx)),
+    }
+
+
 def _strategy_stats(points, clusters, name):
     sel = [i for i, x in enumerate(points) if x["gross"][name] is not None]
     n = len(sel)
@@ -283,7 +346,7 @@ def _buy_hold(points):
     return {"gross_pct": round(float(np.mean(gross)), 2), "net_pct": round(float(np.mean(net)), 2)}
 
 
-STRATEGIES = ["kronos_plan", "kronos_signal", "kronos_all", "momentum", "always_long"]
+STRATEGIES = ["kronos_plan", "kronos_ev", "plan_all", "kronos_signal", "kronos_all", "momentum", "always_long"]
 
 
 def block(points, cluster_seconds):
@@ -301,6 +364,7 @@ def block(points, cluster_seconds):
         "to": int(points[-1]["t"]),
         "direction": _direction_stats(points, clusters),
         "calibration_wf": _calibration_stats(points, clusters),
+        "path_model": _path_model_stats(points, clusters),
         "strategies": strategies,
         "kronos_minus_momentum_ci": cluster_ci(diff, clusters),
         "buy_hold": _buy_hold(points),
@@ -386,7 +450,15 @@ def _block_md(title, b):
         out.append(f"| Calibrazione walk-forward | storico concluso ancora troppo corto ({c.get('n_test', 0)} casi) |")
     out += ["", "| Fascia prob. rialzo | Casi | Prevista | Reale |", "|---|---|---|---|"]
     out += [f"| {x['range']}% | {x['n']} | {x['predicted_up_pct']}% | {x['realized_up_pct']}% |" for x in d["calibration"]]
-    names = {"kronos_plan": "Kronos: segnali operativi (stop e target)", "kronos_signal": "Kronos: segnali tenuti a fine orizzonte",
+    pm = b["path_model"]
+    if pm.get("n", 0) >= MIN_N:
+        out += ["", f"Probabilità di chiudere in utile calcolata dalle traiettorie ({pm['n']} casi): prevista {pm['predicted_win_pct']}%, "
+                    f"reale {pm['realized_win_pct']}%; Brier {pm['brier']} contro {pm['brier_base_rate']} della frequenza storica "
+                    f"→ {VERDICT_TEXT[pm['verdict']]}. Valore atteso netto positivo secondo il modello nel {pm['positive_ev_share_pct']}% dei casi.",
+                "", "| Prob. di utile prevista | Casi | Prevista | Reale |", "|---|---|---|---|"]
+        out += [f"| {x['range']}% | {x['n']} | {x['predicted_win_pct']}% | {x['realized_win_pct']}% |" for x in pm["calibration"]]
+    names = {"kronos_ev": "Kronos: piano solo se valore atteso netto > 0", "plan_all": "Kronos: piano su ogni previsione",
+             "kronos_plan": "Kronos: segnali operativi (stop e target)", "kronos_signal": "Kronos: segnali tenuti a fine orizzonte",
              "kronos_all": "Kronos: direzione su ogni previsione", "momentum": "Momentum", "always_long": "Sempre long"}
     out += ["", "| Strategia | Trade | Vincenti | Lordo medio | Netto costi | Netto costi+tasse | IC 95% netto | Giudizio |",
             "|---|---|---|---|---|---|---|---|"]
