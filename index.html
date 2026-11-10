@@ -30,7 +30,7 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=34">
+    <link rel="stylesheet" href="./style.css?v=35">
 </head>
 <body>
 
@@ -374,135 +374,326 @@
             <div class="info-dots" id="signalHistoryDots"></div>
         </section>
 
-        <!-- ==================== MANUALE (Identico al file originale) ==================== -->
+        <!-- ==================== MANUALE (14 SLIDE COMPLETE) ==================== -->
         <section class="page" id="page-info">
             <div class="info-header">
-                <h1>Regole Operative</h1>
-                <p>Manuale del Trader</p>
+                <h1>Manuale</h1>
+                <p>Regole operative</p>
             </div>
-
             <div class="info-carousel" id="infoCarousel">
+
+                <!-- SLIDE 0 -->
+                <div class="info-slide">
+                    <div class="rule-card rule-card-intro">
+                        <div class="rule-card-title green">SGTRADER</div>
+                        <div class="intro-text">
+                            Un sistema operativo completo per il trading algoritmico. Un hub che unisce <b>analisi AI</b>, <b>strategie tecniche</b>, <b>gestione del rischio</b>, <b>trade simulati</b>, <b>backtest</b> e <b>diario</b>.
+                        </div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title blue">La Filosofia</div>
+                        <div class="rule-step"><div class="content"><b>SGTRADER non indovina il futuro.</b> Analizza il momentum attuale, calcola probabilità statistiche basate su simulazioni Monte Carlo, e ti mostra condizioni in cui certe strategie funzionano meglio.</div></div>
+                        <div class="rule-step"><div class="content"><b>Il vero edge</b> non è predire con precisione. È operare solo in condizioni favorevoli, controllare il rischio, pagare meno quando sbagli.</div></div>
+                        <div class="rule-step"><div class="content">Win rate del <b>50%</b> con R:R <b>1:2</b> produce profitto. Non devi vincere sempre. Devi perdere poco quando perdi.</div></div>
+                        <div class="highlight-box"><b>Regola d'oro</b>: il 90% delle volte la risposta corretta a "quando entrare?" è <b>"Non ora"</b>.</div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title default">Il Ciclo Operativo</div>
+                        <div class="rule-step"><div class="content"><b>1. Segnale</b> → SGTRADER AI o Signal Engine ti avvertono</div></div>
+                        <div class="rule-step"><div class="content"><b>2. Analisi</b> → Controlli coerenza tra timeframe e consensus</div></div>
+                        <div class="rule-step"><div class="content"><b>3. Rischio</b> → Calcoli size, R:R, fee, tasse nella Gestione Rischio</div></div>
+                        <div class="rule-step"><div class="content"><b>4. Apertura</b> → Trade simulato con prezzi reali</div></div>
+                        <div class="rule-step"><div class="content"><b>5. Gestione</b> → TP/SL automatici, timer, monitoraggio PnL</div></div>
+                        <div class="rule-step"><div class="content"><b>6. Chiusura</b> → Registro nel Diario, calcolo performance</div></div>
+                        <div class="rule-step"><div class="content"><b>7. Apprendimento</b> → Backtester per validare, Diario per migliorare</div></div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 1 -->
+                <div class="info-slide">
+                    <div class="rule-card">
+                        <div class="rule-card-title blue">Architettura del Sistema</div>
+                        <div class="rule-step"><div class="content"><b>Bot Python</b> su <em>GitHub Actions</em>. Scarica candele da Bitget, calcola indicatori tecnici, esegue simulazioni Monte Carlo, genera un piano operativo con entry/SL/TP, e scrive il tutto in <span class="mono">dashboard.json</span>.</div></div>
+                        <div class="rule-step"><div class="content"><b>dashboard.json</b> è il file statico che contiene, per ogni coppia asset/timeframe: storico candele, forecast, bande di confidenza, probabilità di rialzo e piano operativo AI. Viene hostato su Vercel.</div></div>
+                        <div class="rule-step"><div class="content"><b>Vercel Serverless</b> fornisce due endpoint: <span class="mono">/api/trigger</span> per avviare il bot via webhook GitHub, e <span class="mono">/api/analyze</span> che fa da proxy verso Groq (Llama 3) per l'Analisi AI in tempo reale.</div></div>
+                        <div class="rule-step"><div class="content"><b>Frontend PWA</b> (questo file): single-file HTML/CSS/JS, Lightweight Charts 4.1.3, localStorage per persistenza, manifest e meta per comportamento nativo su iPhone.</div></div>
+                        <div class="rule-step"><div class="content"><b>Bitget API</b>: prezzi live (tickers), candele storiche (per Signal Engine e Backtest). Nessuna chiave privata — tutto spot pubblico.</div></div>
+                        <div class="rule-step"><div class="content"><b>Persistenza locale</b> su due chiavi separate: <span class="mono">kronos_state_v3</span> (trades) e <span class="mono">kronos_signals_v1</span> (segnali + impostazioni notifiche).</div></div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title default">Flusso Dati</div>
+                        <div class="rule-step"><div class="content"><b>GitHub Actions</b> (ogni 15 min) → scarica dati → calcola → scrive <span class="mono">dashboard.json</span> → Vercel lo serve → SGTRADER lo legge ogni 2 minuti.</div></div>
+                        <div class="rule-step"><div class="content"><b>Signal Engine</b> (ogni 10 min) → chiama Bitget per candele fresche → calcola 3 strategie + SGTRADER AI → aggrega consensus → eventualmente notifica.</div></div>
+                        <div class="rule-step"><div class="content"><b>Price Polling</b> (ogni 5 sec) → aggiorna prezzo header, PnL trade attivi, verifica chiusure TP/SL automatiche.</div></div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 2 -->
+                <div class="info-slide">
+                    <div class="rule-card">
+                        <div class="rule-card-title green">Trend Breakout (Momentum)</div>
+                        <div class="rule-step"><div class="content"><b>Quando entra LONG:</b> trend bullish in corso (≥ 2 candele verdi consecutive), prezzo rompe il <span class="lbl-green">massimo degli ultimi 20 periodi</span>, RSI ≥ 55, volumi ≥ 150% della media 24 periodi, prezzo sopra EMA 200.</div></div>
+                        <div class="rule-step"><div class="content"><b>Quando entra SHORT:</b> trend bearish, prezzo sotto EMA200, RSI ≤ 45, volumi alti. (Meno frequente, è una strategia principalmente long.)</div></div>
+                        <div class="rule-step"><div class="content"><b>Logica:</b> cavalca il momentum. Funziona in mercati in forte trend, soffre in laterale (falsi breakout).</div></div>
+                        <div class="rule-step"><div class="content"><b>Filtri visibili</b> nel tab Grafici: Volumi, RSI, Breakout 20, Macro (EMA200).</div></div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title blue">Mean Reversion (Ritorno alla Media)</div>
+                        <div class="rule-step"><div class="content"><b>Quando entra LONG:</b> RSI &lt; 35 (ipervenduto), prezzo ancora sopra EMA200 × 0.95 (trend macro non distrutto), distanza da EMA20 &lt; 5%.</div></div>
+                        <div class="rule-step"><div class="content"><b>Quando entra SHORT:</b> RSI &gt; 65 (ipercomprato), prezzo sotto EMA200 × 1.05.</div></div>
+                        <div class="rule-step"><div class="content"><b>Logica:</b> i prezzi tendono a ritornare alla media mobile. Funziona in laterale/range, soffre in trend forti (il prezzo può restare ipervenduto per giorni).</div></div>
+                        <div class="rule-step"><div class="content"><b>Filtri visibili</b>: RSI, EMA200 × 0.95, Dist. EMA20, Colore candela.</div></div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title yellow">MA Crossover (Trend Following Lento)</div>
+                        <div class="rule-step"><div class="content"><b>Quando entra LONG:</b> EMA20 &gt; EMA50 <em>e</em> EMA50 &gt; EMA200 (allineamento perfetto) <em>e</em> prezzo &gt; EMA50.</div></div>
+                        <div class="rule-step"><div class="content"><b>Quando entra SHORT:</b> EMA20 &lt; EMA50 &lt; EMA200 <em>e</em> prezzo &lt; EMA50.</div></div>
+                        <div class="rule-step"><div class="content"><b>Logica:</b> segue il trend lento, entra solo quando tutte le medie sono allineate. Pochi segnali ma di qualità. Soffre nei cambi di regime (whipsaw).</div></div>
+                        <div class="rule-step"><div class="content"><b>Filtri visibili</b>: EMA20 vs EMA50, EMA50 vs EMA200, Prezzo vs EMA50, Volumi.</div></div>
+                    </div>
+                    <div class="warning-highlight"><b>Nessuna strategia è infallibile.</b> Ognuna funziona in un regime di mercato specifico: breakout in trending, mean rev in laterale, MA cross in trend lunghi. Per questo esiste il <b>consensus multi-sorgente</b>.</div>
+                </div>
+
+                <!-- SLIDE 3 -->
+                <div class="info-slide">
+                    <div class="rule-card">
+                        <div class="rule-card-title blue">Signal Engine — Consensus</div>
+                        <div class="rule-step"><div class="content"><b>4 sorgenti</b> valutate su 9 celle (3 asset × 3 timeframe): <span class="lbl-blue">SGTRADER AI</span> + <span class="lbl-green">Breakout</span> + <span class="lbl-yellow">Mean Reversion</span> + <span class="lbl-red">MA Crossover</span>.</div></div>
+                        <div class="rule-step"><div class="content"><b>Consensus</b>: serve almeno <b>2 sorgenti</b> concordi (LONG o SHORT) perché la cella mostri un segnale. Se solo una dice LONG e le altre 3 sono neutre, resta NEUTRO.</div></div>
+                        <div class="rule-step"><div class="content"><b>Forza del segnale</b> = media delle strength delle sorgenti concordi. Più sorgenti e più strength = segnale più affidabile.</div></div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title green">Come leggere la griglia</div>
+                        <div class="rule-step"><div class="content">Ogni cella mostra: <b>asset + timeframe</b>, badge con consensus e <b>N/4</b> (quante sorgenti sono d'accordo), 4 pallini indicatori, e label <b>K:LONG</b> o <b>K:SHORT</b> o <b>K:—</b>.</div></div>
+                        <div class="rule-step"><div class="content">Il <b>primo pallino ha bordo blu</b> = SGTRADER AI. Gli altri 3 = Breakout, Mean Reversion, MA Crossover nell'ordine.</div></div>
+                        <div class="rule-step"><div class="content">Pallino verde pieno = segnale LONG. Pallino rosso pieno = SHORT. Pallino grigio vuoto = neutro.</div></div>
+                        <div class="rule-step"><div class="content">Tap su una cella apre il <b>dettaglio completo</b>: motivazione di ogni sorgente + consensus finale + pulsante "Apri sui Grafici".</div></div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title yellow">Soglia di accordo</div>
+                        <div class="rule-step"><div class="content">Nelle impostazioni puoi scegliere la soglia minima per notifiche: <b>1</b> (qualsiasi), <b>2</b> (default, consensus medio), <b>3</b> (forte), <b>4</b> (unanimità totale).</div></div>
+                        <div class="rule-step"><div class="content"><b>Consiglio:</b> 2 è il compromesso migliore. 3 filtra ancora di più ma ricevi pochissime notifiche. 4 quasi mai.</div></div>
+                        <div class="highlight-box"><b>Scansione automatica ogni 10 minuti.</b> Le notifiche partono solo su <b>cambio</b> di consensus (es. da NEUTRO a LONG, o da LONG a SHORT). Non ricevi spam dello stesso segnale.</div></div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 4 -->
+                <div class="info-slide">
+                    <div class="rule-card">
+                        <div class="rule-card-title blue">SGTRADER AI — Il Modello</div>
+                        <div class="rule-step"><div class="content">Il bot Python calcola <b>prob_up</b> = percentuale di simulazioni Monte Carlo che sono finite sopra il prezzo attuale dopo N passi.</div></div>
+                        <div class="rule-step"><div class="content"><b>NON è "l'80% di probabilità che salga".</b> È: "su 100 scenari simulati, 80 sono finiti sopra". Misura il <em>momentum</em>, non è una predizione.</div></div>
+                        <div class="rule-step"><div class="content">Il <b>Piano Operativo</b> include: bias (LONG/SHORT/NEUTRO), entry, stop loss, take profit, reasoning testuale, flag <b>tradeable</b>, min_rr.</div></div>
+                        <div class="rule-step"><div class="content"><b>tradeable = false</b> quando il R:R calcolato è sotto la soglia (default 1.5). In questo caso il pulsante "Analizza Setup" diventa arancione con dicitura "R/R Basso".</div></div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title green">Forecast e Bande di Confidenza</div>
+                        <div class="rule-step"><div class="content">Il grafico mostra le <b>candele storiche</b> (verdi/rosse), poi il <b>forecast</b> (candele arancioni trasparenti) e le <b>bande di confidenza</b> (linee tratteggiate).</div></div>
+                        <div class="rule-step"><div class="content">Le bande indicano l'intervallo atteso al 90% di confidenza. Se il prezzo reale esce dalle bande, il modello si sta sbagliando: è un segnale di cautela.</div></div>
+                        <div class="rule-step"><div class="content">Il forecast è una <em>proiezione statistica</em>, non un target. Non usarlo come TP reale: per quello c'è il Piano Operativo con entry/SL/TP calcolati.</div></div>
+                    </div>
+                    <div class="warning-highlight"><b>Attenzione</b>: il modello è validato parzialmente. Fino a quando non hai 30+ trade registrati nel Diario, la probabilità è un <b>filtro</b>, non una previsione affidabile.</div>
+                </div>
+
+                <!-- SLIDE 5 -->
+                <div class="info-slide">
+                    <div class="rule-card">
+                        <div class="rule-card-title blue">Gestione Rischio — Guida Completa</div>
+                        <div class="rule-step"><div class="content"><b>Input principali</b>: capitale disponibile, rischio target % (tipico 1-2%), direzione (LONG/SHORT), entry, stop loss, target, fee, slippage, leva (se futures).</div></div>
+                        <div class="rule-step"><div class="content"><b>Size nominale</b> = (capitale × rischio%) / (distanza stop% + slippage% + 2 × fee%). È la dimensione in USDT della posizione.</div></div>
+                        <div class="rule-step"><div class="content"><b>Margine richiesto</b> = size / leva. Solo in futures. In spot = size (leva 1x).</div></div>
+                        <div class="rule-step"><div class="content"><b>R:R Ratio</b> = |target - entry| / |entry - stop|. Sotto <b>1.5</b> è sconsigliato. Tra 1.5 e 2.0 è marginale. Sopra 2.0 è buono.</div></div>
+                        <div class="rule-step"><div class="content"><b>Fee</b>: applicate sia in ingresso che in uscita (2 × fee%). <b>Slippage</b>: peggioramento stimato del prezzo di esecuzione.</div></div>
+                        <div class="rule-step"><div class="content"><b>Tasse 33%</b>: aliquota italiana sui profitti netti. Applicate solo se il profitto lordo - fee è positivo.</div></div>
+                        <div class="rule-step"><div class="content"><b>Profitto Netto Finale</b> = Lordo - Fee - Tasse. Questo è quello che effettivamente incassi.</div></div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title green">Esempio Numerico</div>
+                        <div class="rule-step"><div class="content">Capitale <b>2000 USDT</b> · Rischio <b>2%</b> · Entry <b>50000</b> · SL <b>49000</b> (-2%) · TP <b>53000</b> (+6%) · Fee <b>0.1%</b> spot.</div></div>
+                        <div class="rule-step"><div class="content">Distanza stop = 2%. Costi totali = 0.05% slippage + 0.2% fee = 2.25%. Size = (2000 × 0.02) / 0.0225 = <span class="lbl-green">~1778 USDT</span>.</div></div>
+                        <div class="rule-step"><div class="content">Rischio reale = 1778 × 2.25% = <span class="lbl-yellow">~40 USDT</span> (2% del capitale). R:R = 6/2 = <span class="lbl-green">3.0</span>.</div></div>
+                        <div class="rule-step"><div class="content">Profitto lordo se TP = 1778 × 6% = 106.7 USDT. Fee totali = 1778×0.1% + 1884×0.1% = 3.66 USDT. Tasse = (106.7 - 3.66) × 33% = 34.0 USDT. <span class="lbl-green">Netto = +69 USDT</span>.</div></div>
+                        <div class="rule-step"><div class="content">Perdita se SL = 1778 × 2% = 35.5 USDT + 3.6 fee = <span class="lbl-red">-39 USDT netti</span>. Il rischio reale è quello che conti, non la size.</div></div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 6 -->
+                <div class="info-slide">
+                    <div class="rule-card">
+                        <div class="rule-card-title blue">Trade Simulati — Come Funziona</div>
+                        <div class="rule-step"><div class="content">I trade simulati usano <b>prezzi reali</b> da Bitget ma capitale virtuale. Serve per testare la strategia <em>senza rischiare soldi veri</em>.</div></div>
+                        <div class="rule-step"><div class="content"><b>Capitale libero iniziale</b>: 2000 USDT (modificabile). Puoi depositare o prelevare dal pulsante matita nel tab Posizioni.</div></div>
+                        <div class="rule-step"><div class="content"><b>Apertura trade</b>: il margine viene sottratto dal capitale libero. Se chiudi in profitto, torna margine + PnL netto. Se in perdita, torna margine - perdita.</div></div>
+                        <div class="rule-step"><div class="content"><b>Timer automatico</b>: 1D = 168h, 4H = 48h, 1H = 24h. Allo scadere, il trade chiude al prezzo corrente (motivo <b>TEMPO</b>).</div></div>
+                        <div class="rule-step"><div class="content"><b>Chiusura automatica</b>: TP, SL, o TEMPO. Vengono verificati ogni 5 secondi col prezzo live. La chiusura scatta nell'istante in cui il prezzo tocca la soglia.</div></div>
+                        <div class="rule-step"><div class="content"><b>Chiusura manuale</b>: dal pulsante CHIUDI. Utile se vedi un'inversione prima del TP.</div></div>
+                        <div class="rule-step"><div class="content"><b>Catch-up su riapertura</b>: se chiudi l'app e la riapri dopo ore, SGTRADER scarica le candele 15min dal momento dell'apertura e applica tutti i TP/SL che sono stati toccati. Non perdi nulla.</div></div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title green">PnL Lordo vs Netto</div>
+                        <div class="rule-step"><div class="content"><b>PnL Lordo</b> = (exit - entry) × size (o inverso se SHORT). Solo movimento prezzo.</div></div>
+                        <div class="rule-step"><div class="content"><b>Costi</b> = fee ingresso + fee uscita + tasse su profitto.</div></div>
+                        <div class="rule-step"><div class="content"><b>PnL Netto</b> = Lordo - Costi. È quello che aggiungi al capitale libero.</div></div>
+                        <div class="rule-step"><div class="content">Un trade chiuso a +50 USDT lordi può essere +20 netti dopo fee e tasse. <b>Il netto è quello che conta.</b></div></div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 7 -->
+                <div class="info-slide">
+                    <div class="rule-card">
+                        <div class="rule-card-title blue">Diario — Le Metriche</div>
+                        <div class="rule-step"><div class="content"><b>Win Rate</b> = trade vinti / trade totali × 100. Da solo non significa nulla: un 80% con TP piccoli può perdere soldi.</div></div>
+                        <div class="rule-step"><div class="content"><b>Profit Factor</b> = somma profitti / somma perdite. Sotto 1 = perdi. 1.0-1.2 = marginale. 1.2-1.5 = buono. &gt;1.5 = eccellente.</div></div>
+                        <div class="rule-step"><div class="content"><b>Expectancy</b> = PnL medio per trade. Positivo = sistema profittevole. Negativo = perdi soldi in media.</div></div>
+                        <div class="rule-step"><div class="content"><b>Avg Win / Avg Loss</b>: quanto vinci in media vs quanto perdi. Se Avg Win &gt; Avg Loss, anche con WR &lt; 50% puoi essere profittevole.</div></div>
+                        <div class="rule-step"><div class="content"><b>Max Drawdown</b>: la peggior perdita consecutiva dal picco. 10% = accettabile. 30% = devi rivedere la strategia. 50% = catastrofico.</div></div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title yellow">Break-Even Win Rate</div>
+                        <div class="rule-step"><div class="content">Con SL 2% e TP 6% (R:R 3), il break-even considera fee e tasse. Risultato tipico: <b>~30-35%</b>. Devi vincere più di così per essere profittevole.</div></div>
+                        <div class="rule-step"><div class="content">Con SL 2% e TP 2% (R:R 1), il break-even sale a <b>~55%</b>. Fee e tasse uccidono i trade a basso R:R.</div></div>
+                        <div class="rule-step"><div class="content">Il <b>Delta</b> mostrato in alto = WR attuale - Break-even. Se positivo, il sistema è profittevole. Se negativo, stai perdendo soldi.</div></div>
+                        <div class="highlight-box"><b>Servono almeno 20-30 trade</b> perché le metriche siano significative. Con 5 trade, la statistica è rumore. Non trarre conclusioni premature.</div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 8 -->
+                <div class="info-slide">
+                    <div class="rule-card">
+                        <div class="rule-card-title blue">Backtester — Guida Completa</div>
+                        <div class="rule-step"><div class="content">Simula la strategia sulle ultime <b>3000 candele</b> (1000 × 3 richieste da Bitget), con split <b>70% training / 30% test</b>.</div></div>
+                        <div class="rule-step"><div class="content"><b>Training</b>: i primi 70% dei dati. <b>Test</b>: gli ultimi 30%. Se la performance crolla nel test, la strategia è <em>overfittata</em>.</div></div>
+                        <div class="rule-step"><div class="content"><b>Parametri</b>: strategia, asset, timeframe, SL%, TP%, timer (ore). Applica gli stessi sulla Gestione Rischio dopo il test.</div></div>
+                        <div class="rule-step"><div class="content"><b>Simulazione</b>: per ogni segnale, entra all'open della candela successiva, esci a SL/TP/timer. Applica fee e tasse. Registra ogni trade.</div></div>
+                        <div class="rule-step"><div class="content"><b>Metriche</b>: trade totali, WR, PF, expectancy per Train e Test. <b>Buy &amp; Hold</b> per confronto: se il backtest fa meno del semplice hold, la strategia non vale.</div></div>
+                        <div class="rule-step"><div class="content"><b>Esporta CSV</b> per analisi esterna: data/ora entry, data/ora exit, entry price, exit price, PnL%, motivo.</div></div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title red">Limiti del Backtest</div>
+                        <div class="rule-step"><div class="content"><b>Overfitting</b>: ottimizzi i parametri sul passato e sembrano perfetti. Se Train PF=3 e Test PF=0.8, non funzionerà nel futuro.</div></div>
+                        <div class="rule-step"><div class="content"><b>Dati storici ≠ futuro</b>. Il mercato cambia regime. Un backtest positivo è <em>condizione necessaria ma non sufficiente</em>.</div></div>
+                        <div class="rule-step"><div class="content"><b>Semplificazioni</b>: fee e tasse fisse, no slippage dinamico, no liquidità reale, no gap notturni precisi.</div></div>
+                        <div class="warning-highlight"><b>Buona pratica</b>: cerca <em>stabilità</em> tra Train e Test. Se in entrambi PF &gt; 1.2, la strategia ha chances. Se divergono, lascia perdere.</div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 9 -->
+                <div class="info-slide">
+                    <div class="rule-card">
+                        <div class="rule-card-title blue">Notifiche Telegram — Setup</div>
+                        <div class="rule-step"><div class="content"><b>1. Crea il bot</b>: apri Telegram, cerca <b>@BotFather</b>, manda <span class="mono">/newbot</span>, scegli nome e username. Riceverai un <b>token</b> tipo <span class="mono">123456:ABC-DEF...</span>.</div></div>
+                        <div class="rule-step"><div class="content"><b>2. Ottieni il Chat ID</b>: cerca <b>@userinfobot</b>, manda <span class="mono">/start</span>. Ti risponde con il tuo <b>chat_id</b> numerico (es. 987654321).</div></div>
+                        <div class="rule-step"><div class="content"><b>3. Avvia il bot</b>: cerca il bot che hai creato e manda <span class="mono">/start</span>. Senza questo passaggio il bot non può scriverti.</div></div>
+                        <div class="rule-step"><div class="content"><b>4. Inserisci in SGTRADER</b>: apri Segnali → Impostazioni → incolla token e chat_id → Salva.</div></div>
+                        <div class="rule-step"><div class="content"><b>5. Test</b>: premi "Invia Test Telegram". Se il messaggio arriva, sei a posto. Se non arriva, ricontrolla token/chat_id e che il bot sia avviato.</div></div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title yellow">Cosa ti arriva</div>
+                        <div class="rule-step"><div class="content">Quando il Signal Engine rileva un cambio di consensus (es. BTC 4H passa a LONG con 3/4 sorgenti), ti invia un messaggio con:</div></div>
+                        <div class="rule-step"><div class="content">Asset + timeframe + consensus · forza · stato di ogni sorgente (SGTRADER, Breakout, Mean Rev, MA Cross) · prezzo · timestamp.</div></div>
+                        <div class="rule-step"><div class="content"><b>Non spam</b>: la notifica parte solo se il consensus <em>cambia</em> rispetto all'ultima scansione. Lo stesso LONG su BTC 4H non ti arriva 10 volte di fila.</div></div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 10 -->
                 <div class="info-slide">
                     <div class="rule-card">
                         <div class="rule-card-title green">Quando Aprire un Trade</div>
-                        <div class="rule-step">
-                            <div class="content"><b>Arriva la notifica su Telegram</b> (probabilità ≥ 80% o ≤ 20%). Senza notifica, non apri nulla.</div>
-                        </div>
-                        <div class="rule-step">
-                            <div class="content"><b>Confluenza multi-timeframe</b>: controlla che il timeframe superiore sia neutro o concorde. Se il Giornaliero dice SHORT e tu stai valutando un LONG a 4h, <em>non entrare</em>.</div>
-                        </div>
-                        <div class="rule-step">
-                            <div class="content"><b>R:R ≥ <span class="min-rr">1.5</span></b>. Apri il Risk Manager e verifica. Se è sotto <span class="min-rr">1.5</span>, il trade non è conveniente anche se il segnale è forte.</div>
-                        </div>
-                        <div class="rule-step">
-                            <div class="content"><b>Prezzo vicino all'Entry</b> (max 0.5%). Se il prezzo si è già mosso troppo, aspetta un ritracciamento o salta.</div>
-                        </div>
-                        <div class="rule-step">
-                            <div class="content"><b>Rischio max 2% del capitale</b> per trade. Mai superare. Mai.</div>
-                        </div>
-                        <div class="rule-step">
-                            <div class="content"><b>Nessun evento macro imminente</b> (CPI, Fed, halving). Se c'è, riduci la size o salta.</div>
-                        </div>
-                        <div class="highlight-box">
-                            <b>Regola d'oro</b>: se hai dubbi, non aprire. Un trade saltato non ti fa perdere soldi. Un trade sbagliato sì.
-                        </div>
+                        <div class="rule-step"><div class="content"><b>Arriva la notifica</b> su Telegram (consensus ≥ soglia). Senza notifica, non apri nulla.</div></div>
+                        <div class="rule-step"><div class="content"><b>Confluenza multi-timeframe</b>: controlla che il timeframe superiore sia neutro o concorde. Se il Giornaliero dice SHORT e tu stai valutando un LONG a 4H, <em>non entrare</em>.</div></div>
+                        <div class="rule-step"><div class="content"><b>R:R ≥ <span class="min-rr">1.5</span></b>. Apri la Gestione Rischio e verifica. Se è sotto, il trade non è conveniente anche se il segnale è forte.</div></div>
+                        <div class="rule-step"><div class="content"><b>Prezzo vicino all'Entry</b> (max 0.5%). Se si è già mosso troppo, aspetta un ritracciamento o salta.</div></div>
+                        <div class="rule-step"><div class="content"><b>Rischio max 2% del capitale</b> per trade. Mai superare. Mai.</div></div>
+                        <div class="rule-step"><div class="content"><b>Nessun evento macro imminente</b> (CPI, Fed, halving). Se c'è, riduci la size o salta.</div></div>
+                        <div class="rule-step"><div class="content"><b>Non hai già una posizione aperta</b> sullo stesso asset. Una per volta.</div></div>
+                        <div class="highlight-box"><b>Regola d'oro</b>: se hai dubbi, non aprire. Un trade saltato non ti fa perdere soldi. Un trade sbagliato sì.</div>
                     </div>
                 </div>
 
+                <!-- SLIDE 11 -->
                 <div class="info-slide">
                     <div class="rule-card">
                         <div class="rule-card-title red">Quando NON Aprire (Mai)</div>
-                        <div class="rule-step">
-                            <div class="content"><b>Timeframe superiore in conflitto</b>. Se il Giornaliero dice SHORT e tu vai LONG, stai andando contro il trend macro.</div>
-                        </div>
-                        <div class="rule-step">
-                            <div class="content"><b>R:R sotto <span class="min-rr">1.5</span></b>. Rischi troppo per guadagnare troppo poco.</div>
-                        </div>
-                        <div class="rule-step">
-                            <div class="content"><b>Hai già una posizione aperta</b> sullo stesso asset. Chiudila prima.</div>
-                        </div>
-                        <div class="rule-step">
-                            <div class="content"><b>Hai già fatto 2 trade in perdita</b> nella stessa giornata. Chiudi l'app e torna domani.</div>
-                        </div>
-                        <div class="rule-step">
-                            <div class="content"><b>Stai provando a "recuperare"</b> una perdita. La vendetta è la rovina del trader.</div>
-                        </div>
-                        <div class="rule-step">
-                            <div class="content"><b>Non capisci perché il bot suggerisce quel trade</b>. Se non sai spiegarlo a voce alta, non lo capisci abbastanza.</div>
-                        </div>
-                        <div class="warning-highlight">
-                            <b>Attenzione</b>: se una sola di queste condizioni è vera, il trade è bloccato. Non ci sono eccezioni.
-                        </div>
+                        <div class="rule-step"><div class="content"><b>Timeframe superiore in conflitto</b>. Se il Giornaliero dice SHORT e tu vai LONG, stai andando contro il trend macro.</div></div>
+                        <div class="rule-step"><div class="content"><b>R:R sotto <span class="min-rr">1.5</span></b>. Rischi troppo per guadagnare troppo poco.</div></div>
+                        <div class="rule-step"><div class="content"><b>Hai già una posizione aperta</b> sullo stesso asset. Chiudila prima.</div></div>
+                        <div class="rule-step"><div class="content"><b>Hai già fatto 2 trade in perdita</b> nella stessa giornata. Chiudi l'app e torna domani.</div></div>
+                        <div class="rule-step"><div class="content"><b>Stai provando a "recuperare"</b> una perdita. La vendetta è la rovina del trader.</div></div>
+                        <div class="rule-step"><div class="content"><b>Non capisci perché il bot suggerisce quel trade</b>. Se non sai spiegarlo a voce alta, non lo capisci abbastanza.</div></div>
+                        <div class="warning-highlight"><b>Attenzione</b>: se una sola di queste condizioni è vera, il trade è bloccato. Non ci sono eccezioni.</div>
                     </div>
-                </div>
-
-                <div class="info-slide">
                     <div class="rule-card">
                         <div class="rule-card-title yellow">Quando Chiudere un Trade</div>
-                        <div class="rule-step">
-                            <div class="content"><b>Automatico</b>: quando il prezzo tocca Stop Loss o Take Profit. <em>Non spostare mai lo stop in perdita. Mai.</em></div>
-                        </div>
-                        <div class="rule-step">
-                            <div class="content"><b>Automatico</b>: quando scade il timer (Time Stop). Se il prezzo è laterale da giorni, è tempo di uscire.</div>
-                        </div>
-                        <div class="rule-step">
-                            <div class="content"><b>Manuale</b>: solo se vedi un'inversione strutturale evidente sul timeframe superiore (es. sei LONG ma il Giornaliero ha appena fatto un "Death Cross" con volumi enormi).</div>
-                        </div>
-                        <div class="rule-step">
-                            <div class="content"><b>Manuale anticipato</b>: se sei in forte profitto e vedi che il momentum si sta esaurendo (candela contraria con volumi alti sul timeframe), puoi incassare prima del TP.</div>
-                        </div>
+                        <div class="rule-step"><div class="content"><b>Automatico</b>: quando il prezzo tocca Stop Loss o Take Profit. <em>Non spostare mai lo stop in perdita. Mai.</em></div></div>
+                        <div class="rule-step"><div class="content"><b>Automatico</b>: quando scade il timer (Time Stop). Se il prezzo è laterale da giorni, è tempo di uscire.</div></div>
+                        <div class="rule-step"><div class="content"><b>Manuale</b>: solo se vedi un'inversione strutturale evidente sul timeframe superiore (es. sei LONG ma il Giornaliero ha appena fatto Death Cross con volumi enormi).</div></div>
+                        <div class="rule-step"><div class="content"><b>Manuale anticipato</b>: se sei in forte profitto e vedi che il momentum si sta esaurendo (candela contraria con volumi alti), puoi incassare prima del TP.</div></div>
                     </div>
                 </div>
 
+                <!-- SLIDE 12 -->
                 <div class="info-slide">
                     <div class="rule-card">
-                        <div class="rule-card-title blue">Cosa significa "Probabilità 80%"</div>
-                        <div class="rule-step">
-                            <div class="content">L'80% <b>NON</b> significa "l'80% di probabilità che il prezzo salga". Significa: <em>"Su 20 simulazioni Monte Carlo, 16 sono finite sopra il prezzo attuale."</em></div>
-                        </div>
-                        <div class="rule-step">
-                            <div class="content">È una misura di <b>momentum</b>, non di predizione. Il modello ha visto che le ultime 400 candele hanno un certo pattern, e proietta quel pattern nel futuro. Ma il mercato non è deterministico.</div>
-                        </div>
-                        <div class="rule-step">
-                            <div class="content">Questa probabilità <b>non è stata ancora verificata</b> sui dati storici, quindi non è una percentuale di successo. Finché non c'è un backtest, usala come filtro e non come previsione.</div>
-                        </div>
-                        <div class="rule-step">
-                            <div class="content">Il valore del bot non è "indovinare". È <b>costringerti a operare solo in condizioni specifiche</b>: momentum forte, confluenza, R:R favorevole, rischio controllato.</div>
-                        </div>
-                        <div class="highlight-box">
-                            <b>Il vero edge</b>: win rate del 50% + R:R 1:2 = profitto netto.
-                            10 trade → 5 vinti (+10) e 5 persi (-5) = <b>+5 unità di rischio</b>.
-                            Non devi indovinare sempre. Devi <b>pagare meno quando sbagli</b>.
-                        </div>
+                        <div class="rule-card-title red">Psicologia &amp; Errori Comuni</div>
+                        <div class="rule-step"><div class="content"><b>Revenge Trading</b>: hai perso, vuoi recuperare subito. È l'errore n.1. Regola: dopo 2 loss, stop per la giornata.</div></div>
+                        <div class="rule-step"><div class="content"><b>FOMO (Fear Of Missing Out)</b>: il prezzo sta salendo, vuoi entrare a tutti i costi. Regola: aspetta sempre l'entry del piano, non inseguire.</div></div>
+                        <div class="rule-step"><div class="content"><b>Overtrading</b>: 5 trade al giorno perché "devi fare qualcosa". Regola: 1-2 trade al giorno, di qualità.</div></div>
+                        <div class="rule-step"><div class="content"><b>Moving Stop</b>: sposti lo stop più lontano quando il prezzo ci si avvicina. È la morte del conto. Regola: SL fisso, mai toccato.</div></div>
+                        <div class="rule-step"><div class="content"><b>Confirmation Bias</b>: cerchi solo notizie che confermano la tua tesi. Regola: cerca attivamente l'opinione contraria prima di entrare.</div></div>
+                        <div class="rule-step"><div class="content"><b>Overconfidence</b>: 3 trade vinti di fila → pensi di essere invincibile. Regola: dopo 3 win, riduci la size del 20%.</div></div>
+                        <div class="warning-highlight"><b>Il vero nemico sei tu.</b> Il bot ti dà segnali. Tu devi avere la disciplina di <em>non</em> fare trade quando non ci sono le condizioni.</div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title blue">Glossario</div>
+                        <div class="rule-step"><div class="content"><b>ATR</b> · Average True Range. Misura la volatilità media. Usato per hint SL.</div></div>
+                        <div class="rule-step"><div class="content"><b>Consensus</b> · Accordo tra sorgenti (SGTRADER + 3 strategie). ≥ 2 = segnale valido.</div></div>
+                        <div class="rule-step"><div class="content"><b>EMA</b> · Exponential Moving Average. Media mobile esponenziale (20/50/200).</div></div>
+                        <div class="rule-step"><div class="content"><b>Expectancy</b> · PnL medio per trade. Positivo = profittevole.</div></div>
+                        <div class="rule-step"><div class="content"><b>Fee</b> · Commissione exchange (ingresso + uscita). 0.1% tipico spot.</div></div>
+                        <div class="rule-step"><div class="content"><b>LONG/SHORT</b> · Comprare aspettandosi rialzo / vendere aspettandosi ribasso.</div></div>
+                        <div class="rule-step"><div class="content"><b>Max DD</b> · Maximum Drawdown. Peggior perdita dal picco.</div></div>
+                        <div class="rule-step"><div class="content"><b>Monte Carlo</b> · Simulazione stocastica con N scenari futuri.</div></div>
+                        <div class="rule-step"><div class="content"><b>R:R Ratio</b> · (Target - Entry) / (Entry - Stop). Sotto 1.5 sconsigliato.</div></div>
+                        <div class="rule-step"><div class="content"><b>RSI</b> · Relative Strength Index. &lt;35 ipervenduto, &gt;65 ipercomprato.</div></div>
+                        <div class="rule-step"><div class="content"><b>Win Rate (WR)</b> · % trade vinti sul totale. Da solo non basta.</div></div>
                     </div>
                 </div>
 
+                <!-- SLIDE 13 -->
                 <div class="info-slide">
-                    <div class="rule-card" style="border-color: rgba(48,209,88,0.4); background: linear-gradient(135deg, rgba(48,209,88,0.08), rgba(48,209,88,0.02));">
+                    <div class="rule-card rule-card-intro">
                         <div class="rule-card-title green">La Regola Finale</div>
-                        <div style="font-size: 15px; line-height: 1.7; color: var(--text); padding-top: 4px; text-align: center; text-wrap: pretty;">
+                        <div class="final-text">
                             Il bot ti dà <b>segnali</b>. Tu dai <b>contesto e disciplina</b>.
                             <br><br>
-                            Il 90% delle volte la risposta corretta alla domanda <em>"quando devo fare trade?"</em> è: <b style="color: var(--accent); font-size: 18px;">"Non ora"</b>.
+                            Il 90% delle volte la risposta corretta alla domanda <em>"quando devo fare trade?"</em> è: <b class="final-call">"Non ora"</b>.
                             <br><br>
                             Il trading è un gioco di attesa. Pochi trade di alta qualità battono cento trade mediocri.
                         </div>
-                        <div style="text-align: center; padding: 24px 0 8px 0; color: var(--text-secondary); font-size: 10px; line-height: 1.6; text-wrap: pretty;">
+                        <div class="final-footer">
                             SGTRADER · Manuale Operativo<br>
-                            <span style="opacity: 0.6;">Questo non è un consiglio finanziario. Il trading comporta rischio di perdita del capitale.</span>
+                            <span class="final-disclaimer">Questo non è un consiglio finanziario. Il trading comporta rischio di perdita del capitale.</span>
                         </div>
                     </div>
                 </div>
             </div>
-
+            <!-- 14 DOTS, SENZA CONTATORE -->
             <div class="info-dots" id="infoDots">
                 <div class="info-dot active" onclick="goToSlide(0)"></div>
                 <div class="info-dot" onclick="goToSlide(1)"></div>
                 <div class="info-dot" onclick="goToSlide(2)"></div>
                 <div class="info-dot" onclick="goToSlide(3)"></div>
                 <div class="info-dot" onclick="goToSlide(4)"></div>
+                <div class="info-dot" onclick="goToSlide(5)"></div>
+                <div class="info-dot" onclick="goToSlide(6)"></div>
+                <div class="info-dot" onclick="goToSlide(7)"></div>
+                <div class="info-dot" onclick="goToSlide(8)"></div>
+                <div class="info-dot" onclick="goToSlide(9)"></div>
+                <div class="info-dot" onclick="goToSlide(10)"></div>
+                <div class="info-dot" onclick="goToSlide(11)"></div>
+                <div class="info-dot" onclick="goToSlide(12)"></div>
+                <div class="info-dot" onclick="goToSlide(13)"></div>
             </div>
-            <div class="info-counter" id="infoCounter">1 / 5</div>
         </section>
     </main>
 
@@ -613,6 +804,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=34"></script>
+<script type="module" src="./src/main.js?v=35"></script>
 </body>
 </html>
