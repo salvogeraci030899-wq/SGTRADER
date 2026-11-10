@@ -1,0 +1,53 @@
+name: Esegui Backtest Kronos
+
+on:
+  workflow_dispatch:
+    inputs:
+      symbol:
+        description: 'Asset (es. BTCUSDT)'
+        required: true
+        default: 'BTCUSDT'
+      timeframe:
+        description: 'Timeframe (1h, 4h, 1d)'
+        required: true
+        default: '4h'
+
+jobs:
+  run-backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout codice
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Installa dipendenze
+        run: |
+          pip install requests pandas numpy torch huggingface_hub
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # SOLUZIONE: Scarichiamo direttamente il file model/kronos.py
+      # e lo salviamo come model.py nella root del progetto.
+      - name: Scarica il file model.py
+        run: |
+          curl -L -o model.py https://raw.githubusercontent.com/shiyu-coder/Kronos/master/model/kronos.py
+          echo "--- Contenuto di model.py (prime righe) ---"
+          head -n 10 model.py
+
+      - name: Esegui Backtest
+        run: python backtest.py --symbol ${{ github.event.inputs.symbol }} --tf ${{ github.event.inputs.timeframe }}
+
+      - name: Salva i risultati
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add *.csv
+          git commit -m "Risultati Backtest ${{ github.event.inputs.symbol }} ${{ github.event.inputs.timeframe }}" || exit 0
+          git push
