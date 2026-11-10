@@ -3,7 +3,7 @@
 // 1) se la pagina scende sotto la parte di schermo visibile (in Safari mobile il contenitore può
 //    essere più alto dell'area visibile), lo scarto diventa margine in fondo;
 // 2) se il contenuto deborda ancora, i blocchi della pagina vengono rimpiccioliti con CSS zoom
-//    quanto basta (mai sotto MIN_ZOOM).
+//    quanto basta (mai sotto MIN_ZOOM); se nemmeno così entra, la pagina diventa scorrevole.
 // I valori vanno in variabili CSS su <html> (non sulla pagina osservata), così non ci sono cicli.
 // La pagina Rischio ha la sua logica in calculator.js, il Manuale in manual.js.
 
@@ -54,15 +54,22 @@ function fit(page, id) {
     const zoomVar = `--fit-zoom-${id}`;
     setVar(`--fit-extra-bottom-${id}`, overshoot(page) + 'px');
     setVar(zoomVar, '1');
+    setVar(`--fit-overflow-${id}`, 'hidden');
     reserveListHeights(page);
     if (!overflowing(page)) return;
 
+    // Lo zoom cambia la larghezza delle schede (e quindi dove va a capo il testo): l'altezza minima
+    // delle liste si ricalcola a ogni passo
     let zoom = Math.max(MIN_ZOOM, Math.min(1, Math.floor((page.clientHeight / page.scrollHeight) * 100) / 100));
     setVar(zoomVar, String(zoom));
+    reserveListHeights(page);
     while (overflowing(page) && zoom > MIN_ZOOM) {
         zoom = Math.max(MIN_ZOOM, Math.round((zoom - 0.02) * 100) / 100);
         setVar(zoomVar, String(zoom));
+        reserveListHeights(page);
     }
+    // Ultima risorsa: anche al minimo non entra (schermi molto bassi) -> la pagina scorre invece di tagliare
+    if (overflowing(page)) setVar(`--fit-overflow-${id}`, 'auto');
 }
 
 function fitActive() {
