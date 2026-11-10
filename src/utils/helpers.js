@@ -9,6 +9,30 @@ export const fetchT = (url, ms = 8000) => {
     return fetch(url, { signal: ac.signal }).finally(() => clearTimeout(t));
 };
 
+// Chiamata agli endpoint /api protetti da APP_SECRET (variabile d'ambiente su Vercel).
+// La chiave viene chiesta una sola volta, al primo 401, e resta in localStorage su questo dispositivo.
+const APP_KEY_STORAGE = 'kronos_app_key';
+export async function apiPost(path, body) {
+    const send = () => {
+        let key = '';
+        try { key = localStorage.getItem(APP_KEY_STORAGE) || ''; } catch (e) {}
+        const headers = { 'Content-Type': 'application/json' };
+        if (key) headers['x-app-key'] = key;
+        return fetch(path, { method: 'POST', headers, body: JSON.stringify(body) });
+    };
+    let res = await send();
+    if (res.status === 401) {
+        const key = (window.prompt('Inserisci la chiave app (APP_SECRET impostata su Vercel):') || '').trim();
+        if (!key) return res;
+        try { localStorage.setItem(APP_KEY_STORAGE, key); } catch (e) {}
+        res = await send();
+        if (res.status === 401) { try { localStorage.removeItem(APP_KEY_STORAGE); } catch (e) {} }
+    }
+    return res;
+}
+
+export const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
 export function fmtDateTime(ts) {
     if (!ts) return '—';
     const d = new Date(ts);

@@ -5,8 +5,5 @@
   "private": true,
   "engines": {
     "node": "26.0"
-  },
-  "dependencies": {
-    "node-fetch": "^3.3.2"
   }
 }

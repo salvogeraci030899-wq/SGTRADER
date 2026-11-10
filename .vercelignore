@@ -1,0 +1,7 @@
+run_bot.py
+backtest.py
+kronos_core.py
+requirements.txt
+alerts_state.json
+trades_*.csv
+.github

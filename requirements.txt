@@ -1,8 +1,7 @@
 requests
-pandas
+pandas>=2.2.2
 numpy
 torch
-transformers
-kronos-model-arch
-huggingface_hub
-openai
+# Pacchetto ufficiale di Kronos (github.com/shiyu-coder/Kronos): fornisce il modulo `model`
+# e fissa le versioni di huggingface_hub, einops e safetensors.
+kronos-model-arch==0.1.0

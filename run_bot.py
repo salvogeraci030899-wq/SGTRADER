@@ -1,43 +1,33 @@
 import json
 import os
-import requests
-import pandas as pd
-import numpy as np
+import sys
+import tempfile
 from datetime import datetime, timezone, timedelta
-from model import Kronos, KronosTokenizer, KronosPredictor
+
+import requests
+
+from kronos_core import (
+    ALL_ASSETS, ALL_TIMEFRAMES, TF_DELTA, LOOKBACK, ATR_PERIOD, ATR_MULT, MIN_RR, MODEL_NAME,
+    signal_from_prob, get_historical_data, klines_to_df, compute_atr, build_trade_plan,
+    load_predictor, generate_monte_carlo_forecast,
+)
 
 # =========================
-# CONFIGURAZIONE
+# CONFIGURAZIONE (i parametri della strategia stanno in kronos_core.py)
 # =========================
 SYMBOL_ENV = os.environ.get("SYMBOL", "ALL")
 TIMEFRAME_ENV = os.environ.get("TIMEFRAME", "ALL")
 N_SAMPLES = int(os.environ.get("N_SAMPLES", "20"))  # più campioni = probabilità meno "a scalini" (ma più lento)
-PRED_LEN = 7
-LOOKBACK = 400
-
-# Soglie segnale (probabilità di rialzo, in %)
-LONG_THRESHOLD = 80
-SHORT_THRESHOLD = 20
-
-# Piano operativo basato su ATR
-ATR_PERIOD = 14
-ATR_MULT = float(os.environ.get("ATR_MULT", "1.5"))  # stop = ATR_MULT x ATR del timeframe
-RR_MAX = 3.0   # il target del modello non supera RR_MAX x il rischio
-MIN_RR = float(os.environ.get("MIN_RR", "1.5"))  # sotto questo R/R il segnale non è operativo (niente alert)
 
 # Filtro timeframe concordi: ignora i dati degli altri timeframe più vecchi di X ore
 MAX_OTHER_TF_AGE_HOURS = 48
 
 # Isteresi: dopo un alert, lo stato torna NEUTRO solo se la probabilità rientra in questa fascia.
-# Evita alert ripetuti quando 20 campioni oscillano intorno alla soglia (es. 15% -> 25% -> 10%).
+# Evita alert ripetuti quando i campioni oscillano intorno alla soglia (es. 15% -> 25% -> 10%).
 RESET_LOW, RESET_HIGH = 30, 70
 
 # FORCE=1 ricalcola sempre (usato dalle esecuzioni manuali); altrimenti salta se non c'è una nuova candela chiusa
 FORCE = os.environ.get("FORCE", "0") == "1"
-
-ALL_ASSETS = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
-ALL_TIMEFRAMES = ["1d", "4h", "1h"]
-TF_DELTA = {"1d": pd.Timedelta(days=1), "4h": pd.Timedelta(hours=4), "1h": pd.Timedelta(hours=1)}
 
 ASSETS_TO_RUN = ALL_ASSETS if SYMBOL_ENV == "ALL" else [SYMBOL_ENV]
 TIMEFRAMES_TO_RUN = ALL_TIMEFRAMES if TIMEFRAME_ENV == "ALL" else [TIMEFRAME_ENV]
@@ -65,36 +55,6 @@ def send_telegram_alert(text):
         return False
 
 
-def signal_from_prob(prob_up):
-    if prob_up >= LONG_THRESHOLD:
-        return "LONG"
-    if prob_up <= SHORT_THRESHOLD:
-        return "SHORT"
-    return "NEUTRO"
-
-
-def get_historical_data(symbol, interval, limit=500):
-    tf_map = {"1d": "1day", "4h": "4h", "1h": "1h"}
-    granularity = tf_map.get(interval, "1day")
-    url = "https://api.bitget.com/api/v2/spot/market/candles"
-    params = {"symbol": symbol, "granularity": granularity, "limit": limit}
-    try:
-        r = requests.get(url, params=params, timeout=15)
-        r.raise_for_status()
-        data = r.json()["data"][::-1]
-        cleaned_data = []
-        for row in data:
-            price = float(row[4])
-            if symbol == "BTCUSDT" and price < 1000: continue
-            if symbol == "ETHUSDT" and price < 100: continue
-            if symbol == "SOLUSDT" and price < 10: continue
-            cleaned_data.append(row)
-        return cleaned_data
-    except Exception as e:
-        print(f"Errore API Bitget {symbol} {interval}: {e}")
-        return None
-
-
 def get_live_price(symbol, fallback):
     """Prezzo attuale dal ticker Bitget; se fallisce usa l'ultima chiusura."""
     try:
@@ -110,57 +70,6 @@ def get_live_price(symbol, fallback):
     except Exception as e:
         print(f"Errore ticker Bitget {symbol}: {e}")
     return fallback
-
-
-def compute_atr(df, period=ATR_PERIOD):
-    high, low, close = df['high'], df['low'], df['close']
-    prev_close = close.shift(1)
-    tr = pd.concat([
-        high - low,
-        (high - prev_close).abs(),
-        (low - prev_close).abs()
-    ], axis=1).max(axis=1)
-    atr = tr.rolling(period).mean().iloc[-1]
-    return float(atr)
-
-
-def build_trade_plan(price, atr, prob_up, forecast):
-    """Stop = ATR_MULT x ATR. Target = estremo favorevole della traiettoria mediana prevista da Kronos
-    (massimo per LONG, minimo per SHORT), limitato a RR_MAX x il rischio.
-    Il segnale è operativo solo se R/R >= MIN_RR. Per i NEUTRO i livelli sono indicativi."""
-    bias = signal_from_prob(prob_up)
-    direction = "LONG" if prob_up >= 50 else "SHORT"
-    risk = ATR_MULT * atr
-    nd = 2 if price >= 10 else 4
-    closes = [f["close"] for f in forecast] or [price]
-
-    if direction == "LONG":
-        stop = price - risk
-        model_target = max(closes)
-        reward = max(model_target - price, 0.0)
-    else:
-        stop = price + risk
-        model_target = min(closes)
-        reward = max(price - model_target, 0.0)
-
-    reward = min(reward, RR_MAX * risk)
-    rr = reward / risk if risk > 0 else 0.0
-    take = price + reward if direction == "LONG" else price - reward
-
-    return {
-        "bias": bias,
-        "direction": direction,
-        "entry": round(price, nd),
-        "stop_loss": round(stop, nd),
-        "take_profit": round(take, nd),
-        "risk_pct": round(risk / price * 100, 2),
-        "reward_pct": round(reward / price * 100, 2),
-        "rr": round(rr, 2),
-        "atr": round(atr, nd),
-        "model_target": round(model_target, nd),
-        "tradeable": bool(bias != "NEUTRO" and rr >= MIN_RR),
-        "min_rr": MIN_RR,
-    }
 
 
 def build_reasoning(data, plan):
@@ -182,65 +91,11 @@ def build_reasoning(data, plan):
 
 
 # =========================
-# PREVISIONE
+# PAYLOAD
 # =========================
-def generate_monte_carlo_forecast(predictor, context_df, freq, pred_len=PRED_LEN, n_samples=N_SAMPLES):
-    x_timestamp = pd.Series(context_df['time'].values, name='timestamps')
-    delta = TF_DELTA[freq]
-    freq_str = 'D' if freq == '1d' else ('4h' if freq == '4h' else '1h')
-    start_date = context_df['time'].iloc[-1] + delta
-    y_dates = pd.date_range(start=start_date, periods=pred_len, freq=freq_str, tz='UTC')
-    y_timestamp = pd.Series(y_dates, name='timestamps')
-    forecast_input_df = context_df[['open', 'high', 'low', 'close', 'volume']].copy()
-
-    seed = (int(context_df['time'].iloc[-1].timestamp()) + int(float(context_df['close'].iloc[-1]) * 100)) % (2 ** 31)
-    np.random.seed(seed)
-    try:
-        import torch
-        torch.manual_seed(seed)
-    except Exception:
-        pass
-
-    paths = []
-    for _ in range(n_samples):
-        pred_df = predictor.predict(
-            df=forecast_input_df, x_timestamp=x_timestamp, y_timestamp=y_timestamp,
-            pred_len=pred_len, T=1.0, top_p=0.9, sample_count=1, verbose=False
-        )
-        path = np.nan_to_num(pred_df['close'].values, nan=float(context_df['close'].iloc[-1]))
-        paths.append(path)
-
-    paths = np.array(paths)
-    last_close = float(context_df['close'].iloc[-1])
-    final_prices = paths[:, -1]
-    prob_up = max(0.0, min(100.0, (np.sum(final_prices > last_close) / n_samples) * 100))
-
-    median_path = np.median(paths, axis=0)
-    p10_path = np.percentile(paths, 10, axis=0)
-    p90_path = np.percentile(paths, 90, axis=0)
-
-    forecast, band_upper, band_lower = [], [], []
-    for i in range(pred_len):
-        ts = int(y_timestamp.iloc[i].timestamp())
-        close_val = float(median_path[i])
-        if close_val <= 0 or np.isnan(close_val): close_val = last_close
-        prev_close = float(context_df['close'].iloc[-1]) if i == 0 else float(median_path[i-1])
-
-        forecast.append({
-            "time": ts, "open": prev_close, "high": max(close_val, prev_close) * 1.002,
-            "low": min(close_val, prev_close) * 0.998, "close": close_val
-        })
-        p90 = float(p90_path[i]) if not np.isnan(p90_path[i]) else close_val
-        p10 = float(p10_path[i]) if not np.isnan(p10_path[i]) else close_val
-        band_upper.append({"time": ts, "value": p90})
-        band_lower.append({"time": ts, "value": p10})
-
-    return forecast, band_upper, band_lower, round(prob_up, 1)
-
-
 def generate_payload(predictor, df, symbol, freq):
     context_df = df.tail(LOOKBACK).copy()
-    forecast, band_upper, band_lower, prob_up = generate_monte_carlo_forecast(predictor, context_df, freq)
+    forecast, band_upper, band_lower, prob_up = generate_monte_carlo_forecast(predictor, context_df, freq, N_SAMPLES)
 
     historical = [{
         "time": int(row['time'].timestamp()), "open": float(row['open']),
@@ -260,7 +115,7 @@ def generate_payload(predictor, df, symbol, freq):
         "n_samples": N_SAMPLES,
         "historical": historical, "forecast": forecast,
         "band_upper": band_upper, "band_lower": band_lower,
-        "model": "Kronos-small"
+        "model": MODEL_NAME
     }
 
     plan = build_trade_plan(live_price, atr, prob_up, forecast)
@@ -353,19 +208,38 @@ def process_alerts(processed, dashboard_data, alerts_state):
 # MAIN
 # =========================
 def load_json(path):
-    if os.path.exists(path):
-        try:
-            with open(path, "r") as f:
-                return json.load(f)
-        except Exception as e:
-            print(f"Impossibile leggere {path}: {e}")
-    return {}
+    """File assente -> {} (primo avvio). File presente ma illeggibile -> stop:
+    ripartire da {} cancellerebbe la dashboard e farebbe ripartire tutti gli alert."""
+    if not os.path.exists(path):
+        return {}
+    try:
+        with open(path, "r") as f:
+            data = json.load(f)
+        if not isinstance(data, dict):
+            raise ValueError("il contenuto non è un oggetto JSON")
+        return data
+    except Exception as e:
+        sys.exit(f"ERRORE: {path} esiste ma non è leggibile ({e}). Interrompo per non sovrascrivere lo stato.")
+
+
+def save_json(path, data):
+    """Scrittura atomica: il file finale è sempre o la versione vecchia o quella nuova completa."""
+    fd, tmp = tempfile.mkstemp(dir=os.path.dirname(os.path.abspath(path)), suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w") as f:
+            json.dump(data, f)
+        os.replace(tmp, path)
+    except BaseException:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        raise
 
 
 def main():
     print(f"Avvio elaborazione per: {ASSETS_TO_RUN} su {TIMEFRAMES_TO_RUN}")
     dashboard_data = load_json("dashboard.json")
     alerts_state = load_json("alerts_state.json")
+    alerts_before = dict(alerts_state)
 
     predictor = None  # caricato solo se c'è almeno una nuova candela da calcolare
     processed = []
@@ -376,15 +250,7 @@ def main():
             if not klines:
                 continue
 
-            df = pd.DataFrame(klines, columns=['time', 'open', 'high', 'low', 'close', 'volume', 'qav', 'usdt_vol'])
-            df['time'] = pd.to_datetime(df['time'].astype(float), unit='ms', utc=True)
-            for col in ['open', 'high', 'low', 'close', 'volume']:
-                df[col] = df[col].astype(float)
-            df = df.drop_duplicates(subset=['time']).sort_values('time')
-
-            # Tieni solo candele CHIUSE (time = apertura candela)
-            now = pd.Timestamp.now(tz='UTC')
-            df = df[df['time'] + TF_DELTA[tf] <= now]
+            df = klines_to_df(klines, tf, closed_only=True)
             if len(df) < ATR_PERIOD + 50:
                 print(f"Dati insufficienti per {symbol} {tf}, salto.")
                 continue
@@ -408,9 +274,7 @@ def main():
 
             if predictor is None:
                 print("Caricamento Modello...")
-                tokenizer = KronosTokenizer.from_pretrained("NeoQuasar/Kronos-Tokenizer-base")
-                model = Kronos.from_pretrained("NeoQuasar/Kronos-small")
-                predictor = KronosPredictor(model=model, tokenizer=tokenizer, device="cpu", max_context=512)
+                predictor = load_predictor()
 
             payload = generate_payload(predictor, df, symbol, tf)
             dashboard_data[key] = payload
@@ -423,10 +287,17 @@ def main():
                 if f"{s}_{t}" in dashboard_data]
     process_alerts(to_check, dashboard_data, alerts_state)
 
-    with open("dashboard.json", "w") as f:
-        json.dump(dashboard_data, f)
-    with open("alerts_state.json", "w") as f:
-        json.dump(alerts_state, f)
+    # Salvo (e quindi il workflow fa commit) solo se c'è qualcosa di nuovo: una candela ricalcolata
+    # o uno stato alert cambiato. Il solo aggiornamento del prezzo live non genera un commit:
+    # il frontend prende già il prezzo live da Bitget.
+    alerts_changed = alerts_state != alerts_before
+    if not processed and not alerts_changed:
+        print("Nessuna nuova candela e nessun cambio di stato alert: file non modificati.")
+        return
+
+    # Prima lo stato alert: se qualcosa va storto dopo, almeno non si ripete un alert già inviato.
+    save_json("alerts_state.json", alerts_state)
+    save_json("dashboard.json", dashboard_data)
     print("✅ dashboard.json e alerts_state.json aggiornati!")
 
 
