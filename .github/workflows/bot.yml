@@ -82,6 +82,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add dashboard.json alerts_state.json
+          git add track_record.jsonl track_record_summary.json 2>/dev/null || true
           git commit -m "chore: auto-update $(date -u +%Y-%m-%d_%H:%M)" || { echo "Nessuna modifica da salvare"; exit 0; }
           # Lo stato degli alert deve arrivare sul repo: se il push viene rifiutato
           # (qualcuno ha fatto push nel frattempo) riallineo e riprovo.

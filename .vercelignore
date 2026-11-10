@@ -1,6 +1,8 @@
 run_bot.py
 backtest.py
 kronos_core.py
+track_record.py
+tests
 requirements.txt
 alerts_state.json
 trades_*.csv
