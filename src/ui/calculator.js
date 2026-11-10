@@ -255,10 +255,14 @@ export async function openTradeFromCalculator() {
     const c = State.calcContext || { asset: State.currentAsset, tf: State.currentTF };
     State.pendingTradePayload = { entry, stop, target, direction, size, margin };
 
-    const btn = document.querySelector('#page-calculator .btn-action');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = "Verifica...";
-    btn.disabled = true;
+    // FIX: Cerca il bottone giusto (btn-cta-primary) e previene crash se non esiste
+    const btn = document.querySelector('#page-calculator .btn-cta-primary');
+    let originalText = '';
+    if (btn) {
+        originalText = btn.innerHTML;
+        btn.innerHTML = "Verifica...";
+        btn.disabled = true;
+    }
 
     try {
         const res = await fetchT(`https://api.bitget.com/api/v2/spot/market/tickers?symbol=${c.asset}`);
@@ -294,7 +298,12 @@ export async function openTradeFromCalculator() {
     } catch (e) { 
         if (window.showAlert) window.showAlert("Errore", "Impossibile aprire il trade: " + e.message); 
     }
-    finally { btn.innerHTML = originalText; btn.disabled = false; }
+    finally { 
+        if (btn) {
+            btn.innerHTML = originalText; 
+            btn.disabled = false; 
+        }
+    }
 }
 
 export function closeForceTradeModal() { document.getElementById('forceTradeModal').classList.remove('active'); State.pendingTradePayload = null; }
