@@ -6,6 +6,11 @@ export const CONFIG = {
     SIGNAL_ASSETS: ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'],
     SIGNAL_TFS: ['1d', '4h', '1h'],
     SIGNAL_STRATEGIES: ['breakout', 'mean_reversion', 'ma_crossover'],
+    SIGNAL_STRATEGY_LABELS: {
+        breakout: 'Breakout',
+        mean_reversion: 'Mean Rev',
+        ma_crossover: 'MA Cross'
+    },
     STORAGE_KEY: 'kronos_state_v3',
     SIGNAL_STORAGE_KEY: 'kronos_signals_v1',
     ICONS: {
