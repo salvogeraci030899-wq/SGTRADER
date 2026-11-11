@@ -133,6 +133,8 @@ export function updateHomeChartDots() {
     if (!list || list.clientWidth === 0) return;
     const idx = Math.round(list.scrollLeft / list.clientWidth);
     document.querySelectorAll('#homeChartDots .info-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+    // il riquadro del mercato evidenziato è la coin del grafico visibile
+    document.querySelectorAll('#homeMarket .home-tile').forEach((t, i) => t.classList.toggle('active', i === idx));
 }
 
 export function refresh() {

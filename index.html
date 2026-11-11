@@ -30,32 +30,32 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=76">
-    <meta name="app-version" content="76">
+    <link rel="stylesheet" href="./style.css?v=78">
+    <meta name="app-version" content="78">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=76",
-            "./src/core/commands.js": "./src/core/commands.js?v=76",
-            "./src/core/config.js": "./src/core/config.js?v=76",
-            "./src/core/logger.js": "./src/core/logger.js?v=76",
-            "./src/core/state.js": "./src/core/state.js?v=76",
-            "./src/main.js": "./src/main.js?v=76",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=76",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=76",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=76",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=76",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=76",
-            "./src/ui/home.js": "./src/ui/home.js?v=76",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=76",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=76",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=76",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=76",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=76",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=76",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=76",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=76"
+            "./src/core/backup.js": "./src/core/backup.js?v=78",
+            "./src/core/commands.js": "./src/core/commands.js?v=78",
+            "./src/core/config.js": "./src/core/config.js?v=78",
+            "./src/core/logger.js": "./src/core/logger.js?v=78",
+            "./src/core/state.js": "./src/core/state.js?v=78",
+            "./src/main.js": "./src/main.js?v=78",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=78",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=78",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=78",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=78",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=78",
+            "./src/ui/home.js": "./src/ui/home.js?v=78",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=78",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=78",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=78",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=78",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=78",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=78",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=78",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=78"
         }
     }
     </script>
@@ -70,7 +70,7 @@
             <div class="header-row">
                 <div class="header-title">
                     <h1>Home</h1>
-                    <p>SGTRADER · Hub operativo</p>
+                    <p>SGTRADER · Panoramica</p>
                 </div>
                 <button class="header-icon-btn" onclick="openSettings()" title="Impostazioni">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -80,52 +80,46 @@
                 </button>
             </div>
             <div class="home-container">
-                <div class="home-card">
-                    <div class="home-card-header">PnL di Oggi (netto)</div>
-                    <div class="home-card-value" id="homePnlToday">—</div>
-                    <div class="home-card-sub">Trade chiusi nelle ultime 24h</div>
+                <!-- 1. Mercato: prezzo e variazione 24h; il tocco mostra il grafico della coin qui sotto -->
+                <div class="home-market" id="homeMarket">
+                    <button type="button" class="home-tile active" data-symbol="BTCUSDT" onclick="goToHomeChart(0)"><span class="home-tile-sym">BTC</span><span class="home-tile-px">—</span><span class="home-tile-chg">—</span></button>
+                    <button type="button" class="home-tile" data-symbol="ETHUSDT" onclick="goToHomeChart(1)"><span class="home-tile-sym">ETH</span><span class="home-tile-px">—</span><span class="home-tile-chg">—</span></button>
+                    <button type="button" class="home-tile" data-symbol="SOLUSDT" onclick="goToHomeChart(2)"><span class="home-tile-sym">SOL</span><span class="home-tile-px">—</span><span class="home-tile-chg">—</span></button>
                 </div>
-                <div class="home-card-row">
-                    <div class="home-card clickable" onclick="switchTab('trade')">
-                        <div class="home-card-header">Aperte</div>
-                        <div class="home-card-value" id="homeOpenCount">0</div>
-                        <div class="home-card-sub">PnL: <span id="homeOpenPnl">—</span></div>
-                    </div>
-                    <div class="home-card clickable" onclick="switchTab('signals')">
-                        <div class="home-card-header">Segnale Top</div>
-                        <div class="row-between-start mt-4">
-                            <div class="home-card-sub fw-800 text-primary" id="homeTopSignalAsset">—</div>
-                            <span class="sc-badge neutral" id="homeTopSignalBadge">—</span>
-                        </div>
-                        <div class="home-card-sub mt-4 small" id="homeTopSignalDesc">Attendi scansione</div>
+
+                <!-- 2. Conto simulato (posizioni aperte a mano dall'app) -->
+                <div class="home-card clickable" onclick="switchTab('trade')">
+                    <div class="home-card-header"><span>Conto simulato</span><span class="home-card-link">Posizioni ›</span></div>
+                    <div class="home-kpis">
+                        <div class="home-kpi"><span class="home-kpi-label">PnL oggi</span><span class="home-kpi-value" id="homePnlToday">—</span></div>
+                        <div class="home-kpi"><span class="home-kpi-label">Aperte</span><span class="home-kpi-value" id="homeOpenCount">0</span></div>
+                        <div class="home-kpi"><span class="home-kpi-label">PnL aperto</span><span class="home-kpi-value" id="homeOpenPnl">—</span></div>
                     </div>
                 </div>
+
+                <!-- 3. Automazione: strategie, ordini veri, conto Bitget (dati scritti dal bot) -->
+                <div class="home-card clickable" onclick="openAutomation()">
+                    <div class="home-card-header"><span>Automazione</span><span class="home-card-link">Auto ›</span></div>
+                    <div class="home-line"><span>Strategie</span><b id="homeAutoStrategies">—</b></div>
+                    <div class="home-line"><span>Ordini veri</span><b id="homeAutoOrders">—</b></div>
+                    <div class="home-line"><span>Bitget</span><b id="homeAutoBitget">—</b></div>
+                </div>
+
+                <!-- 4. Stato: salute del bot, segnale più forte (non validato), versione -->
                 <div class="home-card">
                     <div class="home-card-header">
-                        <span>Stato Sistema</span>
+                        <span>Stato · <span class="home-version" id="homeAppVersion">—</span></span>
                         <button class="btn-refresh-link" onclick="triggerRefresh()">
                             <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><polyline points="21 3 21 8 16 8"/></svg>
                             Aggiorna
                         </button>
                     </div>
-                    <div class="row-between mt-4">
-                        <div class="home-card-sub">Dashboard Bot</div>
-                        <div class="home-card-sub text-primary" id="homeLastUpdate">—</div>
-                    </div>
-                    <div class="row-between mt-4">
-                        <div class="home-card-sub">Stato Segnali</div>
-                        <div class="home-card-sub text-primary" id="homeScanStatus">—</div>
-                    </div>
-                    <div class="row-between mt-4">
-                        <div class="home-card-sub">Versione app</div>
-                        <div class="home-card-sub text-primary" id="homeAppVersion">—</div>
-                    </div>
+                    <div class="home-line"><span>Bot</span><b><i class="home-dot" id="homeBotDot"></i><span id="homeLastUpdate">—</span></b></div>
+                    <div class="home-line clickable" onclick="switchTab('signals')"><span>Segnale tecnico</span><b><span id="homeTopSignalAsset">—</span> <span class="sc-badge neutral" id="homeTopSignalBadge">—</span></b></div>
                 </div>
 
+                <!-- 5. Grafici -->
                 <div class="home-charts-section">
-                    <div class="section-title">
-                        <span>Prezzi Live</span>
-                    </div>
                     <div class="home-charts-carousel-wrapper">
                         <div class="home-charts-list" id="homeChartsList"></div>
                         <div class="home-chart-dots" id="homeChartDots">
@@ -824,7 +818,7 @@
                         <div class="rule-step"><div class="content"><b>"Esecutore BLOCCATO"</b> → apri Bitget e confronta le posizioni con Segnali → Auto. Chiudi a mano ciò che non torna, poi Segnali → Auto → Sblocca automazione.</div></div>
                         <div class="rule-step"><div class="content"><b>Qualcosa va storto con soldi veri</b> → Segnali → Auto → Emergenza: spegne tutte le strategie e chiude le posizioni aperte dall'esecutore. In caso di dubbio chiudi anche direttamente su Bitget.</div></div>
                         <div class="rule-step"><div class="content"><b>"Comando rifiutato" / "GitHub ha rifiutato il token"</b> → il token GitHub è scaduto o revocato: creane uno nuovo (solo SGTRADER, Actions: Read and write) e salvalo in Impostazioni → Comandi.</div></div>
-                        <div class="rule-step"><div class="content"><b>L'app mostra un errore di caricamento</b> → ricarica la pagina; controlla in Home → Stato Sistema la versione. Su Vercel, se il deploy è in limite, usa la versione su GitHub Pages.</div></div>
+                        <div class="rule-step"><div class="content"><b>L'app mostra un errore di caricamento</b> → ricarica la pagina; controlla la versione in Home, scheda Stato (es. v78). Su Vercel, se il deploy è in limite, usa la versione su GitHub Pages.</div></div>
                         <div class="rule-step"><div class="content"><b>Non arrivano messaggi Telegram</b> → controlla i segreti TELEGRAM_TOKEN e TELEGRAM_CHAT_ID su GitHub e che il bot su Telegram non sia stato bloccato.</div></div>
                     </div>
                     <div class="rule-card">
@@ -1008,6 +1002,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=76"></script>
+<script type="module" src="./src/main.js?v=78"></script>
 </body>
 </html>
