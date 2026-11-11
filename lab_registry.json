@@ -121,6 +121,30 @@
    "description": "Con EMA50 sopra EMA200, long quando la chiusura torna sopra l'EMA20 dopo esserne scesa sotto (speculare per lo short). Stop 2 ATR, stop che segue a 3 ATR, massimo 60 candele.",
    "first_tested": "2026-11-11"
   },
+  "relstrength30:1d": {
+   "description": "Long la coin con il rendimento a 30 candele pi\u00f9 alto delle tre, short quella con il pi\u00f9 basso. Tenuta 7 candele, stop 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
+  "relstrength30:4h": {
+   "description": "Long la coin con il rendimento a 30 candele pi\u00f9 alto delle tre, short quella con il pi\u00f9 basso. Tenuta 7 candele, stop 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
+  "relstrength30_long:1d": {
+   "description": "Solo la parte long di relstrength30: compra la coin pi\u00f9 forte delle tre.",
+   "first_tested": "2026-11-11"
+  },
+  "relstrength30_long:4h": {
+   "description": "Solo la parte long di relstrength30: compra la coin pi\u00f9 forte delle tre.",
+   "first_tested": "2026-11-11"
+  },
+  "relstrength90:1d": {
+   "description": "Come relstrength30 ma sul rendimento a 90 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "relstrength90:4h": {
+   "description": "Come relstrength30 ma sul rendimento a 90 candele.",
+   "first_tested": "2026-11-11"
+  },
   "rsi2_pullback:1d": {
    "description": "Sopra la media a 200: long se RSI(2) < 10. Sotto: short se RSI(2) > 90. Tenuta 5 candele, stop 3 ATR.",
    "first_tested": "2026-11-11"

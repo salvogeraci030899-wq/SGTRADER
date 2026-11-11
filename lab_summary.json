@@ -1,7 +1,7 @@
 {
- "generated_at": "2026-11-11T06:23:27+00:00",
+ "generated_at": "2026-11-11T07:47:07+00:00",
  "holdout_start": "2025-11-11",
- "trials_registered": 44,
+ "trials_registered": 50,
  "fdr": 0.1,
  "primary_scenario": "futures_taker",
  "scenarios": {
@@ -38,7 +38,10 @@
   "donchian20_regime": "donchian20 con filtro di regime: long solo sopra la media a 200, short solo sotto. Stesse uscite di donchian20.",
   "donchian20_turtle": "Ingressi di donchian20, uscita classica 'a canale': si esce quando la chiusura rompe il minimo (long) o il massimo (short) delle 10 candele precedenti. Stop 2 ATR, massimo 120 candele.",
   "big_candle_trail": "Ingressi di big_candle ma lasciati correre: stop 1,5 ATR, stop che segue a 3 ATR, massimo 20 candele.",
-  "tsmom_combo": "Long se i rendimenti a 30 e a 90 candele sono entrambi positivi, short se entrambi negativi. Tenuta 7 candele, stop 3 ATR."
+  "tsmom_combo": "Long se i rendimenti a 30 e a 90 candele sono entrambi positivi, short se entrambi negativi. Tenuta 7 candele, stop 3 ATR.",
+  "relstrength30": "Long la coin con il rendimento a 30 candele pi\u00f9 alto delle tre, short quella con il pi\u00f9 basso. Tenuta 7 candele, stop 3 ATR.",
+  "relstrength90": "Come relstrength30 ma sul rendimento a 90 candele.",
+  "relstrength30_long": "Solo la parte long di relstrength30: compra la coin pi\u00f9 forte delle tre."
  },
  "candidates": [
   "big_candle_trail:1d"
@@ -49,39 +52,39 @@
    "n": 192,
    "win_rate": 35.9,
    "avg_gross_pct": 2.266,
-   "avg_net_pct": 1.729,
+   "avg_net_pct": 1.746,
    "avg_net_ci": [
-    -1.482,
-    5.141
+    -1.4658,
+    5.1601
    ],
-   "p_value": 0.16998171914881982,
+   "p_value": 0.1676230127310102,
    "avg_bars": 19.6,
-   "net_per_year_per_coin_pct": 17.4,
-   "after_tax_per_year_per_coin_pct": 11.6,
+   "net_per_year_per_coin_pct": 17.5,
+   "after_tax_per_year_per_coin_pct": 11.7,
    "by_coin": {
-    "BTCUSDT": 1.138,
-    "ETHUSDT": 1.757,
-    "SOLUSDT": 2.814
+    "BTCUSDT": 1.156,
+    "ETHUSDT": 1.775,
+    "SOLUSDT": 2.83
    },
-   "excess_avg_pct": 1.725,
+   "excess_avg_pct": 1.743,
    "excess_ci": [
-    -1.4208,
-    5.071
+    -1.4065,
+    5.089
    ],
-   "excess_p": 0.16210806889857607,
+   "excess_p": 0.15970666924952998,
    "excess_by_coin": {
-    "BTCUSDT": 0.589,
-    "ETHUSDT": 2.033,
-    "SOLUSDT": 3.335
+    "BTCUSDT": 0.607,
+    "ETHUSDT": 2.051,
+    "SOLUSDT": 3.351
    },
    "halves": [
     {
      "n": 71,
-     "excess_avg_pct": 5.123
+     "excess_avg_pct": 5.141
     },
     {
      "n": 121,
-     "excess_avg_pct": -0.269
+     "excess_avg_pct": -0.252
     }
    ],
    "stable": false,
@@ -89,12 +92,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 192,
-     "avg_net_pct": 1.909,
+     "avg_net_pct": 1.926,
      "avg_net_ci": [
-      -1.302,
-      5.321
+      -1.2858,
+      5.3401
      ],
-     "net_per_year_per_coin_pct": 19.2
+     "net_per_year_per_coin_pct": 19.3
     },
     "spot": {
      "n": 112,
@@ -117,39 +120,39 @@
    "n": 111,
    "win_rate": 39.6,
    "avg_gross_pct": 3.795,
-   "avg_net_pct": 3.197,
+   "avg_net_pct": 3.218,
    "avg_net_ci": [
-    -0.9852,
-    8.5134
+    -0.9691,
+    8.5348
    ],
-   "p_value": 0.09962283782700948,
+   "p_value": 0.09821040944113926,
    "avg_bars": 22.0,
-   "net_per_year_per_coin_pct": 18.7,
-   "after_tax_per_year_per_coin_pct": 12.5,
+   "net_per_year_per_coin_pct": 18.8,
+   "after_tax_per_year_per_coin_pct": 12.6,
    "by_coin": {
-    "BTCUSDT": 2.138,
-    "ETHUSDT": 3.632,
-    "SOLUSDT": 4.391
+    "BTCUSDT": 2.159,
+    "ETHUSDT": 3.655,
+    "SOLUSDT": 4.408
    },
-   "excess_avg_pct": 2.939,
+   "excess_avg_pct": 2.96,
    "excess_ci": [
-    -1.0779,
-    8.0376
+    -1.0557,
+    8.0607
    ],
-   "excess_p": 0.11103198320420811,
+   "excess_p": 0.10938874183607183,
    "excess_by_coin": {
-    "BTCUSDT": 1.457,
-    "ETHUSDT": 3.589,
-    "SOLUSDT": 4.533
+    "BTCUSDT": 1.478,
+    "ETHUSDT": 3.611,
+    "SOLUSDT": 4.55
    },
    "halves": [
     {
      "n": 45,
-     "excess_avg_pct": 6.534
+     "excess_avg_pct": 6.556
     },
     {
      "n": 66,
-     "excess_avg_pct": 0.489
+     "excess_avg_pct": 0.509
     }
    ],
    "stable": true,
@@ -157,12 +160,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 111,
-     "avg_net_pct": 3.377,
+     "avg_net_pct": 3.398,
      "avg_net_ci": [
-      -0.8052,
-      8.6934
+      -0.7891,
+      8.7148
      ],
-     "net_per_year_per_coin_pct": 19.7
+     "net_per_year_per_coin_pct": 19.9
     },
     "spot": {
      "n": 77,
@@ -185,39 +188,39 @@
    "n": 115,
    "win_rate": 41.7,
    "avg_gross_pct": 5.693,
-   "avg_net_pct": 4.92,
+   "avg_net_pct": 4.95,
    "avg_net_ci": [
-    0.5824,
-    9.2838
+    0.6124,
+    9.3138
    ],
-   "p_value": 0.015634267631398586,
+   "p_value": 0.01512619216475286,
    "avg_bars": 17.4,
-   "net_per_year_per_coin_pct": 29.6,
-   "after_tax_per_year_per_coin_pct": 19.8,
+   "net_per_year_per_coin_pct": 29.8,
+   "after_tax_per_year_per_coin_pct": 19.9,
    "by_coin": {
-    "BTCUSDT": 2.286,
-    "ETHUSDT": 6.825,
-    "SOLUSDT": 6.772
+    "BTCUSDT": 2.316,
+    "ETHUSDT": 6.855,
+    "SOLUSDT": 6.802
    },
-   "excess_avg_pct": 1.924,
+   "excess_avg_pct": 1.954,
    "excess_ci": [
-    -2.2433,
-    5.9603
+    -2.2133,
+    5.9903
    ],
-   "excess_p": 0.18765209206879213,
+   "excess_p": 0.18395261688897302,
    "excess_by_coin": {
-    "BTCUSDT": -0.439,
-    "ETHUSDT": 4.32,
-    "SOLUSDT": 2.273
+    "BTCUSDT": -0.409,
+    "ETHUSDT": 4.35,
+    "SOLUSDT": 2.303
    },
    "halves": [
     {
      "n": 44,
-     "excess_avg_pct": 4.769
+     "excess_avg_pct": 4.799
     },
     {
      "n": 71,
-     "excess_avg_pct": 0.162
+     "excess_avg_pct": 0.192
     }
    ],
    "stable": true,
@@ -225,12 +228,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 115,
-     "avg_net_pct": 5.1,
+     "avg_net_pct": 5.13,
      "avg_net_ci": [
-      0.7624,
-      9.4638
+      0.7924,
+      9.4938
      ],
-     "net_per_year_per_coin_pct": 30.7
+     "net_per_year_per_coin_pct": 30.9
     },
     "spot": {
      "n": 115,
@@ -253,39 +256,39 @@
    "n": 119,
    "win_rate": 42.0,
    "avg_gross_pct": 4.596,
-   "avg_net_pct": 4.006,
+   "avg_net_pct": 4.027,
    "avg_net_ci": [
-    0.4372,
-    8.1563
+    0.4556,
+    8.1772
    ],
-   "p_value": 0.021749726214514806,
+   "p_value": 0.02120758556072786,
    "avg_bars": 17.5,
-   "net_per_year_per_coin_pct": 25.2,
-   "after_tax_per_year_per_coin_pct": 16.9,
+   "net_per_year_per_coin_pct": 25.3,
+   "after_tax_per_year_per_coin_pct": 17.0,
    "by_coin": {
-    "BTCUSDT": 3.457,
-    "ETHUSDT": 5.969,
-    "SOLUSDT": 1.412
+    "BTCUSDT": 3.479,
+    "ETHUSDT": 5.99,
+    "SOLUSDT": 1.432
    },
-   "excess_avg_pct": 3.119,
+   "excess_avg_pct": 3.14,
    "excess_ci": [
-    -0.4367,
-    7.6987
+    -0.4146,
+    7.719
    ],
-   "excess_p": 0.06711626658742328,
+   "excess_p": 0.06578481918838798,
    "excess_by_coin": {
-    "BTCUSDT": 2.115,
-    "ETHUSDT": 5.098,
-    "SOLUSDT": 1.235
+    "BTCUSDT": 2.137,
+    "ETHUSDT": 5.12,
+    "SOLUSDT": 1.255
    },
    "halves": [
     {
      "n": 44,
-     "excess_avg_pct": 9.486
+     "excess_avg_pct": 9.507
     },
     {
      "n": 75,
-     "excess_avg_pct": -0.616
+     "excess_avg_pct": -0.596
     }
    ],
    "stable": false,
@@ -293,12 +296,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 119,
-     "avg_net_pct": 4.186,
+     "avg_net_pct": 4.207,
      "avg_net_ci": [
-      0.6172,
-      8.3363
+      0.6356,
+      8.3572
      ],
-     "net_per_year_per_coin_pct": 26.3
+     "net_per_year_per_coin_pct": 26.5
     },
     "spot": {
      "n": 84,
@@ -321,39 +324,39 @@
    "n": 159,
    "win_rate": 34.0,
    "avg_gross_pct": 2.826,
-   "avg_net_pct": 2.159,
+   "avg_net_pct": 2.18,
    "avg_net_ci": [
-    -1.5231,
-    6.9
+    -1.4998,
+    6.9202
    ],
-   "p_value": 0.15681913855299284,
+   "p_value": 0.15450108612927743,
    "avg_bars": 22.4,
-   "net_per_year_per_coin_pct": 17.8,
-   "after_tax_per_year_per_coin_pct": 12.0,
+   "net_per_year_per_coin_pct": 18.0,
+   "after_tax_per_year_per_coin_pct": 12.1,
    "by_coin": {
-    "BTCUSDT": 2.347,
-    "ETHUSDT": 3.039,
-    "SOLUSDT": 0.207
+    "BTCUSDT": 2.371,
+    "ETHUSDT": 3.059,
+    "SOLUSDT": 0.222
    },
-   "excess_avg_pct": 1.341,
+   "excess_avg_pct": 1.361,
    "excess_ci": [
-    -2.6171,
-    6.4049
+    -2.5956,
+    6.4285
    ],
-   "excess_p": 0.277521680302992,
+   "excess_p": 0.2744437688498442,
    "excess_by_coin": {
-    "BTCUSDT": 0.607,
-    "ETHUSDT": 2.17,
-    "SOLUSDT": 1.189
+    "BTCUSDT": 0.631,
+    "ETHUSDT": 2.19,
+    "SOLUSDT": 1.204
    },
    "halves": [
     {
      "n": 61,
-     "excess_avg_pct": 4.062
+     "excess_avg_pct": 4.082
     },
     {
      "n": 98,
-     "excess_avg_pct": -0.353
+     "excess_avg_pct": -0.332
     }
    ],
    "stable": false,
@@ -361,12 +364,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 159,
-     "avg_net_pct": 2.339,
+     "avg_net_pct": 2.36,
      "avg_net_ci": [
-      -1.3431,
-      7.08
+      -1.3198,
+      7.1002
      ],
-     "net_per_year_per_coin_pct": 19.3
+     "net_per_year_per_coin_pct": 19.5
     },
     "spot": {
      "n": 109,
@@ -389,39 +392,39 @@
    "n": 889,
    "win_rate": 50.1,
    "avg_gross_pct": 1.178,
-   "avg_net_pct": 0.832,
+   "avg_net_pct": 0.848,
    "avg_net_ci": [
-    0.0081,
-    1.6415
+    0.0244,
+    1.6575
    ],
-   "p_value": 0.025280730005237905,
+   "p_value": 0.023125466691855154,
    "avg_bars": 6.8,
-   "net_per_year_per_coin_pct": 38.1,
-   "after_tax_per_year_per_coin_pct": 25.5,
+   "net_per_year_per_coin_pct": 38.8,
+   "after_tax_per_year_per_coin_pct": 26.0,
    "by_coin": {
-    "BTCUSDT": 0.688,
-    "ETHUSDT": 0.882,
-    "SOLUSDT": 1.002
+    "BTCUSDT": 0.705,
+    "ETHUSDT": 0.898,
+    "SOLUSDT": 1.017
    },
-   "excess_avg_pct": 0.743,
+   "excess_avg_pct": 0.759,
    "excess_ci": [
-    -0.0824,
-    1.5546
+    -0.0658,
+    1.5703
    ],
-   "excess_p": 0.03942858829019554,
+   "excess_p": 0.03625591100384025,
    "excess_by_coin": {
-    "BTCUSDT": 0.562,
-    "ETHUSDT": 0.81,
-    "SOLUSDT": 0.952
+    "BTCUSDT": 0.579,
+    "ETHUSDT": 0.826,
+    "SOLUSDT": 0.967
    },
    "halves": [
     {
      "n": 363,
-     "excess_avg_pct": 1.548
+     "excess_avg_pct": 1.565
     },
     {
      "n": 526,
-     "excess_avg_pct": 0.187
+     "excess_avg_pct": 0.203
     }
    ],
    "stable": true,
@@ -429,12 +432,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 889,
-     "avg_net_pct": 1.012,
+     "avg_net_pct": 1.028,
      "avg_net_ci": [
-      0.1881,
-      1.8215
+      0.2044,
+      1.8375
      ],
-     "net_per_year_per_coin_pct": 46.3
+     "net_per_year_per_coin_pct": 47.1
     },
     "spot": {
      "n": 482,
@@ -457,39 +460,39 @@
    "n": 898,
    "win_rate": 47.6,
    "avg_gross_pct": 0.523,
-   "avg_net_pct": 0.163,
+   "avg_net_pct": 0.181,
    "avg_net_ci": [
-    -0.6538,
-    1.0353
+    -0.6362,
+    1.0518
    ],
-   "p_value": 0.35303271916621115,
+   "p_value": 0.33763834026297,
    "avg_bars": 6.7,
-   "net_per_year_per_coin_pct": 7.6,
-   "after_tax_per_year_per_coin_pct": 5.1,
+   "net_per_year_per_coin_pct": 8.4,
+   "after_tax_per_year_per_coin_pct": 5.6,
    "by_coin": {
-    "BTCUSDT": 0.213,
-    "ETHUSDT": 0.134,
-    "SOLUSDT": 0.125
+    "BTCUSDT": 0.231,
+    "ETHUSDT": 0.153,
+    "SOLUSDT": 0.142
    },
-   "excess_avg_pct": -0.07,
+   "excess_avg_pct": -0.052,
    "excess_ci": [
-    -0.9157,
-    0.7946
+    -0.8974,
+    0.8137
    ],
-   "excess_p": 0.5647891371241374,
+   "excess_p": 0.5481865943187109,
    "excess_by_coin": {
-    "BTCUSDT": -0.014,
-    "ETHUSDT": -0.11,
-    "SOLUSDT": -0.099
+    "BTCUSDT": 0.004,
+    "ETHUSDT": -0.092,
+    "SOLUSDT": -0.083
    },
    "halves": [
     {
      "n": 368,
-     "excess_avg_pct": 0.166
+     "excess_avg_pct": 0.183
     },
     {
      "n": 530,
-     "excess_avg_pct": -0.234
+     "excess_avg_pct": -0.215
     }
    ],
    "stable": false,
@@ -497,12 +500,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 898,
-     "avg_net_pct": 0.343,
+     "avg_net_pct": 0.361,
      "avg_net_ci": [
-      -0.4738,
-      1.2153
+      -0.4562,
+      1.2318
      ],
-     "net_per_year_per_coin_pct": 15.9
+     "net_per_year_per_coin_pct": 16.7
     },
     "spot": {
      "n": 542,
@@ -523,41 +526,41 @@
   },
   "tsmom30_long:1d": {
    "n": 420,
-   "win_rate": 51.4,
+   "win_rate": 51.7,
    "avg_gross_pct": 2.061,
-   "avg_net_pct": 1.609,
+   "avg_net_pct": 1.639,
    "avg_net_ci": [
-    0.2995,
-    2.8909
+    0.3295,
+    2.9209
    ],
-   "p_value": 0.008796490733139385,
+   "p_value": 0.007796034680369708,
    "avg_bars": 6.7,
-   "net_per_year_per_coin_pct": 34.9,
-   "after_tax_per_year_per_coin_pct": 23.4,
+   "net_per_year_per_coin_pct": 35.6,
+   "after_tax_per_year_per_coin_pct": 23.8,
    "by_coin": {
-    "BTCUSDT": 1.208,
-    "ETHUSDT": 1.97,
-    "SOLUSDT": 1.71
+    "BTCUSDT": 1.238,
+    "ETHUSDT": 2.0,
+    "SOLUSDT": 1.74
    },
-   "excess_avg_pct": 0.456,
+   "excess_avg_pct": 0.486,
    "excess_ci": [
-    -0.8433,
-    1.7421
+    -0.8133,
+    1.7721
    ],
-   "excess_p": 0.24951101657587135,
+   "excess_p": 0.23559756778299862,
    "excess_by_coin": {
-    "BTCUSDT": 0.213,
-    "ETHUSDT": 0.918,
-    "SOLUSDT": 0.011
+    "BTCUSDT": 0.243,
+    "ETHUSDT": 0.948,
+    "SOLUSDT": 0.041
    },
    "halves": [
     {
      "n": 167,
-     "excess_avg_pct": 1.463
+     "excess_avg_pct": 1.493
     },
     {
      "n": 253,
-     "excess_avg_pct": -0.209
+     "excess_avg_pct": -0.179
     }
    ],
    "stable": false,
@@ -565,12 +568,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 420,
-     "avg_net_pct": 1.789,
+     "avg_net_pct": 1.819,
      "avg_net_ci": [
-      0.4795,
-      3.0709
+      0.5095,
+      3.1009
      ],
-     "net_per_year_per_coin_pct": 38.8
+     "net_per_year_per_coin_pct": 39.5
     },
     "spot": {
      "n": 420,
@@ -591,41 +594,41 @@
   },
   "rsi2_pullback:1d": {
    "n": 308,
-   "win_rate": 49.7,
+   "win_rate": 50.3,
    "avg_gross_pct": -0.329,
-   "avg_net_pct": -0.65,
+   "avg_net_pct": -0.633,
    "avg_net_ci": [
-    -1.8768,
-    0.5828
+    -1.8576,
+    0.6008
    ],
-   "p_value": 0.8522712493380183,
+   "p_value": 0.8456030021903616,
    "avg_bars": 4.7,
-   "net_per_year_per_coin_pct": -10.4,
-   "after_tax_per_year_per_coin_pct": -10.4,
+   "net_per_year_per_coin_pct": -10.1,
+   "after_tax_per_year_per_coin_pct": -10.1,
    "by_coin": {
-    "BTCUSDT": 0.205,
-    "ETHUSDT": -1.33,
-    "SOLUSDT": -1.048
+    "BTCUSDT": 0.225,
+    "ETHUSDT": -1.313,
+    "SOLUSDT": -1.034
    },
-   "excess_avg_pct": -0.769,
+   "excess_avg_pct": -0.752,
    "excess_ci": [
-    -2.0125,
-    0.4895
+    -1.9954,
+    0.5088
    ],
-   "excess_p": 0.890295569689685,
+   "excess_p": 0.8849474372409658,
    "excess_by_coin": {
-    "BTCUSDT": -0.016,
-    "ETHUSDT": -1.471,
-    "SOLUSDT": -0.918
+    "BTCUSDT": 0.004,
+    "ETHUSDT": -1.454,
+    "SOLUSDT": -0.905
    },
    "halves": [
     {
      "n": 119,
-     "excess_avg_pct": -1.1
+     "excess_avg_pct": -1.084
     },
     {
      "n": 189,
-     "excess_avg_pct": -0.561
+     "excess_avg_pct": -0.543
     }
    ],
    "stable": false,
@@ -633,12 +636,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 308,
-     "avg_net_pct": -0.47,
+     "avg_net_pct": -0.453,
      "avg_net_ci": [
-      -1.6968,
-      0.7628
+      -1.6776,
+      0.7808
      ],
-     "net_per_year_per_coin_pct": -7.5
+     "net_per_year_per_coin_pct": -7.2
     },
     "spot": {
      "n": 182,
@@ -659,41 +662,41 @@
   },
   "bollinger_revert:1d": {
    "n": 111,
-   "win_rate": 51.4,
+   "win_rate": 52.3,
    "avg_gross_pct": -0.027,
-   "avg_net_pct": -0.341,
+   "avg_net_pct": -0.324,
    "avg_net_ci": [
-    -2.3777,
-    1.8191
+    -2.365,
+    1.8369
    ],
-   "p_value": 0.6231130666231453,
+   "p_value": 0.6172062425829022,
    "avg_bars": 4.5,
-   "net_per_year_per_coin_pct": -2.0,
-   "after_tax_per_year_per_coin_pct": -2.0,
+   "net_per_year_per_coin_pct": -1.9,
+   "after_tax_per_year_per_coin_pct": -1.9,
    "by_coin": {
-    "BTCUSDT": -0.031,
-    "ETHUSDT": -2.649,
-    "SOLUSDT": 4.085
+    "BTCUSDT": -0.013,
+    "ETHUSDT": -2.633,
+    "SOLUSDT": 4.101
    },
-   "excess_avg_pct": -0.441,
+   "excess_avg_pct": -0.424,
    "excess_ci": [
-    -2.4466,
-    1.6878
+    -2.4304,
+    1.7053
    ],
-   "excess_p": 0.6590918910051498,
+   "excess_p": 0.6533364043830018,
    "excess_by_coin": {
-    "BTCUSDT": -0.141,
-    "ETHUSDT": -2.753,
-    "SOLUSDT": 4.019
+    "BTCUSDT": -0.123,
+    "ETHUSDT": -2.737,
+    "SOLUSDT": 4.035
    },
    "halves": [
     {
      "n": 41,
-     "excess_avg_pct": -2.059
+     "excess_avg_pct": -2.045
     },
     {
      "n": 70,
-     "excess_avg_pct": 0.507
+     "excess_avg_pct": 0.526
     }
    ],
    "stable": false,
@@ -701,12 +704,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 111,
-     "avg_net_pct": -0.161,
+     "avg_net_pct": -0.144,
      "avg_net_ci": [
-      -2.1977,
-      1.9991
+      -2.185,
+      2.0169
      ],
-     "net_per_year_per_coin_pct": -0.9
+     "net_per_year_per_coin_pct": -0.8
     },
     "spot": {
      "n": 62,
@@ -729,39 +732,39 @@
    "n": 247,
    "win_rate": 52.6,
    "avg_gross_pct": 2.156,
-   "avg_net_pct": 1.854,
+   "avg_net_pct": 1.871,
    "avg_net_ci": [
-    0.4869,
-    3.2524
+    0.5035,
+    3.2696
    ],
-   "p_value": 0.004669426494221598,
+   "p_value": 0.004354869643431617,
    "avg_bars": 3.9,
-   "net_per_year_per_coin_pct": 23.9,
-   "after_tax_per_year_per_coin_pct": 16.0,
+   "net_per_year_per_coin_pct": 24.1,
+   "after_tax_per_year_per_coin_pct": 16.2,
    "by_coin": {
-    "BTCUSDT": 1.123,
-    "ETHUSDT": 1.99,
-    "SOLUSDT": 3.462
+    "BTCUSDT": 1.14,
+    "ETHUSDT": 2.005,
+    "SOLUSDT": 3.481
    },
-   "excess_avg_pct": 1.768,
+   "excess_avg_pct": 1.785,
    "excess_ci": [
-    0.4021,
-    3.1899
+    0.4191,
+    3.2062
    ],
-   "excess_p": 0.006838903549565966,
+   "excess_p": 0.006392910043894506,
    "excess_by_coin": {
-    "BTCUSDT": 1.034,
-    "ETHUSDT": 1.984,
-    "SOLUSDT": 3.172
+    "BTCUSDT": 1.052,
+    "ETHUSDT": 1.999,
+    "SOLUSDT": 3.191
    },
    "halves": [
     {
      "n": 110,
-     "excess_avg_pct": 2.923
+     "excess_avg_pct": 2.938
     },
     {
      "n": 137,
-     "excess_avg_pct": 0.84
+     "excess_avg_pct": 0.859
     }
    ],
    "stable": true,
@@ -769,12 +772,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 247,
-     "avg_net_pct": 2.034,
+     "avg_net_pct": 2.051,
      "avg_net_ci": [
-      0.6669,
-      3.4324
+      0.6835,
+      3.4496
      ],
-     "net_per_year_per_coin_pct": 26.2
+     "net_per_year_per_coin_pct": 26.4
     },
     "spot": {
      "n": 139,
@@ -797,39 +800,39 @@
    "n": 42,
    "win_rate": 40.5,
    "avg_gross_pct": 3.699,
-   "avg_net_pct": 3.172,
+   "avg_net_pct": 3.183,
    "avg_net_ci": [
-    -6.4136,
-    13.977
+    -6.403,
+    13.9942
    ],
-   "p_value": 0.28026351168673236,
+   "p_value": 0.27960014768290353,
    "avg_bars": 31.7,
-   "net_per_year_per_coin_pct": 7.1,
+   "net_per_year_per_coin_pct": 7.2,
    "after_tax_per_year_per_coin_pct": 4.8,
    "by_coin": {
-    "BTCUSDT": 1.145,
-    "ETHUSDT": 3.375,
-    "SOLUSDT": 6.25
+    "BTCUSDT": 1.16,
+    "ETHUSDT": 3.384,
+    "SOLUSDT": 6.255
    },
-   "excess_avg_pct": 5.467,
+   "excess_avg_pct": 5.477,
    "excess_ci": [
-    -4.6871,
-    17.2363
+    -4.6764,
+    17.2497
    ],
-   "excess_p": 0.1776276491000052,
+   "excess_p": 0.17712758126870254,
    "excess_by_coin": {
-    "BTCUSDT": 1.282,
-    "ETHUSDT": 7.044,
-    "SOLUSDT": 10.45
+    "BTCUSDT": 1.297,
+    "ETHUSDT": 7.053,
+    "SOLUSDT": 10.456
    },
    "halves": [
     {
      "n": 9,
-     "excess_avg_pct": 24.304
+     "excess_avg_pct": 24.311
     },
     {
      "n": 33,
-     "excess_avg_pct": 0.329
+     "excess_avg_pct": 0.341
     }
    ],
    "stable": true,
@@ -837,12 +840,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 42,
-     "avg_net_pct": 3.352,
+     "avg_net_pct": 3.363,
      "avg_net_ci": [
-      -6.2336,
-      14.157
+      -6.223,
+      14.1742
      ],
-     "net_per_year_per_coin_pct": 7.5
+     "net_per_year_per_coin_pct": 7.6
     },
     "spot": {
      "n": 15,
@@ -865,39 +868,39 @@
    "n": 147,
    "win_rate": 38.1,
    "avg_gross_pct": 2.899,
-   "avg_net_pct": 2.345,
+   "avg_net_pct": 2.364,
    "avg_net_ci": [
-    -1.606,
-    6.9365
+    -1.586,
+    6.9573
    ],
-   "p_value": 0.14544226690789575,
+   "p_value": 0.14360517499136052,
    "avg_bars": 19.1,
-   "net_per_year_per_coin_pct": 18.0,
-   "after_tax_per_year_per_coin_pct": 12.1,
+   "net_per_year_per_coin_pct": 18.2,
+   "after_tax_per_year_per_coin_pct": 12.2,
    "by_coin": {
-    "BTCUSDT": 1.434,
-    "ETHUSDT": 2.755,
-    "SOLUSDT": 3.252
+    "BTCUSDT": 1.455,
+    "ETHUSDT": 2.772,
+    "SOLUSDT": 3.269
    },
-   "excess_avg_pct": 2.133,
+   "excess_avg_pct": 2.152,
    "excess_ci": [
-    -1.7516,
-    6.4734
+    -1.7362,
+    6.4951
    ],
-   "excess_p": 0.16207385308549244,
+   "excess_p": 0.15999993386950576,
    "excess_by_coin": {
-    "BTCUSDT": 0.544,
-    "ETHUSDT": 2.743,
-    "SOLUSDT": 3.891
+    "BTCUSDT": 0.565,
+    "ETHUSDT": 2.761,
+    "SOLUSDT": 3.908
    },
    "halves": [
     {
      "n": 56,
-     "excess_avg_pct": 6.1
+     "excess_avg_pct": 6.118
     },
     {
      "n": 91,
-     "excess_avg_pct": -0.308
+     "excess_avg_pct": -0.289
     }
    ],
    "stable": false,
@@ -905,12 +908,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 147,
-     "avg_net_pct": 2.525,
+     "avg_net_pct": 2.544,
      "avg_net_ci": [
-      -1.426,
-      7.1165
+      -1.406,
+      7.1373
      ],
-     "net_per_year_per_coin_pct": 19.4
+     "net_per_year_per_coin_pct": 19.6
     },
     "spot": {
      "n": 91,
@@ -933,39 +936,39 @@
    "n": 179,
    "win_rate": 36.3,
    "avg_gross_pct": 5.884,
-   "avg_net_pct": 5.246,
+   "avg_net_pct": 5.262,
    "avg_net_ci": [
-    -0.6345,
-    14.9571
+    -0.618,
+    14.9707
    ],
-   "p_value": 0.09220031248957071,
+   "p_value": 0.09157099713136023,
    "avg_bars": 22.2,
-   "net_per_year_per_coin_pct": 48.8,
-   "after_tax_per_year_per_coin_pct": 32.7,
+   "net_per_year_per_coin_pct": 48.9,
+   "after_tax_per_year_per_coin_pct": 32.8,
    "by_coin": {
-    "BTCUSDT": 3.625,
-    "ETHUSDT": 8.23,
-    "SOLUSDT": 3.52
+    "BTCUSDT": 3.641,
+    "ETHUSDT": 8.245,
+    "SOLUSDT": 3.535
    },
-   "excess_avg_pct": 4.52,
+   "excess_avg_pct": 4.535,
    "excess_ci": [
-    -1.0604,
-    13.7206
+    -1.0458,
+    13.7352
    ],
-   "excess_p": 0.11249863460364475,
+   "excess_p": 0.11172072544853329,
    "excess_by_coin": {
-    "BTCUSDT": 2.682,
-    "ETHUSDT": 7.45,
-    "SOLUSDT": 3.234
+    "BTCUSDT": 2.698,
+    "ETHUSDT": 7.465,
+    "SOLUSDT": 3.249
    },
    "halves": [
     {
      "n": 57,
-     "excess_avg_pct": 14.412
+     "excess_avg_pct": 14.427
     },
     {
      "n": 122,
-     "excess_avg_pct": -0.102
+     "excess_avg_pct": -0.087
     }
    ],
    "stable": false,
@@ -973,12 +976,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 179,
-     "avg_net_pct": 5.426,
+     "avg_net_pct": 5.442,
      "avg_net_ci": [
-      -0.4545,
-      15.1371
+      -0.438,
+      15.1507
      ],
-     "net_per_year_per_coin_pct": 50.4
+     "net_per_year_per_coin_pct": 50.6
     },
     "spot": {
      "n": 91,
@@ -1001,39 +1004,39 @@
    "n": 187,
    "win_rate": 45.5,
    "avg_gross_pct": 4.231,
-   "avg_net_pct": 3.803,
+   "avg_net_pct": 3.819,
    "avg_net_ci": [
-    1.4721,
-    6.4946
+    1.489,
+    6.5113
    ],
-   "p_value": 0.0013554057016346784,
+   "p_value": 0.0013009621670606356,
    "avg_bars": 12.0,
-   "net_per_year_per_coin_pct": 37.5,
-   "after_tax_per_year_per_coin_pct": 25.1,
+   "net_per_year_per_coin_pct": 37.7,
+   "after_tax_per_year_per_coin_pct": 25.3,
    "by_coin": {
-    "BTCUSDT": 2.044,
-    "ETHUSDT": 5.274,
-    "SOLUSDT": 4.851
+    "BTCUSDT": 2.061,
+    "ETHUSDT": 5.289,
+    "SOLUSDT": 4.871
    },
-   "excess_avg_pct": 3.669,
+   "excess_avg_pct": 3.686,
    "excess_ci": [
-    1.4605,
-    6.1893
+    1.4789,
+    6.2055
    ],
-   "excess_p": 0.0014600727354623809,
+   "excess_p": 0.0013975289662340124,
    "excess_by_coin": {
-    "BTCUSDT": 1.838,
-    "ETHUSDT": 5.296,
-    "SOLUSDT": 4.545
+    "BTCUSDT": 1.854,
+    "ETHUSDT": 5.311,
+    "SOLUSDT": 4.565
    },
    "halves": [
     {
      "n": 77,
-     "excess_avg_pct": 6.387
+     "excess_avg_pct": 6.402
     },
     {
      "n": 110,
-     "excess_avg_pct": 1.767
+     "excess_avg_pct": 1.785
     }
    ],
    "stable": true,
@@ -1041,12 +1044,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 187,
-     "avg_net_pct": 3.983,
+     "avg_net_pct": 3.999,
      "avg_net_ci": [
-      1.6521,
-      6.6746
+      1.669,
+      6.6913
      ],
-     "net_per_year_per_coin_pct": 39.3
+     "net_per_year_per_coin_pct": 39.5
     },
     "spot": {
      "n": 103,
@@ -1068,30 +1071,30 @@
     "n": 33,
     "win_rate": 36.4,
     "avg_gross_pct": 1.299,
-    "avg_net_pct": 0.979,
+    "avg_net_pct": 0.988,
     "avg_net_ci": [
-     -4.5083,
-     7.6486
+     -4.4983,
+     7.6541
     ],
-    "p_value": 0.37937966990331595,
+    "p_value": 0.37824968802227976,
     "avg_bars": 10.0,
-    "net_per_year_per_coin_pct": 11.1,
-    "after_tax_per_year_per_coin_pct": 7.4,
+    "net_per_year_per_coin_pct": 11.2,
+    "after_tax_per_year_per_coin_pct": 7.5,
     "by_coin": {
-     "BTCUSDT": -0.239,
-     "ETHUSDT": -0.614,
-     "SOLUSDT": 5.442
+     "BTCUSDT": -0.232,
+     "ETHUSDT": -0.602,
+     "SOLUSDT": 5.449
     },
-    "excess_avg_pct": 0.973,
+    "excess_avg_pct": 0.982,
     "excess_ci": [
-     -4.3084,
-     7.3365
+     -4.297,
+     7.3441
     ],
-    "excess_p": 0.37731149079342746,
+    "excess_p": 0.37615933794623446,
     "excess_by_coin": {
-     "BTCUSDT": -0.188,
-     "ETHUSDT": -0.547,
-     "SOLUSDT": 5.229
+     "BTCUSDT": -0.181,
+     "ETHUSDT": -0.535,
+     "SOLUSDT": 5.236
     },
     "confirmed": false,
     "unsealed_on": "2026-11-11"
@@ -1099,41 +1102,41 @@
   },
   "tsmom_combo:1d": {
    "n": 669,
-   "win_rate": 51.0,
+   "win_rate": 51.1,
    "avg_gross_pct": 1.278,
-   "avg_net_pct": 0.917,
+   "avg_net_pct": 0.935,
    "avg_net_ci": [
-    -0.0844,
-    1.9297
+    -0.0658,
+    1.9489
    ],
-   "p_value": 0.03816826442430916,
+   "p_value": 0.035341180556337955,
    "avg_bars": 6.7,
-   "net_per_year_per_coin_pct": 31.6,
-   "after_tax_per_year_per_coin_pct": 21.2,
+   "net_per_year_per_coin_pct": 32.2,
+   "after_tax_per_year_per_coin_pct": 21.6,
    "by_coin": {
-    "BTCUSDT": 0.607,
-    "ETHUSDT": 1.156,
-    "SOLUSDT": 1.062
+    "BTCUSDT": 0.625,
+    "ETHUSDT": 1.175,
+    "SOLUSDT": 1.079
    },
-   "excess_avg_pct": 0.677,
+   "excess_avg_pct": 0.696,
    "excess_ci": [
-    -0.3199,
-    1.6872
+    -0.3021,
+    1.7062
    ],
-   "excess_p": 0.09359080766022776,
+   "excess_p": 0.08775118263687172,
    "excess_by_coin": {
-    "BTCUSDT": 0.369,
-    "ETHUSDT": 0.895,
-    "SOLUSDT": 0.857
+    "BTCUSDT": 0.388,
+    "ETHUSDT": 0.914,
+    "SOLUSDT": 0.874
    },
    "halves": [
     {
      "n": 268,
-     "excess_avg_pct": 1.353
+     "excess_avg_pct": 1.371
     },
     {
      "n": 401,
-     "excess_avg_pct": 0.226
+     "excess_avg_pct": 0.244
     }
    ],
    "stable": true,
@@ -1141,12 +1144,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 669,
-     "avg_net_pct": 1.097,
+     "avg_net_pct": 1.115,
      "avg_net_ci": [
-      0.0956,
-      2.1097
+      0.1142,
+      2.1289
      ],
-     "net_per_year_per_coin_pct": 37.8
+     "net_per_year_per_coin_pct": 38.4
     },
     "spot": {
      "n": 409,
@@ -1165,43 +1168,247 @@
    "significant": false,
    "candidate": false
   },
+  "relstrength30:1d": {
+   "n": 519,
+   "win_rate": 47.6,
+   "avg_gross_pct": 0.589,
+   "avg_net_pct": 0.267,
+   "avg_net_ci": [
+    -0.4988,
+    1.0491
+   ],
+   "p_value": 0.2533491036923079,
+   "avg_bars": 6.7,
+   "net_per_year_per_coin_pct": 10.7,
+   "after_tax_per_year_per_coin_pct": 7.2,
+   "by_coin": {
+    "BTCUSDT": 0.194,
+    "ETHUSDT": -0.58,
+    "SOLUSDT": 1.146
+   },
+   "excess_avg_pct": 0.283,
+   "excess_ci": [
+    -0.4877,
+    1.0625
+   ],
+   "excess_p": 0.2399623316753526,
+   "excess_by_coin": {
+    "BTCUSDT": 0.001,
+    "ETHUSDT": -0.509,
+    "SOLUSDT": 1.328
+   },
+   "halves": [
+    {
+     "n": 237,
+     "excess_avg_pct": 0.312
+    },
+    {
+     "n": 282,
+     "excess_avg_pct": 0.26
+    }
+   ],
+   "stable": true,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 519,
+     "avg_net_pct": 0.447,
+     "avg_net_ci": [
+      -0.3188,
+      1.2291
+     ],
+     "net_per_year_per_coin_pct": 18.0
+    },
+    "spot": {
+     "n": 260,
+     "avg_net_pct": 1.145,
+     "avg_net_ci": [
+      -0.1928,
+      2.4948
+     ],
+     "net_per_year_per_coin_pct": 23.1
+    }
+   },
+   "strategy": "relstrength30",
+   "tf": "1d",
+   "family": "forza relativa",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "relstrength90:1d": {
+   "n": 480,
+   "win_rate": 46.7,
+   "avg_gross_pct": 0.114,
+   "avg_net_pct": -0.207,
+   "avg_net_ci": [
+    -0.9144,
+    0.5022
+   ],
+   "p_value": 0.7124743131468034,
+   "avg_bars": 6.6,
+   "net_per_year_per_coin_pct": -8.0,
+   "after_tax_per_year_per_coin_pct": -8.0,
+   "by_coin": {
+    "BTCUSDT": -0.187,
+    "ETHUSDT": -0.917,
+    "SOLUSDT": 0.523
+   },
+   "excess_avg_pct": -0.213,
+   "excess_ci": [
+    -0.9289,
+    0.5113
+   ],
+   "excess_p": 0.7180879106949433,
+   "excess_by_coin": {
+    "BTCUSDT": -0.44,
+    "ETHUSDT": -0.699,
+    "SOLUSDT": 0.536
+   },
+   "halves": [
+    {
+     "n": 220,
+     "excess_avg_pct": -0.21
+    },
+    {
+     "n": 260,
+     "excess_avg_pct": -0.216
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 480,
+     "avg_net_pct": -0.027,
+     "avg_net_ci": [
+      -0.7344,
+      0.6822
+     ],
+     "net_per_year_per_coin_pct": -1.0
+    },
+    "spot": {
+     "n": 242,
+     "avg_net_pct": 0.286,
+     "avg_net_ci": [
+      -0.9628,
+      1.5796
+     ],
+     "net_per_year_per_coin_pct": 5.9
+    }
+   },
+   "strategy": "relstrength90",
+   "tf": "1d",
+   "family": "forza relativa",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "relstrength30_long:1d": {
+   "n": 275,
+   "win_rate": 47.3,
+   "avg_gross_pct": 1.401,
+   "avg_net_pct": 0.98,
+   "avg_net_ci": [
+    -0.3437,
+    2.3577
+   ],
+   "p_value": 0.08287617710526295,
+   "avg_bars": 6.7,
+   "net_per_year_per_coin_pct": 20.9,
+   "after_tax_per_year_per_coin_pct": 14.0,
+   "by_coin": {
+    "BTCUSDT": -0.071,
+    "ETHUSDT": 0.345,
+    "SOLUSDT": 3.047
+   },
+   "excess_avg_pct": -0.241,
+   "excess_ci": [
+    -1.5489,
+    1.1303
+   ],
+   "excess_p": 0.6348755035302185,
+   "excess_by_coin": {
+    "BTCUSDT": -1.039,
+    "ETHUSDT": -0.726,
+    "SOLUSDT": 1.332
+   },
+   "halves": [
+    {
+     "n": 132,
+     "excess_avg_pct": -1.123
+    },
+    {
+     "n": 143,
+     "excess_avg_pct": 0.574
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 275,
+     "avg_net_pct": 1.16,
+     "avg_net_ci": [
+      -0.1637,
+      2.5377
+     ],
+     "net_per_year_per_coin_pct": 24.7
+    },
+    "spot": {
+     "n": 275,
+     "avg_net_pct": 1.101,
+     "avg_net_ci": [
+      -0.2269,
+      2.4798
+     ],
+     "net_per_year_per_coin_pct": 23.5
+    }
+   },
+   "strategy": "relstrength30_long",
+   "tf": "1d",
+   "family": "forza relativa",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
   "donchian20:4h": {
    "n": 1203,
    "win_rate": 38.0,
    "avg_gross_pct": 0.57,
-   "avg_net_pct": 0.292,
+   "avg_net_pct": 0.294,
    "avg_net_ci": [
-    -0.2291,
-    0.8316
+    -0.2265,
+    0.8341
    ],
-   "p_value": 0.13528652768851995,
+   "p_value": 0.1332280553820182,
    "avg_bars": 21.2,
-   "net_per_year_per_coin_pct": 16.4,
-   "after_tax_per_year_per_coin_pct": 11.0,
+   "net_per_year_per_coin_pct": 16.5,
+   "after_tax_per_year_per_coin_pct": 11.1,
    "by_coin": {
-    "BTCUSDT": 0.138,
-    "ETHUSDT": 0.244,
-    "SOLUSDT": 0.623
+    "BTCUSDT": 0.141,
+    "ETHUSDT": 0.246,
+    "SOLUSDT": 0.626
    },
-   "excess_avg_pct": 0.256,
+   "excess_avg_pct": 0.259,
    "excess_ci": [
-    -0.2642,
-    0.7868
+    -0.2615,
+    0.7894
    ],
-   "excess_p": 0.1666764477205691,
+   "excess_p": 0.16430363039722817,
    "excess_by_coin": {
-    "BTCUSDT": 0.096,
-    "ETHUSDT": 0.182,
-    "SOLUSDT": 0.643
+    "BTCUSDT": 0.099,
+    "ETHUSDT": 0.184,
+    "SOLUSDT": 0.646
    },
    "halves": [
     {
      "n": 506,
-     "excess_avg_pct": 0.192
+     "excess_avg_pct": 0.195
     },
     {
      "n": 697,
-     "excess_avg_pct": 0.303
+     "excess_avg_pct": 0.306
     }
    ],
    "stable": true,
@@ -1209,12 +1416,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 1203,
-     "avg_net_pct": 0.472,
+     "avg_net_pct": 0.474,
      "avg_net_ci": [
-      -0.0491,
-      1.0116
+      -0.0465,
+      1.0141
      ],
-     "net_per_year_per_coin_pct": 26.5
+     "net_per_year_per_coin_pct": 26.6
     },
     "spot": {
      "n": 651,
@@ -1237,39 +1444,39 @@
    "n": 712,
    "win_rate": 37.6,
    "avg_gross_pct": 0.873,
-   "avg_net_pct": 0.591,
+   "avg_net_pct": 0.594,
    "avg_net_ci": [
-    -0.0899,
-    1.2818
+    -0.0876,
+    1.2853
    ],
-   "p_value": 0.04220761391615386,
+   "p_value": 0.04145619575999714,
    "avg_bars": 21.5,
-   "net_per_year_per_coin_pct": 19.7,
-   "after_tax_per_year_per_coin_pct": 13.2,
+   "net_per_year_per_coin_pct": 19.8,
+   "after_tax_per_year_per_coin_pct": 13.3,
    "by_coin": {
-    "BTCUSDT": 0.291,
-    "ETHUSDT": 0.724,
-    "SOLUSDT": 0.859
+    "BTCUSDT": 0.294,
+    "ETHUSDT": 0.727,
+    "SOLUSDT": 0.862
    },
-   "excess_avg_pct": 0.517,
+   "excess_avg_pct": 0.52,
    "excess_ci": [
-    -0.1449,
-    1.1862
+    -0.1418,
+    1.1888
    ],
-   "excess_p": 0.06087584230224524,
+   "excess_p": 0.05983397809303115,
    "excess_by_coin": {
-    "BTCUSDT": 0.217,
-    "ETHUSDT": 0.591,
-    "SOLUSDT": 0.879
+    "BTCUSDT": 0.22,
+    "ETHUSDT": 0.594,
+    "SOLUSDT": 0.882
    },
    "halves": [
     {
      "n": 304,
-     "excess_avg_pct": 0.476
+     "excess_avg_pct": 0.48
     },
     {
      "n": 408,
-     "excess_avg_pct": 0.547
+     "excess_avg_pct": 0.55
     }
    ],
    "stable": true,
@@ -1277,12 +1484,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 712,
-     "avg_net_pct": 0.771,
+     "avg_net_pct": 0.774,
      "avg_net_ci": [
-      0.0901,
-      1.4618
+      0.0924,
+      1.4653
      ],
-     "net_per_year_per_coin_pct": 25.7
+     "net_per_year_per_coin_pct": 25.8
     },
     "spot": {
      "n": 405,
@@ -1305,39 +1512,39 @@
    "n": 676,
    "win_rate": 38.5,
    "avg_gross_pct": 0.861,
-   "avg_net_pct": 0.535,
+   "avg_net_pct": 0.54,
    "avg_net_ci": [
-    -0.123,
-    1.2509
+    -0.1181,
+    1.2557
    ],
-   "p_value": 0.0681903895324974,
+   "p_value": 0.06647982345791772,
    "avg_bars": 20.7,
-   "net_per_year_per_coin_pct": 16.9,
-   "after_tax_per_year_per_coin_pct": 11.3,
+   "net_per_year_per_coin_pct": 17.1,
+   "after_tax_per_year_per_coin_pct": 11.4,
    "by_coin": {
-    "BTCUSDT": 0.523,
-    "ETHUSDT": 0.612,
-    "SOLUSDT": 0.424
+    "BTCUSDT": 0.528,
+    "ETHUSDT": 0.616,
+    "SOLUSDT": 0.429
    },
-   "excess_avg_pct": -0.098,
+   "excess_avg_pct": -0.093,
    "excess_ci": [
-    -0.7188,
-    0.6028
+    -0.7139,
+    0.6075
    ],
-   "excess_p": 0.6109220796149231,
+   "excess_p": 0.6056637017425583,
    "excess_by_coin": {
-    "BTCUSDT": -0.003,
-    "ETHUSDT": 0.043,
-    "SOLUSDT": -0.486
+    "BTCUSDT": 0.002,
+    "ETHUSDT": 0.047,
+    "SOLUSDT": -0.481
    },
    "halves": [
     {
      "n": 290,
-     "excess_avg_pct": 0.243
+     "excess_avg_pct": 0.248
     },
     {
      "n": 386,
-     "excess_avg_pct": -0.354
+     "excess_avg_pct": -0.349
     }
    ],
    "stable": false,
@@ -1345,12 +1552,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 676,
-     "avg_net_pct": 0.715,
+     "avg_net_pct": 0.72,
      "avg_net_ci": [
-      0.057,
-      1.4309
+      0.0619,
+      1.4357
      ],
-     "net_per_year_per_coin_pct": 22.6
+     "net_per_year_per_coin_pct": 22.8
     },
     "spot": {
      "n": 676,
@@ -1373,39 +1580,39 @@
    "n": 826,
    "win_rate": 36.1,
    "avg_gross_pct": 0.422,
-   "avg_net_pct": 0.149,
+   "avg_net_pct": 0.151,
    "avg_net_ci": [
-    -0.3639,
-    0.6905
+    -0.3611,
+    0.6931
    ],
-   "p_value": 0.28960756115745445,
+   "p_value": 0.2862142264360239,
    "avg_bars": 18.1,
-   "net_per_year_per_coin_pct": 5.7,
-   "after_tax_per_year_per_coin_pct": 3.8,
+   "net_per_year_per_coin_pct": 5.8,
+   "after_tax_per_year_per_coin_pct": 3.9,
    "by_coin": {
-    "BTCUSDT": 0.022,
-    "ETHUSDT": 0.407,
-    "SOLUSDT": -0.049
+    "BTCUSDT": 0.024,
+    "ETHUSDT": 0.409,
+    "SOLUSDT": -0.047
    },
-   "excess_avg_pct": 0.072,
+   "excess_avg_pct": 0.075,
    "excess_ci": [
-    -0.4266,
-    0.6075
+    -0.4243,
+    0.6103
    ],
-   "excess_p": 0.3924337287166868,
+   "excess_p": 0.38856627730799514,
    "excess_by_coin": {
-    "BTCUSDT": -0.051,
-    "ETHUSDT": 0.286,
-    "SOLUSDT": -0.062
+    "BTCUSDT": -0.049,
+    "ETHUSDT": 0.289,
+    "SOLUSDT": -0.059
    },
    "halves": [
     {
      "n": 345,
-     "excess_avg_pct": 0.44
+     "excess_avg_pct": 0.443
     },
     {
      "n": 481,
-     "excess_avg_pct": -0.191
+     "excess_avg_pct": -0.189
     }
    ],
    "stable": false,
@@ -1413,12 +1620,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 826,
-     "avg_net_pct": 0.329,
+     "avg_net_pct": 0.331,
      "avg_net_ci": [
-      -0.1839,
-      0.8705
+      -0.1811,
+      0.8731
      ],
-     "net_per_year_per_coin_pct": 12.7
+     "net_per_year_per_coin_pct": 12.8
     },
     "spot": {
      "n": 491,
@@ -1441,39 +1648,39 @@
    "n": 941,
    "win_rate": 35.4,
    "avg_gross_pct": 0.892,
-   "avg_net_pct": 0.603,
+   "avg_net_pct": 0.606,
    "avg_net_ci": [
-    -0.0278,
-    1.2174
+    -0.0254,
+    1.2194
    ],
-   "p_value": 0.029890062927309467,
+   "p_value": 0.02936522869129115,
    "avg_bars": 25.6,
-   "net_per_year_per_coin_pct": 26.4,
-   "after_tax_per_year_per_coin_pct": 17.7,
+   "net_per_year_per_coin_pct": 26.5,
+   "after_tax_per_year_per_coin_pct": 17.8,
    "by_coin": {
-    "BTCUSDT": 0.522,
-    "ETHUSDT": 0.393,
-    "SOLUSDT": 1.092
+    "BTCUSDT": 0.524,
+    "ETHUSDT": 0.396,
+    "SOLUSDT": 1.094
    },
-   "excess_avg_pct": 0.563,
+   "excess_avg_pct": 0.566,
    "excess_ci": [
-    -0.0634,
-    1.164
+    -0.0609,
+    1.1667
    ],
-   "excess_p": 0.036843683203978926,
+   "excess_p": 0.03620092966585719,
    "excess_by_coin": {
-    "BTCUSDT": 0.488,
-    "ETHUSDT": 0.341,
-    "SOLUSDT": 1.064
+    "BTCUSDT": 0.49,
+    "ETHUSDT": 0.343,
+    "SOLUSDT": 1.067
    },
    "halves": [
     {
      "n": 384,
-     "excess_avg_pct": 0.818
+     "excess_avg_pct": 0.821
     },
     {
      "n": 557,
-     "excess_avg_pct": 0.388
+     "excess_avg_pct": 0.39
     }
    ],
    "stable": true,
@@ -1481,12 +1688,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 941,
-     "avg_net_pct": 0.783,
+     "avg_net_pct": 0.786,
      "avg_net_ci": [
-      0.1522,
-      1.3974
+      0.1546,
+      1.3994
      ],
-     "net_per_year_per_coin_pct": 34.3
+     "net_per_year_per_coin_pct": 34.4
     },
     "spot": {
      "n": 493,
@@ -1509,39 +1716,39 @@
    "n": 6004,
    "win_rate": 45.0,
    "avg_gross_pct": 0.182,
-   "avg_net_pct": -0.058,
+   "avg_net_pct": -0.053,
    "avg_net_ci": [
-    -0.199,
-    0.0796
+    -0.1938,
+    0.0847
    ],
-   "p_value": 0.7923548224293238,
+   "p_value": 0.7718584203556824,
    "avg_bars": 6.7,
-   "net_per_year_per_coin_pct": -16.3,
-   "after_tax_per_year_per_coin_pct": -16.3,
+   "net_per_year_per_coin_pct": -14.9,
+   "after_tax_per_year_per_coin_pct": -14.9,
    "by_coin": {
-    "BTCUSDT": -0.081,
-    "ETHUSDT": -0.115,
-    "SOLUSDT": 0.075
+    "BTCUSDT": -0.076,
+    "ETHUSDT": -0.11,
+    "SOLUSDT": 0.08
    },
-   "excess_avg_pct": -0.067,
+   "excess_avg_pct": -0.062,
    "excess_ci": [
-    -0.2069,
-    0.0697
+    -0.2019,
+    0.0746
    ],
-   "excess_p": 0.8266021590490278,
+   "excess_p": 0.8080159927846946,
    "excess_by_coin": {
-    "BTCUSDT": -0.091,
-    "ETHUSDT": -0.126,
-    "SOLUSDT": 0.074
+    "BTCUSDT": -0.086,
+    "ETHUSDT": -0.121,
+    "SOLUSDT": 0.078
    },
    "halves": [
     {
      "n": 2506,
-     "excess_avg_pct": 0.057
+     "excess_avg_pct": 0.062
     },
     {
      "n": 3498,
-     "excess_avg_pct": -0.156
+     "excess_avg_pct": -0.151
     }
    ],
    "stable": false,
@@ -1549,12 +1756,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 6004,
-     "avg_net_pct": 0.122,
+     "avg_net_pct": 0.127,
      "avg_net_ci": [
-      -0.019,
-      0.2596
+      -0.0138,
+      0.2647
      ],
-     "net_per_year_per_coin_pct": 34.0
+     "net_per_year_per_coin_pct": 35.3
     },
     "spot": {
      "n": 3147,
@@ -1575,41 +1782,41 @@
   },
   "tsmom90:4h": {
    "n": 6038,
-   "win_rate": 45.7,
+   "win_rate": 45.8,
    "avg_gross_pct": 0.137,
-   "avg_net_pct": -0.103,
+   "avg_net_pct": -0.098,
    "avg_net_ci": [
-    -0.2289,
-    0.0297
+    -0.2238,
+    0.0348
    ],
-   "p_value": 0.931002440256038,
+   "p_value": 0.9207446370982914,
    "avg_bars": 6.7,
-   "net_per_year_per_coin_pct": -29.0,
-   "after_tax_per_year_per_coin_pct": -29.0,
+   "net_per_year_per_coin_pct": -27.6,
+   "after_tax_per_year_per_coin_pct": -27.6,
    "by_coin": {
-    "BTCUSDT": -0.151,
-    "ETHUSDT": -0.118,
-    "SOLUSDT": 0.003
+    "BTCUSDT": -0.146,
+    "ETHUSDT": -0.113,
+    "SOLUSDT": 0.007
    },
-   "excess_avg_pct": -0.115,
+   "excess_avg_pct": -0.11,
    "excess_ci": [
-    -0.2448,
-    0.0177
+    -0.2399,
+    0.023
    ],
-   "excess_p": 0.952430672899118,
+   "excess_p": 0.9447183385066273,
    "excess_by_coin": {
-    "BTCUSDT": -0.169,
-    "ETHUSDT": -0.127,
-    "SOLUSDT": -0.003
+    "BTCUSDT": -0.164,
+    "ETHUSDT": -0.122,
+    "SOLUSDT": 0.001
    },
    "halves": [
     {
      "n": 2537,
-     "excess_avg_pct": -0.118
+     "excess_avg_pct": -0.112
     },
     {
      "n": 3501,
-     "excess_avg_pct": -0.114
+     "excess_avg_pct": -0.109
     }
    ],
    "stable": false,
@@ -1617,12 +1824,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 6038,
-     "avg_net_pct": 0.077,
+     "avg_net_pct": 0.082,
      "avg_net_ci": [
-      -0.0489,
-      0.2097
+      -0.0438,
+      0.2148
      ],
-     "net_per_year_per_coin_pct": 21.6
+     "net_per_year_per_coin_pct": 23.0
     },
     "spot": {
      "n": 3229,
@@ -1645,39 +1852,39 @@
    "n": 2592,
    "win_rate": 47.6,
    "avg_gross_pct": 0.415,
-   "avg_net_pct": 0.157,
+   "avg_net_pct": 0.166,
    "avg_net_ci": [
-    -0.0527,
-    0.3733
+    -0.0434,
+    0.3829
    ],
-   "p_value": 0.07941473346287631,
+   "p_value": 0.06760463586502236,
    "avg_bars": 6.7,
-   "net_per_year_per_coin_pct": 19.0,
-   "after_tax_per_year_per_coin_pct": 12.8,
+   "net_per_year_per_coin_pct": 20.2,
+   "after_tax_per_year_per_coin_pct": 13.5,
    "by_coin": {
-    "BTCUSDT": 0.036,
-    "ETHUSDT": 0.222,
-    "SOLUSDT": 0.265
+    "BTCUSDT": 0.046,
+    "ETHUSDT": 0.232,
+    "SOLUSDT": 0.274
    },
-   "excess_avg_pct": -0.048,
+   "excess_avg_pct": -0.039,
    "excess_ci": [
-    -0.2569,
-    0.1682
+    -0.2475,
+    0.1777
    ],
-   "excess_p": 0.6679517533258444,
+   "excess_p": 0.636374700046447,
    "excess_by_coin": {
-    "BTCUSDT": -0.13,
-    "ETHUSDT": 0.038,
-    "SOLUSDT": -0.046
+    "BTCUSDT": -0.121,
+    "ETHUSDT": 0.047,
+    "SOLUSDT": -0.036
    },
    "halves": [
     {
      "n": 1154,
-     "excess_avg_pct": 0.133
+     "excess_avg_pct": 0.142
     },
     {
      "n": 1438,
-     "excess_avg_pct": -0.193
+     "excess_avg_pct": -0.184
     }
    ],
    "stable": false,
@@ -1685,12 +1892,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 2592,
-     "avg_net_pct": 0.337,
+     "avg_net_pct": 0.346,
      "avg_net_ci": [
-      0.1273,
-      0.5533
+      0.1366,
+      0.5629
      ],
-     "net_per_year_per_coin_pct": 40.9
+     "net_per_year_per_coin_pct": 42.1
     },
     "spot": {
      "n": 2592,
@@ -1713,39 +1920,39 @@
    "n": 1919,
    "win_rate": 48.6,
    "avg_gross_pct": 0.086,
-   "avg_net_pct": -0.148,
+   "avg_net_pct": -0.144,
    "avg_net_ci": [
-    -0.3367,
-    0.034
+    -0.332,
+    0.0392
    ],
-   "p_value": 0.936996507086325,
+   "p_value": 0.9305262874939394,
    "avg_bars": 4.8,
-   "net_per_year_per_coin_pct": -13.3,
-   "after_tax_per_year_per_coin_pct": -13.3,
+   "net_per_year_per_coin_pct": -12.8,
+   "after_tax_per_year_per_coin_pct": -12.8,
    "by_coin": {
-    "BTCUSDT": -0.264,
-    "ETHUSDT": -0.21,
-    "SOLUSDT": 0.145
+    "BTCUSDT": -0.259,
+    "ETHUSDT": -0.205,
+    "SOLUSDT": 0.15
    },
-   "excess_avg_pct": -0.15,
+   "excess_avg_pct": -0.145,
    "excess_ci": [
-    -0.3402,
-    0.0375
+    -0.3353,
+    0.0423
    ],
-   "excess_p": 0.9380796192496399,
+   "excess_p": 0.9317463995508319,
    "excess_by_coin": {
-    "BTCUSDT": -0.268,
-    "ETHUSDT": -0.21,
-    "SOLUSDT": 0.146
+    "BTCUSDT": -0.263,
+    "ETHUSDT": -0.205,
+    "SOLUSDT": 0.151
    },
    "halves": [
     {
      "n": 764,
-     "excess_avg_pct": -0.264
+     "excess_avg_pct": -0.259
     },
     {
      "n": 1155,
-     "excess_avg_pct": -0.074
+     "excess_avg_pct": -0.069
     }
    ],
    "stable": false,
@@ -1753,12 +1960,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 1919,
-     "avg_net_pct": 0.032,
+     "avg_net_pct": 0.036,
      "avg_net_ci": [
-      -0.1567,
-      0.214
+      -0.152,
+      0.2192
      ],
-     "net_per_year_per_coin_pct": 2.8
+     "net_per_year_per_coin_pct": 3.3
     },
     "spot": {
      "n": 970,
@@ -1781,39 +1988,39 @@
    "n": 723,
    "win_rate": 48.7,
    "avg_gross_pct": -0.015,
-   "avg_net_pct": -0.249,
+   "avg_net_pct": -0.244,
    "avg_net_ci": [
-    -0.5537,
-    0.0652
+    -0.5492,
+    0.07
    ],
-   "p_value": 0.9402829493907214,
+   "p_value": 0.9365571631329888,
    "avg_bars": 4.8,
-   "net_per_year_per_coin_pct": -8.4,
-   "after_tax_per_year_per_coin_pct": -8.4,
+   "net_per_year_per_coin_pct": -8.2,
+   "after_tax_per_year_per_coin_pct": -8.2,
    "by_coin": {
-    "BTCUSDT": -0.365,
-    "ETHUSDT": -0.309,
-    "SOLUSDT": 0.063
+    "BTCUSDT": -0.36,
+    "ETHUSDT": -0.304,
+    "SOLUSDT": 0.068
    },
-   "excess_avg_pct": -0.251,
+   "excess_avg_pct": -0.246,
    "excess_ci": [
-    -0.5599,
-    0.0634
+    -0.5547,
+    0.068
    ],
-   "excess_p": 0.9413546081167805,
+   "excess_p": 0.9377109996005877,
    "excess_by_coin": {
-    "BTCUSDT": -0.377,
-    "ETHUSDT": -0.305,
-    "SOLUSDT": 0.066
+    "BTCUSDT": -0.372,
+    "ETHUSDT": -0.3,
+    "SOLUSDT": 0.071
    },
    "halves": [
     {
      "n": 291,
-     "excess_avg_pct": -0.611
+     "excess_avg_pct": -0.606
     },
     {
      "n": 432,
-     "excess_avg_pct": -0.009
+     "excess_avg_pct": -0.005
     }
    ],
    "stable": false,
@@ -1821,12 +2028,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 723,
-     "avg_net_pct": -0.069,
+     "avg_net_pct": -0.064,
      "avg_net_ci": [
-      -0.3737,
-      0.2452
+      -0.3692,
+      0.25
      ],
-     "net_per_year_per_coin_pct": -2.3
+     "net_per_year_per_coin_pct": -2.2
     },
     "spot": {
      "n": 372,
@@ -1849,39 +2056,39 @@
    "n": 1906,
    "win_rate": 48.2,
    "avg_gross_pct": 0.473,
-   "avg_net_pct": 0.24,
+   "avg_net_pct": 0.244,
    "avg_net_ci": [
-    0.04,
-    0.4402
+    0.0443,
+    0.4441
    ],
-   "p_value": 0.009404271703073515,
+   "p_value": 0.00844966958183597,
    "avg_bars": 4.1,
-   "net_per_year_per_coin_pct": 21.4,
-   "after_tax_per_year_per_coin_pct": 14.3,
+   "net_per_year_per_coin_pct": 21.7,
+   "after_tax_per_year_per_coin_pct": 14.6,
    "by_coin": {
-    "BTCUSDT": 0.193,
-    "ETHUSDT": 0.219,
-    "SOLUSDT": 0.387
+    "BTCUSDT": 0.197,
+    "ETHUSDT": 0.223,
+    "SOLUSDT": 0.391
    },
-   "excess_avg_pct": 0.239,
+   "excess_avg_pct": 0.243,
    "excess_ci": [
-    0.0391,
-    0.435
+    0.0432,
+    0.4392
    ],
-   "excess_p": 0.009565929409677784,
+   "excess_p": 0.008589272314967129,
    "excess_by_coin": {
-    "BTCUSDT": 0.196,
-    "ETHUSDT": 0.214,
-    "SOLUSDT": 0.38
+    "BTCUSDT": 0.2,
+    "ETHUSDT": 0.219,
+    "SOLUSDT": 0.384
    },
    "halves": [
     {
      "n": 768,
-     "excess_avg_pct": 0.415
+     "excess_avg_pct": 0.419
     },
     {
      "n": 1138,
-     "excess_avg_pct": 0.12
+     "excess_avg_pct": 0.124
     }
    ],
    "stable": true,
@@ -1889,12 +2096,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 1906,
-     "avg_net_pct": 0.42,
+     "avg_net_pct": 0.424,
      "avg_net_ci": [
-      0.22,
-      0.6202
+      0.2243,
+      0.6241
      ],
-     "net_per_year_per_coin_pct": 37.4
+     "net_per_year_per_coin_pct": 37.8
     },
     "spot": {
      "n": 969,
@@ -1917,39 +2124,39 @@
    "n": 354,
    "win_rate": 35.3,
    "avg_gross_pct": 0.867,
-   "avg_net_pct": 0.616,
+   "avg_net_pct": 0.618,
    "avg_net_ci": [
-    -0.3573,
-    1.5372
+    -0.3554,
+    1.5388
    ],
-   "p_value": 0.10196645000261971,
+   "p_value": 0.10137821328736978,
    "avg_bars": 23.0,
    "net_per_year_per_coin_pct": 10.2,
-   "after_tax_per_year_per_coin_pct": 6.8,
+   "after_tax_per_year_per_coin_pct": 6.9,
    "by_coin": {
-    "BTCUSDT": 1.574,
-    "ETHUSDT": -0.085,
-    "SOLUSDT": 0.499
+    "BTCUSDT": 1.575,
+    "ETHUSDT": -0.083,
+    "SOLUSDT": 0.5
    },
-   "excess_avg_pct": 0.957,
+   "excess_avg_pct": 0.959,
    "excess_ci": [
-    -0.0224,
-    1.9218
+    -0.0209,
+    1.9232
    ],
-   "excess_p": 0.02647705871920937,
+   "excess_p": 0.02627527192069041,
    "excess_by_coin": {
-    "BTCUSDT": 1.877,
-    "ETHUSDT": 0.164,
-    "SOLUSDT": 1.049
+    "BTCUSDT": 1.879,
+    "ETHUSDT": 0.166,
+    "SOLUSDT": 1.05
    },
    "halves": [
     {
      "n": 119,
-     "excess_avg_pct": 2.536
+     "excess_avg_pct": 2.537
     },
     {
      "n": 235,
-     "excess_avg_pct": 0.158
+     "excess_avg_pct": 0.16
     }
    ],
    "stable": true,
@@ -1957,10 +2164,10 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 354,
-     "avg_net_pct": 0.796,
+     "avg_net_pct": 0.798,
      "avg_net_ci": [
-      -0.1773,
-      1.7172
+      -0.1754,
+      1.7188
      ],
      "net_per_year_per_coin_pct": 13.2
     },
@@ -1985,39 +2192,39 @@
    "n": 930,
    "win_rate": 39.9,
    "avg_gross_pct": 1.027,
-   "avg_net_pct": 0.75,
+   "avg_net_pct": 0.753,
    "avg_net_ci": [
-    0.1781,
-    1.314
+    0.1807,
+    1.3168
    ],
-   "p_value": 0.005714745766581312,
+   "p_value": 0.005569497682287789,
    "avg_bars": 20.8,
-   "net_per_year_per_coin_pct": 32.6,
-   "after_tax_per_year_per_coin_pct": 21.8,
+   "net_per_year_per_coin_pct": 32.7,
+   "after_tax_per_year_per_coin_pct": 21.9,
    "by_coin": {
-    "BTCUSDT": 0.619,
-    "ETHUSDT": 0.805,
-    "SOLUSDT": 0.861
+    "BTCUSDT": 0.621,
+    "ETHUSDT": 0.807,
+    "SOLUSDT": 0.864
    },
-   "excess_avg_pct": 0.718,
+   "excess_avg_pct": 0.721,
    "excess_ci": [
-    0.1544,
-    1.2833
+    0.1568,
+    1.2863
    ],
-   "excess_p": 0.007209089032407847,
+   "excess_p": 0.007026882631408909,
    "excess_by_coin": {
-    "BTCUSDT": 0.572,
-    "ETHUSDT": 0.733,
-    "SOLUSDT": 0.914
+    "BTCUSDT": 0.574,
+    "ETHUSDT": 0.736,
+    "SOLUSDT": 0.917
    },
    "halves": [
     {
      "n": 389,
-     "excess_avg_pct": 0.817
+     "excess_avg_pct": 0.82
     },
     {
      "n": 541,
-     "excess_avg_pct": 0.647
+     "excess_avg_pct": 0.649
     }
    ],
    "stable": true,
@@ -2025,12 +2232,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 930,
-     "avg_net_pct": 0.93,
+     "avg_net_pct": 0.933,
      "avg_net_ci": [
-      0.3581,
-      1.494
+      0.3607,
+      1.4968
      ],
-     "net_per_year_per_coin_pct": 40.4
+     "net_per_year_per_coin_pct": 40.5
     },
     "spot": {
      "n": 513,
@@ -2053,39 +2260,39 @@
    "n": 1203,
    "win_rate": 31.4,
    "avg_gross_pct": 0.723,
-   "avg_net_pct": 0.44,
+   "avg_net_pct": 0.442,
    "avg_net_ci": [
-    -0.1285,
-    1.0316
+    -0.1261,
+    1.0341
    ],
-   "p_value": 0.06649813132288845,
+   "p_value": 0.06540362164917177,
    "avg_bars": 22.4,
-   "net_per_year_per_coin_pct": 24.6,
-   "after_tax_per_year_per_coin_pct": 16.5,
+   "net_per_year_per_coin_pct": 24.8,
+   "after_tax_per_year_per_coin_pct": 16.6,
    "by_coin": {
-    "BTCUSDT": 0.413,
-    "ETHUSDT": 0.385,
-    "SOLUSDT": 0.571
+    "BTCUSDT": 0.416,
+    "ETHUSDT": 0.388,
+    "SOLUSDT": 0.573
    },
-   "excess_avg_pct": 0.372,
+   "excess_avg_pct": 0.374,
    "excess_ci": [
-    -0.1851,
-    0.9488
+    -0.1826,
+    0.9514
    ],
-   "excess_p": 0.09593874669459172,
+   "excess_p": 0.09444814188205036,
    "excess_by_coin": {
-    "BTCUSDT": 0.341,
-    "ETHUSDT": 0.297,
-    "SOLUSDT": 0.541
+    "BTCUSDT": 0.344,
+    "ETHUSDT": 0.299,
+    "SOLUSDT": 0.544
    },
    "halves": [
     {
      "n": 496,
-     "excess_avg_pct": 0.614
+     "excess_avg_pct": 0.616
     },
     {
      "n": 707,
-     "excess_avg_pct": 0.202
+     "excess_avg_pct": 0.204
     }
    ],
    "stable": true,
@@ -2093,12 +2300,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 1203,
-     "avg_net_pct": 0.62,
+     "avg_net_pct": 0.622,
      "avg_net_ci": [
-      0.0515,
-      1.2116
+      0.0539,
+      1.2141
      ],
-     "net_per_year_per_coin_pct": 34.7
+     "net_per_year_per_coin_pct": 34.9
     },
     "spot": {
      "n": 624,
@@ -2121,39 +2328,39 @@
    "n": 1442,
    "win_rate": 37.8,
    "avg_gross_pct": 0.519,
-   "avg_net_pct": 0.269,
+   "avg_net_pct": 0.271,
    "avg_net_ci": [
-    -0.0775,
-    0.6439
+    -0.0756,
+    0.6456
    ],
-   "p_value": 0.07036195066934171,
+   "p_value": 0.06900454279523809,
    "avg_bars": 11.6,
-   "net_per_year_per_coin_pct": 18.1,
-   "after_tax_per_year_per_coin_pct": 12.1,
+   "net_per_year_per_coin_pct": 18.2,
+   "after_tax_per_year_per_coin_pct": 12.2,
    "by_coin": {
-    "BTCUSDT": 0.083,
-    "ETHUSDT": 0.345,
-    "SOLUSDT": 0.516
+    "BTCUSDT": 0.084,
+    "ETHUSDT": 0.347,
+    "SOLUSDT": 0.518
    },
-   "excess_avg_pct": 0.272,
+   "excess_avg_pct": 0.274,
    "excess_ci": [
-    -0.0731,
-    0.6393
+    -0.0712,
+    0.641
    ],
-   "excess_p": 0.06695518203900884,
+   "excess_p": 0.06563524913272104,
    "excess_by_coin": {
-    "BTCUSDT": 0.106,
-    "ETHUSDT": 0.338,
-    "SOLUSDT": 0.493
+    "BTCUSDT": 0.108,
+    "ETHUSDT": 0.34,
+    "SOLUSDT": 0.495
    },
    "halves": [
     {
      "n": 583,
-     "excess_avg_pct": 0.382
+     "excess_avg_pct": 0.384
     },
     {
      "n": 859,
-     "excess_avg_pct": 0.197
+     "excess_avg_pct": 0.199
     }
    ],
    "stable": true,
@@ -2161,12 +2368,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 1442,
-     "avg_net_pct": 0.449,
+     "avg_net_pct": 0.451,
      "avg_net_ci": [
-      0.1025,
-      0.8239
+      0.1044,
+      0.8256
      ],
-     "net_per_year_per_coin_pct": 30.2
+     "net_per_year_per_coin_pct": 30.4
     },
     "spot": {
      "n": 716,
@@ -2187,41 +2394,41 @@
   },
   "tsmom_combo:4h": {
    "n": 4797,
-   "win_rate": 45.0,
+   "win_rate": 45.1,
    "avg_gross_pct": 0.217,
-   "avg_net_pct": -0.024,
+   "avg_net_pct": -0.019,
    "avg_net_ci": [
-    -0.1772,
-    0.1212
+    -0.1722,
+    0.1264
    ],
-   "p_value": 0.6185371862945468,
+   "p_value": 0.5939798962580941,
    "avg_bars": 6.7,
-   "net_per_year_per_coin_pct": -5.4,
-   "after_tax_per_year_per_coin_pct": -5.4,
+   "net_per_year_per_coin_pct": -4.2,
+   "after_tax_per_year_per_coin_pct": -4.2,
    "by_coin": {
-    "BTCUSDT": -0.085,
-    "ETHUSDT": -0.046,
-    "SOLUSDT": 0.122
+    "BTCUSDT": -0.08,
+    "ETHUSDT": -0.041,
+    "SOLUSDT": 0.127
    },
-   "excess_avg_pct": -0.036,
+   "excess_avg_pct": -0.031,
    "excess_ci": [
-    -0.1864,
-    0.1075
+    -0.1814,
+    0.1126
    ],
-   "excess_p": 0.6756432781210351,
+   "excess_p": 0.6521463359710935,
    "excess_by_coin": {
-    "BTCUSDT": -0.103,
-    "ETHUSDT": -0.058,
-    "SOLUSDT": 0.12
+    "BTCUSDT": -0.098,
+    "ETHUSDT": -0.053,
+    "SOLUSDT": 0.124
    },
    "halves": [
     {
      "n": 1981,
-     "excess_avg_pct": 0.018
+     "excess_avg_pct": 0.023
     },
     {
      "n": 2816,
-     "excess_avg_pct": -0.073
+     "excess_avg_pct": -0.069
     }
    ],
    "stable": false,
@@ -2229,12 +2436,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 4797,
-     "avg_net_pct": 0.156,
+     "avg_net_pct": 0.161,
      "avg_net_ci": [
-      0.0028,
-      0.3012
+      0.0078,
+      0.3064
      ],
-     "net_per_year_per_coin_pct": 34.8
+     "net_per_year_per_coin_pct": 36.0
     },
     "spot": {
      "n": 2558,
@@ -2253,34 +2460,238 @@
    "significant": false,
    "candidate": false
   },
+  "relstrength30:4h": {
+   "n": 3384,
+   "win_rate": 45.8,
+   "avg_gross_pct": 0.1,
+   "avg_net_pct": -0.134,
+   "avg_net_ci": [
+    -0.2432,
+    -0.0168
+   ],
+   "p_value": 0.9891433216786696,
+   "avg_bars": 6.7,
+   "net_per_year_per_coin_pct": -34.6,
+   "after_tax_per_year_per_coin_pct": -34.6,
+   "by_coin": {
+    "BTCUSDT": -0.237,
+    "ETHUSDT": -0.352,
+    "SOLUSDT": 0.141
+   },
+   "excess_avg_pct": -0.131,
+   "excess_ci": [
+    -0.2415,
+    -0.014
+   ],
+   "excess_p": 0.9874413500903905,
+   "excess_by_coin": {
+    "BTCUSDT": -0.264,
+    "ETHUSDT": -0.349,
+    "SOLUSDT": 0.171
+   },
+   "halves": [
+    {
+     "n": 1668,
+     "excess_avg_pct": -0.093
+    },
+    {
+     "n": 1716,
+     "excess_avg_pct": -0.168
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 3384,
+     "avg_net_pct": 0.046,
+     "avg_net_ci": [
+      -0.0632,
+      0.1632
+     ],
+     "net_per_year_per_coin_pct": 11.9
+    },
+    "spot": {
+     "n": 1715,
+     "avg_net_pct": -0.071,
+     "avg_net_ci": [
+      -0.2997,
+      0.1843
+     ],
+     "net_per_year_per_coin_pct": -9.3
+    }
+   },
+   "strategy": "relstrength30",
+   "tf": "4h",
+   "family": "forza relativa",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "relstrength90:4h": {
+   "n": 3169,
+   "win_rate": 47.9,
+   "avg_gross_pct": 0.181,
+   "avg_net_pct": -0.053,
+   "avg_net_ci": [
+    -0.1607,
+    0.0586
+   ],
+   "p_value": 0.8289175230452565,
+   "avg_bars": 6.7,
+   "net_per_year_per_coin_pct": -12.9,
+   "after_tax_per_year_per_coin_pct": -12.9,
+   "by_coin": {
+    "BTCUSDT": -0.199,
+    "ETHUSDT": -0.043,
+    "SOLUSDT": 0.06
+   },
+   "excess_avg_pct": -0.048,
+   "excess_ci": [
+    -0.1559,
+    0.0645
+   ],
+   "excess_p": 0.80267883984692,
+   "excess_by_coin": {
+    "BTCUSDT": -0.234,
+    "ETHUSDT": -0.029,
+    "SOLUSDT": 0.094
+   },
+   "halves": [
+    {
+     "n": 1557,
+     "excess_avg_pct": 0.006
+    },
+    {
+     "n": 1612,
+     "excess_avg_pct": -0.099
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 3169,
+     "avg_net_pct": 0.127,
+     "avg_net_ci": [
+      0.0193,
+      0.2386
+     ],
+     "net_per_year_per_coin_pct": 30.8
+    },
+    "spot": {
+     "n": 1590,
+     "avg_net_pct": -0.009,
+     "avg_net_ci": [
+      -0.247,
+      0.2324
+     ],
+     "net_per_year_per_coin_pct": -1.1
+    }
+   },
+   "strategy": "relstrength90",
+   "tf": "4h",
+   "family": "forza relativa",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "relstrength30_long:4h": {
+   "n": 1831,
+   "win_rate": 47.0,
+   "avg_gross_pct": 0.218,
+   "avg_net_pct": -0.031,
+   "avg_net_ci": [
+    -0.2635,
+    0.2277
+   ],
+   "p_value": 0.5981525509834086,
+   "avg_bars": 6.7,
+   "net_per_year_per_coin_pct": -4.3,
+   "after_tax_per_year_per_coin_pct": -4.3,
+   "by_coin": {
+    "BTCUSDT": -0.091,
+    "ETHUSDT": -0.188,
+    "SOLUSDT": 0.177
+   },
+   "excess_avg_pct": -0.249,
+   "excess_ci": [
+    -0.4784,
+    0.0051
+   ],
+   "excess_p": 0.9778290836238747,
+   "excess_by_coin": {
+    "BTCUSDT": -0.255,
+    "ETHUSDT": -0.371,
+    "SOLUSDT": -0.133
+   },
+   "halves": [
+    {
+     "n": 923,
+     "excess_avg_pct": -0.321
+    },
+    {
+     "n": 908,
+     "excess_avg_pct": -0.176
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 1831,
+     "avg_net_pct": 0.149,
+     "avg_net_ci": [
+      -0.0835,
+      0.4077
+     ],
+     "net_per_year_per_coin_pct": 20.8
+    },
+    "spot": {
+     "n": 1831,
+     "avg_net_pct": -0.082,
+     "avg_net_ci": [
+      -0.315,
+      0.1765
+     ],
+     "net_per_year_per_coin_pct": -11.5
+    }
+   },
+   "strategy": "relstrength30_long",
+   "tf": "4h",
+   "family": "forza relativa",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
   "donchian20:1h": {
    "n": 4941,
    "win_rate": 31.8,
    "avg_gross_pct": 0.104,
    "avg_net_pct": -0.128,
    "avg_net_ci": [
-    -0.2428,
-    -0.0075
+    -0.2423,
+    -0.0069
    ],
-   "p_value": 0.9852982768860347,
+   "p_value": 0.9849495640075271,
    "avg_bars": 21.2,
-   "net_per_year_per_coin_pct": -29.1,
-   "after_tax_per_year_per_coin_pct": -29.1,
+   "net_per_year_per_coin_pct": -29.0,
+   "after_tax_per_year_per_coin_pct": -29.0,
    "by_coin": {
     "BTCUSDT": -0.181,
-    "ETHUSDT": -0.056,
-    "SOLUSDT": -0.161
+    "ETHUSDT": -0.055,
+    "SOLUSDT": -0.16
    },
-   "excess_avg_pct": -0.133,
+   "excess_avg_pct": -0.132,
    "excess_ci": [
-    -0.2475,
-    -0.0145
+    -0.2469,
+    -0.014
    ],
-   "excess_p": 0.9880515824406577,
+   "excess_p": 0.9877594849493565,
    "excess_by_coin": {
-    "BTCUSDT": -0.188,
+    "BTCUSDT": -0.187,
     "ETHUSDT": -0.063,
-    "SOLUSDT": -0.157
+    "SOLUSDT": -0.156
    },
    "halves": [
     {
@@ -2299,10 +2710,10 @@
      "n": 4941,
      "avg_net_pct": 0.052,
      "avg_net_ci": [
-      -0.0628,
-      0.1725
+      -0.0623,
+      0.1731
      ],
-     "net_per_year_per_coin_pct": 11.7
+     "net_per_year_per_coin_pct": 11.8
     },
     "spot": {
      "n": 2544,
@@ -2325,30 +2736,30 @@
    "n": 2782,
    "win_rate": 31.5,
    "avg_gross_pct": 0.162,
-   "avg_net_pct": -0.072,
+   "avg_net_pct": -0.071,
    "avg_net_ci": [
-    -0.238,
-    0.1035
+    -0.2372,
+    0.1042
    ],
-   "p_value": 0.7938155342288721,
+   "p_value": 0.7916550925867577,
    "avg_bars": 23.5,
-   "net_per_year_per_coin_pct": -9.2,
-   "after_tax_per_year_per_coin_pct": -9.2,
+   "net_per_year_per_coin_pct": -9.1,
+   "after_tax_per_year_per_coin_pct": -9.1,
    "by_coin": {
-    "BTCUSDT": -0.148,
-    "ETHUSDT": 0.071,
-    "SOLUSDT": -0.177
+    "BTCUSDT": -0.147,
+    "ETHUSDT": 0.072,
+    "SOLUSDT": -0.176
    },
-   "excess_avg_pct": -0.082,
+   "excess_avg_pct": -0.081,
    "excess_ci": [
-    -0.2484,
-    0.0934
+    -0.2477,
+    0.0941
    ],
-   "excess_p": 0.8247842758220061,
+   "excess_p": 0.8228272965183463,
    "excess_by_coin": {
-    "BTCUSDT": -0.156,
+    "BTCUSDT": -0.155,
     "ETHUSDT": 0.052,
-    "SOLUSDT": -0.175
+    "SOLUSDT": -0.174
    },
    "halves": [
     {
@@ -2357,7 +2768,7 @@
     },
     {
      "n": 1636,
-     "excess_avg_pct": -0.109
+     "excess_avg_pct": -0.108
     }
    ],
    "stable": false,
@@ -2365,12 +2776,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 2782,
-     "avg_net_pct": 0.108,
+     "avg_net_pct": 0.109,
      "avg_net_ci": [
-      -0.058,
-      0.2835
+      -0.0572,
+      0.2842
      ],
-     "net_per_year_per_coin_pct": 13.8
+     "net_per_year_per_coin_pct": 13.9
     },
     "spot": {
      "n": 1492,
@@ -2393,39 +2804,39 @@
    "n": 2636,
    "win_rate": 32.4,
    "avg_gross_pct": 0.264,
-   "avg_net_pct": 0.021,
+   "avg_net_pct": 0.022,
    "avg_net_ci": [
-    -0.1398,
-    0.1989
+    -0.1388,
+    0.1999
    ],
-   "p_value": 0.40582471282217064,
+   "p_value": 0.4012231575479088,
    "avg_bars": 21.3,
-   "net_per_year_per_coin_pct": 2.5,
+   "net_per_year_per_coin_pct": 2.6,
    "after_tax_per_year_per_coin_pct": 1.7,
    "by_coin": {
-    "BTCUSDT": -0.001,
-    "ETHUSDT": 0.068,
-    "SOLUSDT": -0.02
+    "BTCUSDT": -0.0,
+    "ETHUSDT": 0.069,
+    "SOLUSDT": -0.019
    },
-   "excess_avg_pct": -0.146,
+   "excess_avg_pct": -0.145,
    "excess_ci": [
-    -0.3039,
-    0.0298
+    -0.3028,
+    0.0309
    ],
-   "excess_p": 0.9568708757329099,
+   "excess_p": 0.9557582423007858,
    "excess_by_coin": {
-    "BTCUSDT": -0.135,
-    "ETHUSDT": -0.084,
-    "SOLUSDT": -0.26
+    "BTCUSDT": -0.134,
+    "ETHUSDT": -0.083,
+    "SOLUSDT": -0.259
    },
    "halves": [
     {
      "n": 1045,
-     "excess_avg_pct": 0.141
+     "excess_avg_pct": 0.142
     },
     {
      "n": 1591,
-     "excess_avg_pct": -0.333
+     "excess_avg_pct": -0.332
     }
    ],
    "stable": false,
@@ -2433,12 +2844,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 2636,
-     "avg_net_pct": 0.201,
+     "avg_net_pct": 0.202,
      "avg_net_ci": [
-      0.0402,
-      0.3789
+      0.0412,
+      0.3799
      ],
-     "net_per_year_per_coin_pct": 24.3
+     "net_per_year_per_coin_pct": 24.4
     },
     "spot": {
      "n": 2636,
@@ -2461,39 +2872,39 @@
    "n": 3077,
    "win_rate": 30.8,
    "avg_gross_pct": 0.169,
-   "avg_net_pct": -0.062,
+   "avg_net_pct": -0.061,
    "avg_net_ci": [
-    -0.1862,
-    0.068
+    -0.1856,
+    0.0686
    ],
-   "p_value": 0.8304945631658982,
+   "p_value": 0.8281608035512111,
    "avg_bars": 17.9,
-   "net_per_year_per_coin_pct": -8.7,
-   "after_tax_per_year_per_coin_pct": -8.7,
+   "net_per_year_per_coin_pct": -8.6,
+   "after_tax_per_year_per_coin_pct": -8.6,
    "by_coin": {
     "BTCUSDT": -0.079,
     "ETHUSDT": -0.005,
-    "SOLUSDT": -0.122
+    "SOLUSDT": -0.121
    },
    "excess_avg_pct": -0.079,
    "excess_ci": [
-    -0.203,
-    0.0489
+    -0.2024,
+    0.0495
    ],
-   "excess_p": 0.892156223076106,
+   "excess_p": 0.8904320519519361,
    "excess_by_coin": {
     "BTCUSDT": -0.1,
-    "ETHUSDT": -0.025,
-    "SOLUSDT": -0.132
+    "ETHUSDT": -0.024,
+    "SOLUSDT": -0.131
    },
    "halves": [
     {
      "n": 1261,
-     "excess_avg_pct": 0.159
+     "excess_avg_pct": 0.16
     },
     {
      "n": 1816,
-     "excess_avg_pct": -0.245
+     "excess_avg_pct": -0.244
     }
    ],
    "stable": false,
@@ -2501,12 +2912,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 3077,
-     "avg_net_pct": 0.118,
+     "avg_net_pct": 0.119,
      "avg_net_ci": [
-      -0.0062,
-      0.248
+      -0.0056,
+      0.2486
      ],
-     "net_per_year_per_coin_pct": 16.7
+     "net_per_year_per_coin_pct": 16.8
     },
     "spot": {
      "n": 1711,
@@ -2531,28 +2942,28 @@
    "avg_gross_pct": 0.192,
    "avg_net_pct": -0.041,
    "avg_net_ci": [
-    -0.1858,
-    0.0949
+    -0.1853,
+    0.0954
    ],
-   "p_value": 0.7206252389436468,
+   "p_value": 0.7181838455581417,
    "avg_bars": 23.6,
-   "net_per_year_per_coin_pct": -7.9,
-   "after_tax_per_year_per_coin_pct": -7.9,
+   "net_per_year_per_coin_pct": -7.8,
+   "after_tax_per_year_per_coin_pct": -7.8,
    "by_coin": {
     "BTCUSDT": -0.1,
-    "ETHUSDT": -0.039,
+    "ETHUSDT": -0.038,
     "SOLUSDT": 0.049
    },
    "excess_avg_pct": -0.046,
    "excess_ci": [
-    -0.1911,
-    0.0882
+    -0.1906,
+    0.0887
    ],
-   "excess_p": 0.7468145737425378,
+   "excess_p": 0.7444850882703813,
    "excess_by_coin": {
     "BTCUSDT": -0.114,
     "ETHUSDT": -0.045,
-    "SOLUSDT": 0.058
+    "SOLUSDT": 0.059
    },
    "halves": [
     {
@@ -2571,8 +2982,8 @@
      "n": 4197,
      "avg_net_pct": 0.139,
      "avg_net_ci": [
-      -0.0058,
-      0.2749
+      -0.0053,
+      0.2754
      ],
      "net_per_year_per_coin_pct": 26.8
     },
@@ -2595,41 +3006,41 @@
   },
   "tsmom30:1h": {
    "n": 24515,
-   "win_rate": 39.6,
+   "win_rate": 39.8,
    "avg_gross_pct": 0.023,
-   "avg_net_pct": -0.202,
+   "avg_net_pct": -0.197,
    "avg_net_ci": [
-    -0.2375,
-    -0.1662
+    -0.2329,
+    -0.1617
    ],
    "p_value": 1.0,
    "avg_bars": 6.7,
-   "net_per_year_per_coin_pct": -226.8,
-   "after_tax_per_year_per_coin_pct": -226.8,
+   "net_per_year_per_coin_pct": -221.6,
+   "after_tax_per_year_per_coin_pct": -221.6,
    "by_coin": {
-    "BTCUSDT": -0.212,
-    "ETHUSDT": -0.201,
-    "SOLUSDT": -0.184
+    "BTCUSDT": -0.207,
+    "ETHUSDT": -0.197,
+    "SOLUSDT": -0.18
    },
-   "excess_avg_pct": -0.203,
+   "excess_avg_pct": -0.198,
    "excess_ci": [
-    -0.2378,
-    -0.167
+    -0.2332,
+    -0.1623
    ],
    "excess_p": 1.0,
    "excess_by_coin": {
-    "BTCUSDT": -0.214,
-    "ETHUSDT": -0.203,
-    "SOLUSDT": -0.184
+    "BTCUSDT": -0.209,
+    "ETHUSDT": -0.198,
+    "SOLUSDT": -0.179
    },
    "halves": [
     {
      "n": 10304,
-     "excess_avg_pct": -0.2
+     "excess_avg_pct": -0.195
     },
     {
      "n": 14211,
-     "excess_avg_pct": -0.205
+     "excess_avg_pct": -0.2
     }
    ],
    "stable": false,
@@ -2637,12 +3048,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 24515,
-     "avg_net_pct": -0.022,
+     "avg_net_pct": -0.017,
      "avg_net_ci": [
-      -0.0575,
-      0.0138
+      -0.0529,
+      0.0183
      ],
-     "net_per_year_per_coin_pct": -24.3
+     "net_per_year_per_coin_pct": -19.1
     },
     "spot": {
      "n": 12578,
@@ -2663,41 +3074,41 @@
   },
   "tsmom90:1h": {
    "n": 24583,
-   "win_rate": 41.2,
+   "win_rate": 41.3,
    "avg_gross_pct": 0.06,
-   "avg_net_pct": -0.165,
+   "avg_net_pct": -0.16,
    "avg_net_ci": [
-    -0.2004,
-    -0.1302
+    -0.1956,
+    -0.1254
    ],
    "p_value": 1.0,
    "avg_bars": 6.7,
-   "net_per_year_per_coin_pct": -185.9,
-   "after_tax_per_year_per_coin_pct": -185.9,
+   "net_per_year_per_coin_pct": -180.5,
+   "after_tax_per_year_per_coin_pct": -180.5,
    "by_coin": {
-    "BTCUSDT": -0.192,
-    "ETHUSDT": -0.157,
-    "SOLUSDT": -0.133
+    "BTCUSDT": -0.187,
+    "ETHUSDT": -0.152,
+    "SOLUSDT": -0.128
    },
-   "excess_avg_pct": -0.167,
+   "excess_avg_pct": -0.162,
    "excess_ci": [
-    -0.2027,
-    -0.1331
+    -0.1979,
+    -0.1283
    ],
    "excess_p": 1.0,
    "excess_by_coin": {
-    "BTCUSDT": -0.194,
-    "ETHUSDT": -0.16,
-    "SOLUSDT": -0.134
+    "BTCUSDT": -0.189,
+    "ETHUSDT": -0.155,
+    "SOLUSDT": -0.129
    },
    "halves": [
     {
      "n": 10331,
-     "excess_avg_pct": -0.152
+     "excess_avg_pct": -0.147
     },
     {
      "n": 14252,
-     "excess_avg_pct": -0.178
+     "excess_avg_pct": -0.173
     }
    ],
    "stable": false,
@@ -2705,12 +3116,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 24583,
-     "avg_net_pct": 0.015,
+     "avg_net_pct": 0.02,
      "avg_net_ci": [
-      -0.0204,
-      0.0498
+      -0.0156,
+      0.0546
      ],
-     "net_per_year_per_coin_pct": 17.1
+     "net_per_year_per_coin_pct": 22.5
     },
     "spot": {
      "n": 12926,
@@ -2731,41 +3142,41 @@
   },
   "tsmom30_long:1h": {
    "n": 10499,
-   "win_rate": 40.7,
+   "win_rate": 41.0,
    "avg_gross_pct": 0.087,
-   "avg_net_pct": -0.142,
+   "avg_net_pct": -0.133,
    "avg_net_ci": [
-    -0.1967,
-    -0.0917
+    -0.1877,
+    -0.0826
    ],
-   "p_value": 0.9999999466938961,
+   "p_value": 0.999999670205682,
    "avg_bars": 6.7,
-   "net_per_year_per_coin_pct": -68.9,
-   "after_tax_per_year_per_coin_pct": -68.9,
+   "net_per_year_per_coin_pct": -64.5,
+   "after_tax_per_year_per_coin_pct": -64.5,
    "by_coin": {
-    "BTCUSDT": -0.165,
-    "ETHUSDT": -0.161,
-    "SOLUSDT": -0.068
+    "BTCUSDT": -0.156,
+    "ETHUSDT": -0.152,
+    "SOLUSDT": -0.058
    },
-   "excess_avg_pct": -0.194,
+   "excess_avg_pct": -0.185,
    "excess_ci": [
-    -0.2485,
-    -0.1435
+    -0.2395,
+    -0.1344
    ],
-   "excess_p": 0.9999999999998183,
+   "excess_p": 0.999999999997806,
    "excess_by_coin": {
-    "BTCUSDT": -0.207,
-    "ETHUSDT": -0.209,
-    "SOLUSDT": -0.145
+    "BTCUSDT": -0.198,
+    "ETHUSDT": -0.2,
+    "SOLUSDT": -0.136
    },
    "halves": [
     {
      "n": 4632,
-     "excess_avg_pct": -0.149
+     "excess_avg_pct": -0.14
     },
     {
      "n": 5867,
-     "excess_avg_pct": -0.23
+     "excess_avg_pct": -0.221
     }
    ],
    "stable": false,
@@ -2773,12 +3184,12 @@
    "other_scenarios": {
     "futures_maker": {
      "n": 10499,
-     "avg_net_pct": 0.038,
+     "avg_net_pct": 0.047,
      "avg_net_ci": [
-      -0.0167,
-      0.0883
+      -0.0077,
+      0.0974
      ],
-     "net_per_year_per_coin_pct": 18.1
+     "net_per_year_per_coin_pct": 22.5
     },
     "spot": {
      "n": 10499,
@@ -3007,24 +3418,24 @@
    "avg_gross_pct": 0.176,
    "avg_net_pct": -0.05,
    "avg_net_ci": [
-    -0.2931,
-    0.2072
+    -0.2928,
+    0.2075
    ],
-   "p_value": 0.651993104101264,
+   "p_value": 0.6511113252511164,
    "avg_bars": 22.7,
    "net_per_year_per_coin_pct": -3.3,
    "after_tax_per_year_per_coin_pct": -3.3,
    "by_coin": {
-    "BTCUSDT": -0.291,
-    "ETHUSDT": 0.132,
-    "SOLUSDT": 0.024
+    "BTCUSDT": -0.29,
+    "ETHUSDT": 0.133,
+    "SOLUSDT": 0.025
    },
    "excess_avg_pct": 0.039,
    "excess_ci": [
-    -0.2088,
-    0.3039
+    -0.2085,
+    0.3042
    ],
-   "excess_p": 0.38143132985677064,
+   "excess_p": 0.38053338484598187,
    "excess_by_coin": {
     "BTCUSDT": -0.213,
     "ETHUSDT": 0.211,
@@ -3047,8 +3458,8 @@
      "n": 1447,
      "avg_net_pct": 0.13,
      "avg_net_ci": [
-      -0.1131,
-      0.3872
+      -0.1128,
+      0.3875
      ],
      "net_per_year_per_coin_pct": 8.7
     },
