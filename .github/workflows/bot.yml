@@ -30,6 +30,14 @@ on:
           - 1d
           - 4h
           - 1h
+      force:
+        description: 'Ricalcola anche senza nuove candele (gli avvii programmati da Cloudflare usano false)'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 
 # Evita che due esecuzioni si accavallino
 concurrency:
@@ -71,7 +79,7 @@ jobs:
           SYMBOL: ${{ github.event.inputs.symbol || 'ALL' }}
           TIMEFRAME: ${{ github.event.inputs.timeframe || 'ALL' }}
           # Le esecuzioni manuali ricalcolano sempre; lo schedule solo se c'è una nuova candela chiusa
-          FORCE: ${{ github.event_name == 'schedule' && '0' || '1' }}
+          FORCE: ${{ (github.event_name == 'schedule' || github.event.inputs.force == 'false') && '0' || '1' }}
           N_SAMPLES: ${{ vars.N_SAMPLES || '50' }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}

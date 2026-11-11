@@ -3,3 +3,8 @@ name = "sgtrader-server"
 main = "index.js"
 compatibility_date = "2025-06-01"
 workers_dev = true
+
+# Orologio del bot: avvia il workflow "Kronos Bot" ai minuti 17 e 47 di ogni ora (come lo schedule di
+# GitHub, che però può ritardare di ore). Il bot salta da solo il modello se non c'è una candela nuova.
+[triggers]
+crons = ["17,47 * * * *"]
