@@ -42,7 +42,7 @@ export function renderAccount() {
         set('accKind', acc.demo ? 'DEMO' : 'REALE', 'acc-kind ' + (acc.demo ? 'demo' : 'real'));
         set('accDetail', t.detail);
         const when = acc.checked_at ? new Date(acc.checked_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
-        set('accMeta', `Letto dal bot in sola lettura il ${when} · si aggiorna ogni 30 minuti`);
+        set('accMeta', `Letto dal bot in sola lettura il ${when} · si aggiorna ogni 15 minuti`);
     } else {
         set('accTotal', loaded ? (acc ? '—' : 'Non ancora letto') : 'Caricamento…', 'acc-total muted');
         set('accKind', '', 'acc-kind');

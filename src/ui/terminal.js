@@ -20,7 +20,7 @@ export function initTerminal() {
     try { initChart(); } catch (e) { Logger.log('ERROR', 'TERMINAL', 'Errore chart init', e); }
     loadData();
     startPricePoll();
-    setInterval(loadData, 120000);
+    setInterval(loadData, 60000);       // il bot pubblica ogni 15 minuti: l'app se ne accorge entro un minuto
     initRefreshState();
     loadTechData();
 }
@@ -303,15 +303,7 @@ export function updateChart() {
         const d = new Date(data.last_update);
         $('last-update-footer').textContent = `Ultimo agg: ${d.toLocaleDateString('it-IT')} - ${d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;
         const refreshTs = parseInt(localStorage.getItem('kronos_refresh_start_ts') || '0', 10);
-        if (refreshTs > 0 && d.getTime() > refreshTs) {
-            localStorage.removeItem('kronos_refresh_start_ts');
-            const btn = $('btn-refresh');
-            if (btn && btn.disabled) {
-                if (State.refreshTimerInterval) clearInterval(State.refreshTimerInterval);
-                btn.innerHTML = CONFIG.ICONS.CHECK;
-                setTimeout(() => { if (btn.innerHTML === CONFIG.ICONS.CHECK) { btn.innerHTML = CONFIG.ICONS.REFRESH; btn.disabled = false; } }, 1500);
-            }
-        }
+        if (refreshTs > 0 && d.getTime() > refreshTs) refreshDone('Aggiornato');
     }
 
     if (data.ai_plan && !data.ai_plan.error) {
@@ -546,22 +538,27 @@ export function updateDashboardDots() {
     document.querySelectorAll('#dashboardDots .info-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
 }
 
-// --- REFRESH BOT ---
+// --- GIRO DEL BOT A RICHIESTA (Home → Stato → "Aggiorna ora") ---
+// Il bot parte da solo ogni 15 minuti (Cloudflare). Il link serve solo a non aspettare: avvia un giro
+// completo e segue i dati pubblicati finché non cambiano (o 15 minuti al massimo).
+function refreshLabel(text, busy) {
+    const btn = $('btn-refresh'), lbl = $('btn-refresh-label');
+    if (lbl) lbl.textContent = text;
+    if (btn) btn.disabled = !!busy;
+}
+const latestUpdate = d => Object.values(d || {}).reduce((m, v) => (v && v.last_update && v.last_update > m ? v.last_update : m), '');
+
 export function startRefreshCountdown(remainingSeconds) {
-    const btn = $('btn-refresh');
     if (State.refreshTimerInterval) clearInterval(State.refreshTimerInterval);
     let left = remainingSeconds;
-    btn.disabled = true;
     const tick = () => {
         if (left <= 0) {
             clearInterval(State.refreshTimerInterval);
             localStorage.removeItem('kronos_refresh_start_ts');
-            btn.innerHTML = CONFIG.ICONS.WARN; btn.disabled = false;
-            setTimeout(() => { if (btn.innerHTML === CONFIG.ICONS.WARN) btn.innerHTML = CONFIG.ICONS.REFRESH; }, 2000);
-            if (window.showAlert) window.showAlert('Timeout', "Aggiornamento troppo lungo.");
+            refreshLabel('Aggiorna ora', false);
             return;
         }
-        btn.textContent = `${String(Math.floor(left / 60)).padStart(2, '0')}:${String(left % 60).padStart(2, '0')}`;
+        refreshLabel(`In corso ${String(Math.floor(left / 60)).padStart(2, '0')}:${String(left % 60).padStart(2, '0')}`, true);
         left--;
     };
     tick();
@@ -576,38 +573,38 @@ export function initRefreshState() {
     else localStorage.removeItem('kronos_refresh_start_ts');
 }
 
+function refreshDone(text) {
+    if (State.refreshTimerInterval) clearInterval(State.refreshTimerInterval);
+    localStorage.removeItem('kronos_refresh_start_ts');
+    refreshLabel(text, true);
+    setTimeout(() => refreshLabel('Aggiorna ora', false), 2000);
+}
+
 export async function triggerRefresh() {
     const btn = $('btn-refresh');
-    if (btn.disabled) return;
+    if (btn && btn.disabled) return;
     localStorage.setItem('kronos_refresh_start_ts', Date.now());
     startRefreshCountdown(CONFIG.REFRESH_MAX_WAIT);
-    const key = `${State.currentAsset}_${State.currentTF}`;
-    const before = State.allData && State.allData[key] && State.allData[key].last_update;
-    let poll = null;
-    const done = (label, delay) => {
-        if (State.refreshTimerInterval) clearInterval(State.refreshTimerInterval);
-        if (poll) clearInterval(poll);
-        localStorage.removeItem('kronos_refresh_start_ts');
-        btn.innerHTML = label;
-        setTimeout(() => { if (btn.innerHTML === label) { btn.innerHTML = CONFIG.ICONS.REFRESH; btn.disabled = false; } }, delay);
-    };
+    const before = latestUpdate(State.allData);
     try {
-        const r = await apiPost('/api/trigger', { symbol: State.currentAsset, timeframe: State.currentTF });
+        const r = await apiPost('/api/trigger', { symbol: 'ALL', timeframe: 'ALL' });
         if (!r.ok) throw new Error('HTTP ' + r.status);
-        poll = setInterval(async () => {
+        const poll = setInterval(async () => {
+            if (!localStorage.getItem('kronos_refresh_start_ts')) { clearInterval(poll); return; }
             try {
                 const nd = await (await fetch('./dashboard.json?t=' + Date.now())).json();
-                if (nd[key] && nd[key].last_update !== before) {
+                if (latestUpdate(nd) > before) {
+                    clearInterval(poll);
                     State.allData = nd;
                     updateChart();
                     if (window.refreshKronosSignalsInMatrix) window.refreshKronosSignalsInMatrix();
-                    done(CONFIG.ICONS.CHECK, 1500);
+                    refreshDone('Aggiornato');
                 }
             } catch (e) {}
-        }, 3000);
+        }, 10000);
     } catch (e) {
-        done(CONFIG.ICONS.WARN, 2000);
-        if (window.showAlert) window.showAlert('Errore', "Impossibile avviare l'aggiornamento.");
+        refreshDone('Non avviato');
+        if (window.showAlert) window.showAlert('Errore', "Impossibile avviare il giro del bot. Controlla Impostazioni → Altro → Connessioni.");
     }
 }
 

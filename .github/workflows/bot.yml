@@ -1,10 +1,10 @@
 name: Kronos Bot
 
 on:
-  # Ogni 30 minuti (minuti 17 e 47, per evitare i picchi di GitHub).
-  # Nota: lo schedule di GitHub è "best effort", può ritardare o saltare qualche run.
+  # L'orologio vero è Cloudflare (worker/wrangler.toml, ogni 15 minuti). Questo schedule di GitHub
+  # resta solo di riserva, una volta l'ora: è "best effort" e può ritardare o saltare.
   schedule:
-    - cron: '17,47 * * * *'
+    - cron: '39 * * * *'
 
   # RIMOSSO IL TRIGGER PUSH: il bot non partirà più a ogni salvataggio
   # Esecuzione manuale con scelta dei parametri
