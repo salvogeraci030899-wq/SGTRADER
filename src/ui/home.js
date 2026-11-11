@@ -3,6 +3,7 @@ import { $, SYM, fetchT, calcPnl, escapeHtml, fmtIt } from '../utils/helpers.js'
 import { aggregateCellSignals } from './signals.js';
 import { bitgetAccountText } from './automation.js';
 import { updateModePills, tradingMode } from './account.js';
+import { liveUpl, hasLiveMarks } from './trade.js';
 
 // --- HOME: panoramica ---
 // Ordine di lettura: mercato → conto simulato → automazione → stato → grafici.
@@ -102,10 +103,15 @@ function renderAccount() {
         const ch = acc.day_change != null ? acc.day_change : 0;
         set('homePnlToday', signed(ch), tone(ch));
         set('homeOpenCount', String(acc.positions || 0));
-        set('homeOpenPnl', acc.positions ? signed(acc.upl || 0) : '—', acc.positions ? tone(acc.upl || 0) : '');
+        // PnL aperto al prezzo mark attuale (stima tra un giro del bot e l'altro)
+        const upl = (acc.positions_detail || []).reduce((s, p) => s + (liveUpl(p) || 0), 0) || acc.upl || 0;
+        set('homeOpenPnl', acc.positions ? signed(upl) : '—', acc.positions ? tone(upl) : '');
+        const lbl = $('homeOpenPnlLabel');
+        if (lbl) lbl.textContent = acc.positions && hasLiveMarks() ? 'PnL live' : 'PnL aperto';
         return;
     }
     label('homeAccTitle', 'Conto simulato');
+    label('homeOpenPnlLabel', 'PnL aperto');
     label('homePnlLabel', 'PnL oggi');
     const today = new Date().toLocaleDateString('it-IT');
     const todayPnl = State.simState.history

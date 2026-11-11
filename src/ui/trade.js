@@ -10,7 +10,57 @@ import { getAutoState } from './automation.js';
 import { planAction, ruleHitPrice, ruleHitCandle } from '../core/rules.js';
 
 export function initTrade() {
-    // Inizializzazione modali, listener locali se ci saranno
+    // posizioni reali: prezzo mark dei futures ogni 5 secondi (solo in modalità Reale e con posizioni aperte)
+    setInterval(pollMarks, 5000);
+}
+
+// --- Posizioni reali "vive": il bot legge Bitget ogni 15 minuti; tra un giro e l'altro l'app stima
+// PnL e prezzo con il mark price pubblico dei futures (stessa base che usa Bitget per il PnL aperto).
+const markPx = {};
+let marksInFlight = false;
+const realList = () => { const acc = bitgetAccount(); return (acc && acc.connected && acc.positions_detail) || []; };
+
+async function pollMarks() {
+    if (marksInFlight || !isReal()) return;
+    const symbols = [...new Set(realList().map(p => p.symbol))];
+    if (!symbols.length) return;
+    marksInFlight = true;
+    try {
+        await Promise.all(symbols.map(async sym => {
+            try {
+                const r = await fetchT(`https://api.bitget.com/api/v2/mix/market/ticker?symbol=${sym}&productType=USDT-FUTURES`);
+                const j = await r.json();
+                const d = j && j.code === '00000' && j.data && j.data[0];
+                const m = d ? parseFloat(d.markPrice || d.lastPr) : NaN;
+                if (isFinite(m) && m > 0) markPx[sym] = m;
+            } catch (e) { /* rete: resta l'ultimo valore */ }
+        }));
+    } finally { marksInFlight = false; }
+    updateRealLive();
+    if (window.updateHome) window.updateHome();
+}
+
+// PnL aperto stimato al prezzo mark attuale; senza mark resta quello letto dal bot
+export function liveUpl(p) {
+    const m = markPx[p.symbol];
+    return m ? (p.side === 'short' ? -1 : 1) * (m - p.entry) * p.size : p.upl;
+}
+export const hasLiveMarks = () => realList().some(p => markPx[p.symbol]);
+
+function updateRealLive() {
+    const el = document.getElementById('activeTradesList');
+    if (!el) return;
+    const n = (v, d = 2) => (v == null ? '—' : Number(v).toLocaleString('it-IT', { minimumFractionDigits: d, maximumFractionDigits: d }));
+    for (const p of realList()) {
+        const card = el.querySelector(`.at-real[data-symbol="${p.symbol}"]`);
+        const m = markPx[p.symbol];
+        if (!card || !m) continue;
+        const u = liveUpl(p);
+        const mk = card.querySelector('[data-f="mark"]'), up = card.querySelector('[data-f="upl"]'), lbl = card.querySelector('[data-f="upl-lbl"]');
+        if (mk) mk.textContent = n(m);
+        if (up) { up.textContent = (u >= 0 ? '+' : '') + n(u); up.style.color = u >= 0 ? 'var(--accent)' : 'var(--danger)'; }
+        if (lbl) lbl.textContent = 'PnL live (stima)';
+    }
 }
 
 // In modalità Reale la pagina mostra il conto Bitget (letto dal bot): saldo non modificabile e
@@ -48,18 +98,18 @@ function renderRealPositions(el) {
         el.classList.remove('empty');
         const n = (v, d = 2) => (v == null ? '—' : Number(v).toLocaleString('it-IT', { minimumFractionDigits: d, maximumFractionDigits: d }));
         el.innerHTML = list.map(p => `
-            <div class="active-trade-card at-real">
+            <div class="active-trade-card at-real" data-symbol="${p.symbol}">
                 <div class="at-header"><div class="at-title">
                     <span class="at-coin">${SYM(p.symbol)} ${String(p.side || '').toUpperCase()}</span>
                     <span class="at-market futures">FUTURES</span>${p.leverage ? `<span class="at-lev">${n(p.leverage, 0)}x</span>` : ''}
                 </div></div>
                 <div class="at-body">
                     <div class="at-item"><span class="at-lbl">Entry</span><span class="at-val">${n(p.entry)}</span></div>
-                    <div class="at-item"><span class="at-lbl">Mark</span><span class="at-val">${n(p.mark)}</span></div>
+                    <div class="at-item"><span class="at-lbl">Mark</span><span class="at-val" data-f="mark">${n(p.mark)}</span></div>
                     <div class="at-item"><span class="at-lbl">Quantità</span><span class="at-val">${n(p.size, 4)}</span></div>
                     <div class="at-item"><span class="at-lbl">Margine</span><span class="at-val">${n(p.margin)}</span></div>
                     <div class="at-item"><span class="at-lbl">Liquidazione</span><span class="at-val red">${n(p.liq)}</span></div>
-                    <div class="at-item"><span class="at-lbl">PnL aperto</span><span class="at-val" style="color:${(p.upl || 0) >= 0 ? 'var(--accent)' : 'var(--danger)'}">${p.upl == null ? '—' : (p.upl >= 0 ? '+' : '') + n(p.upl)}</span></div>
+                    <div class="at-item"><span class="at-lbl" data-f="upl-lbl">PnL aperto</span><span class="at-val" data-f="upl" style="color:${(p.upl || 0) >= 0 ? 'var(--accent)' : 'var(--danger)'}">${p.upl == null ? '—' : (p.upl >= 0 ? '+' : '') + n(p.upl)}</span></div>
                     <div class="at-item"><span class="at-lbl">Take profit</span><span class="at-val green">${p.tp ? n(p.tp) : '—'}</span></div>
                     <div class="at-item"><span class="at-lbl">Stop loss</span><span class="at-val red">${p.sl ? n(p.sl) : '—'}</span></div>
                 </div>
@@ -75,6 +125,7 @@ function renderRealPositions(el) {
                 </div>
                 ${note}
             </div>`).join('');
+        updateRealLive();
     }
     renderActiveTradeDots();
 }
