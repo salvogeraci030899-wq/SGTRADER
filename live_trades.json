@@ -17,6 +17,23 @@
   "demo": false,
   "equity": 0.0,
   "positions": 0,
-  "checked_at": "2026-11-11T13:48:47+00:00"
+  "spot_usdt": 0.0,
+  "spot_coins": [
+   {
+    "coin": "EUR",
+    "qty": 0.00584849,
+    "usdt": null
+   }
+  ],
+  "total_usdt": 0.0,
+  "accounts_usdt": {
+   "spot": 0.0,
+   "futures": 0.0,
+   "funding": 0.0,
+   "earn": 0.0,
+   "bots": 0.0,
+   "margin": 0.0
+  },
+  "checked_at": "2026-11-11T14:23:03+00:00"
  }
 }
