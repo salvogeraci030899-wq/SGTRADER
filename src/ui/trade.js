@@ -51,6 +51,8 @@ export async function executeTradeOpen() {
         id: Date.now().toString() + Math.random().toString(36).slice(2, 7),
         symbol: c.asset, granularity: c.tf, type: p.direction,
         market: State.currentMarket, leverage: lev,
+        // commissione per lato usata nel PnL: quella impostata nella pagina Rischio (futures o spot)
+        feeRate: (Calculator.getVal(State.currentMarket === 'FUTURES' ? 'calcFee' : 'calcFeeSpot') || CONFIG.FEE_RATE * 100) / 100,
         entryPrice: px, currentPrice: px,
         size: p.size / px, capitalInvested: p.size, margin: p.margin,
         entryTime: Date.now(), timerSeconds: hours * 3600,

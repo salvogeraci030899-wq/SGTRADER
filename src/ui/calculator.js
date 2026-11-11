@@ -27,6 +27,7 @@ export function initCalculator() {
 let futFeeTouched = false;
 const TF_HOURS = { '1h': 1, '4h': 4, '1d': 24 };
 const HORIZON_CANDLES = 7;        // durata di un segnale Kronos, in candele
+const PRUDENT_MAX_LEV = 5;       // tetto prudenziale (lo stesso dell'esecutore automatico, executor.RISK_BOUNDS)
 const FALLBACK_MMR = 0.005;       // margine di mantenimento usato se le fasce di Bitget non sono disponibili
 
 const calcCtx = () => State.calcContext || { asset: State.currentAsset, tf: State.currentTF };
@@ -114,7 +115,7 @@ export function calc() {
     const resRR = document.getElementById('resRR'), resMargin = document.getElementById('resMargin'), resSize = document.getElementById('resSize'),
           resRiskEur = document.getElementById('resRiskEur'), resGross = document.getElementById('resGross'), resCosts = document.getElementById('resCosts'),
           resTax = document.getElementById('resTax'), resNet = document.getElementById('resNet'),
-          resLiq = document.getElementById('resLiq'), resFunding = document.getElementById('resFunding'), resFundingLabel = document.getElementById('resFundingLabel'),
+          resLiq = document.getElementById('resLiq'), resLevMin = document.getElementById('resLevMin'), resLevMax = document.getElementById('resLevMax'), resFunding = document.getElementById('resFunding'), resFundingLabel = document.getElementById('resFundingLabel'),
           calcWarning = document.getElementById('calcWarning'), calcError = document.getElementById('calcError');
 
     resTax.previousElementSibling.textContent = `Tasse (${Math.round(CONFIG.TAX_RATE * 100)}%)`;
@@ -124,6 +125,7 @@ export function calc() {
     const clearAll = () => {
         resRR.textContent = resMargin.textContent = resSize.textContent = resRiskEur.textContent =
         resGross.textContent = resCosts.textContent = resTax.textContent = resNet.textContent = resLiq.textContent = resFunding.textContent = '—';
+        if (resLevMin) resLevMin.textContent = resLevMax.textContent = '—';
     };
     const fail = (msg) => { calcError.textContent = msg; calcError.style.display = 'block'; clearAll(); };
 
@@ -153,12 +155,21 @@ export function calc() {
 
     // Futures: liquidazione (margine isolato) e funding, con le regole reali del contratto Bitget
     // quando il bot le ha salvate. Sono stime: il funding cambia a ogni scadenza.
-    let liqPrice = null, liqDistPct = null, fundingCost = 0, fundingKnown = false, holdHours = 0;
+    let liqPrice = null, liqDistPct = null, fundingCost = 0, fundingKnown = false, holdHours = 0, levMin = null, levMaxSafe = null;
     if (State.currentMarket === 'FUTURES') {
         const ctx = calcCtx();
         const fut = Terminal.getFutures(ctx.asset);
         const tiers = fut && Array.isArray(fut.tiers) && fut.tiers.length ? fut.tiers : null;
         const tier = tiers ? (tiers.find(t => sizeNominal <= t.up_to_usdt) || tiers[tiers.length - 1]) : null;
+        // Leva: la size viene dal rischio, non dalla leva. La leva decide solo il margine bloccato e
+        // dove sta la liquidazione. Minima = quella che serve perché il margine stia nel capitale
+        // (size per rischio / capitale). Massima sicura = la più alta con la liquidazione oltre lo stop
+        // di almeno il 25% (stessa soglia dell'avviso qui sotto), entro il limite di Bitget e mai oltre 5x.
+        const mmr = tier ? tier.mmr_pct / 100 : FALLBACK_MMR;
+        levMin = Math.max(1, sizeByRisk / capital);
+        levMaxSafe = Math.max(1, Math.floor(1 / (stopDistPct / 0.8 + mmr)));
+        if (tier) levMaxSafe = Math.min(levMaxSafe, tier.max_leverage);
+        levMaxSafe = Math.min(levMaxSafe, PRUDENT_MAX_LEV);
         if (tier && leverage > tier.max_leverage) return fail(`Per una posizione di ${Math.round(sizeNominal)} USDT su ${SYM(ctx.asset)} Bitget concede al massimo leva ${tier.max_leverage}x.`);
         liqDistPct = 1 / leverage - (tier ? tier.mmr_pct / 100 : FALLBACK_MMR);
         liqPrice = isLong ? entry * (1 - liqDistPct) : entry * (1 + liqDistPct);
@@ -191,6 +202,13 @@ export function calc() {
     resCosts.textContent = `-${Math.round(totalFees)} USDT`;
     resTax.textContent = `-${Math.round(taxes)} USDT`;
     resNet.textContent = `${netProfit > 0 ? '+' : ''}${Math.round(netProfit)} USDT`;
+    if (levMin !== null && resLevMin) {
+        const x = v => `${(Math.ceil(v * 10) / 10).toLocaleString('it-IT')}x`;
+        resLevMin.textContent = levMin <= 1 ? '1x (basta il capitale)' : x(levMin);
+        resLevMin.className = 'res-val' + (leverage < levMin - 1e-9 ? ' tax' : '');
+        resLevMax.textContent = `${levMaxSafe}x`;
+        resLevMax.className = 'res-val' + (leverage > levMaxSafe ? ' danger' : ' safe');
+    }
     if (liqPrice !== null) {
         resLiq.textContent = liqPrice > 0 ? `${fmtPrice(liqPrice)} (${isLong ? '-' : '+'}${(liqDistPct * 100).toFixed(1)}%)` : 'Nessuna';
         resFundingLabel.textContent = `Funding stimato (${holdHours >= 48 ? Math.round(holdHours / 24) + ' giorni' : holdHours + ' h'})`;
