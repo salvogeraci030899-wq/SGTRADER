@@ -34,6 +34,7 @@ jobs:
           python tests/test_automation.py
           python tests/test_executor.py
           python tests/test_daily_report.py
+          python tests/test_price_alerts.py
           python tests/test_futures_archive.py
           python tests/test_watchdog.py
           python tests/test_position.py

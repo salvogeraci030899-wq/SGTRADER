@@ -109,6 +109,8 @@ export const fmtUsd = v => '$' + Number(v).toLocaleString('en-US', { minimumFrac
 // Formato italiano con il punto delle migliaia sempre presente (Intl lo omette sotto 10.000)
 export const fmtIt = (v, d = 2) => { const n = Number(v); const [i, f] = Math.abs(n).toFixed(d).split('.'); return (n < 0 ? '-' : '') + i.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + (d > 0 ? ',' + f : ''); };
 export const fmtUsdt = v => fmtIt(v) + ' USDT';
+// prezzo all'italiana senza zeri inutili, separatore delle migliaia sempre (72.000 · 3.000,5 · 0,1234)
+export const fmtPrice = v => fmtIt(v, Number(v) >= 1000 ? 1 : 4).replace(/,?0+$/, '');
 
 export function calcEMA(closes, period) { 
     if (closes.length < period) return closes[closes.length - 1]; 

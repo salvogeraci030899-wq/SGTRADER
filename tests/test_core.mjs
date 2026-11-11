@@ -191,6 +191,23 @@ test('assistente generale: comanda il tool con azioni da un elenco chiuso', asyn
     assert.doesNotMatch(last.messages[1].content, /rm -rf/);                       // voci non valide scartate
 });
 
+test('avvisi di prezzo: comando e azione dell\'assistente validati', async () => {
+    calls.length = 0;
+    let r = await handle('POST', '/api/command', { type: 'alert', op: 'add', symbol: 'BTCUSDT', side: 'above', price: '75000' }, ok, env, fakeFetch);
+    assert.equal(r.status, 200);
+    assert.deepEqual(calls[0].body.inputs, { action: 'alert', key: 'BTCUSDT:above:75000', mode: 'add' });
+    r = await handle('POST', '/api/command', { type: 'alert', op: 'del', id: 'a1b2c3d4' }, ok, env, fakeFetch);
+    assert.deepEqual(calls[1].body.inputs, { action: 'alert', key: 'a1b2c3d4', mode: 'del' });
+    for (const bad of [{ op: 'add', symbol: 'DOGEUSDT', side: 'above', price: '1' }, { op: 'add', symbol: 'BTCUSDT', side: 'up', price: '1' },
+                       { op: 'add', symbol: 'BTCUSDT', side: 'above', price: '1:2' }, { op: 'del', id: '../x' }, { op: 'boom' }]) {
+        assert.equal((await handle('POST', '/api/command', { type: 'alert', ...bad }, ok, env, fakeFetch)).status, 400, JSON.stringify(bad));
+    }
+    assert.equal(calls.length, 2);
+    assert.deepEqual(sanitizeGeneralAction({ type: 'price_alert', symbol: 'ETHUSDT', price: '3000', extra: 1 }), { type: 'price_alert', symbol: 'ETHUSDT', price: 3000 });
+    assert.equal(sanitizeGeneralAction({ type: 'price_alert', symbol: 'ETHUSDT', price: -1 }), null);
+    assert.deepEqual(sanitizeGeneralAction({ type: 'clear_alerts' }), { type: 'clear_alerts' });
+});
+
 test('comando sulla posizione reale: solo azioni e prezzi validi', async () => {
     calls.length = 0;
     let r = await handle('POST', '/api/command', { type: 'position', action: 'tp', symbol: 'BTCUSDT', side: 'long', price: '72000.5' }, ok, env, fakeFetch);

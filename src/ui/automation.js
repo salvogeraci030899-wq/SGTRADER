@@ -29,6 +29,10 @@ function onModeData() {
     if (window.updateHome) window.updateHome();
 }
 export const getAutoState = () => ({ cfg, ledger, lab, live, loaded, pendingTrading });
+// Avvisi di prezzo (price_alerts.py): attivi = in automation.json e non ancora scattati (alerts_state.json)
+let firedAlerts = [];
+export const priceAlerts = () => ((cfg && cfg.price_alerts) || []).filter(a => a && !firedAlerts.includes(a.id));
+export const sendAlertCommand = (body, okText) => send({ type: 'alert', ...body }, okText);
 let pendingTrading = null;   // 'on' / 'off' inviato ma non ancora visibile in automation.json
 const pending = {};   // comandi inviati ma non ancora visibili nei file pubblicati
 
@@ -71,7 +75,9 @@ export function bitgetAccountText(acc) {
 export async function loadAutomation() {
     if (loading) return;
     loading = true;
-    [cfg, ledger, lab, live] = await Promise.all([getJson('automation.json'), getJson('paper_trades.json'), getJson('lab_summary.json'), getJson('live_trades.json')]);
+    let alertsState;
+    [cfg, ledger, lab, live, alertsState] = await Promise.all([getJson('automation.json'), getJson('paper_trades.json'), getJson('lab_summary.json'), getJson('live_trades.json'), getJson('alerts_state.json')]);
+    firedAlerts = (alertsState && alertsState._price_alerts_fired) || [];
     loaded = true;
     loading = false;
     for (const [key, mode] of Object.entries(pending)) if (currentMode(key, true) === mode) delete pending[key];

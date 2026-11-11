@@ -1,5 +1,5 @@
 import { State } from '../core/state.js';
-import { $, SYM, apiPost, escapeHtml, calcPnl } from '../utils/helpers.js';
+import { $, SYM, apiPost, escapeHtml, calcPnl, fmtPrice } from '../utils/helpers.js';
 import * as Trade from './trade.js';
 import * as Auto from './automation.js';
 import { tradingMode } from './account.js';
@@ -250,10 +250,12 @@ function generalContext() {
         bitget_total: acc && acc.connected ? (acc.total_usdt ?? acc.equity) : null, bitget_positions: acc && acc.connected ? acc.positions : null,
         sim_free: Number(State.simState.freeBalance.toFixed(2)), sim_open: State.simState.activeTrades.length,
         bot_minutes: last ? Math.round((Date.now() - last) / 60000) : null,
-        active, available, confirmed: (lab && lab.confirmed) || []
+        active, available, confirmed: (lab && lab.confirmed) || [],
+        alerts: Auto.priceAlerts().map(a => ({ symbol: a.symbol, side: a.side, price: a.price }))
     };
 }
 
+const fmtPx = fmtPrice;
 const PAGE_NAMES = { home: 'Home', terminal: 'Grafici', signals: 'Segnali', trade: 'Posizioni', calculator: 'Rischio', journal: 'Diario', test: 'Backtest', settings: 'Impostazioni', account: 'Account' };
 const label = k => k.replace(':', ' ').replace(/_/g, ' ');
 
@@ -286,6 +288,22 @@ function planGeneral(a) {
             } };
         case 'open_page':
             return { ok: true, summary: `Apro ${PAGE_NAMES[a.page] || a.page}.`, run: () => { closeAssistant(); window.switchTab(a.page); } };
+        case 'price_alert': {
+            const px = State.livePx[a.symbol] ?? (State.allData && State.allData[`${a.symbol}_1d`] ? State.allData[`${a.symbol}_1d`].current_price : null);
+            if (!(px > 0)) return { ok: false, error: `Prezzo attuale di ${SYM(a.symbol)} non disponibile: riprova fra poco.` };
+            if (Math.abs(a.price / px - 1) < 0.0005) return { ok: false, error: `${SYM(a.symbol)} è già a ${fmtPx(px)}.` };
+            if (Math.abs(a.price / px - 1) > 0.5) return { ok: false, error: `${fmtPx(a.price)} è lontanissimo dal prezzo attuale (${fmtPx(px)}): controlla la cifra.` };
+            const side = a.price > px ? 'above' : 'below';
+            const list = Auto.priceAlerts();
+            if (list.length >= 10) return { ok: false, error: 'Hai già 10 avvisi attivi (il massimo): toglierne prima.' };
+            return { ok: true, summary: `Ti avviso su Telegram quando ${SYM(a.symbol)} ${side === 'above' ? 'sale a' : 'scende a'} ${fmtPx(a.price)} (ora ${fmtPx(px)}). Controllo ogni 15 minuti sulle candele da 1 minuto: un tocco non si perde. Solo un messaggio, nessun ordine.`,
+                run: () => Auto.sendAlertCommand({ op: 'add', symbol: a.symbol, side, price: String(a.price) }, 'Avviso inviato: attivo entro 1-2 minuti (Home → Stato).') };
+        }
+        case 'clear_alerts': {
+            const n = Auto.priceAlerts().length;
+            return n ? { ok: true, summary: `Tolgo ${n === 1 ? 'l\'avviso di prezzo attivo' : `tutti i ${n} avvisi di prezzo`}.`, run: () => Auto.sendAlertCommand({ op: 'clear' }, 'Avvisi tolti (entro 1-2 minuti).') }
+                : { ok: false, error: 'Non ci sono avvisi di prezzo attivi.' };
+        }
     }
     return { ok: false, error: 'Richiesta non riconosciuta.' };
 }
