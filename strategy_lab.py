@@ -6,13 +6,16 @@ stesso metro, e dice quali meritano la prova finale. Nessun modello: pochi minut
 
 Come si evita di ingannarsi provando tante strategie:
 1. RICERCA: si usa solo lo storico prima di HOLDOUT_START. Una strategia è "candidata" se
-   - il netto medio per trade è positivo con un p-value che supera la correzione per prove
-     multiple (Benjamini-Hochberg, falsi positivi attesi al 10%, contando TUTTE le prove mai
+   - il netto medio per trade OLTRE IL MERCATO è positivo con un p-value che supera la correzione
+     per prove multiple (Benjamini-Hochberg, falsi positivi attesi al 10%, contando TUTTE le prove mai
      fatte e registrate in lab_registry.json),
    - ed è stabile: positiva in entrambe le metà del periodo e su almeno 2 coin su 3.
 2. PROVA FINALE: i mesi da HOLDOUT_START in poi restano sigillati. Si aprono per una strategia
    alla volta, a regole congelate; l'apertura viene registrata e non si può ripetere "meglio".
    È "confermata" solo se anche lì il netto è positivo in modo significativo.
+"Oltre il mercato": a ogni trade si toglie quello che avrebbe reso la semplice esposizione, cioè
+direzione x durata x rendimento medio per candela della coin nel periodo. In un mercato che sale
+un long qualsiasi guadagna: così si misura la scelta dei momenti, non il rialzo del mercato.
 Nemmeno una strategia confermata è una garanzia: è solo il requisito minimo per passare alla
 prova dal vivo senza soldi.
 
@@ -115,7 +118,7 @@ def simulate(df, tf, symbol, spec, signal=None):
     """Trade di una strategia su una coppia, uno alla volta. Ingresso alla chiusura della candela del
     segnale. A ogni candela successiva: prima lo stop (se la candela apre già oltre lo stop si esce
     all'apertura, cioè peggio dello stop), poi il target, poi si aggiorna lo stop che segue il prezzo
-    usando la chiusura. Se lo storico ha un buco si esce all'ultima chiusura disponibile."""
+    usando la chiusura, infine l'uscita a canale (chiusura oltre il minimo/massimo delle N candele precedenti). Se lo storico ha un buco si esce all'ultima chiusura disponibile."""
     x = indicators(df)
     sig = np.asarray(spec["fn"](x) if signal is None else signal)
     ex = spec["exit"]
@@ -123,6 +126,7 @@ def simulate(df, tf, symbol, spec, signal=None):
     times = np.array([int(t.timestamp()) for t in df["time"]])
     step = int(TF_DELTA[tf].total_seconds())
     n, trades, i = len(c), [], WARMUP
+    channel = (x["low_min"](ex["channel_exit"]), x["high_max"](ex["channel_exit"])) if ex.get("channel_exit") else None
     while i < n - 1:
         s = int(sig[i])
         if s == 0 or not np.isfinite(atr[i]) or atr[i] <= 0 or times[i + 1] - times[i] != step:
@@ -131,7 +135,7 @@ def simulate(df, tf, symbol, spec, signal=None):
         long = s > 0
         entry, a = c[i], atr[i]
         stop = entry - ex["stop_atr"] * a if long else entry + ex["stop_atr"] * a
-        target = None if ex["target_atr"] is None else (entry + ex["target_atr"] * a if long else entry - ex["target_atr"] * a)
+        target = None if ex.get("target_atr") is None else (entry + ex["target_atr"] * a if long else entry - ex["target_atr"] * a)
         best, exit_price, reason, j = entry, None, "TEMPO", i
         last = min(i + ex["max_hold"], n - 1)
         while j < last:
@@ -145,15 +149,32 @@ def simulate(df, tf, symbol, spec, signal=None):
             if target is not None and ((h[j] >= target) if long else (l[j] <= target)):
                 exit_price, reason = target, "TARGET"
                 break
-            if ex["trail_atr"] is not None:
+            if ex.get("trail_atr") is not None:
                 best = max(best, c[j]) if long else min(best, c[j])
                 stop = max(stop, best - ex["trail_atr"] * a) if long else min(stop, best + ex["trail_atr"] * a)
+            if channel is not None and ((c[j] < channel[0][j]) if long else (c[j] > channel[1][j])):
+                exit_price, reason = c[j], "CANALE"      # chiusura oltre il canale opposto: si esce alla chiusura
+                break
         if exit_price is None:
             exit_price = c[j]
         if j > i:
             trades.append({"symbol": symbol, "tf": tf, "t": int(times[i]), "t_exit": int(times[j]) + step, "dir": 1 if long else -1,
                            "gross": float((exit_price - entry) / entry * 100 * (1 if long else -1)), "bars": j - i, "reason": reason})
         i = max(j, i + 1)      # alla chiusura della candela di uscita si può rientrare
+    return trades
+
+
+def annotate_drift(trades, df, holdout_ts):
+    """Aggiunge a ogni trade "drift": quanto avrebbe reso la sola esposizione (direzione x durata x
+    rendimento medio per candela della coin). Il rendimento medio è calcolato separatamente per il
+    periodo di ricerca e per i mesi sigillati, così ogni periodo è confrontato con il proprio mercato."""
+    times = np.array([int(t.timestamp()) for t in df["time"]])
+    c = df["close"].to_numpy(dtype=float)
+    bar_ret = np.diff(c) / c[:-1] * 100
+    before = times[1:] < holdout_ts
+    mu = {True: float(bar_ret[before].mean()) if before.any() else 0.0, False: float(bar_ret[~before].mean()) if (~before).any() else 0.0}
+    for t in trades:
+        t["drift"] = t["dir"] * t["bars"] * mu[t["t"] < holdout_ts]
     return trades
 
 
@@ -252,6 +273,7 @@ def describe(trades, nets, block_seconds):
         return {"n": 0}
     rows.sort(key=lambda r: r[0]["t"])
     net = np.array([v for _, v in rows])
+    excess = net - np.array([t.get("drift", 0.0) for t, _ in rows])      # netto oltre la semplice esposizione al mercato
     clusters = np.array([t["t"] // block_seconds for t, _ in rows])
     years = max((rows[-1][0]["t_exit"] - rows[0][0]["t"]) / (365.25 * 86400), 1e-9)
     coins = sorted({t["symbol"] for t, _ in rows})
@@ -268,6 +290,10 @@ def describe(trades, nets, block_seconds):
         "net_per_year_per_coin_pct": round(total / years / len(coins), 1),
         "after_tax_per_year_per_coin_pct": round((total * (1 - TAX_RATE) if total > 0 else total) / years / len(coins), 1),
         "by_coin": {s: round(float(np.mean([v for t, v in rows if t["symbol"] == s])), 3) for s in coins},
+        "excess_avg_pct": round(float(excess.mean()), 3),
+        "excess_ci": vs.cluster_ci(excess, clusters),
+        "excess_p": cluster_p_value(excess, clusters),
+        "excess_by_coin": {s: round(float(np.mean([e for (t, _), e in zip(rows, excess) if t["symbol"] == s])), 3) for s in coins},
     }
 
 
@@ -280,10 +306,12 @@ def evaluate(trades, funding, block_seconds, holdout_ts):
     if out["n"]:
         order = sorted(range(len(research)), key=lambda i: research[i]["t"])
         mid = (research[order[0]]["t"] + research[order[-1]]["t"]) / 2
-        halves = [[primary[i] for i in order if (research[i]["t"] <= mid) == first and primary[i] is not None] for first in (True, False)]
-        out["halves"] = [{"n": len(hv), "avg_net_pct": round(float(np.mean(hv)), 3) if hv else None} for hv in halves]
-        out["stable"] = bool(all(hv["avg_net_pct"] is not None and hv["avg_net_pct"] > 0 for hv in out["halves"])
-                             and sum(1 for v in out["by_coin"].values() if v > 0) >= min(2, len(out["by_coin"])))
+        # stabilità misurata sul netto oltre il mercato
+        halves = [[primary[i] - research[i].get("drift", 0.0) for i in order if (research[i]["t"] <= mid) == first and primary[i] is not None]
+                  for first in (True, False)]
+        out["halves"] = [{"n": len(hv), "excess_avg_pct": round(float(np.mean(hv)), 3) if hv else None} for hv in halves]
+        out["stable"] = bool(all(hv["excess_avg_pct"] is not None and hv["excess_avg_pct"] > 0 for hv in out["halves"])
+                             and sum(1 for v in out["excess_by_coin"].values() if v > 0) >= min(2, len(out["excess_by_coin"])))
         out["funding_real_share_pct"] = round(float(np.mean([funding_cost(t, funding.get(t["symbol"]))[1] for t in research]) * 100), 0)
         out["other_scenarios"] = {}
         for name in SCENARIOS:
@@ -314,7 +342,8 @@ def build_summary(per_trial, funding, registry, unseal=(), today=None):
         registry["trials"].setdefault(key, {"first_tested": today, "description": spec["description"]})
 
     m = len(registry["trials"])     # tutte le prove mai fatte, anche di strategie poi tolte dal codice
-    significant = benjamini_hochberg({k: r.get("p_value") for k, r in results.items() if r["n"] >= MIN_TRADES and r["avg_net_pct"] > 0}, m)
+    significant = benjamini_hochberg({k: r.get("excess_p") for k, r in results.items()
+                                      if r["n"] >= MIN_TRADES and r["excess_avg_pct"] > 0 and r["avg_net_pct"] > 0}, m)
     for key, r in results.items():
         r["significant"] = key in significant
         r["candidate"] = bool(key in significant and r.get("stable"))
@@ -329,8 +358,8 @@ def build_summary(per_trial, funding, registry, unseal=(), today=None):
             continue
         trades = sealed[key]
         d = describe(trades, net_returns(trades, PRIMARY, funding), results[key]["block_seconds"])
-        p = d.get("p_value")
-        d["confirmed"] = bool(d["n"] >= MIN_TRADES and p is not None and p < 0.05 / n_unsealed and d["avg_net_pct"] > 0)
+        p = d.get("excess_p")
+        d["confirmed"] = bool(d["n"] >= MIN_TRADES and p is not None and p < 0.05 / n_unsealed and d["excess_avg_pct"] > 0 and d["avg_net_pct"] > 0)
         d["unsealed_on"] = registry["unsealed"][key]
         results[key]["holdout"] = d
 
@@ -358,39 +387,41 @@ def to_markdown(s):
            f"- **Ricerca** solo sullo storico prima del {s['holdout_start']}; da lì in poi è **sigillato** per la prova finale.",
            f"- **Costi** (scenario principale: {sc['label'].lower()}): {sc['cost_pct_per_side']:.2f}% per lato più funding. \"Netto\" = dopo questi costi, tasse escluse.",
            f"- **Funding**: Bitget pubblica solo gli ultimi mesi. Per i trade più vecchi vale un'ipotesi prudente: il long paga {FUNDING_ASSUMED_LONG_PCT}% ogni 8 ore, lo short non riceve nulla.",
-           f"- **Candidata** = netto positivo che supera la correzione per prove multiple (falsi positivi attesi {round(s['fdr'] * 100)}%) "
-           "**e** stabile (positiva in entrambe le metà del periodo e su almeno 2 coin su 3).",
+           "- **Oltre il mercato**: netto del trade meno quello che avrebbe reso la semplice esposizione (direzione x durata x rendimento medio "
+           "della coin). Misura la scelta dei momenti, non il rialzo del mercato. Intervallo, p, metà e coin si riferiscono a questa misura.",
+           f"- **Candidata** = netto positivo, e netto oltre il mercato che supera la correzione per prove multiple (falsi positivi attesi {round(s['fdr'] * 100)}%) "
+           "**e** stabile (positivo in entrambe le metà del periodo e su almeno 2 coin su 3).",
            "- **Netto annuo per coin**: somma dei netti divisa per anni e coin, senza leva e senza reinvestire. Indicativo.",
            "- Una candidata non è un segnale valido: deve ancora superare la prova finale e poi la prova dal vivo senza soldi.",
            "- I risultati passati non garantiscono quelli futuri. Non è consulenza finanziaria.", "",
            f"**Candidate: {', '.join(s['candidates']) if s['candidates'] else 'nessuna'}.** "
            f"**Confermate dalla prova finale: {', '.join(s['confirmed']) if s['confirmed'] else 'nessuna'}.**", ""]
     for tf in ALL_TIMEFRAMES:
-        rows = sorted((r for r in s["results"].values() if r["tf"] == tf and r["n"]), key=lambda r: -r["avg_net_pct"])
+        rows = sorted((r for r in s["results"].values() if r["tf"] == tf and r["n"]), key=lambda r: -r["excess_avg_pct"])
         if not rows:
             continue
         out += [f"### Timeframe {tf}", "",
-                "| Strategia | Famiglia | Trade | Vincenti | Durata media | Netto medio | IC 95% | p | Metà 1 / Metà 2 | BTC / ETH / SOL | Netto annuo per coin | Esito |",
-                "|---|---|---|---|---|---|---|---|---|---|---|---|"]
+                "| Strategia | Famiglia | Trade | Vincenti | Durata media | Netto medio | Netto annuo per coin | Oltre il mercato | IC 95% | p | Metà 1 / Metà 2 | BTC / ETH / SOL | Esito |",
+                "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
         for r in rows:
-            p = "n/d" if r.get("p_value") is None else f"{r['p_value']:.4f}"
-            halves = " / ".join("—" if hv["avg_net_pct"] is None else f"{hv['avg_net_pct']:+.2f}%" for hv in r["halves"])
-            coins = " / ".join(f"{r['by_coin'][c]:+.2f}%" if c in r["by_coin"] else "—" for c in ALL_ASSETS)
+            p = "n/d" if r.get("excess_p") is None else f"{r['excess_p']:.4f}"
+            halves = " / ".join("—" if hv["excess_avg_pct"] is None else f"{hv['excess_avg_pct']:+.2f}%" for hv in r["halves"])
+            coins = " / ".join(f"{r['excess_by_coin'][c]:+.2f}%" if c in r["excess_by_coin"] else "—" for c in ALL_ASSETS)
             verdict = "**CANDIDATA**" if r["candidate"] else "significativa ma instabile" if r["significant"] else "campione piccolo" if r["n"] < MIN_TRADES else "no"
             out.append(f"| {r['strategy']} | {r['family']} | {r['n']} | {r['win_rate']}% | {r['avg_bars']} candele | {r['avg_net_pct']:+.3f}% | "
-                       f"{vs._ci(r['avg_net_ci'])} | {p} | {halves} | {coins} | {r['net_per_year_per_coin_pct']:+.1f}% | {verdict} |")
+                       f"{r['net_per_year_per_coin_pct']:+.1f}% | {r['excess_avg_pct']:+.3f}% | {vs._ci(r['excess_ci'])} | {p} | {halves} | {coins} | {verdict} |")
         out.append("")
     opened = [r for r in s["results"].values() if "holdout" in r]
     if opened:
         out += ["### Prove finali sui mesi sigillati", "",
-                "| Prova | Aperta il | Trade | Netto medio | IC 95% | p | Esito |", "|---|---|---|---|---|---|---|"]
+                "| Prova | Aperta il | Trade | Netto medio | Oltre il mercato | IC 95% | p | Esito |", "|---|---|---|---|---|---|---|---|"]
         for r in opened:
             hd = r["holdout"]
             if not hd["n"]:
-                out.append(f"| {r['strategy']}:{r['tf']} | {hd['unsealed_on']} | 0 | — | — | — | nessun trade |")
+                out.append(f"| {r['strategy']}:{r['tf']} | {hd['unsealed_on']} | 0 | — | — | — | — | nessun trade |")
                 continue
-            p = "n/d" if hd.get("p_value") is None else f"{hd['p_value']:.4f}"
-            out.append(f"| {r['strategy']}:{r['tf']} | {hd['unsealed_on']} | {hd['n']} | {hd['avg_net_pct']:+.3f}% | {vs._ci(hd['avg_net_ci'])} | {p} | "
+            p = "n/d" if hd.get("excess_p") is None else f"{hd['excess_p']:.4f}"
+            out.append(f"| {r['strategy']}:{r['tf']} | {hd['unsealed_on']} | {hd['n']} | {hd['avg_net_pct']:+.3f}% | {hd['excess_avg_pct']:+.3f}% | {vs._ci(hd['excess_ci'])} | {p} | "
                        f"{'**CONFERMATA**' if hd['confirmed'] else 'non confermata'} |")
         out.append("")
     out += ["### Le strategie", ""]
@@ -401,6 +432,8 @@ def to_markdown(s):
 
 def main(start, symbols, tfs, unseal=(), save_registry=True):
     start_ms = _ts(start) * 1000
+    registry = load_registry()
+    holdout_ts = _ts(registry["holdout_start"])
     funding = {}
     for symbol in symbols:
         funding[symbol] = fetch_funding_history(symbol)
@@ -415,10 +448,10 @@ def main(start, symbols, tfs, unseal=(), save_registry=True):
                 continue
             print(f"{symbol} {tf}: {len(df)} candele dal {df['time'].iloc[0]:%d/%m/%Y}")
             for name, spec in lab_strategies.STRATEGIES.items():
-                per_trial.setdefault((name, tf), []).extend(simulate(df, tf, symbol, spec))
+                if spec["tfs"] is None or tf in spec["tfs"]:
+                    per_trial.setdefault((name, tf), []).extend(annotate_drift(simulate(df, tf, symbol, spec), df, holdout_ts))
     if not per_trial:
         raise SystemExit("Nessuno storico scaricato.")
-    registry = load_registry()
     summary = build_summary(per_trial, funding, registry, unseal)
     with open(SUMMARY_PATH, "w") as f:
         json.dump(summary, f, indent=1)

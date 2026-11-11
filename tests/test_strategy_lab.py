@@ -56,6 +56,10 @@ def test_motore_uscite():
     assert t["dir"] == -1 and abs(t["gross"] - 5.0) < 1e-9
     t = run(frame([99, 103, 105, 105, 105, 105], highs=[100, 104.5, 105, 105, 105, 105]), direction=-1)[0]
     assert t["reason"] == "STOP" and abs(t["gross"] - (-4.0)) < 1e-9
+    # uscita a canale: chiusura sotto il minimo delle 3 candele precedenti (qui i minimi coincidono con le chiusure)
+    # minimi delle candele: 100, 102, 104, 105, 101.5 -> alla quinta la chiusura (101.5) rompe il minimo delle tre precedenti (102)
+    t = run(frame([102, 104, 106, 105, 101.5, 108, 108, 108]), channel_exit=3, max_hold=8, stop_atr=50)[0]
+    assert t["reason"] == "CANALE" and t["bars"] == 5 and abs(t["gross"] - 1.5) < 1e-9
     # buco nello storico durante il trade: uscita all'ultima chiusura disponibile
     t = run(frame([101, 102, 103, 104, 105, 106], skip=(W + 4,)))[0]
     assert t["reason"] == "BUCO" and t["bars"] == 3 and abs(t["gross"] - 3.0) < 1e-9
@@ -93,6 +97,31 @@ def test_costi_funding_e_scenari():
     ts2 = np.array([1001 * D + k * 8 * 3600 for k in range(0, 6)], dtype=np.int64)
     cost, real = lab.funding_cost(long, (ts2, np.full(6, 0.02)))
     assert real is False and abs(cost - (3 * 0.01 + 4 * 0.02)) < 1e-9
+
+
+def test_oltre_il_mercato():
+    # mercato che sale dell'1% a candela: un long qualsiasi guadagna, ma non per merito suo
+    n = lab.WARMUP + 200
+    c = 100 * 1.01 ** np.arange(n)
+    df = pd.DataFrame({"time": pd.to_datetime([T0 + i * D for i in range(n)], unit="s", utc=True), "open": np.concatenate([[100], c[:-1]]),
+                       "high": c * 1.001, "low": np.concatenate([[100], c[:-1]]) * 0.999, "close": c, "volume": 1.0})
+    sig = np.ones(n, dtype=int)
+    spec = {"exit": {"stop_atr": 50, "target_atr": None, "trail_atr": None, "max_hold": 5}, "fn": None}
+    trades = lab.annotate_drift(lab.simulate(df, "1d", "BTCUSDT", spec, signal=sig), df, T0 + 10 ** 9)
+    assert len(trades) > 30 and all(abs(t["drift"] - t["bars"] * 1.0) < 1e-9 for t in trades)   # candele tenute x 1% di rialzo medio
+    d = lab.describe(trades, [t["gross"] for t in trades], 7 * D)
+    assert d["avg_net_pct"] > 4.9 and 0 <= d["excess_avg_pct"] < 0.2           # quasi tutto il guadagno è il mercato
+    # uno short nello stesso mercato parte svantaggiato della stessa misura
+    short = lab.annotate_drift(lab.simulate(df, "1d", "BTCUSDT", spec, signal=-sig), df, T0 + 10 ** 9)
+    assert short and all(abs(t["drift"] + t["bars"] * 1.0) < 1e-9 for t in short)
+    # il rialzo medio dei mesi sigillati è calcolato a parte: qui sono tutti "sigillati"
+    sealed = lab.annotate_drift(lab.simulate(df, "1d", "BTCUSDT", spec, signal=sig), df, T0)
+    assert all(abs(t["drift"] - t["bars"] * 1.0) < 1e-9 for t in sealed)
+    # tanti trade "solo rialzo": netto positivo e significativo, ma NON candidata perché oltre il mercato non c'è nulla
+    name = list(ls.STRATEGIES)[0]
+    beta = [dict(t, drift=1.2) for t in fake_trades(1, 1.2, n=900)]
+    r = lab.build_summary({(name, "1d"): beta}, {}, {"holdout_start": lab.HOLDOUT_START, "trials": {}, "unsealed": {}})["results"][f"{name}:1d"]
+    assert r["avg_net_pct"] > 0.5 and r["p_value"] < 0.001 and not r["significant"] and not r["candidate"]
 
 
 def test_prove_multiple():
@@ -157,11 +186,12 @@ def test_strategie_registrate_girano():
     df = pd.DataFrame({"time": pd.to_datetime([T0 + i * D for i in range(n)], unit="s", utc=True), "open": o,
                        "high": np.maximum(o, c) * 1.004, "low": np.minimum(o, c) * 0.996, "close": c, "volume": rng.lognormal(0, 1.2, n)})
     x = lab.indicators(df)
-    assert len(ls.STRATEGIES) >= 12
+    assert len(ls.STRATEGIES) >= 16
     for name, spec in ls.STRATEGIES.items():
         sig = np.asarray(spec["fn"](x))
         assert len(sig) == n and set(np.unique(sig)) <= {-1, 0, 1}, name
-        assert set(spec["exit"]) == {"stop_atr", "target_atr", "trail_atr", "max_hold"}, name
+        assert set(spec["exit"]) == {"stop_atr", "target_atr", "trail_atr", "max_hold", "channel_exit"}, name
+        assert spec["tfs"] is None or set(spec["tfs"]) <= {"1d", "4h", "1h"}, name
         trades = lab.simulate(df, "1d", "BTCUSDT", spec)
         assert trades, name                                                  # ogni regola scatta almeno una volta
         assert all(t["t"] >= T0 + W * D and t["bars"] >= 1 and t["bars"] <= spec["exit"]["max_hold"] for t in trades), name

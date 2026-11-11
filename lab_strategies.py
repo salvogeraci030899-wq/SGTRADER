@@ -15,16 +15,19 @@ REGOLE DEL LABORATORIO (servono a non ingannarsi da soli):
 Uscite (campo `exit`), tutte in multipli dell'ATR(14) alla candela d'ingresso:
   stop_atr    stop iniziale                      target_atr  target (None = nessuno)
   trail_atr   stop che segue il prezzo (None)    max_hold    durata massima in candele
+  channel_exit  N: si esce se la chiusura rompe il minimo (long) o il massimo (short) delle N candele precedenti
+`tfs` limita i timeframe su cui la strategia viene provata (ogni timeframe è una prova in più).
 """
 import numpy as np
 
 STRATEGIES = {}
 
 
-def strategy(name, family, description, exit):
+def strategy(name, family, description, exit, tfs=None):
     def register(fn):
         assert name not in STRATEGIES, f"strategia duplicata: {name}"
-        STRATEGIES[name] = {"name": name, "family": family, "description": description, "exit": exit, "fn": fn}
+        STRATEGIES[name] = {"name": name, "family": family, "description": description, "fn": fn, "tfs": tfs,
+                            "exit": {"target_atr": None, "trail_atr": None, "channel_exit": None, **exit}}
         return fn
     return register
 
@@ -123,3 +126,37 @@ def big_candle(x):
           "ma lasciata correre: stop 2 ATR, stop che segue a 3 ATR, massimo 60 candele.", TREND_EXIT)
 def app_breakout_trail(x):
     return x["app"]("breakout")
+
+
+# =====================================================================
+# SECONDA SERIE (dichiarata l'11/11/2026, prima di vederne i risultati).
+# Solo 1d e 4h: sull'1h la prima serie ha mostrato che i costi superano il movimento medio.
+# =====================================================================
+SLOW = ("1d", "4h")
+
+
+@strategy("donchian20_regime", "trend", "donchian20 con filtro di regime: long solo sopra la media a 200, short solo sotto. "
+          "Stesse uscite di donchian20.", TREND_EXIT, tfs=SLOW)
+def donchian20_regime(x):
+    c, s200 = x["close"], x["sma"](200)
+    return np.where((c > x["high_max"](20)) & (c > s200), 1, np.where((c < x["low_min"](20)) & (c < s200), -1, 0))
+
+
+@strategy("donchian20_turtle", "trend", "Ingressi di donchian20, uscita classica 'a canale': si esce quando la chiusura rompe il "
+          "minimo (long) o il massimo (short) delle 10 candele precedenti. Stop 2 ATR, massimo 120 candele.",
+          {"stop_atr": 2.0, "channel_exit": 10, "max_hold": 120}, tfs=SLOW)
+def donchian20_turtle(x):
+    return donchian20(x)
+
+
+@strategy("big_candle_trail", "volatilità", "Ingressi di big_candle ma lasciati correre: stop 1,5 ATR, stop che segue a 3 ATR, "
+          "massimo 20 candele.", {"stop_atr": 1.5, "trail_atr": 3.0, "max_hold": 20}, tfs=SLOW)
+def big_candle_trail(x):
+    return big_candle(x)
+
+
+@strategy("tsmom_combo", "momentum", "Long se i rendimenti a 30 e a 90 candele sono entrambi positivi, short se entrambi negativi. "
+          "Tenuta 7 candele, stop 3 ATR.", MOM_EXIT, tfs=SLOW)
+def tsmom_combo(x):
+    r30, r90 = x["ret"](30), x["ret"](90)
+    return np.where((r30 > 0) & (r90 > 0), 1, np.where((r30 < 0) & (r90 < 0), -1, 0))
