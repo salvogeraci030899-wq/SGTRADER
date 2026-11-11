@@ -23,8 +23,8 @@ html = INDEX.read_text(encoding="utf-8")
 current = int(re.search(r'<meta name="app-version" content="(\d+)">', html).group(1))
 version = int(sys.argv[1]) if len(sys.argv) > 1 else current + 1
 
-# Tutti i moduli dell'app più la logica dei comandi condivisa con il server (api/_core.js)
-modules = sorted(p.relative_to(ROOT).as_posix() for p in (ROOT / "src").rglob("*.js")) + ["api/_core.js"]
+# Tutti i moduli dell'app (solo src/: su Vercel la cartella api/ non viene servita al browser)
+modules = sorted(p.relative_to(ROOT).as_posix() for p in (ROOT / "src").rglob("*.js"))
 imports = {f"./{m}": f"./{m}?v={version}" for m in modules}
 block = (
     "<!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->\n"
