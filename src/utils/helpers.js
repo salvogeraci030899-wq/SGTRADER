@@ -60,7 +60,7 @@ export async function apiPost(path, body) {
     }
     // L'analisi AI serve la chiave Groq, che sta solo sui server: senza un indirizzo impostato e fuori
     // da Vercel si usa il server Cloudflare del progetto
-    const base = getApiBase() || (path === '/api/analyze' && !location.hostname.endsWith('vercel.app') ? CONFIG.AI_SERVER : '');
+    const base = getApiBase() || (['/api/analyze', '/api/assistant', '/api/transcribe'].includes(path) && !location.hostname.endsWith('vercel.app') ? CONFIG.AI_SERVER : '');
     const url = base + path;
     const send = () => {
         let key = '';

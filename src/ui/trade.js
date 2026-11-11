@@ -7,6 +7,7 @@ import * as Calculator from './calculator.js';
 import * as AI from './ai.js';
 import { tradingMode } from './account.js';
 import { getAutoState } from './automation.js';
+import { planAction, ruleHitPrice, ruleHitCandle } from '../core/rules.js';
 
 export function initTrade() {
     // Inizializzazione modali, listener locali se ci saranno
@@ -81,10 +82,49 @@ export function startTimer() {
 export function checkAutoClose(id, price) {
     const t = State.simState.activeTrades.find(x => x.id === id);
     if (!t) return;
-    let reason = null;
-    if (t.type === 'LONG') { if (price <= t.slPrice) reason = 'SL'; else if (price >= t.tpPrice) reason = 'TP'; }
-    else { if (price >= t.slPrice) reason = 'SL'; else if (price <= t.tpPrice) reason = 'TP'; }
-    if (reason) closeTrade(id, reason, reason === 'TP' ? t.tpPrice : price);
+    const long = t.type === 'LONG';
+    // ordine prudente: prima lo stop, poi le regole dell'assistente, poi il target
+    if (long ? price <= t.slPrice : price >= t.slPrice) return closeTrade(id, 'SL', price);
+    if ((t.rules || []).some(r => ruleHitPrice(r, price))) return closeTrade(id, 'REGOLA', price);
+    if (long ? price >= t.tpPrice : price <= t.tpPrice) return closeTrade(id, 'TP', t.tpPrice);
+}
+
+// --- Assistente (chat / voce): piano calcolato da src/core/rules.js, applicato dopo conferma ---
+export function planForTrade(id, action) {
+    const t = State.simState.activeTrades.find(x => x.id === id);
+    if (!t) return { ok: false, error: 'La posizione non è più aperta.' };
+    return planAction(t, action, t.currentPrice || State.livePx[t.symbol] || t.entryPrice);
+}
+
+export function applyPlan(id, plan) {
+    const t = State.simState.activeTrades.find(x => x.id === id);
+    if (!t || !plan || !plan.ok) return false;
+    if (plan.kind === 'close_now') { closeTrade(id, 'MANUALE', 0); return true; }
+    if (plan.kind === 'rule') {
+        t.rules = [...(t.rules || []), { id: Date.now().toString(36), ...plan.rule, createdAt: Date.now() }].slice(-5);
+    } else if (plan.kind === 'clear_rules') {
+        t.rules = [];
+    } else if (plan.kind === 'set_stop') {
+        t.slPrice = plan.price; t.slPct = Math.abs(t.entryPrice - plan.price) / t.entryPrice;
+    } else if (plan.kind === 'set_target') {
+        t.tpPrice = plan.price; t.tpPct = Math.abs(plan.price - t.entryPrice) / t.entryPrice;
+    } else return false;
+    // il recupero delle candele perse riparte da qui: i livelli nuovi non valgono per il passato
+    t.modifiedAt = Date.now();
+    State.saveState();
+    State.atSig = null;
+    renderActiveTrades();
+    Terminal.updatePriceLines();
+    return true;
+}
+
+export function removeRule(id, ruleId) {
+    const t = State.simState.activeTrades.find(x => x.id === id);
+    if (!t) return;
+    t.rules = (t.rules || []).filter(r => r.id !== ruleId);
+    State.saveState();
+    State.atSig = null;
+    renderActiveTrades();
 }
 
 export async function executeTradeOpen() {
@@ -165,7 +205,7 @@ export function renderActiveTrades() {
     const el = document.getElementById('activeTradesList');
     if (!el) return;
     if (isReal()) { renderRealPositions(el); return; }
-    const sig = State.simState.activeTrades.map(t => `${t.id}|${t.granularity || ''}|${t.margin ?? ''}|${t.market || ''}|${t.leverage || ''}`).join(',');
+    const sig = State.simState.activeTrades.map(t => `${t.id}|${t.granularity || ''}|${t.margin ?? ''}|${t.market || ''}|${t.leverage || ''}|${t.slPrice}|${t.tpPrice}|${(t.rules || []).map(r => r.id).join('.')}`).join(',');
     
     if (sig !== State.atSig) {
         State.atSig = sig;
@@ -196,6 +236,7 @@ export function renderActiveTrades() {
                     <button class="close-btn" onclick="openCloseTradeModal('${t.id}')">CHIUDI</button>
                 </div>
                 <div class="at-meta">Aperto ${fmtDateTime(t.entryTime)}</div>
+                ${(t.rules || []).map(r => `<div class="at-rule"><span>Regola: chiude a ${r.side === 'above' ? '≥' : '≤'} ${r.price.toLocaleString('it-IT')} · ${escapeHtml(r.label)}</span><button type="button" onclick="removeRule('${t.id}','${r.id}')" title="Togli la regola">✕</button></div>`).join('')}
                 <div class="at-body">
                     <div class="at-item"><span class="at-lbl">Entry</span><span class="at-val">${t.entryPrice.toFixed(2)}</span></div>
                     <div class="at-item"><span class="at-lbl">Corrente</span><span class="at-val" data-f="px">—</span></div>
@@ -209,10 +250,18 @@ export function renderActiveTrades() {
                     <div class="at-item" style="text-align:center; flex: 1;"><span class="at-lbl">Costi</span><span class="at-val" data-f="costs" style="color:var(--warning);">—</span></div>
                     <div class="at-item" style="text-align:right; flex: 1;"><span class="at-lbl">PnL Netto</span><span class="at-val" data-f="net" style="font-size:15px;">—</span></div>
                 </div>
-                <div class="at-actions">
-                    <button class="btn-ai-analysis" onclick="requestAIAnalysis('${t.id}')">
+                <div class="at-actions at-actions-3">
+                    <button class="btn-ai-analysis" onclick="requestAIAnalysis('${t.id}')" title="Analisi AI in tempo reale">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                        Analisi AI in tempo reale
+                        Analisi AI
+                    </button>
+                    <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistant('${t.id}', false)" title="Chat con l'assistente">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        Chat
+                    </button>
+                    <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistant('${t.id}', true)" title="Parla con l'assistente">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+                        Voce
                     </button>
                 </div>
             </div>`;
@@ -316,8 +365,10 @@ export async function catchUp() {
             if (!r.ok) continue;
             const j = await r.json();
             if (j.code !== '00000' || !Array.isArray(j.data)) continue;
+            // dopo una modifica di stop/target/regole si riparte dalla modifica (prima valevano i livelli vecchi)
+            const from = Math.max(t.entryTime, t.modifiedAt || 0);
             const cs = j.data.map(c => ({ ts: +c[0], o: +c[1], h: +c[2], l: +c[3] }))
-                .filter(c => isFinite(c.ts) && c.ts >= t.entryTime)
+                .filter(c => isFinite(c.ts) && c.ts >= from)
                 .sort((a, b) => a.ts - b.ts);
             const expiry = t.entryTime + t.timerSeconds * 1000;
             const long = t.type === 'LONG';
@@ -326,6 +377,8 @@ export async function catchUp() {
                 const sl = long ? c.l <= t.slPrice : c.h >= t.slPrice;
                 const tp = long ? c.h >= t.tpPrice : c.l <= t.tpPrice;
                 if (sl) { closeTrade(t.id, 'SL', t.slPrice, c.ts); break; }
+                const rule = (t.rules || []).find(r => ruleHitCandle(r, c.h, c.l));
+                if (rule) { closeTrade(t.id, 'REGOLA', rule.price, c.ts); break; }
                 if (tp) { closeTrade(t.id, 'TP', t.tpPrice, c.ts); break; }
             }
         } catch (e) {}

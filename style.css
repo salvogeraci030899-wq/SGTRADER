@@ -452,6 +452,7 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .reason-SL { background: rgba(255,69,58,.2); color: var(--danger); }
 .reason-TEMPO { background: rgba(255,159,10,.2); color: var(--warning); }
 .reason-MANUALE { background: #333; color: #fff; }
+.reason-REGOLA { background: var(--ui-soft); color: var(--ui); }
 .lg-pnl { font-weight: 800; font-size: 16px; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; }
 .lg-pnl-perc { font-size: 11px; font-weight: 600; color: var(--text-secondary); }
 
@@ -915,3 +916,36 @@ html.pwa-mode .nav-item svg { width: 22px; height: 22px; }
     #page-settings .set-wrap { gap: 8px; }
     #page-settings .theme-toggle button { min-height: 28px; }
 }
+
+/* Posizioni: tre tasti (Analisi AI, Chat, Voce) e regole attive */
+.at-actions-3 { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 6px; }
+.at-actions-3 .btn-ai-analysis { width: 100%; padding: 8px 4px; font-size: 12px; gap: 5px; }
+.btn-ai-alt { background: var(--ui-soft) !important; color: var(--ui) !important; border: 1px solid var(--ui) !important; }
+.at-rule { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 4px 12px 0; padding: 4px 8px; border-radius: 8px; background: var(--ui-soft); color: var(--ui); font-size: 11px; font-weight: 600; }
+.at-rule span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.at-rule button { background: transparent; border: none; color: var(--ui); font-size: 14px; min-width: 32px; min-height: 28px; cursor: pointer; }
+
+/* Assistente */
+.assist-box { text-align: left !important; max-width: 400px !important; width: calc(100vw - 32px); height: min(78vh, 640px); display: flex; flex-direction: column; padding: 14px !important; }
+.assist-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.assist-head h3 { flex: 1; margin: 0 !important; font-size: 16px; text-align: left; }
+.assist-speak { background: var(--surface-hover); border: none; color: var(--text-secondary); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.assist-speak.active { background: var(--ui-soft); color: var(--ui); }
+.assist-log { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 4px 0; -webkit-overflow-scrolling: touch; }
+.assist-msg { max-width: 85%; padding: 8px 11px; border-radius: 14px; font-size: 13px; line-height: 1.45; -webkit-user-select: text; user-select: text; }
+.assist-msg.user { align-self: flex-end; background: var(--ui); color: var(--on-ui); border-bottom-right-radius: 4px; }
+.assist-msg.bot { align-self: flex-start; background: var(--surface-hover); color: var(--text); border-bottom-left-radius: 4px; }
+.assist-msg.warn { color: var(--warning-text); }
+.assist-msg.error { color: var(--danger); }
+.assist-msg.plan { align-self: stretch; max-width: none; background: var(--field); border: 1px solid var(--ui); color: var(--text); }
+.assist-plan-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.assist-plan-actions button { min-height: 40px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; }
+.assist-plan-done { margin-top: 6px; font-weight: 700; color: var(--ui); }
+.assist-status { min-height: 16px; font-size: 11px; color: var(--text-secondary); padding: 2px 2px 4px; }
+.assist-input { display: flex; gap: 6px; align-items: center; }
+.assist-input input { flex: 1; min-width: 0; background: var(--field); border: 1px solid var(--border); color: var(--text); border-radius: 12px; padding: 10px 12px; font-size: 16px; min-height: var(--touch-min); -webkit-user-select: text; user-select: text; }
+.assist-mic, .assist-send { width: var(--touch-min); height: var(--touch-min); border-radius: 12px; border: 1px solid var(--border); background: var(--surface-hover); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+.assist-send { background: var(--ui); color: var(--on-ui); border-color: var(--ui); }
+.assist-mic.rec { background: var(--danger); color: #fff; border-color: var(--danger); animation: recPulse 1.2s ease-in-out infinite; }
+@keyframes recPulse { 50% { opacity: 0.6; } }
+.assist-foot { font-size: 10px; color: var(--text-secondary); margin-top: 6px; text-align: center; }

@@ -18,6 +18,14 @@
       "destination": "/api/command.js"
     },
     {
+      "source": "/api/assistant",
+      "destination": "/api/assistant.js"
+    },
+    {
+      "source": "/api/transcribe",
+      "destination": "/api/transcribe.js"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
