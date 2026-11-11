@@ -3,6 +3,7 @@ import { $, SYM, apiPost, escapeHtml, calcPnl } from '../utils/helpers.js';
 import * as Trade from './trade.js';
 import * as Auto from './automation.js';
 import { tradingMode } from './account.js';
+import { planAction } from '../core/rules.js';
 
 // --- ASSISTENTE SULLA POSIZIONE: chat di testo e chat vocale ---
 // Testo o voce → il server (src/core/commands.js, Groq gratuito) risponde e propone al massimo UNA
@@ -11,7 +12,7 @@ import { tradingMode } from './account.js';
 // Voce: registrazione nel telefono (MediaRecorder) → trascrizione Whisper su Groq; le risposte le
 // legge la sintesi vocale di iOS.
 
-let tradeId = null, general = false, history = [], speak = false, rec = null, chunks = [], recTimer = null, busy = false;
+let tradeId = null, realSymbol = null, general = false, history = [], speak = false, rec = null, chunks = [], recTimer = null, busy = false;
 const MAX_REC_MS = 30000;
 
 const trade = () => State.simState.activeTrades.find(t => t.id === tradeId);
@@ -50,20 +51,44 @@ function context(t) {
     };
 }
 
-export function openAssistant(id, voice) {
-    general = !id;
-    const t = general ? null : State.simState.activeTrades.find(x => x.id === id);
-    if (!general && !t) return;
-    tradeId = general ? null : id; history = []; speak = !!voice;
-    $('assistTitle').textContent = general ? 'Assistente SGTRADER' : `${voice ? 'Voce' : 'Chat'} · ${SYM(t.symbol)} ${t.type}`;
+// --- Posizioni REALI su Bitget: stesse regole, ma l'azione confermata diventa un comando a Bitget
+// (workflow "Posizione Bitget": chiusura a mercato, take profit, stop loss, rimozione TP/SL). ---
+function realPos() {
+    const live = Auto.getAutoState().live;
+    const list = (live && live.account && live.account.positions_detail) || [];
+    return list.find(p => p.symbol === realSymbol) || null;
+}
+function realTrade(p) {
+    const mark = State.livePx[p.symbol] || p.mark || p.entry;   // prezzo live se c'è (più fresco del mark letto dal bot)
+    return { symbol: p.symbol, type: p.side === 'short' ? 'SHORT' : 'LONG', entryPrice: p.entry, size: p.size, feeRate: 0.0006, noTax: true,
+        margin: p.margin, capitalInvested: p.size * p.entry, slPrice: p.sl || null, tpPrice: p.tp || null, currentPrice: mark, leverage: p.leverage, rules: [] };
+}
+
+export function openAssistantReal(symbol, voice) {
+    realSymbol = symbol;
+    const p = realPos();
+    if (!p) { realSymbol = null; return; }
+    openAssistant(null, voice, p);
+}
+
+export function openAssistant(id, voice, real) {
+    if (!real) realSymbol = null;
+    general = !id && !real;
+    const t = general || real ? null : State.simState.activeTrades.find(x => x.id === id);
+    if (!general && !real && !t) return;
+    tradeId = general || real ? null : id; history = []; speak = !!voice;
+    $('assistTitle').textContent = general ? 'Assistente SGTRADER'
+        : real ? `${voice ? 'Voce' : 'Chat'} · ${SYM(real.symbol)} ${real.side.toUpperCase()} · REALE` : `${voice ? 'Voce' : 'Chat'} · ${SYM(t.symbol)} ${t.type}`;
     $('assistLog').innerHTML = '';
-    addMsg('bot', general
+    addMsg('bot', real
+        ? 'Posizione REALE su Bitget. Dimmi cosa fare, per esempio: <i>«se arriva a 10 USDT di profitto chiudi»</i>, <i>«stop a pareggio»</i>, <i>«chiudi subito»</i>. Diventano ordini veri su Bitget (take profit, stop loss, chiusura), solo dopo la tua conferma.'
+        : general
         ? 'Chiedimi del tool o dimmi cosa fare, per esempio: <i>«come va il bot?»</i>, <i>«metti donchian20 turtle 1d su carta»</i>, <i>«analizza ETH a 4 ore»</i>, <i>«passa a simulato»</i>. Ogni azione la confermi tu.'
         : 'Dimmi cosa fare con questa posizione, per esempio: <i>«se arriva a 10 USDT di profitto chiudi»</i>, <i>«sposta lo stop a pareggio»</i>, <i>«come sta andando?»</i>. Ogni azione la confermi tu.');
     $('assistInput').value = '';
     $('assistSpeak').classList.toggle('active', speak);
     status('');
-    $('assistFoot').textContent = general ? 'Ogni azione parte solo dopo «Conferma».' : 'Ogni azione parte solo dopo «Conferma». Vale per le posizioni simulate.';
+    $('assistFoot').textContent = real ? 'ORDINI VERI su Bitget, solo dopo «Conferma». Esito su Telegram entro 1-2 minuti.' : general ? 'Ogni azione parte solo dopo «Conferma».' : 'Ogni azione parte solo dopo «Conferma». Vale per le posizioni simulate.';
     $('assistModal').classList.add('active');
     if (general && !Auto.getAutoState().loaded) Auto.loadAutomation();
     if (voice) toggleRecording();
@@ -86,14 +111,15 @@ export function toggleAssistSpeak() {
 export async function sendAssist(textArg) {
     const input = $('assistInput');
     const text = (typeof textArg === 'string' ? textArg : input.value).trim();
-    const t = general ? null : trade();
+    const rp = realSymbol ? realPos() : null;
+    const t = general ? null : rp ? realTrade(rp) : trade();
     if (!text || busy) return;
     if (!general && !t) { addMsg('bot', 'La posizione non è più aperta.'); return; }
     input.value = '';
     addMsg('user', escapeHtml(text));
     busy = true; status('Sto pensando…');
     try {
-        const res = await apiPost('/api/assistant', general ? { scope: 'general', text, history, context: generalContext() } : { text, history, position: context(t) });
+        const res = await apiPost('/api/assistant', general ? { scope: 'general', text, history, context: generalContext() } : { text, history, position: rp ? { ...context(t), real: true, hours_open: null, pnl: rp.upl } : context(t) });
         let out = {};
         try { out = await res.json(); } catch (e) {}
         if (!res.ok) throw new Error(out.error || `Errore ${res.status}`);
@@ -101,7 +127,7 @@ export async function sendAssist(textArg) {
         history = history.slice(-6);
         addMsg('bot', escapeHtml(out.reply));
         say(out.reply);
-        if (out.action) (general ? showGeneralPlan : showPlan)(out.action);
+        if (out.action) (general ? showGeneralPlan : rp ? showRealPlan : showPlan)(out.action);
     } catch (e) {
         addMsg('bot error', `Non riesco a rispondere: ${escapeHtml(e.message)}`);
     } finally { busy = false; status(''); }
@@ -121,6 +147,52 @@ function showPlan(action) {
         const ok = Trade.applyPlan(tradeId, fresh);
         done(ok ? 'Fatto ✓' : 'Non applicato: la posizione non è più aperta.');
         if (ok && fresh.kind === 'close_now') setTimeout(closeAssistant, 900);
+    };
+}
+
+// Piano su posizione reale: dalla regola al comando per Bitget
+function realCommand(p, plan) {
+    const long = p.side !== 'short';
+    if (plan.kind === 'close_now') return { action: 'close' };
+    if (plan.kind === 'clear_rules') return { action: 'clear' };
+    if (plan.kind === 'set_stop') return { action: 'sl', price: plan.price };
+    if (plan.kind === 'set_target') return { action: 'tp', price: plan.price };
+    if (plan.kind === 'rule') {   // chiusura a un livello: dal lato del guadagno è un take profit, dall'altro uno stop
+        const profitSide = (plan.rule.side === 'above') === long;
+        return { action: profitSide ? 'tp' : 'sl', price: plan.rule.price };
+    }
+    return null;
+}
+
+function showRealPlan(action) {
+    const p = realPos();
+    if (!p) { addMsg('bot warn', 'La posizione non risulta più aperta su Bitget.'); return; }
+    const t = realTrade(p);
+    let plan = action.type === 'clear_rules'
+        ? (p.tp || p.sl ? { ok: true, kind: 'clear_rules', summary: `Tolgo take profit e stop loss di ${SYM(p.symbol)} ${p.side.toUpperCase()} su Bitget.` } : { ok: false, error: 'Su Bitget questa posizione non ha TP o SL da togliere.' })
+        : planAction(t, action, t.currentPrice);
+    if (!plan.ok) { addMsg('bot warn', escapeHtml(plan.error)); say(plan.error); return; }
+    const cmd = realCommand(p, plan);
+    if (!cmd) { addMsg('bot warn', 'Azione non disponibile sulle posizioni reali.'); return; }
+    const what = { close: 'chiusura a mercato', tp: 'take profit', sl: 'stop loss', clear: 'rimozione di TP e SL' }[cmd.action];
+    const replaces = (cmd.action === 'tp' && p.tp) || (cmd.action === 'sl' && p.sl) ? ` Sostituisce quello attuale (${cmd.action === 'tp' ? p.tp : p.sl}).` : '';
+    const box = addMsg('plan', `<div><b class="text-warning">ORDINE VERO su Bitget · ${what}</b><br>${escapeHtml(plan.summary.replace(/PnL netto/g, 'PnL'))}${escapeHtml(replaces)}</div><div class="assist-plan-actions"><button type="button" class="btn-cancel">Annulla</button><button type="button" class="btn-confirm">Conferma</button></div>`);
+    const [no, yes] = box.querySelectorAll('button');
+    const done = text => { box.querySelector('.assist-plan-actions').outerHTML = `<div class="assist-plan-done">${text}</div>`; };
+    no.onclick = () => done('Annullato.');
+    yes.onclick = async () => {
+        done('Invio a Bitget…');
+        try {
+            const res = await apiPost('/api/command', { type: 'position', symbol: p.symbol, side: p.side, action: cmd.action, price: cmd.price != null ? String(cmd.price) : '' });
+            let out = {};
+            try { out = await res.json(); } catch (e) {}
+            if (!res.ok) throw new Error(out.error || `Errore ${res.status}`);
+            box.querySelector('.assist-plan-done').textContent = 'Inviato ✓ Esito su Telegram e qui entro 1-2 minuti.';
+            say('Comando inviato a Bitget.');
+            setTimeout(() => Auto.loadAutomation(), 90000);
+        } catch (e) {
+            box.querySelector('.assist-plan-done').textContent = `Non inviato: ${e.message}`;
+        }
     };
 }
 

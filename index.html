@@ -47,37 +47,37 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=103">
-    <meta name="app-version" content="103">
+    <link rel="stylesheet" href="./style.css?v=104">
+    <meta name="app-version" content="104">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=103",
-            "./src/core/commands.js": "./src/core/commands.js?v=103",
-            "./src/core/config.js": "./src/core/config.js?v=103",
-            "./src/core/logger.js": "./src/core/logger.js?v=103",
-            "./src/core/rules.js": "./src/core/rules.js?v=103",
-            "./src/core/state.js": "./src/core/state.js?v=103",
-            "./src/core/theme.js": "./src/core/theme.js?v=103",
-            "./src/main.js": "./src/main.js?v=103",
-            "./src/ui/account.js": "./src/ui/account.js?v=103",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=103",
-            "./src/ui/assistant.js": "./src/ui/assistant.js?v=103",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=103",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=103",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=103",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=103",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=103",
-            "./src/ui/home.js": "./src/ui/home.js?v=103",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=103",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=103",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=103",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=103",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=103",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=103",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=103",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=103"
+            "./src/core/backup.js": "./src/core/backup.js?v=104",
+            "./src/core/commands.js": "./src/core/commands.js?v=104",
+            "./src/core/config.js": "./src/core/config.js?v=104",
+            "./src/core/logger.js": "./src/core/logger.js?v=104",
+            "./src/core/rules.js": "./src/core/rules.js?v=104",
+            "./src/core/state.js": "./src/core/state.js?v=104",
+            "./src/core/theme.js": "./src/core/theme.js?v=104",
+            "./src/main.js": "./src/main.js?v=104",
+            "./src/ui/account.js": "./src/ui/account.js?v=104",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=104",
+            "./src/ui/assistant.js": "./src/ui/assistant.js?v=104",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=104",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=104",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=104",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=104",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=104",
+            "./src/ui/home.js": "./src/ui/home.js?v=104",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=104",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=104",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=104",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=104",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=104",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=104",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=104",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=104"
         }
     }
     </script>
@@ -766,7 +766,7 @@
                         <div class="rule-step"><div class="content"><b>Tasse 33%</b>: aliquota italiana sui profitti netti. Applicate solo se il profitto lordo - fee è positivo.</div></div>
                         <div class="rule-step"><div class="content"><b>Profitto Netto Finale</b> = Lordo - Fee - Funding - Tasse. Non cambia con la leva (la size viene dal rischio); in futures accanto c'è il <b>rendimento sul margine</b>, che con più leva sale perché il margine bloccato è più piccolo.</div></div>
                         <div class="rule-step"><div class="content"><b>Assistente</b> (icona del fumetto in Home, anche col microfono): risponde su tutto il tool (bot, saldo, strategie, prezzi) e su richiesta mette una strategia su carta o la spegne, cambia Simulato/Reale, attiva o sblocca l'emergenza, rilancia il laboratorio, apre l'analisi AI di una coin o una pagina. Ogni azione parte solo con <b>Conferma</b>; per Reale ed emergenza c'è anche la conferma solita.</div></div>
-                        <div class="rule-step"><div class="content"><b>Chat e Voce</b> (su ogni posizione simulata): scrivi o parla, ad esempio «se arriva a 10 USDT di profitto chiudi», «chiudi se perdo 5 USDT», «sposta lo stop a pareggio», «target a 75.000», «chiudi subito». L'assistente propone l'azione con il prezzo esatto (commissioni e tasse comprese) e parte solo con <b>Conferma</b>. Le regole compaiono sulla posizione (✕ per toglierle) e le controlla l'app, anche sulle candele perse mentre era chiusa. Gratis (Groq); la voce la legge iOS.</div></div>
+                        <div class="rule-step"><div class="content"><b>Chat e Voce</b> (su ogni posizione, simulata o reale; sulle reali diventano ordini veri su Bitget: take profit, stop loss o chiusura a mercato, uno solo per tipo, eseguiti dal workflow «Posizione Bitget» con esito su Telegram): scrivi o parla, ad esempio «se arriva a 10 USDT di profitto chiudi», «chiudi se perdo 5 USDT», «sposta lo stop a pareggio», «target a 75.000», «chiudi subito». L'assistente propone l'azione con il prezzo esatto (commissioni e tasse comprese) e parte solo con <b>Conferma</b>. Le regole compaiono sulla posizione (✕ per toglierle) e le controlla l'app, anche sulle candele perse mentre era chiusa. Gratis (Groq); la voce la legge iOS.</div></div>
                         <div class="rule-step"><div class="content"><b>Analisi AI live</b> (Grafici, e su ogni posizione): legge in quel momento prezzo, candele 1d/4h/1h, funding e open interest; il server calcola EMA, RSI, ATR, livelli e volumi e un modello Groq risponde con quadro, livelli, rischi, scenari e azione. Il modello viene scelto da solo tra quelli disponibili. È un'opinione, non un segnale validato.</div></div>
                     </div>
                     <div class="rule-card">
@@ -1120,6 +1120,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=103"></script>
+<script type="module" src="./src/main.js?v=104"></script>
 </body>
 </html>

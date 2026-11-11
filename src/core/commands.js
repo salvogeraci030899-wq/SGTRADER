@@ -97,6 +97,17 @@ export async function command(body, env, fetchFn) {
             return dispatch(env, fetchFn, 'automation.yml', { action: 'emergency', key: '', mode: '' });
         case 'resume':
             return dispatch(env, fetchFn, 'automation.yml', { action: 'resume', key: '', mode: '' });
+        case 'position': {
+            // posizione REALE su Bitget (assistente): chiusura, TP, SL, rimozione TP/SL. position_cmd.py ricontrolla tutto.
+            const price = b.price == null || b.price === '' ? '' : String(b.price);
+            if (!['close', 'tp', 'sl', 'clear'].includes(b.action) || !['BTCUSDT', 'ETHUSDT', 'SOLUSDT'].includes(b.symbol) || !['long', 'short'].includes(b.side)) {
+                return json(400, { error: 'Comando sulla posizione non valido' });
+            }
+            if (['tp', 'sl'].includes(b.action) ? !/^\d{1,9}(\.\d{1,8})?$/.test(price) || !(Number(price) > 0) : price !== '') {
+                return json(400, { error: 'Prezzo non valido' });
+            }
+            return dispatch(env, fetchFn, 'position.yml', { action: b.action, symbol: b.symbol, side: b.side, price });
+        }
         default:
             return json(400, { error: 'Comando sconosciuto' });
     }
@@ -276,7 +287,7 @@ export async function analyze(body, env, fetchFn) {
 // Risponde in breve e, se l'utente chiede qualcosa da fare, propone UNA azione strutturata scelta da
 // un elenco chiuso. L'app la ricontrolla (src/core/rules.js) e la applica solo dopo conferma.
 const ASSISTANT_SYSTEM = `Sei l'assistente di trading di SGTRADER e parli in italiano, in modo breve (massimo 60 parole).
-Ricevi i dati di UNA posizione simulata e un messaggio dell'utente. Rispondi SOLO con un oggetto JSON:
+Ricevi i dati di UNA posizione (simulata dell'app oppure REALE su Bitget) e un messaggio dell'utente. Rispondi SOLO con un oggetto JSON:
 {"reply": "testo per l'utente", "action": null oppure un'azione}
 Azioni possibili (usa SOLO queste, con questi campi):
 - {"type":"close_at_pnl","value":numero,"unit":"usdt" o "pct"}: chiudi quando il PnL netto arriva a value (negativo per una perdita massima; pct = percentuale del capitale della posizione)
@@ -293,7 +304,10 @@ Non dare consigli finanziari come certezze.`;
 function positionFacts(p) {
     const n = v => show(num(v));
     const rules = Array.isArray(p.rules) ? p.rules.slice(0, 5).map(r => (typeof r === 'string' ? r.slice(0, 80) : '')).filter(Boolean) : [];
-    return `Posizione: ${ANALYZE_SYMBOLS.includes(p.symbol) ? p.symbol : 'N/D'} ${['LONG', 'SHORT'].includes(p.type) ? p.type : 'N/D'}, `
+    const real = p.real === true
+        ? 'Posizione REALE su Bitget: le chiusure automatiche diventano un take profit o uno stop loss sull\'exchange (uno solo per tipo: il nuovo sostituisce il vecchio); "togli le regole" toglie TP e SL. PnL senza tasse.\n'
+        : '';
+    return `${real}Posizione: ${ANALYZE_SYMBOLS.includes(p.symbol) ? p.symbol : 'N/D'} ${['LONG', 'SHORT'].includes(p.type) ? p.type : 'N/D'}, `
         + `mercato ${p.market === 'FUTURES' ? 'futures' : 'spot'}, leva ${n(p.leverage)}x, timeframe ${ANALYZE_TFS.includes(p.timeframe) ? p.timeframe : 'N/D'}.
 Entry ${n(p.entry)}, prezzo attuale ${n(p.price)}, stop ${n(p.stop)}, target ${n(p.take)}.
 Quantità ${n(p.size)}, capitale impiegato ${n(p.capital)} USDT, PnL netto ora ${n(p.pnl)} USDT, aperta da ${n(p.hours_open)} ore.
