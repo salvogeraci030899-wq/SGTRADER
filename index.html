@@ -30,32 +30,32 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=78">
-    <meta name="app-version" content="78">
+    <link rel="stylesheet" href="./style.css?v=79">
+    <meta name="app-version" content="79">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=78",
-            "./src/core/commands.js": "./src/core/commands.js?v=78",
-            "./src/core/config.js": "./src/core/config.js?v=78",
-            "./src/core/logger.js": "./src/core/logger.js?v=78",
-            "./src/core/state.js": "./src/core/state.js?v=78",
-            "./src/main.js": "./src/main.js?v=78",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=78",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=78",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=78",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=78",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=78",
-            "./src/ui/home.js": "./src/ui/home.js?v=78",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=78",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=78",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=78",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=78",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=78",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=78",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=78",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=78"
+            "./src/core/backup.js": "./src/core/backup.js?v=79",
+            "./src/core/commands.js": "./src/core/commands.js?v=79",
+            "./src/core/config.js": "./src/core/config.js?v=79",
+            "./src/core/logger.js": "./src/core/logger.js?v=79",
+            "./src/core/state.js": "./src/core/state.js?v=79",
+            "./src/main.js": "./src/main.js?v=79",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=79",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=79",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=79",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=79",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=79",
+            "./src/ui/home.js": "./src/ui/home.js?v=79",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=79",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=79",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=79",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=79",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=79",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=79",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=79",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=79"
         }
     }
     </script>
@@ -292,6 +292,8 @@
                     <div class="res-item"><span class="res-label">Size Nominale</span><span class="res-val" id="resSize">-</span></div>
                     <div class="res-item fut-only" style="display:none;"><span class="res-label">Liquidazione (stima)</span><span class="res-val" id="resLiq">-</span></div>
                     <div class="res-item fut-only" style="display:none;"><span class="res-label" id="resFundingLabel">Funding stimato</span><span class="res-val tax" id="resFunding">-</span></div>
+                    <div class="res-item fut-only" style="display:none;"><span class="res-label">Leva minima</span><span class="res-val" id="resLevMin">-</span></div>
+                    <div class="res-item fut-only" style="display:none;"><span class="res-label">Leva max sicura</span><span class="res-val" id="resLevMax">-</span></div>
                     <div class="res-item"><span class="res-label">Profitto Lordo</span><span class="res-val" id="resGross">-</span></div>
                     <div class="res-item"><span class="res-label">Costi Totali</span><span class="res-val tax" id="resCosts">-</span></div>
                     <div class="res-item"><span class="res-label">Tasse (33%)</span><span class="res-val tax" id="resTax">-</span></div>
@@ -383,7 +385,7 @@
             <div class="header-row">
                 <div class="header-title">
                     <h1>Backtest</h1>
-                    <p id="testSubtitle">Ultime 3000 candele · Train 70% / Test 30%</p>
+                    <p id="testSubtitle">3000 candele · train 70 / test 30</p>
                 </div>
                 <div class="market-toggle">
                     <button id="btn-view-bt" onclick="setTestView('bt')" class="active">Prova</button>
@@ -632,6 +634,7 @@
                         <div class="rule-step"><div class="content"><b>Input principali</b>: capitale disponibile, rischio target % (tipico 1-2%), direzione (LONG/SHORT), entry, stop loss, target, fee, slippage, leva (se futures).</div></div>
                         <div class="rule-step"><div class="content"><b>Size nominale</b> = (capitale × rischio%) / (distanza stop% + slippage% + 2 × fee%). È la dimensione in USDT della posizione.</div></div>
                         <div class="rule-step"><div class="content"><b>Margine richiesto</b> = size / leva. Solo in futures. In spot = size (leva 1x).</div></div>
+                        <div class="rule-step"><div class="content"><b>La leva non cambia il rischio</b>: la size viene da rischio % e distanza dello stop. La leva decide solo il margine bloccato e dove sta la liquidazione. <b>Leva minima</b> = quella che serve perché il margine stia nel capitale (gialla se la tua è più bassa: la size viene ridotta). <b>Leva max sicura</b> = la più alta con la liquidazione ben oltre lo stop, mai oltre 5x (rossa se la superi).</div></div>
                         <div class="rule-step"><div class="content"><b>R:R Ratio</b> = |target - entry| / |entry - stop|. Sotto <b>1.5</b> è sconsigliato. Tra 1.5 e 2.0 è marginale. Sopra 2.0 è buono.</div></div>
                         <div class="rule-step"><div class="content"><b>Fee</b>: applicate sia in ingresso che in uscita (2 × fee%). <b>Slippage</b>: peggioramento stimato del prezzo di esecuzione.</div></div>
                         <div class="rule-step"><div class="content"><b>Tasse 33%</b>: aliquota italiana sui profitti netti. Applicate solo se il profitto lordo - fee è positivo.</div></div>
@@ -1002,6 +1005,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=78"></script>
+<script type="module" src="./src/main.js?v=79"></script>
 </body>
 </html>

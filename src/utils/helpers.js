@@ -202,7 +202,8 @@ export function calcPnl(trade, price) {
     const gross = (trade.type === 'LONG' ? price - trade.entryPrice : trade.entryPrice - price) * trade.size;
     const entryNotional = trade.size * trade.entryPrice;
     const exitNotional = trade.size * price;
-    const fees = entryNotional * CONFIG.FEE_RATE + exitNotional * CONFIG.FEE_RATE;
+    const rate = trade.feeRate > 0 ? trade.feeRate : CONFIG.FEE_RATE;      // posizioni vecchie: 0,1% per lato
+    const fees = (entryNotional + exitNotional) * rate;
     const beforeTax = gross - fees;
     const tax = beforeTax > 0 ? beforeTax * CONFIG.TAX_RATE : 0;
     return { gross, fees, tax, net: beforeTax - tax };

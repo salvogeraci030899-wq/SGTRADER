@@ -143,6 +143,6 @@ export function setTestView(view) {
     $('btView').style.display = view === 'bt' ? '' : 'none';
     $('labView').style.display = view === 'lab' ? '' : 'none';
     const sub = $('testSubtitle');
-    if (view === 'bt') { if (sub) sub.textContent = 'Ultime 3000 candele · Train 70% / Test 30%'; }
+    if (view === 'bt') { if (sub) sub.textContent = '3000 candele · train 70 / test 30'; }
     else renderLab();
 }
