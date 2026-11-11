@@ -1,5 +1,5 @@
 import { State } from '../core/state.js';
-import { $, SYM, fetchT, calcPnl, escapeHtml } from '../utils/helpers.js';
+import { $, SYM, fetchT, calcPnl, escapeHtml, fmtIt } from '../utils/helpers.js';
 import { aggregateCellSignals } from './signals.js';
 import { bitgetAccountText } from './automation.js';
 import { updateModePills, tradingMode } from './account.js';
@@ -73,7 +73,7 @@ function renderMarket() {
         const pxEl = tile.querySelector('.home-tile-px'), chgEl = tile.querySelector('.home-tile-chg');
         pxEl.textContent = m && isFinite(m.px) ? fmtPx(m.px) : '—';
         if (m && m.chg != null) {
-            chgEl.textContent = `${m.chg >= 0 ? '+' : ''}${m.chg.toFixed(2)}% 24h`;
+            chgEl.textContent = `${m.chg >= 0 ? '+' : ''}${fmtIt(m.chg)}% 24h`;
             chgEl.className = 'home-tile-chg ' + (m.chg > 0 ? 'up' : m.chg < 0 ? 'down' : '');
         } else {
             chgEl.textContent = m ? 'dal bot' : '—';

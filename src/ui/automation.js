@@ -1,4 +1,4 @@
-import { $, escapeHtml, apiPost, getApiBase, setApiBase, clearAppKey, getGhToken, setGhToken, commandMode } from '../utils/helpers.js';
+import { $, escapeHtml, apiPost, getApiBase, setApiBase, clearAppKey, getGhToken, setGhToken, commandMode, fmtIt } from '../utils/helpers.js';
 
 // --- AUTOMAZIONE (pagina Segnali, vista "Auto") ---
 // Mostra e comanda le strategie automatiche: spenta, su carta (segnali seguiti senza ordini) o reale.
@@ -32,7 +32,7 @@ export const getAutoState = () => ({ cfg, ledger, lab, live, loaded, pendingTrad
 let pendingTrading = null;   // 'on' / 'off' inviato ma non ancora visibile in automation.json
 const pending = {};   // comandi inviati ma non ancora visibili nei file pubblicati
 
-const pct = (v, d = 2) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${v.toFixed(d)}%`);
+const pct = (v, d = 2) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${fmtIt(v, d)}%`);
 const day = iso => (iso ? new Date(iso).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—');
 const label = key => key.replace(':', ' ').replace(/_/g, ' ');
 

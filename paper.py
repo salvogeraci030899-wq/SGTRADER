@@ -145,7 +145,13 @@ def update(last_candles, config_path=CONFIG_PATH, ledger_path=LEDGER_PATH, downl
     now_iso = (now or datetime.now(timezone.utc)).isoformat(timespec="seconds")
     funding, changed = None, False
 
-    for key, mode in config.get("strategies", {}).items():
+    # strategie spente dall'app (o dall'emergenza): restano nel registro con i loro trade, ma "off"
+    active = config.get("strategies", {})
+    for key, entry in ledger["strategies"].items():
+        if key not in active and entry.get("mode") != "off":
+            entry["mode"], changed = "off", True
+
+    for key, mode in active.items():
         mode = effective_mode(key, mode, confirmed)
         name, tf = key.split(":")
         entry = ledger["strategies"].setdefault(key, {"mode": mode, "trades": [], "last_candle": {}, "stats": {"n": 0, "open": 0}})
