@@ -1,4 +1,5 @@
 import { CONFIG } from '../core/config.js';
+import { trigger as ghTrigger, command as ghCommand } from '../../api/_core.js';
 
 export const $ = id => document.getElementById(id);
 export const SYM = s => (s || '').replace('USDT', '');
@@ -27,7 +28,36 @@ export function setApiBase(url) {
 export function clearAppKey() {
     try { localStorage.removeItem(APP_KEY_STORAGE); } catch (e) {}
 }
+
+// Alternativa al server, senza Cloudflare né APP_SECRET: un token GitHub (fine-grained, solo questo
+// repository, permesso "Actions: Read and write") salvato su questo dispositivo. L'app avvia i
+// workflow direttamente con la stessa logica e gli stessi controlli del server (api/_core.js).
+// Il token può solo avviare workflow: non legge i segreti e non modifica il codice.
+const GH_TOKEN_STORAGE = 'kronos_gh_token';
+export function getGhToken() {
+    try { return localStorage.getItem(GH_TOKEN_STORAGE) || ''; } catch (e) { return ''; }
+}
+export function setGhToken(token) {
+    try {
+        if (token) localStorage.setItem(GH_TOKEN_STORAGE, token);
+        else localStorage.removeItem(GH_TOKEN_STORAGE);
+    } catch (e) {}
+}
+// Da dove partono i comandi: 'server' (indirizzo impostato), 'github' (token sul dispositivo),
+// 'site' (il sito stesso, solo su Vercel) oppure 'none'
+export function commandMode() {
+    if (getApiBase()) return 'server';
+    if (getGhToken()) return 'github';
+    if (location.hostname.endsWith('vercel.app')) return 'site';
+    return 'none';
+}
+
 export async function apiPost(path, body) {
+    if (commandMode() === 'github' && (path === '/api/command' || path === '/api/trigger')) {
+        const fn = path === '/api/command' ? ghCommand : ghTrigger;
+        const { status, body: out } = await fn(body, { GH_TOKEN: getGhToken() }, (u, o) => fetch(u, o));
+        return new Response(JSON.stringify(out), { status, headers: { 'Content-Type': 'application/json' } });
+    }
     const url = getApiBase() + path;
     const send = () => {
         let key = '';

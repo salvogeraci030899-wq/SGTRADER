@@ -71,6 +71,13 @@ test('comandi rifiutati prima di toccare GitHub', async () => {
     assert.equal(calls.length, 0);
 });
 
+test('token GitHub rifiutato: messaggio chiaro', async () => {
+    const denied = async () => ({ ok: false, status: 401 });
+    const r = await handle('POST', '/api/command', { type: 'emergency' }, ok, env, denied);
+    assert.equal(r.status, 502);
+    assert.match(r.body.error, /Actions: Read and write/);
+});
+
 test('trigger e analisi', async () => {
     calls.length = 0;
     let r = await handle('POST', '/api/trigger', { symbol: 'ETHUSDT', timeframe: '4h' }, ok, env, fakeFetch);

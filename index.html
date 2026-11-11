@@ -30,31 +30,32 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=62">
-    <meta name="app-version" content="62">
+    <link rel="stylesheet" href="./style.css?v=63">
+    <meta name="app-version" content="63">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=62",
-            "./src/core/config.js": "./src/core/config.js?v=62",
-            "./src/core/logger.js": "./src/core/logger.js?v=62",
-            "./src/core/state.js": "./src/core/state.js?v=62",
-            "./src/main.js": "./src/main.js?v=62",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=62",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=62",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=62",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=62",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=62",
-            "./src/ui/home.js": "./src/ui/home.js?v=62",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=62",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=62",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=62",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=62",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=62",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=62",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=62",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=62"
+            "./src/core/backup.js": "./src/core/backup.js?v=63",
+            "./src/core/config.js": "./src/core/config.js?v=63",
+            "./src/core/logger.js": "./src/core/logger.js?v=63",
+            "./src/core/state.js": "./src/core/state.js?v=63",
+            "./src/main.js": "./src/main.js?v=63",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=63",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=63",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=63",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=63",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=63",
+            "./src/ui/home.js": "./src/ui/home.js?v=63",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=63",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=63",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=63",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=63",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=63",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=63",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=63",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=63",
+            "./api/_core.js": "./api/_core.js?v=63"
         }
     }
     </script>
@@ -917,15 +918,24 @@
         </div>
 
         <div class="settings-section">
-            <div class="settings-section-title">Server comandi</div>
+            <div class="settings-section-title">Comandi (Segnali → Auto, Aggiorna)</div>
+            <div class="settings-hint">Token GitHub fine-grained, solo sul repository SGTRADER, permesso "Actions: Read and write". Resta solo su questo dispositivo. <span id="ghTokenState"></span></div>
+            <div class="settings-field">
+                <input type="password" id="ghTokenInput" placeholder="github_pat_…" autocomplete="off" autocapitalize="off" spellcheck="false">
+                <button class="btn-generic btn-generic-tight" onclick="saveGhToken()">Salva</button>
+            </div>
+            <button class="settings-item" onclick="removeGhToken()">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                <span>Rimuovi token GitHub</span>
+            </button>
+            <div class="settings-hint">In alternativa, indirizzo di un server comandi (es. Cloudflare): se impostato ha la precedenza.</div>
             <div class="settings-field">
                 <input type="url" id="apiBaseInput" placeholder="https://sgtrader-server.….workers.dev" autocomplete="off" autocapitalize="off" spellcheck="false">
                 <button class="btn-generic btn-generic-tight" onclick="saveServerSettings()">Salva</button>
             </div>
-            <div class="settings-hint">Serve per test, interruttori ed emergenza dalla pagina Segnali → Auto. Vuoto = il sito stesso (solo Vercel).</div>
             <button class="settings-item" onclick="resetAppKey()">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <span>Cambia chiave app</span>
+                <span>Cambia chiave app (solo server)</span>
             </button>
         </div>
 
@@ -955,6 +965,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=62"></script>
+<script type="module" src="./src/main.js?v=63"></script>
 </body>
 </html>
