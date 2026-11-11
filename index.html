@@ -30,32 +30,32 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=64">
-    <meta name="app-version" content="64">
+    <link rel="stylesheet" href="./style.css?v=65">
+    <meta name="app-version" content="65">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=64",
-            "./src/core/config.js": "./src/core/config.js?v=64",
-            "./src/core/logger.js": "./src/core/logger.js?v=64",
-            "./src/core/state.js": "./src/core/state.js?v=64",
-            "./src/main.js": "./src/main.js?v=64",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=64",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=64",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=64",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=64",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=64",
-            "./src/ui/home.js": "./src/ui/home.js?v=64",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=64",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=64",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=64",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=64",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=64",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=64",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=64",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=64",
-            "./api/_core.js": "./api/_core.js?v=64"
+            "./src/core/backup.js": "./src/core/backup.js?v=65",
+            "./src/core/config.js": "./src/core/config.js?v=65",
+            "./src/core/logger.js": "./src/core/logger.js?v=65",
+            "./src/core/state.js": "./src/core/state.js?v=65",
+            "./src/main.js": "./src/main.js?v=65",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=65",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=65",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=65",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=65",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=65",
+            "./src/ui/home.js": "./src/ui/home.js?v=65",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=65",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=65",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=65",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=65",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=65",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=65",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=65",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=65",
+            "./api/_core.js": "./api/_core.js?v=65"
         }
     }
     </script>
@@ -550,15 +550,15 @@
                     <div class="rule-card">
                         <div class="rule-card-title blue">Architettura del Sistema</div>
                         <div class="rule-step"><div class="content"><b>Bot Python</b> su <em>GitHub Actions</em>. Scarica candele da Bitget, calcola indicatori tecnici, esegue simulazioni Monte Carlo, genera un piano operativo con entry/SL/TP, e scrive il tutto in <span class="mono">dashboard.json</span>.</div></div>
-                        <div class="rule-step"><div class="content"><b>dashboard.json</b> è il file statico che contiene, per ogni coppia asset/timeframe: storico candele, forecast, bande di confidenza, probabilità di rialzo e piano operativo AI. Viene hostato su Vercel.</div></div>
-                        <div class="rule-step"><div class="content"><b>Vercel Serverless</b> fornisce due endpoint: <span class="mono">/api/trigger</span> per avviare il bot via webhook GitHub, e <span class="mono">/api/analyze</span> che fa da proxy verso Groq (Llama 3.3) per l'Analisi AI in tempo reale.</div></div>
+                        <div class="rule-step"><div class="content"><b>dashboard.json</b> è il file statico che contiene, per ogni coppia asset/timeframe: storico candele, forecast, bande di confidenza, probabilità di rialzo e piano operativo AI. Viene pubblicato con il sito (GitHub Pages o Vercel).</div></div>
+                        <div class="rule-step"><div class="content"><b>Comandi</b> (Aggiorna, Segnali → Auto): partono da GitHub con il token salvato sul telefono, oppure da un server comandi (Vercel o Cloudflare) protetto da <span class="mono">APP_SECRET</span>. Avviano solo workflow del repository, che ricontrollano ogni comando.</div></div>
                         <div class="rule-step"><div class="content"><b>Frontend PWA</b>: <span class="mono">index.html</span>, <span class="mono">style.css</span> e moduli JS in <span class="mono">src/</span>, Lightweight Charts 4.1.3, localStorage per persistenza, manifest e meta per comportamento nativo su iPhone.</div></div>
-                        <div class="rule-step"><div class="content"><b>Bitget API</b>: prezzi live (tickers), candele storiche (per Signal Engine e Backtest). Nessuna chiave privata — tutto spot pubblico.</div></div>
+                        <div class="rule-step"><div class="content"><b>Bitget API</b>: prezzi, candele e dati futures pubblici. Le chiavi private servono solo all'esecutore per gli ordini veri, stanno nei segreti di GitHub e mai nell'app.</div></div>
                         <div class="rule-step"><div class="content"><b>Persistenza locale</b> su due chiavi separate: <span class="mono">kronos_state_v3</span> (trades) e <span class="mono">kronos_signals_v1</span> (segnali + impostazioni notifiche).</div></div>
                     </div>
                     <div class="rule-card">
                         <div class="rule-card-title default">Flusso Dati</div>
-                        <div class="rule-step"><div class="content"><b>GitHub Actions</b> (ogni 15 min) → scarica dati → calcola → scrive <span class="mono">dashboard.json</span> → Vercel lo serve → SGTRADER lo legge ogni 2 minuti.</div></div>
+                        <div class="rule-step"><div class="content"><b>GitHub Actions</b> (ogni 30 min) → scarica dati → calcola → scrive <span class="mono">dashboard.json</span>, track record, dati futures, prova su carta ed esecutore → il sito li pubblica → SGTRADER li legge.</div></div>
                         <div class="rule-step"><div class="content"><b>Signal Engine</b> (ogni 10 min) → chiama Bitget per candele fresche → calcola 3 strategie + SGTRADER AI → aggrega consensus → eventualmente notifica.</div></div>
                         <div class="rule-step"><div class="content"><b>Price Polling</b> (ogni 5 sec) → aggiorna prezzo header, PnL trade attivi, verifica chiusure TP/SL automatiche.</div></div>
                     </div>
@@ -795,6 +795,26 @@
                     </div>
                 </div>
 
+                <!-- SLIDE: VALIDAZIONE E AUTOMAZIONE -->
+                <div class="info-slide">
+                    <div class="rule-card">
+                        <div class="rule-card-title green">Come si decide se un segnale vale</div>
+                        <div class="rule-step"><div class="content"><b>1. Ricerca</b> → Backtest → Lab. Ogni strategia è provata sullo storico Bitget con costi futures e funding. Conta il risultato <b>oltre il mercato</b>: guadagnare in un mercato che sale non è merito della strategia.</div></div>
+                        <div class="rule-step"><div class="content"><b>2. Candidata</b> → vantaggio che supera la correzione per prove multiple (più strategie provi, più alta è l'asticella) e stabile su due metà del periodo e almeno due coin.</div></div>
+                        <div class="rule-step"><div class="content"><b>3. Prova finale</b> → gli ultimi 12 mesi sono sigillati: una candidata li vede una volta sola, a regole congelate. Solo così diventa <b>confermata</b>.</div></div>
+                        <div class="rule-step"><div class="content"><b>4. Su carta</b> → il bot segue i segnali dal vivo senza ordini (Segnali → Auto) e avvisa su Telegram.</div></div>
+                        <div class="rule-step"><div class="content"><b>5. Reale</b> → solo strategie confermate, con l'interruttore degli ordini veri acceso e le chiavi Bitget impostate.</div></div>
+                        <div class="highlight-box"><b>Kronos</b>: validato su oltre 3.700 previsioni fuori campione, <b>nessun vantaggio dimostrato</b>. Per questo i suoi segnali portano l'avviso "non validato".</div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title blue">Segnali → Auto</div>
+                        <div class="rule-step"><div class="content"><b>Strategie</b>: per ognuna Spenta, Su carta o Reale. Reale resta grigio finché la strategia non è confermata. <b>Aggiungi</b> mette su carta una strategia del laboratorio.</div></div>
+                        <div class="rule-step"><div class="content"><b>Rischio</b>: rischio per trade, leva massima, esposizione totale, posizioni massime, perdita massima al giorno, e l'interruttore degli ordini veri.</div></div>
+                        <div class="rule-step"><div class="content"><b>Emergenza</b>: spegne tutte le strategie, chiude le posizioni aperte dall'esecutore e blocca. <b>Sblocca</b> riattiva, ma le strategie restano spente.</div></div>
+                        <div class="rule-step"><div class="content"><b>Esecutore</b>: ogni posizione nasce con lo stop già su Bitget. A ogni giro confronta le posizioni su Bitget con quelle attese: se non coincidono si blocca e avvisa.</div></div>
+                        <div class="rule-step"><div class="content"><b>Primo avvio</b>: Impostazioni → Comandi → token GitHub fine-grained, solo su SGTRADER, permesso "Actions: Read and write".</div></div>
+                    </div>
+                </div>
                 <!-- SLIDE 13 -->
                 <div class="info-slide">
                     <div class="rule-card rule-card-intro">
@@ -829,6 +849,7 @@
                 <div class="info-dot" onclick="goToSlide(11)"></div>
                 <div class="info-dot" onclick="goToSlide(12)"></div>
                 <div class="info-dot" onclick="goToSlide(13)"></div>
+                <div class="info-dot" onclick="goToSlide(14)"></div>
             </div>
         </section>
     </main>
@@ -966,6 +987,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=64"></script>
+<script type="module" src="./src/main.js?v=65"></script>
 </body>
 </html>
