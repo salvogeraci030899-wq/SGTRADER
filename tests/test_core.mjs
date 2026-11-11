@@ -179,6 +179,16 @@ test('worker: CORS solo per le origini ammesse', async () => {
         assert.deepEqual(await r.json(), { status: 'started', workflow: 'automation.yml' });
         const nokey = await worker.fetch(new Request('https://w.dev/api/command', { method: 'POST', body: '{"type":"resume"}' }), env);
         assert.equal(nokey.status, 401);
+        // IA: solo dall'app (origine ammessa) o con la chiave app; limite di richieste al minuto
+        const open = { ...env, APP_SECRET: '' };                                            // server senza chiave app
+        const ai = (origin, key, ip = '1.1.1.1') => worker.fetch(new Request('https://w.dev/api/analyze', { method: 'POST', headers: { ...(origin ? { Origin: origin } : {}), ...(key ? { 'x-app-key': key } : {}), 'CF-Connecting-IP': ip, 'Content-Type': 'application/json' }, body: JSON.stringify({ symbol: 'BTCUSDT', timeframe: '1d', type: 'NONE' }) }), key ? env : open);
+        assert.equal((await ai(null)).status, 403);                                          // script senza origine
+        assert.equal((await ai('https://evil.example')).status, 403);                        // altro sito
+        assert.equal((await ai(null, 'segreto-lungo')).status, 200);                         // con la chiave app
+        assert.equal((await ai('https://salvogeraci030899-wq.github.io', null, '2.2.2.2')).status, 200);
+        let last = 200;
+        for (let i = 0; i < 31; i++) last = (await ai('https://salvogeraci030899-wq.github.io', null, '3.3.3.3')).status;
+        assert.equal(last, 429);
     } finally {
         globalThis.fetch = origFetch;
     }
