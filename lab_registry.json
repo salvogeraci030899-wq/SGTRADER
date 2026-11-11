@@ -25,6 +25,14 @@
    "description": "Segue la direzione di una candela il cui corpo supera 1,5 volte l'ATR precedente. Tenuta 5 candele, stop 1,5 ATR, target 3 ATR.",
    "first_tested": "2026-11-11"
   },
+  "big_candle_trail:1d": {
+   "description": "Ingressi di big_candle ma lasciati correre: stop 1,5 ATR, stop che segue a 3 ATR, massimo 20 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "big_candle_trail:4h": {
+   "description": "Ingressi di big_candle ma lasciati correre: stop 1,5 ATR, stop che segue a 3 ATR, massimo 20 candele.",
+   "first_tested": "2026-11-11"
+  },
   "bollinger_revert:1d": {
    "description": "Long se la chiusura \u00e8 sotto la banda inferiore di Bollinger (20, 2) ma sopra la media a 200; short speculare. Tenuta 5 candele, stop 3 ATR.",
    "first_tested": "2026-11-11"
@@ -71,6 +79,22 @@
   },
   "donchian20_long:4h": {
    "description": "Solo la parte long di donchian20 (utilizzabile anche in spot).",
+   "first_tested": "2026-11-11"
+  },
+  "donchian20_regime:1d": {
+   "description": "donchian20 con filtro di regime: long solo sopra la media a 200, short solo sotto. Stesse uscite di donchian20.",
+   "first_tested": "2026-11-11"
+  },
+  "donchian20_regime:4h": {
+   "description": "donchian20 con filtro di regime: long solo sopra la media a 200, short solo sotto. Stesse uscite di donchian20.",
+   "first_tested": "2026-11-11"
+  },
+  "donchian20_turtle:1d": {
+   "description": "Ingressi di donchian20, uscita classica 'a canale': si esce quando la chiusura rompe il minimo (long) o il massimo (short) delle 10 candele precedenti. Stop 2 ATR, massimo 120 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "donchian20_turtle:4h": {
+   "description": "Ingressi di donchian20, uscita classica 'a canale': si esce quando la chiusura rompe il minimo (long) o il massimo (short) delle 10 candele precedenti. Stop 2 ATR, massimo 120 candele.",
    "first_tested": "2026-11-11"
   },
   "donchian55:1d": {
@@ -143,6 +167,14 @@
   },
   "tsmom90:4h": {
    "description": "Come tsmom30 ma sul rendimento delle ultime 90 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "tsmom_combo:1d": {
+   "description": "Long se i rendimenti a 30 e a 90 candele sono entrambi positivi, short se entrambi negativi. Tenuta 7 candele, stop 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
+  "tsmom_combo:4h": {
+   "description": "Long se i rendimenti a 30 e a 90 candele sono entrambi positivi, short se entrambi negativi. Tenuta 7 candele, stop 3 ATR.",
    "first_tested": "2026-11-11"
   }
  },
