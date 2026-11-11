@@ -52,7 +52,8 @@ jobs:
           path: ~/.cache/huggingface
           key: hf-kronos-v1
       - name: Installa dipendenze
-        run: pip install -r requirements.txt
+        # torch solo CPU: i server di GitHub non hanno GPU; evita di scaricare le librerie CUDA (vari GB)
+        run: pip install torch --index-url https://download.pytorch.org/whl/cpu && pip install -r requirements.txt
       # Pochi punti nuovi per due timeframe (1d usa un contesto più corto), poi le statistiche.
       # I file già presenti nel repository vengono messi da parte: qui si prova solo il percorso.
       - name: Previsioni di prova
@@ -90,7 +91,8 @@ jobs:
           path: ~/.cache/huggingface
           key: hf-kronos-v1
       - name: Installa dipendenze
-        run: pip install -r requirements.txt
+        # torch solo CPU: i server di GitHub non hanno GPU; evita di scaricare le librerie CUDA (vari GB)
+        run: pip install torch --index-url https://download.pytorch.org/whl/cpu && pip install -r requirements.txt
       # Gli input passano da variabili d'ambiente, mai incollati direttamente nel comando
       - name: Calcola le previsioni sullo storico
         env:

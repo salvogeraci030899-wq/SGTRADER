@@ -60,7 +60,8 @@ jobs:
 
       # Stesse dipendenze del bot live: il modello arriva dal pacchetto kronos-model-arch
       - name: Installa dipendenze
-        run: pip install -r requirements.txt
+        # torch solo CPU: i server di GitHub non hanno GPU; evita di scaricare le librerie CUDA (vari GB)
+        run: pip install torch --index-url https://download.pytorch.org/whl/cpu && pip install -r requirements.txt
 
       # Gli input passano da variabili d'ambiente, mai incollati direttamente nel comando.
       # --max-minutes ferma il backtest e salva il CSV prima del timeout del job.
