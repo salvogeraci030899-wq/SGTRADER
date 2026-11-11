@@ -2,7 +2,7 @@
  "started": "2026-11-11",
  "strategies": {
   "big_candle_trail:1d": {
-   "mode": "paper",
+   "mode": "off",
    "trades": [],
    "last_candle": {
     "BTCUSDT": 1794240000,
@@ -28,5 +28,5 @@
    }
   }
  },
- "updated_at": "2026-11-11T16:30:04+00:00"
+ "updated_at": "2026-11-11T17:49:15+00:00"
 }
