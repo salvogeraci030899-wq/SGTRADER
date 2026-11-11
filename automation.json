@@ -40,6 +40,13 @@
     "big_candle_trail:1d",
     "rsi2_pullback:1d"
    ]
+  },
+  {
+   "at": "2026-11-11T14:48:03+00:00",
+   "cmd": "set",
+   "key": "donchian20_turtle:1d",
+   "from": "off",
+   "to": "off"
   }
  ],
  "risk": {
