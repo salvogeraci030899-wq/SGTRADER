@@ -371,6 +371,7 @@ def build_summary(per_trial, funding, registry, unseal=(), today=None):
         "primary_scenario": PRIMARY,
         "scenarios": {k: {"label": v["label"], "cost_pct_per_side": v["cost"], "funding": v["funding"]} for k, v in SCENARIOS.items()},
         "tax_rate": TAX_RATE,
+        "descriptions": {name: spec["description"] for name, spec in lab_strategies.STRATEGIES.items()},
         "candidates": sorted(k for k, r in results.items() if r["candidate"]),
         "confirmed": sorted(k for k, r in results.items() if r.get("holdout", {}).get("confirmed")),
         "results": results,
@@ -382,6 +383,8 @@ def build_summary(per_trial, funding, registry, unseal=(), today=None):
 # =========================
 def to_markdown(s):
     sc = s["scenarios"][s["primary_scenario"]]
+    pending = [k for k in s["candidates"] if "holdout" not in s["results"][k]]
+    failed = sorted(k for k, r in s["results"].items() if "holdout" in r and not r["holdout"]["confirmed"])
     out = ["# Laboratorio strategie", "",
            f"Generato il {s['generated_at']} · {len(s['results'])} prove in questa esecuzione, {s['trials_registered']} registrate in tutto.", "",
            f"- **Ricerca** solo sullo storico prima del {s['holdout_start']}; da lì in poi è **sigillato** per la prova finale.",
@@ -394,8 +397,9 @@ def to_markdown(s):
            "- **Netto annuo per coin**: somma dei netti divisa per anni e coin, senza leva e senza reinvestire. Indicativo.",
            "- Una candidata non è un segnale valido: deve ancora superare la prova finale e poi la prova dal vivo senza soldi.",
            "- I risultati passati non garantiscono quelli futuri. Non è consulenza finanziaria.", "",
-           f"**Candidate: {', '.join(s['candidates']) if s['candidates'] else 'nessuna'}.** "
-           f"**Confermate dalla prova finale: {', '.join(s['confirmed']) if s['confirmed'] else 'nessuna'}.**", ""]
+           f"**Candidate in attesa della prova finale: {', '.join(pending) if pending else 'nessuna'}.** "
+           f"**Confermate: {', '.join(s['confirmed']) if s['confirmed'] else 'nessuna'}.** "
+           f"**Non confermate: {', '.join(failed) if failed else 'nessuna'}.**", ""]
     for tf in ALL_TIMEFRAMES:
         rows = sorted((r for r in s["results"].values() if r["tf"] == tf and r["n"]), key=lambda r: -r["excess_avg_pct"])
         if not rows:

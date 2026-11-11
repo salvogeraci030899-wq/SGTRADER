@@ -144,6 +144,18 @@ main {
 .bt-table th { color: var(--text-secondary); font-size: 10px; font-weight: 600; padding: 6px 4px; }
 .bt-table td { padding: 6px 4px; border-top: 1px solid var(--border); font-family: var(--mono); }
 .bt-table td:first-child, .bt-table th:first-child { text-align: left; padding-left: 10px; font-family: var(--font); }
+/* Laboratorio strategie: stessa pagina del Backtest, classifica a pagine orizzontali */
+.test-view { display: flex; flex-direction: column; flex-shrink: 0; min-width: 0; }
+.lab-summary { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.4; }
+.lab-summary b { color: var(--text); }
+.lab-pages { display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; gap: 10px; }
+.lab-pages::-webkit-scrollbar { display: none; }
+.lab-page { flex: 0 0 100%; scroll-snap-align: start; scroll-snap-stop: always; min-width: 0; }
+.lab-table { font-size: 11px; table-layout: fixed; }
+.lab-table th:first-child, .lab-table td:first-child { width: 34%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lab-table td { cursor: pointer; }
+#labDots { padding: 6px 0 0; }
+.bt-note.lab-note { margin-top: 6px; color: var(--text-secondary); }
 .bt-error { color: var(--danger); text-align: center; padding: 12px; font-size: 12px; }
 .bt-note { font-size: 11px; color: var(--warning); text-align: center; margin-top: 8px; line-height: 1.4; }
 

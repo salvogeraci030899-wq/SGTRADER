@@ -11,6 +11,7 @@ import * as BacktestUI from './ui/backtest.js';
 import * as HomeUI from './ui/home.js';
 import * as HomeCharts from './ui/home-charts.js';
 import * as Backup from './core/backup.js';
+import * as LabUI from './ui/lab.js';
 import { initManual } from './ui/manual.js';
 import { initPageFit } from './ui/page-fit.js';
 
@@ -144,6 +145,12 @@ window.selectOption = (btn) => {
 window.runBacktestSingle = BacktestUI.runBacktestSingle;
 window.exportBacktestCSV = BacktestUI.exportBacktestCSV;
 window.applyBtParams = BacktestUI.applyBtParams;
+
+// Laboratorio strategie (stessa pagina del Backtest)
+window.setTestView = LabUI.setTestView;
+window.renderLab = LabUI.renderLab;
+window.goToLabPage = LabUI.goToLabPage;
+window.openLabDetail = LabUI.openLabDetail;
 
 // Home
 window.updateHome = HomeUI.updateHome;
