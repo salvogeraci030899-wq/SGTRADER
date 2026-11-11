@@ -108,16 +108,38 @@ def load(symbol, out_dir=OUT_DIR):
     return pd.read_csv(p)
 
 
+def fill_funding(old, symbol, session, lookback_days=70):
+    """Binance pubblica il file mensile del funding solo a mese concluso: i giorni recenti restano
+    senza funding. Qui si riprovano i mesi con buchi negli ultimi giorni. Ritorna i valori riempiti."""
+    if not len(old):
+        return 0
+    recent = old[pd.to_datetime(old["date"]) >= pd.Timestamp(datetime.now(timezone.utc).date() - timedelta(days=lookback_days))]
+    holes = recent[recent["funding_pct"].isna()]
+    filled = 0
+    for y, m in sorted({(int(d[:4]), int(d[5:7])) for d in holes["date"]}):
+        f = funding_month(symbol, y, m, session)
+        for d, v in (f or {}).items():
+            mask = (old["date"] == d.isoformat()) & old["funding_pct"].isna()
+            if mask.any():
+                old.loc[mask, "funding_pct"] = v
+                filled += int(mask.sum())
+    return filled
+
+
 def update(symbol, since=FIRST_DAY, until=None, out_dir=OUT_DIR, session=None, workers=8):
-    """Aggiunge i giorni mancanti fino a ieri. Ritorna il numero di giorni nuovi."""
+    """Aggiunge i giorni mancanti fino a ieri e riempie il funding arrivato dopo.
+    Ritorna il numero di giorni nuovi o completati."""
     session = session or requests.Session()
     until = until or (datetime.now(timezone.utc).date() - timedelta(days=1))
     old = load(symbol, out_dir)
+    filled = fill_funding(old, symbol, session)
     known = set(old["date"]) if len(old) else set()
     days = [since + timedelta(days=i) for i in range((until - since).days + 1)]
     todo = [d for d in days if d.isoformat() not in known]
     if not todo:
-        return 0
+        if filled:
+            old.to_csv(path_for(symbol, out_dir), index=False, float_format="%.8g")
+        return filled
     months = sorted({(d.year, d.month) for d in todo})
     funding = {}
     for y, m in months:
@@ -135,12 +157,14 @@ def update(symbol, since=FIRST_DAY, until=None, out_dir=OUT_DIR, session=None, w
             continue                                    # giorno senza dati (prima dell'inizio dell'archivio)
         rows.append({"date": d.isoformat(), "funding_pct": funding.get(d), **{k: m.get(k) for k in COLUMNS[2:]}})
     if not rows:
-        return 0
+        if filled:
+            old.to_csv(path_for(symbol, out_dir), index=False, float_format="%.8g")
+        return filled
     df = pd.concat([old, pd.DataFrame(rows, columns=COLUMNS)], ignore_index=True)
     df = df.drop_duplicates("date", keep="last").sort_values("date").reset_index(drop=True)
     os.makedirs(out_dir, exist_ok=True)
     df.to_csv(path_for(symbol, out_dir), index=False, float_format="%.8g")
-    return len(rows)
+    return len(rows) + filled
 
 
 # =========================

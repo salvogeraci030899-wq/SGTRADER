@@ -81,6 +81,23 @@ def test_scarico_e_aggiornamento():
         assert "2024-02-08" not in set(fa.load("BTCUSDT", d)["date"])
 
 
+def test_funding_arrivato_dopo():
+    # il file mensile del funding del mese in corso non c'è ancora: i giorni restano senza funding...
+    today = date.today()
+    first = today - timedelta(days=40)
+    with tempfile.TemporaryDirectory() as d:
+        api = FakeBinance(first=first, fail=(f"fundingRate-{today:%Y-%m}",))
+        fa.update("BTCUSDT", since=first, until=today - timedelta(days=1), out_dir=d, session=api)
+        df = fa.load("BTCUSDT", d)
+        holes = df[df["funding_pct"].isna()]
+        assert len(holes) >= 1 and all(x.startswith(f"{today:%Y-%m}") for x in holes["date"])
+        # ...e vengono riempiti appena il file viene pubblicato, senza riscaricare le metriche
+        api2 = FakeBinance(first=first)
+        n = fa.update("BTCUSDT", since=first, until=today - timedelta(days=1), out_dir=d, session=api2)
+        df = fa.load("BTCUSDT", d)
+        assert n == len(holes) and df["funding_pct"].notna().all() and not any("metrics" in u for u in api2.calls)
+
+
 def daily(n=500, start="2023-01-01", seed=0):
     rng = np.random.default_rng(seed)
     days = pd.date_range(start, periods=n, freq="D")
