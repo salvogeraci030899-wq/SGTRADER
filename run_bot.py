@@ -245,6 +245,10 @@ def automation_step(frames, notify=None):
     except Exception as e:
         print(f"Esecutore non eseguito: {e}")
         notify(f"⚠️ Esecutore: errore inatteso ({e}). Controlla le posizioni su Bitget.")
+    try:
+        executor.account_snapshot(notify=notify)
+    except Exception as e:
+        print(f"Lettura del conto Bitget non riuscita: {e}")
 
 
 # =========================
