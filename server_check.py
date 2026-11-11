@@ -1,0 +1,78 @@
+"""Verifica dal vivo del server comandi su Cloudflare (workflow "Verifica server").
+
+Non usa segreti: chiama il server come farebbe l'app e controlla che
+- l'IA rifiuti chi non è l'app (nessuna origine → 403);
+- l'assistente risponda davvero con Groq a una richiesta tipo "se arriva a 10 USDT chiudi",
+  proponendo un'azione valida;
+- l'analisi AI risponda con il testo strutturato.
+Stampa il modello Groq usato. Nessun ordine, nessuna modifica.
+"""
+import json
+import os
+import sys
+import time
+
+import requests
+
+SERVER = os.environ.get("SERVER_URL", "https://sgtrader-server.salvogeraci030899.workers.dev").rstrip("/")
+ORIGIN = os.environ.get("APP_ORIGIN", "https://salvogeraci030899-wq.github.io")
+
+
+def post(path, body, origin=True):
+    headers = {"Content-Type": "application/json"}
+    if origin:
+        headers["Origin"] = ORIGIN
+    r = requests.post(SERVER + path, json=body, headers=headers, timeout=60)
+    try:
+        return r.status_code, r.json()
+    except ValueError:
+        return r.status_code, {"raw": r.text[:200]}
+
+
+def candles():
+    """Candele vere da Bitget (pubbliche) per l'analisi."""
+    out = {}
+    for tf, gran in (("1d", "1day"), ("4h", "4h"), ("1h", "1h")):
+        r = requests.get("https://api.bitget.com/api/v2/spot/market/candles",
+                         params={"symbol": "BTCUSDT", "granularity": gran, "limit": 220}, timeout=20)
+        rows = r.json().get("data") or []
+        out[tf] = sorted([[int(x[0]), *map(float, x[1:6])] for x in rows])
+    return out
+
+
+def main():
+    ok = True
+    status, body = post("/api/analyze", {"symbol": "BTCUSDT", "timeframe": "1d", "type": "NONE"}, origin=False)
+    print(f"1) IA senza origine dell'app: HTTP {status} {'(rifiutata, giusto)' if status == 403 else '(ATTESO 403)'}")
+    ok &= status == 403
+
+    cs = candles()
+    price = cs["1h"][-1][4] if cs["1h"] else 70000
+    position = {"symbol": "BTCUSDT", "type": "LONG", "market": "FUTURES", "leverage": 2, "timeframe": "4h",
+                "entry": round(price * 0.995, 1), "price": price, "stop": round(price * 0.97, 1), "take": round(price * 1.05, 1),
+                "size": 0.01, "capital": round(price * 0.01 / 2, 2), "pnl": 2.5, "hours_open": 3, "rules": []}
+    t0 = time.time()
+    status, body = post("/api/assistant", {"text": "se arriva a 10 usdt di profitto chiudi la posizione in automatico", "position": position})
+    action = body.get("action") if isinstance(body, dict) else None
+    print(f"2) Assistente: HTTP {status} in {time.time() - t0:.1f}s, modello {body.get('model')}")
+    print(f"   risposta: {str(body.get('reply') or body.get('error'))[:200]}")
+    print(f"   azione proposta: {json.dumps(action)}")
+    good = status == 200 and isinstance(action, dict) and action.get("type") == "close_at_pnl" and abs(float(action.get("value", 0)) - 10) < 1e-9
+    print("   " + ("OK: ha capito la regola" if good else "ATTENZIONE: azione diversa da quella attesa"))
+    ok &= status == 200
+
+    t0 = time.time()
+    status, body = post("/api/analyze", {"symbol": "BTCUSDT", "timeframe": "4h", "type": "NONE", "currentPrice": price, "candles": cs})
+    text = (body.get("analysis") or body.get("error") or "") if isinstance(body, dict) else ""
+    print(f"3) Analisi AI live: HTTP {status} in {time.time() - t0:.1f}s, modello {body.get('model')}")
+    print("   " + text[:600].replace("\n", "\n   "))
+    sections = [s for s in ("QUADRO", "LIVELLI", "SCENARI", "AZIONE") if s in text]
+    print(f"   sezioni trovate: {', '.join(sections) or 'nessuna'}")
+    ok &= status == 200 and len(sections) >= 3
+
+    print("ESITO: server e IA funzionano." if ok else "ESITO: qualcosa non va, vedi sopra.")
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

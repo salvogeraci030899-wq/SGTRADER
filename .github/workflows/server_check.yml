@@ -1,0 +1,25 @@
+name: Verifica server
+
+# Chiama dal vivo il server comandi su Cloudflare come farebbe l'app: protezione dell'IA,
+# assistente (Groq vero) e analisi AI. Nessun segreto, nessun ordine. Si avvia a mano.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Installa dipendenze minime
+        run: pip install requests
+      - name: Verifica dal vivo
+        run: |
+          set -o pipefail
+          python server_check.py | tee -a "$GITHUB_STEP_SUMMARY"
