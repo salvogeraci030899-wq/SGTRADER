@@ -167,6 +167,9 @@ window.okAutoConfirm = AutoUI.okAutoConfirm;
 window.saveServerSettings = AutoUI.saveServerSettings;
 window.resetAppKey = AutoUI.resetAppKey;
 window.saveGhToken = AutoUI.saveGhToken;
+window.openAutoRisk = AutoUI.openAutoRisk;
+window.closeAutoRisk = AutoUI.closeAutoRisk;
+window.saveAutoRisk = AutoUI.saveAutoRisk;
 window.removeGhToken = AutoUI.removeGhToken;
 
 // Home

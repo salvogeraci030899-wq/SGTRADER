@@ -7,7 +7,17 @@ import { $, escapeHtml, apiPost, getApiBase, setApiBase, clearAppKey, getGhToken
 // è ripetuto lì, in automation.py. I file letti qui sono quelli pubblicati: si aggiornano con ritardo.
 
 const MODE_LABEL = { off: 'Spenta', paper: 'Su carta', live: 'Reale' };
-let cfg = null, ledger = null, lab = null, loaded = false, loading = false;
+let cfg = null, ledger = null, lab = null, live = null, loaded = false, loading = false;
+// Limiti di rischio dell'esecutore: stessi valori predefiniti e intervalli di executor.py
+const DEFAULT_RISK = { trading_enabled: false, risk_per_trade_pct: 0.5, max_leverage: 3, max_exposure_x: 1.5, max_open_positions: 3, max_daily_loss_pct: 3, dry_run_equity: 1000 };
+const RISK_FIELDS = [
+    ['risk_per_trade_pct', 'Rischio per trade (%)', 0.1, 2, 0.1],
+    ['max_leverage', 'Leva massima (x)', 1, 5, 1],
+    ['max_exposure_x', 'Esposizione totale (x patrimonio)', 0.5, 3, 0.1],
+    ['max_open_positions', 'Posizioni aperte al massimo', 1, 6, 1],
+    ['max_daily_loss_pct', 'Perdita massima al giorno (%)', 1, 10, 0.5],
+];
+const riskCfg = () => ({ ...DEFAULT_RISK, ...((cfg && cfg.risk) || {}) });
 const pending = {};   // comandi inviati ma non ancora visibili nei file pubblicati
 
 const pct = (v, d = 2) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${v.toFixed(d)}%`);
@@ -24,7 +34,7 @@ async function getJson(name) {
 export async function loadAutomation() {
     if (loading) return;
     loading = true;
-    [cfg, ledger, lab] = await Promise.all([getJson('automation.json'), getJson('paper_trades.json'), getJson('lab_summary.json')]);
+    [cfg, ledger, lab, live] = await Promise.all([getJson('automation.json'), getJson('paper_trades.json'), getJson('lab_summary.json'), getJson('live_trades.json')]);
     loaded = true;
     loading = false;
     for (const [key, mode] of Object.entries(pending)) if (currentMode(key, true) === mode) delete pending[key];
@@ -53,13 +63,19 @@ export function renderAutomation() {
     if (!loaded) { status.innerHTML = 'Caricamento…'; loadAutomation(); return; }
 
     const emergency = !!(cfg && cfg.emergency);
+    const halted = !!(live && live.halted);
+    const risk = riskCfg();
+    const execMode = (live && live.mode) || 'simulata';
+    const realText = !risk.trading_enabled ? 'spenti (esecutore simulato)'
+        : (execMode === 'simulata' ? 'abilitati, ma senza chiavi Bitget o strategie confermate' : `abilitati (${execMode})`);
     const mode = commandMode();
     const serverText = { server: 'server impostato', github: 'token GitHub', site: 'questo sito', none: 'non impostati' }[mode];
     const onPaper = Object.values(cfg ? cfg.strategies : {}).filter(m => m !== 'off').length;
     status.innerHTML = `
         <div class="auto-row"><span>Comandi</span><b class="${mode === 'none' ? 'text-warning' : 'text-accent'}">${serverText}</b></div>
-        <div class="auto-row"><span>Stato</span><b class="${emergency ? 'text-danger' : 'text-accent'}">${emergency ? 'EMERGENZA: tutto bloccato' : `${onPaper} ${onPaper === 1 ? 'strategia attiva' : 'strategie attive'}`}</b></div>
-        <div class="auto-row"><span>Ordini reali</span><b>${(lab && lab.confirmed && lab.confirmed.length) ? 'consentiti solo per le confermate' : 'nessuna strategia confermata'}</b></div>`;
+        <div class="auto-row"><span>Stato</span><b class="${emergency || halted ? 'text-danger' : 'text-accent'}">${emergency ? 'EMERGENZA: tutto bloccato' : (halted ? 'esecutore bloccato: controlla Bitget' : `${onPaper} ${onPaper === 1 ? 'strategia attiva' : 'strategie attive'}`)}</b></div>
+        <div class="auto-row"><span>Ordini veri</span><b class="${risk.trading_enabled ? 'text-warning' : ''}">${realText}</b></div>
+        <div class="auto-row"><span>Rischio</span><b>${risk.risk_per_trade_pct}% a trade · leva ${risk.max_leverage}x · max ${risk.max_open_positions} · −${risk.max_daily_loss_pct}%/giorno</b></div>`;
 
     const keys = shownKeys();
     list.innerHTML = keys.length ? keys.map(key => {
@@ -79,16 +95,17 @@ export function renderAutomation() {
 
     const btn = $('autoEmergencyBtn');
     if (btn) {
-        btn.textContent = emergency ? 'Sblocca automazione' : 'Emergenza: spegni tutto';
-        btn.classList.toggle('auto-resume', emergency);
+        btn.textContent = emergency || halted ? 'Sblocca automazione' : 'Emergenza: spegni tutto';
+        btn.classList.toggle('auto-resume', emergency || halted);
     }
     const note = $('autoNote');
-    if (note) note.textContent = `Su carta dal ${day(cfg && cfg.paper_start)}. I comandi passano da GitHub: l'effetto si vede qui dopo qualche minuto. Ordini reali su Bitget: non ancora collegati.`;
+    if (note) note.textContent = `Su carta dal ${day(cfg && cfg.paper_start)}. I comandi passano da GitHub: l'effetto si vede qui dopo qualche minuto. Ordini veri solo con: strategia confermata in Reale, interruttore acceso e chiavi Bitget.`;
 }
 
 const NO_SERVER = 'Per inviare comandi serve un token GitHub (Impostazioni → Comandi) oppure l\'indirizzo di un server.';
 
 async function send(body, okText) {
+    // okText vuoto: l'esito positivo lo comunica chi chiama (più comandi di fila)
     // Su GitHub Pages (o in locale) senza indirizzo impostato non c'è nessun server: lo si dice subito
     if (commandMode() === 'none') {
         window.showAlert('Comando non inviato', NO_SERVER);
@@ -111,7 +128,7 @@ async function send(body, okText) {
         window.showAlert('Comando rifiutato', data.error || `Errore ${r.status}`);
         return false;
     }
-    window.showAlert('Comando inviato', okText);
+    if (okText) window.showAlert('Comando inviato', okText);
     return true;
 }
 
@@ -123,7 +140,7 @@ export async function setAutoMode(key, mode) {
 }
 
 export function toggleEmergency() {
-    const emergency = !!(cfg && cfg.emergency);
+    const emergency = !!(cfg && cfg.emergency) || !!(live && live.halted);
     openAutoConfirm(
         emergency ? 'Sblocca automazione' : 'Emergenza',
         emergency ? 'L\'automazione torna disponibile. Le strategie restano spente: vanno riaccese una a una.'
@@ -162,6 +179,44 @@ export function closeAutoAdd() { $('autoAddModal').classList.remove('active'); }
 export function addAutoPaper(key) {
     closeAutoAdd();
     setAutoMode(key, 'paper');
+}
+
+// --- Limiti di rischio e interruttore degli ordini veri ---
+export function openAutoRisk() {
+    const risk = riskCfg();
+    $('autoRiskFields').innerHTML = RISK_FIELDS.map(([f, text, lo, hi, step]) =>
+        `<label class="auto-risk-field"><span>${text}</span><input type="number" inputmode="decimal" id="risk_${f}" value="${risk[f]}" min="${lo}" max="${hi}" step="${step}"></label>`).join('');
+    $('riskTrading').value = risk.trading_enabled ? 'on' : 'off';
+    document.querySelectorAll('.option-toggle[data-target="riskTrading"] button').forEach(b => b.classList.toggle('active', b.dataset.value === $('riskTrading').value));
+    $('autoRiskModal').classList.add('active');
+}
+export function closeAutoRisk() { $('autoRiskModal').classList.remove('active'); }
+
+export async function saveAutoRisk() {
+    const risk = riskCfg();
+    const changes = [];
+    for (const [f, text, lo, hi, step] of RISK_FIELDS) {
+        const v = parseFloat(String($('risk_' + f).value).replace(',', '.'));
+        if (!(v >= lo && v <= hi) || (step === 1 && v !== Math.round(v))) {
+            window.showAlert('Valore non valido', `${text}: ammesso da ${lo} a ${hi}${step === 1 ? ', numero intero' : ''}.`);
+            return;
+        }
+        if (v !== Number(risk[f])) changes.push({ type: 'set_risk', field: f, value: String(v) });
+    }
+    const trading = $('riskTrading').value;
+    if ((trading === 'on') !== !!risk.trading_enabled) changes.push({ type: 'trading', value: trading });
+    closeAutoRisk();
+    if (!changes.length) return;
+    const go = async () => {
+        for (const c of changes) if (!(await send(c, ''))) return;
+        window.showAlert('Comandi inviati', `${changes.length} ${changes.length === 1 ? 'modifica inviata' : 'modifiche inviate'}: visibili qui dopo qualche minuto.`);
+        setTimeout(loadAutomation, 90000);
+    };
+    if (trading === 'on' && !risk.trading_enabled) {
+        openAutoConfirm('Ordini veri', 'Abiliti gli ordini veri su Bitget. Partiranno solo per strategie confermate e messe su Reale, e solo con le chiavi Bitget impostate su GitHub. Con la leva puoi perdere tutto il capitale impiegato.', 'Abilita', go);
+    } else {
+        go();
+    }
 }
 
 // --- Conferma generica ---

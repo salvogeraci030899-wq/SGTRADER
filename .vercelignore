@@ -19,3 +19,6 @@ lab_registry.json
 paper.py
 worker
 automation.py
+executor.py
+bitget_client.py
+live_trades.json
