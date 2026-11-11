@@ -300,16 +300,71 @@ Quantità ${n(p.size)}, capitale impiegato ${n(p.capital)} USDT, PnL netto ora $
 Regole automatiche attive: ${rules.length ? rules.join('; ') : 'nessuna'}.`;
 }
 
+// ---------- Assistente generale (Home): comanda il tool ----------
+const GENERAL_SYSTEM = `Sei l'assistente di SGTRADER, un'app personale di trading su BTC, ETH e SOL. Parli in italiano, in modo breve (massimo 70 parole).
+Ricevi lo stato attuale del tool e un messaggio dell'utente. Rispondi SOLO con un oggetto JSON:
+{"reply": "testo per l'utente", "action": null oppure un'azione}
+Azioni possibili (usa SOLO queste, con questi campi):
+- {"type":"set_strategy","key":"nome:tf","mode":"paper" o "off"}: metti su carta o spegni una strategia (key esattamente come negli elenchi forniti)
+- {"type":"set_trading","value":"on" o "off"}: modalità ordini reale (on) o simulata (off)
+- {"type":"emergency"}: emergenza, spegne tutto
+- {"type":"resume"}: sblocca dopo l'emergenza
+- {"type":"run_lab"}: rilancia il laboratorio delle strategie
+- {"type":"analyze","symbol":"BTCUSDT"|"ETHUSDT"|"SOLUSDT","timeframe":"1d"|"4h"|"1h"}: apri l'analisi AI live
+- {"type":"open_page","page":"home"|"terminal"|"signals"|"trade"|"calculator"|"journal"|"test"|"settings"|"account"}: apri una pagina
+Per le domande rispondi con i dati forniti e action null. Non inventare numeri. Se la richiesta non è chiara, chiedi di precisare.
+Ricorda che le azioni vanno confermate. Nessuna strategia è confermata dalla prova finale finché l'elenco "confermate" è vuoto: dillo se l'utente chiede di andare in reale.`;
+
+const PAGES_OK = ['home', 'terminal', 'signals', 'trade', 'calculator', 'journal', 'test', 'settings', 'account'];
+export function sanitizeGeneralAction(a) {
+    if (!a || typeof a !== 'object') return null;
+    switch (a.type) {
+        case 'set_strategy':
+            return STRATEGY_KEY.test(a.key || '') && ['paper', 'off'].includes(a.mode) ? { type: a.type, key: a.key, mode: a.mode } : null;
+        case 'set_trading':
+            return ['on', 'off'].includes(a.value) ? { type: a.type, value: a.value } : null;
+        case 'emergency': case 'resume': case 'run_lab':
+            return { type: a.type };
+        case 'analyze':
+            return ANALYZE_SYMBOLS.includes(a.symbol) && ANALYZE_TFS.includes(a.timeframe) ? { type: a.type, symbol: a.symbol, timeframe: a.timeframe } : null;
+        case 'open_page':
+            return PAGES_OK.includes(a.page) ? { type: a.type, page: a.page } : null;
+    }
+    return null;
+}
+
+function generalFacts(c) {
+    const n = v => show(num(v));
+    const list = (arr, max) => (Array.isArray(arr) ? arr : []).filter(x => typeof x === 'string' && STRATEGY_KEY.test(x)).slice(0, max);
+    const active = (Array.isArray(c.active) ? c.active : []).slice(0, 6)
+        .filter(a => a && STRATEGY_KEY.test(a.key || ''))
+        .map(a => `${a.key} (${a.mode === 'live' ? 'reale' : 'carta'}, ${n(a.closed)} chiusi, medio ${n(a.avg_net_pct)}%, ${n(a.open)} aperti)`);
+    const prices = ANALYZE_SYMBOLS.map(s => `${s} ${n(c.prices && c.prices[s])}`).join(', ');
+    return `Stato del tool:
+Prezzi: ${prices}.
+Modalità ordini: ${c.trading === 'on' ? 'reale' : 'simulato'}. Emergenza: ${c.emergency ? 'sì' : 'no'}.
+Saldo Bitget: ${n(c.bitget_total)} USDT, posizioni reali ${n(c.bitget_positions)}.
+Conto simulato dell'app: capitale libero ${n(c.sim_free)} USDT, posizioni aperte ${n(c.sim_open)}.
+Ultimo giro del bot: ${n(c.bot_minutes)} minuti fa (parte ogni 15 minuti).
+Strategie accese (massimo 6): ${active.length ? active.join('; ') : 'nessuna'}.
+Confermate dalla prova finale: ${list(c.confirmed, 10).join(', ') || 'nessuna'}.
+Strategie che si possono mettere su carta (migliori nello storico per prime): ${list(c.available, 30).join(', ') || 'N/D'}.`;
+}
+
 export async function assistant(body, env, fetchFn) {
     const key = String(env.GROQ_API_KEY || '').trim();
     if (!key) return json(500, { error: 'GROQ_API_KEY non configurata sul server.' });
     const b = body || {};
     const text = typeof b.text === 'string' ? b.text.trim().slice(0, 500) : '';
-    if (!text || !b.position || typeof b.position !== 'object') return json(400, { error: 'Parametri non validi' });
+    const general = b.scope === 'general';
+    if (!text || (!general && (!b.position || typeof b.position !== 'object'))) return json(400, { error: 'Parametri non validi' });
     const history = (Array.isArray(b.history) ? b.history : []).slice(-6)
         .filter(m => m && ['user', 'assistant'].includes(m.role) && typeof m.content === 'string')
         .map(m => ({ role: m.role, content: m.content.slice(0, 400) }));
-    const messages = [{ role: 'system', content: ASSISTANT_SYSTEM }, { role: 'system', content: positionFacts(b.position) }, ...history, { role: 'user', content: text }];
+    const messages = general
+        ? [{ role: 'system', content: GENERAL_SYSTEM }, { role: 'system', content: generalFacts(b.context && typeof b.context === 'object' ? b.context : {}) }, ...history, { role: 'user', content: text }]
+        : [{ role: 'system', content: ASSISTANT_SYSTEM }, { role: 'system', content: positionFacts(b.position) }, ...history, { role: 'user', content: text }];
+    const clean = general ? sanitizeGeneralAction : sanitizeAction;
     const call = model => fetchFn('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
@@ -330,7 +385,7 @@ export async function assistant(body, env, fetchFn) {
         let parsed = null;
         try { parsed = JSON.parse(raw); } catch (e) { const m = raw.match(/\{[\s\S]*\}/); if (m) { try { parsed = JSON.parse(m[0]); } catch (e2) {} } }
         if (!parsed || typeof parsed.reply !== 'string') return json(200, { reply: raw.slice(0, 600) || 'Non ho capito, puoi ripetere?', action: null, model });
-        return json(200, { reply: parsed.reply.slice(0, 600), action: sanitizeAction(parsed.action), model });
+        return json(200, { reply: parsed.reply.slice(0, 600), action: clean(parsed.action), model });
     } catch (e) {
         return json(500, { error: 'Errore di rete verso Groq' });
     }

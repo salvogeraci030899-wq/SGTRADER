@@ -1,6 +1,8 @@
 import { State } from '../core/state.js';
 import { $, SYM, apiPost, escapeHtml, calcPnl } from '../utils/helpers.js';
 import * as Trade from './trade.js';
+import * as Auto from './automation.js';
+import { tradingMode } from './account.js';
 
 // --- ASSISTENTE SULLA POSIZIONE: chat di testo e chat vocale ---
 // Testo o voce → il server (src/core/commands.js, Groq gratuito) risponde e propone al massimo UNA
@@ -9,7 +11,7 @@ import * as Trade from './trade.js';
 // Voce: registrazione nel telefono (MediaRecorder) → trascrizione Whisper su Groq; le risposte le
 // legge la sintesi vocale di iOS.
 
-let tradeId = null, history = [], speak = false, rec = null, chunks = [], recTimer = null, busy = false;
+let tradeId = null, general = false, history = [], speak = false, rec = null, chunks = [], recTimer = null, busy = false;
 const MAX_REC_MS = 30000;
 
 const trade = () => State.simState.activeTrades.find(t => t.id === tradeId);
@@ -49,16 +51,21 @@ function context(t) {
 }
 
 export function openAssistant(id, voice) {
-    const t = State.simState.activeTrades.find(x => x.id === id);
-    if (!t) return;
-    tradeId = id; history = []; speak = !!voice;
-    $('assistTitle').textContent = `${voice ? 'Voce' : 'Chat'} · ${SYM(t.symbol)} ${t.type}`;
+    general = !id;
+    const t = general ? null : State.simState.activeTrades.find(x => x.id === id);
+    if (!general && !t) return;
+    tradeId = general ? null : id; history = []; speak = !!voice;
+    $('assistTitle').textContent = general ? 'Assistente SGTRADER' : `${voice ? 'Voce' : 'Chat'} · ${SYM(t.symbol)} ${t.type}`;
     $('assistLog').innerHTML = '';
-    addMsg('bot', 'Dimmi cosa fare con questa posizione, per esempio: <i>«se arriva a 10 USDT di profitto chiudi»</i>, <i>«sposta lo stop a pareggio»</i>, <i>«come sta andando?»</i>. Ogni azione la confermi tu.');
+    addMsg('bot', general
+        ? 'Chiedimi del tool o dimmi cosa fare, per esempio: <i>«come va il bot?»</i>, <i>«metti donchian20 turtle 1d su carta»</i>, <i>«analizza ETH a 4 ore»</i>, <i>«passa a simulato»</i>. Ogni azione la confermi tu.'
+        : 'Dimmi cosa fare con questa posizione, per esempio: <i>«se arriva a 10 USDT di profitto chiudi»</i>, <i>«sposta lo stop a pareggio»</i>, <i>«come sta andando?»</i>. Ogni azione la confermi tu.');
     $('assistInput').value = '';
     $('assistSpeak').classList.toggle('active', speak);
     status('');
+    $('assistFoot').textContent = general ? 'Ogni azione parte solo dopo «Conferma».' : 'Ogni azione parte solo dopo «Conferma». Vale per le posizioni simulate.';
     $('assistModal').classList.add('active');
+    if (general && !Auto.getAutoState().loaded) Auto.loadAutomation();
     if (voice) toggleRecording();
     else setTimeout(() => $('assistInput').focus(), 200);
 }
@@ -79,14 +86,14 @@ export function toggleAssistSpeak() {
 export async function sendAssist(textArg) {
     const input = $('assistInput');
     const text = (typeof textArg === 'string' ? textArg : input.value).trim();
-    const t = trade();
+    const t = general ? null : trade();
     if (!text || busy) return;
-    if (!t) { addMsg('bot', 'La posizione non è più aperta.'); return; }
+    if (!general && !t) { addMsg('bot', 'La posizione non è più aperta.'); return; }
     input.value = '';
     addMsg('user', escapeHtml(text));
     busy = true; status('Sto pensando…');
     try {
-        const res = await apiPost('/api/assistant', { text, history, position: context(t) });
+        const res = await apiPost('/api/assistant', general ? { scope: 'general', text, history, context: generalContext() } : { text, history, position: context(t) });
         let out = {};
         try { out = await res.json(); } catch (e) {}
         if (!res.ok) throw new Error(out.error || `Errore ${res.status}`);
@@ -94,7 +101,7 @@ export async function sendAssist(textArg) {
         history = history.slice(-6);
         addMsg('bot', escapeHtml(out.reply));
         say(out.reply);
-        if (out.action) showPlan(out.action);
+        if (out.action) (general ? showGeneralPlan : showPlan)(out.action);
     } catch (e) {
         addMsg('bot error', `Non riesco a rispondere: ${escapeHtml(e.message)}`);
     } finally { busy = false; status(''); }
@@ -115,6 +122,76 @@ function showPlan(action) {
         done(ok ? 'Fatto ✓' : 'Non applicato: la posizione non è più aperta.');
         if (ok && fresh.kind === 'close_now') setTimeout(closeAssistant, 900);
     };
+}
+
+// ---------- Assistente generale: stato del tool e azioni ----------
+const BLOCKED = ['forza relativa', 'funding'];   // famiglie che la prova su carta non riceve ancora
+function generalContext() {
+    const { cfg, ledger, lab, live } = Auto.getAutoState();
+    const results = (lab && lab.results) || {};
+    const active = Object.entries((cfg && cfg.strategies) || {}).filter(([, m]) => m !== 'off').map(([key, mode]) => {
+        const st = (ledger && ledger.strategies && ledger.strategies[key] && ledger.strategies[key].stats) || {};
+        return { key, mode, closed: st.n || 0, open: st.open || 0, avg_net_pct: st.avg_net_pct ?? null };
+    });
+    const available = Object.entries(results).filter(([, r]) => r.n > 0 && !BLOCKED.includes(r.family))
+        .sort((a, b) => b[1].excess_avg_pct - a[1].excess_avg_pct).map(([k]) => k);
+    const acc = live && live.account;
+    let last = 0;
+    for (const v of Object.values(State.allData || {})) if (v && v.last_update) last = Math.max(last, Date.parse(v.last_update));
+    return {
+        prices: Object.fromEntries(['BTCUSDT', 'ETHUSDT', 'SOLUSDT'].map(s => [s, State.livePx[s] ?? (State.allData && State.allData[`${s}_1d`] ? State.allData[`${s}_1d`].current_price : null)])),
+        trading: tradingMode().mode, emergency: !!(cfg && cfg.emergency),
+        bitget_total: acc && acc.connected ? (acc.total_usdt ?? acc.equity) : null, bitget_positions: acc && acc.connected ? acc.positions : null,
+        sim_free: Number(State.simState.freeBalance.toFixed(2)), sim_open: State.simState.activeTrades.length,
+        bot_minutes: last ? Math.round((Date.now() - last) / 60000) : null,
+        active, available, confirmed: (lab && lab.confirmed) || []
+    };
+}
+
+const PAGE_NAMES = { home: 'Home', terminal: 'Grafici', signals: 'Segnali', trade: 'Posizioni', calculator: 'Rischio', journal: 'Diario', test: 'Backtest', settings: 'Impostazioni', account: 'Account' };
+const label = k => k.replace(':', ' ').replace(/_/g, ' ');
+
+function planGeneral(a) {
+    const { cfg, lab, live } = Auto.getAutoState();
+    const results = (lab && lab.results) || {};
+    switch (a.type) {
+        case 'set_strategy': {
+            const r = results[a.key];
+            const on = cfg && cfg.strategies && cfg.strategies[a.key] && cfg.strategies[a.key] !== 'off';
+            if (a.mode === 'off') return on ? { ok: true, summary: `Spengo ${label(a.key)}: i suoi trade su carta restano nel registro.`, run: () => Auto.setAutoMode(a.key, 'off') }
+                : { ok: false, error: `${label(a.key)} non è accesa.` };
+            if (!r || !(r.n > 0)) return { ok: false, error: `Non trovo la strategia ${label(a.key)} nel laboratorio.` };
+            if (BLOCKED.includes(r.family)) return { ok: false, error: `${label(a.key)} usa dati che la prova su carta non riceve ancora.` };
+            if (on) return { ok: false, error: `${label(a.key)} è già accesa.` };
+            return { ok: true, summary: `Metto ${label(a.key)} su carta (nello storico: ${r.n} trade, oltre il mercato ${r.excess_avg_pct >= 0 ? '+' : ''}${r.excess_avg_pct}% a trade). Nessun ordine vero.`, run: () => Auto.setAutoMode(a.key, 'paper') };
+        }
+        case 'set_trading':
+            return { ok: true, summary: a.value === 'on' ? 'Passo alla modalità Reale (ti chiederò un\'altra conferma).' : 'Passo alla modalità Simulato: nessun ordine vero.', run: () => Auto.setTradingMode(a.value) };
+        case 'emergency':
+            return cfg && cfg.emergency ? { ok: false, error: 'L\'emergenza è già attiva.' } : { ok: true, summary: 'Attivo l\'emergenza: spengo tutte le strategie (ti chiederò conferma).', run: () => Auto.toggleEmergency() };
+        case 'resume':
+            return (cfg && cfg.emergency) || (live && live.halted) ? { ok: true, summary: 'Sblocco l\'automazione (le strategie restano spente).', run: () => Auto.toggleEmergency() } : { ok: false, error: 'L\'automazione non è bloccata.' };
+        case 'run_lab':
+            return { ok: true, summary: 'Rilancio il laboratorio delle strategie (circa 10 minuti).', run: () => Auto.runAutoJob('run_lab') };
+        case 'analyze':
+            return { ok: true, summary: `Apro l'analisi AI live di ${SYM(a.symbol)} a ${a.timeframe.toUpperCase()}.`, run: () => {
+                closeAssistant(); window.switchTab('terminal'); window.setAsset(a.symbol); window.setTF(a.timeframe);
+                setTimeout(() => window.requestMarketAnalysis(), 400);
+            } };
+        case 'open_page':
+            return { ok: true, summary: `Apro ${PAGE_NAMES[a.page] || a.page}.`, run: () => { closeAssistant(); window.switchTab(a.page); } };
+    }
+    return { ok: false, error: 'Richiesta non riconosciuta.' };
+}
+
+function showGeneralPlan(action) {
+    const plan = planGeneral(action);
+    if (!plan.ok) { addMsg('bot warn', escapeHtml(plan.error)); say(plan.error); return; }
+    const box = addMsg('plan', `<div>${escapeHtml(plan.summary)}</div><div class="assist-plan-actions"><button type="button" class="btn-cancel">Annulla</button><button type="button" class="btn-confirm">Conferma</button></div>`);
+    const [no, yes] = box.querySelectorAll('button');
+    const done = text => { box.querySelector('.assist-plan-actions').outerHTML = `<div class="assist-plan-done">${text}</div>`; };
+    no.onclick = () => done('Annullato.');
+    yes.onclick = () => { done('Fatto ✓'); plan.run(); };
 }
 
 // ---------- Voce ----------

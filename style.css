@@ -967,3 +967,9 @@ html.pwa-mode .nav-item svg { width: 22px; height: 22px; }
 .paper-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--border); font-size: 13px; }
 .paper-row small { color: var(--text-secondary); font-size: 11px; }
 .paper-reason { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; }
+
+/* Intestazione della Home su schermi stretti: pastiglia più compatta */
+@media (max-width: 400px) {
+    .mode-pill { padding: 0 9px; letter-spacing: 0.3px; }
+    #page-home .header-actions { gap: 6px; }
+}
