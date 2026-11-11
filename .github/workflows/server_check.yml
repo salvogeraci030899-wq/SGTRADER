@@ -1,7 +1,7 @@
 name: Verifica server
 
 # Chiama dal vivo il server comandi su Cloudflare come farebbe l'app: protezione dell'IA,
-# assistente (Groq vero) e analisi AI. Nessun segreto, nessun ordine. Si avvia a mano.
+# assistente (Groq vero), analisi AI e trascrizione della voce (frase sintetica). Nessun segreto, nessun ordine. Si avvia a mano.
 on:
   workflow_dispatch:
 
@@ -18,7 +18,9 @@ jobs:
         with:
           python-version: '3.11'
       - name: Installa dipendenze minime
-        run: pip install requests
+        run: |
+          pip install requests
+          sudo apt-get install -y -qq espeak-ng >/dev/null   # voce sintetica per provare la trascrizione
       - name: Verifica dal vivo
         run: |
           set -o pipefail
