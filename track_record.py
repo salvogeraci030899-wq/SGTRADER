@@ -56,7 +56,22 @@ def load_ledger(path=LEDGER_PATH):
             except json.JSONDecodeError as e:
                 # Un registro illeggibile non va sovrascritto: fermo tutto
                 raise SystemExit(f"ERRORE: {path} riga {n} non leggibile ({e}). Interrompo per non perdere il track record.")
-    return entries
+    return _dedupe(entries)
+
+
+def _dedupe(entries):
+    """Due giri del bot salvati insieme vengono uniti riga per riga (.gitattributes: merge=union):
+    la stessa previsione può comparire due volte, aperta e già chiusa. Ne resta una, nell'ordine
+    originale, preferendo quella chiusa."""
+    by_id, order = {}, []
+    for e in entries:
+        k = e.get("id")
+        if k not in by_id:
+            order.append(k)
+            by_id[k] = e
+        elif by_id[k].get("status") == "open" and e.get("status") != "open":
+            by_id[k] = e
+    return [by_id[k] for k in order]
 
 
 def save_ledger(entries, path=LEDGER_PATH):
