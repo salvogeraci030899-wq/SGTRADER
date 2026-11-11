@@ -17,7 +17,7 @@ Nemmeno una strategia confermata è una garanzia: è solo il requisito minimo pe
 prova dal vivo senza soldi.
 
 Costi: lo scenario principale è "futures taker" (commissione 0,06% + slippage 0,05% per lato,
-funding reale di Bitget quando disponibile), perché è quello di un bot che entra ed esce con
+funding: reale negli ultimi mesi, ipotesi prudente prima), perché è quello di un bot che entra ed esce con
 ordini a mercato e stop sull'exchange. Gli altri scenari sono mostrati per confronto.
 """
 import argparse
@@ -47,6 +47,9 @@ REGISTRY_PATH = "lab_registry.json"
 REPORT_PATH = os.path.join(va.OUT_DIR, "LABORATORIO.md")
 FUNDING_URL = "https://api.bitget.com/api/v2/mix/market/history-fund-rate"
 FUNDING_INTERVAL = 8 * 3600
+# Bitget pubblica solo gli ultimi ~3 mesi di funding. Per i trade più vecchi si usa un'ipotesi
+# prudente: il long paga il tasso base (0,01% ogni 8 ore, circa 11% l'anno), lo short non riceve nulla.
+FUNDING_ASSUMED_LONG_PCT = 0.01
 
 # Costi per lato in % (commissione + slippage) e se lo scenario ammette short e funding
 SCENARIOS = {
@@ -182,18 +185,21 @@ def fetch_funding_history(symbol, max_pages=400, pause=0.12):
 
 
 def funding_cost(trade, funding):
-    """Funding pagato (+) o ricevuto (-) dal trade, in % della posizione. Dove lo storico non arriva si
-    usa il tasso medio osservato. Ritorna (costo, True se interamente da dati reali)."""
+    """Funding pagato (+) o ricevuto (-) dal trade, in % della posizione. Dove lo storico reale non arriva
+    vale l'ipotesi prudente (il long paga il tasso base, lo short non riceve). Ritorna (costo, True se
+    interamente da dati reali)."""
     ts, rates = funding if funding is not None else (np.array([]), np.array([]))
-    if len(ts) == 0:
-        return 0.0, False
-    lo, hi = np.searchsorted(ts, trade["t"], side="right"), np.searchsorted(ts, trade["t_exit"], side="right")
-    paid = float(rates[lo:hi].sum())
-    covered = trade["t"] >= ts[0]
-    if not covered:   # parte del trade è prima dell'inizio dello storico del funding
-        missing = max(0, (min(trade["t_exit"], int(ts[0])) - trade["t"]) // FUNDING_INTERVAL)
-        paid += missing * float(rates.mean())
-    return paid * trade["dir"], bool(covered)
+    first = int(ts[0]) if len(ts) else None
+    covered = first is not None and trade["t"] >= first
+    cost = 0.0
+    if first is not None:
+        lo, hi = np.searchsorted(ts, trade["t"], side="right"), np.searchsorted(ts, trade["t_exit"], side="right")
+        cost = float(rates[lo:hi].sum()) * trade["dir"]
+    if not covered:   # tutto o parte del trade è prima dell'inizio dello storico reale
+        end = trade["t_exit"] if first is None else min(trade["t_exit"], first)
+        missing = max(0, (end - trade["t"]) // FUNDING_INTERVAL)
+        cost += missing * FUNDING_ASSUMED_LONG_PCT if trade["dir"] > 0 else 0.0
+    return cost, bool(covered)
 
 
 def net_returns(trades, scenario, funding_by_symbol):
@@ -350,7 +356,8 @@ def to_markdown(s):
     out = ["# Laboratorio strategie", "",
            f"Generato il {s['generated_at']} · {len(s['results'])} prove in questa esecuzione, {s['trials_registered']} registrate in tutto.", "",
            f"- **Ricerca** solo sullo storico prima del {s['holdout_start']}; da lì in poi è **sigillato** per la prova finale.",
-           f"- **Costi** (scenario principale: {sc['label'].lower()}): {sc['cost_pct_per_side']:.2f}% per lato più funding reale. \"Netto\" = dopo questi costi, tasse escluse.",
+           f"- **Costi** (scenario principale: {sc['label'].lower()}): {sc['cost_pct_per_side']:.2f}% per lato più funding. \"Netto\" = dopo questi costi, tasse escluse.",
+           f"- **Funding**: Bitget pubblica solo gli ultimi mesi. Per i trade più vecchi vale un'ipotesi prudente: il long paga {FUNDING_ASSUMED_LONG_PCT}% ogni 8 ore, lo short non riceve nulla.",
            f"- **Candidata** = netto positivo che supera la correzione per prove multiple (falsi positivi attesi {round(s['fdr'] * 100)}%) "
            "**e** stabile (positiva in entrambe le metà del periodo e su almeno 2 coin su 3).",
            "- **Netto annuo per coin**: somma dei netti divisa per anni e coin, senza leva e senza reinvestire. Indicativo.",

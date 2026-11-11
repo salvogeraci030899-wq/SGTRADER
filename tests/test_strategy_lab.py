@@ -82,11 +82,17 @@ def test_costi_funding_e_scenari():
     assert abs(lab.net_returns([long], "futures_maker", funding)[0] - (2.0 - 0.04 - 0.06)) < 1e-9
     spot = lab.net_returns([long, short], "spot", funding)
     assert abs(spot[0] - (2.0 - 0.30)) < 1e-9 and spot[1] is None                                  # in spot niente short, niente funding
-    # trade più vecchio dello storico del funding: si usa il tasso medio, segnalato come stima
+    # trade più vecchio dello storico reale: ipotesi prudente (il long paga 0,01% ogni 8 ore, lo short non riceve)
     old = dict(long, t=990 * D, t_exit=992 * D)
     cost, real = lab.funding_cost(old, funding["BTCUSDT"])
-    assert real is False and abs(cost - 0.06) < 1e-9
-    assert lab.funding_cost(long, None) == (0.0, False)
+    assert real is False and abs(cost - 6 * lab.FUNDING_ASSUMED_LONG_PCT) < 1e-9
+    assert lab.funding_cost(dict(old, dir=-1), funding["BTCUSDT"]) == (0.0, False)
+    cost, real = lab.funding_cost(long, None)                                                      # nessuno storico: stessa ipotesi
+    assert real is False and abs(cost - 0.06) < 1e-9 and lab.funding_cost(short, None) == (0.0, False)
+    # a cavallo dell'inizio dello storico: prima l'ipotesi, poi i tassi reali (qui 0,02%)
+    ts2 = np.array([1001 * D + k * 8 * 3600 for k in range(0, 6)], dtype=np.int64)
+    cost, real = lab.funding_cost(long, (ts2, np.full(6, 0.02)))
+    assert real is False and abs(cost - (3 * 0.01 + 4 * 0.02)) < 1e-9
 
 
 def test_prove_multiple():
