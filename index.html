@@ -30,33 +30,34 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=81">
-    <meta name="app-version" content="81">
+    <link rel="stylesheet" href="./style.css?v=82">
+    <meta name="app-version" content="82">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=81",
-            "./src/core/commands.js": "./src/core/commands.js?v=81",
-            "./src/core/config.js": "./src/core/config.js?v=81",
-            "./src/core/logger.js": "./src/core/logger.js?v=81",
-            "./src/core/state.js": "./src/core/state.js?v=81",
-            "./src/main.js": "./src/main.js?v=81",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=81",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=81",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=81",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=81",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=81",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=81",
-            "./src/ui/home.js": "./src/ui/home.js?v=81",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=81",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=81",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=81",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=81",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=81",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=81",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=81",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=81"
+            "./src/core/backup.js": "./src/core/backup.js?v=82",
+            "./src/core/commands.js": "./src/core/commands.js?v=82",
+            "./src/core/config.js": "./src/core/config.js?v=82",
+            "./src/core/logger.js": "./src/core/logger.js?v=82",
+            "./src/core/state.js": "./src/core/state.js?v=82",
+            "./src/main.js": "./src/main.js?v=82",
+            "./src/ui/account.js": "./src/ui/account.js?v=82",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=82",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=82",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=82",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=82",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=82",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=82",
+            "./src/ui/home.js": "./src/ui/home.js?v=82",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=82",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=82",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=82",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=82",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=82",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=82",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=82",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=82"
         }
     }
     </script>
@@ -73,12 +74,12 @@
                     <h1>Home</h1>
                     <p>SGTRADER · Panoramica</p>
                 </div>
-                <button class="header-icon-btn" onclick="openSettings()" title="Impostazioni">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="3"/>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                    </svg>
-                </button>
+                <div class="header-actions">
+                    <button type="button" class="mode-pill" id="homeModePill" onclick="openAccount()" title="Modalità ordini">—</button>
+                    <button class="header-icon-btn" onclick="openAccount()" title="Account">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </button>
+                </div>
             </div>
             <div class="home-container">
                 <!-- 1. Mercato: prezzo e variazione 24h; il tocco mostra il grafico della coin qui sotto -->
@@ -130,6 +131,83 @@
                             <div class="info-dot" onclick="goToHomeChart(2)"></div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== ACCOUNT (dall'icona in Home) ==================== -->
+        <section class="page" id="page-account">
+            <div class="header-row">
+                <div class="header-title">
+                    <h1>Account</h1>
+                    <p>Bitget e modalità ordini</p>
+                </div>
+                <button class="header-icon-btn" onclick="switchTab('home')" title="Torna alla Home">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="acc-wrap">
+                <div class="card-box acc-card">
+                    <div class="acc-head"><span>Saldo Bitget</span><span class="acc-kind" id="accKind">—</span></div>
+                    <div class="acc-total" id="accTotal">—</div>
+                    <div class="acc-detail" id="accDetail">—</div>
+                    <div class="acc-meta" id="accMeta">—</div>
+                </div>
+                <div class="card-box acc-card">
+                    <div class="acc-head"><span>Modalità ordini</span><span id="accModePending" class="text-warning"></span></div>
+                    <div class="mode-switch" id="accModeSwitch">
+                        <button type="button" data-mode="off" onclick="setTradingMode('off')">Simulato</button>
+                        <button type="button" data-mode="on" onclick="setTradingMode('on')">Reale</button>
+                    </div>
+                    <div class="acc-explain" id="accModeExplain">—</div>
+                </div>
+                <div class="card-box acc-card">
+                    <div class="acc-head"><span>Limiti di rischio</span><button type="button" class="btn-link-secondary" onclick="openAutoRisk()">Modifica</button></div>
+                    <div class="acc-line"><span>Rischio per trade</span><b id="accRiskTrade">—</b></div>
+                    <div class="acc-line"><span>Leva massima · posizioni</span><b id="accRiskLev">—</b></div>
+                    <div class="acc-line"><span>Perdita massima al giorno</span><b id="accRiskDay">—</b></div>
+                </div>
+                <div class="card-box acc-card">
+                    <div class="acc-head"><span>Conto simulato dell'app</span><button type="button" class="btn-link-secondary" onclick="openCapitalModal()">Deposita / preleva</button></div>
+                    <div class="acc-line"><span>Capitale libero</span><b id="accSimFree">—</b></div>
+                    <div class="acc-line"><span>Posizioni aperte</span><b id="accSimOpen">—</b></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== IMPOSTAZIONI ==================== -->
+        <section class="page" id="page-settings">
+            <div class="header-row">
+                <div class="header-title">
+                    <h1>Impostazioni</h1>
+                    <p id="settingsSubtitle">SGTRADER</p>
+                </div>
+            </div>
+            <div class="set-wrap">
+                <div class="set-group">
+                    <div class="set-title">Trading</div>
+                    <button type="button" class="set-row" onclick="openAccount()"><span class="set-label">Account e modalità ordini</span><span class="set-val" id="setModeVal">—</span><svg class="set-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+                    <button type="button" class="set-row" onclick="openAutoRisk()"><span class="set-label">Limiti di rischio</span><svg class="set-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+                    <button type="button" class="set-row" onclick="openAutomation()"><span class="set-label">Strategie automatiche</span><svg class="set-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+                </div>
+                <div class="set-group">
+                    <div class="set-title">Notifiche</div>
+                    <button type="button" class="set-row" onclick="openSignalSettings()"><span class="set-label">Segnali, Telegram e webhook</span><svg class="set-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+                </div>
+                <div class="set-group">
+                    <div class="set-title">Dati</div>
+                    <button type="button" class="set-row" onclick="exportBackup()"><span class="set-label">Esporta backup</span><svg class="set-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+                    <button type="button" class="set-row" onclick="triggerImportBackup()"><span class="set-label">Importa backup</span><svg class="set-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+                    <input type="file" id="backupFileInput" accept=".json,application/json" style="display: none;" onchange="handleImportBackup(event)">
+                    <button type="button" class="set-row set-danger" onclick="confirmReset()"><span class="set-label">Reset diario (trade e storico)</span><svg class="set-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+                </div>
+                <div class="set-group">
+                    <div class="set-title">Avanzate</div>
+                    <button type="button" class="set-row" onclick="openConnections()"><span class="set-label">Connessioni (token e server)</span><span class="set-val" id="setConnVal">—</span><svg class="set-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+                </div>
+                <div class="set-group">
+                    <div class="set-title">Aiuto</div>
+                    <button type="button" class="set-row" onclick="switchTab('info')"><span class="set-label">Manuale</span><svg class="set-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
                 </div>
             </div>
         </section>
@@ -514,6 +592,9 @@
                     <h1>Manuale</h1>
                     <p>Regole operative</p>
                 </div>
+                <button class="header-icon-btn" onclick="switchTab('settings')" title="Torna alle impostazioni">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
             </div>
             <div class="info-carousel" id="infoCarousel">
 
@@ -721,7 +802,7 @@
                         <div class="rule-step"><div class="content"><b>1. Crea il bot</b>: apri Telegram, cerca <b>@BotFather</b>, manda <span class="mono">/newbot</span>, scegli nome e username. Riceverai un <b>token</b> tipo <span class="mono">123456:ABC-DEF...</span>.</div></div>
                         <div class="rule-step"><div class="content"><b>2. Ottieni il Chat ID</b>: cerca <b>@userinfobot</b>, manda <span class="mono">/start</span>. Ti risponde con il tuo <b>chat_id</b> numerico (es. 987654321).</div></div>
                         <div class="rule-step"><div class="content"><b>3. Avvia il bot</b>: cerca il bot che hai creato e manda <span class="mono">/start</span>. Senza questo passaggio il bot non può scriverti.</div></div>
-                        <div class="rule-step"><div class="content"><b>4. Inserisci in SGTRADER</b>: apri Segnali → Impostazioni → incolla token e chat_id → Salva.</div></div>
+                        <div class="rule-step"><div class="content"><b>4. Inserisci in SGTRADER</b>: apri Impostazioni (barra in basso) → Segnali, Telegram e webhook → incolla token e chat_id → Salva.</div></div>
                         <div class="rule-step"><div class="content"><b>5. Test</b>: premi "Invia Test Telegram". Se il messaggio arriva, sei a posto. Se non arriva, ricontrolla token/chat_id e che il bot sia avviato.</div></div>
                     </div>
                     <div class="rule-card">
@@ -810,11 +891,12 @@
                     <div class="rule-card">
                         <div class="rule-card-title blue">Segnali → Auto</div>
                         <div class="rule-step"><div class="content"><b>Strategie</b>: per ognuna Spenta, Su carta o Reale. Reale resta grigio finché la strategia non è confermata. <b>Aggiungi</b> mette su carta una strategia del laboratorio.</div></div>
-                        <div class="rule-step"><div class="content"><b>Rischio</b>: rischio per trade, leva massima, esposizione totale, posizioni massime, perdita massima al giorno, e l'interruttore degli ordini veri.</div></div>
+                        <div class="rule-step"><div class="content"><b>Rischio</b>: rischio per trade, leva massima, esposizione totale, posizioni massime, perdita massima al giorno.</div></div>
+                        <div class="rule-step"><div class="content"><b>Simulato / Reale</b>: in Home la pastiglia accanto all'icona Account mostra la modalità; toccala per cambiarla. In Reale gli ordini partono solo per strategie confermate e messe su Reale.</div></div>
                         <div class="rule-step"><div class="content"><b>Emergenza</b>: spegne tutte le strategie, chiude le posizioni aperte dall'esecutore e blocca. <b>Sblocca</b> riattiva, ma le strategie restano spente.</div></div>
                         <div class="rule-step"><div class="content"><b>Bitget</b>: a ogni giro il bot legge patrimonio futures e posizioni, in sola lettura. "Lettura non riuscita" = chiave scaduta o errata (arriva anche un avviso su Telegram).</div></div>
                         <div class="rule-step"><div class="content"><b>Esecutore</b>: ogni posizione nasce con lo stop già su Bitget. A ogni giro confronta le posizioni su Bitget con quelle attese: se non coincidono si blocca e avvisa.</div></div>
-                        <div class="rule-step"><div class="content"><b>Primo avvio</b>: Impostazioni → Comandi → token GitHub fine-grained, solo su SGTRADER, permesso "Actions: Read and write".</div></div>
+                        <div class="rule-step"><div class="content"><b>Primo avvio</b>: Impostazioni → Avanzate → Connessioni → token GitHub fine-grained, solo su SGTRADER, permesso "Actions: Read and write".</div></div>
                     </div>
                 </div>
                 <!-- SLIDE: COSA FARE SE -->
@@ -824,7 +906,7 @@
                         <div class="rule-step"><div class="content"><b>"Il bot non parte da X ore"</b> (avviso del controllo di salute, dopo 2 ore senza giri) → il server Cloudflare non lo sta avviando: Cloudflare → Workers → sgtrader-server → scheda dei log, oppure rilancia il workflow "Pubblica server comandi". Per forzare subito un giro: Grafici → tasto aggiorna.</div></div>
                         <div class="rule-step"><div class="content"><b>"Esecutore BLOCCATO"</b> → apri Bitget e confronta le posizioni con Segnali → Auto. Chiudi a mano ciò che non torna, poi Segnali → Auto → Sblocca automazione.</div></div>
                         <div class="rule-step"><div class="content"><b>Qualcosa va storto con soldi veri</b> → Segnali → Auto → Emergenza: spegne tutte le strategie e chiude le posizioni aperte dall'esecutore. In caso di dubbio chiudi anche direttamente su Bitget.</div></div>
-                        <div class="rule-step"><div class="content"><b>"Comando rifiutato" / "GitHub ha rifiutato il token"</b> → il token GitHub è scaduto o revocato: creane uno nuovo (solo SGTRADER, Actions: Read and write) e salvalo in Impostazioni → Comandi.</div></div>
+                        <div class="rule-step"><div class="content"><b>"Comando rifiutato" / "GitHub ha rifiutato il token"</b> → il token GitHub è scaduto o revocato: creane uno nuovo (solo SGTRADER, Actions: Read and write) e salvalo in Impostazioni → Avanzate → Connessioni.</div></div>
                         <div class="rule-step"><div class="content"><b>L'app mostra un errore di caricamento</b> → ricarica la pagina; controlla la versione in Home, scheda Stato (es. v78). Su Vercel, se il deploy è in limite, usa la versione su GitHub Pages.</div></div>
                         <div class="rule-step"><div class="content"><b>Non arrivano messaggi Telegram</b> → controlla i segreti TELEGRAM_TOKEN e TELEGRAM_CHAT_ID su GitHub e che il bot su Telegram non sia stato bloccato.</div></div>
                     </div>
@@ -914,9 +996,9 @@
                     <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
                     Backtest
                 </div>
-                <div class="nav-item" onclick="switchTab('info')" id="nav-info">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                    Manuale
+                <div class="nav-item" onclick="switchTab('settings')" id="nav-settings">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Impostazioni
                 </div>
             </div>
         </div>
@@ -931,48 +1013,38 @@
 <div class="modal-overlay" id="forceTradeModal"><div class="modal-box"><h3 style="color: var(--warning);">Trade Bloccato</h3><p id="forceTradeReason" style="margin-bottom: 20px;">Motivo del blocco</p><div class="modal-actions"><button class="btn-cancel" onclick="closeForceTradeModal()">Annulla</button><button class="btn-confirm" style="background: var(--warning); color: #000;" onclick="confirmForceTrade()">Esegui comunque</button></div></div></div>
 <div class="modal-overlay" id="resetModal"><div class="modal-box"><h3 style="color: var(--danger);">Reset Diario</h3><p>Sei sicuro di voler resettare il diario? Tutti i trade attivi e lo storico verranno eliminati definitivamente.</p><div class="modal-actions"><button class="btn-cancel" onclick="closeResetModal()">Annulla</button><button class="btn-confirm" style="background: var(--danger); color: #fff;" onclick="executeReset()">Reset</button></div></div></div>
 <div class="modal-overlay" id="aiAnalysisModal"><div class="modal-box" style="text-align: left; max-width: 380px;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;"><h3 id="aiAnalysisTitle" style="margin-bottom: 0; font-size: 16px; color: var(--text);">Analisi</h3><span class="be-badge neutral" id="aiAnalysisBadge">...</span></div><div id="aiAnalysisBody" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 24px; max-height: 50vh; overflow-y: auto;"></div><div class="modal-actions"><button class="btn-confirm" onclick="closeAIAnalysisModal()">Chiudi</button></div></div></div>
-<div class="modal-overlay" id="signalSettingsModal"><div class="modal-box" style="text-align: left; max-width: 380px;"><h3 style="text-align:center;">Impostazioni Segnali</h3><div style="display:flex; flex-direction:column; gap:14px; margin-top:16px;"><div><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:6px;">Notifiche Browser</label><button id="btnToggleNotif" class="btn-generic" style="margin-top:0;" onclick="toggleBrowserNotifications()">Abilita</button></div><div><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:6px;">Soglia Accordo (min sorgenti)</label><select id="signalMinAgreement" style="width:100%; background:#000; border:1px solid var(--border); color:#fff; padding:10px; border-radius:10px;"><option value="1">1 - Qualsiasi segnale</option><option value="2">2 - Consensus medio</option><option value="3">3 - Forte</option><option value="4">4 - Unanimità totale</option></select></div><div style="border-top:1px solid var(--border); padding-top:12px;"><div style="font-size:11px; font-weight:700; color:var(--text); margin-bottom:8px;">Telegram Bot</div><label style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:4px;">Bot Token</label><input type="text" id="signalTelegramToken" placeholder="es. 123456:ABC-DEF..." style="width:100%; background:#000; border:1px solid var(--border); color:#fff; padding:10px; border-radius:10px; font-family:var(--mono); font-size:12px; margin-bottom:8px;"><label style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:4px;">Chat ID</label><input type="text" id="signalTelegramChat" placeholder="es. 987654321" style="width:100%; background:#000; border:1px solid var(--border); color:#fff; padding:10px; border-radius:10px; font-family:var(--mono); font-size:12px;"><div style="font-size:10px; color:var(--text-secondary); margin-top:6px; line-height:1.4;">Bot via <b>@BotFather</b> · Chat ID via <b>@userinfobot</b>. Leggi il Manuale per la guida completa.</div><button class="btn-generic" style="margin-top:10px; padding:10px; font-size:12px; background:var(--blue); color:#fff;" onclick="testTelegramNotification()">Invia Test Telegram</button></div><div style="border-top:1px solid var(--border); padding-top:12px;"><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:6px;">Webhook Custom (opzionale)</label><input type="url" id="signalWebhookUrl" placeholder="https://..." style="width:100%; background:#000; border:1px solid var(--border); color:#fff; padding:10px; border-radius:10px; font-family:var(--mono); font-size:12px;"></div></div><div class="modal-actions" style="margin-top:20px;"><button class="btn-cancel" onclick="closeSignalSettings()">Chiudi</button><button class="btn-confirm" onclick="saveSignalSettingsFromUI()">Salva</button></div></div></div>
+<div class="modal-overlay" id="signalSettingsModal"><div class="modal-box" style="text-align: left; max-width: 380px;"><h3 style="text-align:center;">Impostazioni Segnali</h3><div style="display:flex; flex-direction:column; gap:14px; margin-top:16px;"><div><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:6px;">Notifiche Browser</label><button id="btnToggleNotif" class="btn-generic" style="margin-top:0;" onclick="toggleBrowserNotifications()">Abilita</button></div><div><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:6px;">Strategie d'accordo (minimo su 4)</label><input type="hidden" id="signalMinAgreement" value="2"><div class="option-toggle compact" data-target="signalMinAgreement"><button type="button" class="pill-btn" data-value="1" onclick="selectOption(this)">1</button><button type="button" class="pill-btn active" data-value="2" onclick="selectOption(this)">2</button><button type="button" class="pill-btn" data-value="3" onclick="selectOption(this)">3</button><button type="button" class="pill-btn" data-value="4" onclick="selectOption(this)">4</button></div></div><div style="border-top:1px solid var(--border); padding-top:12px;"><div style="font-size:11px; font-weight:700; color:var(--text); margin-bottom:8px;">Telegram Bot</div><label style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:4px;">Bot Token</label><input type="text" id="signalTelegramToken" placeholder="es. 123456:ABC-DEF..." style="width:100%; background:#000; border:1px solid var(--border); color:#fff; padding:10px; border-radius:10px; font-family:var(--mono); font-size:12px; margin-bottom:8px;"><label style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:4px;">Chat ID</label><input type="text" id="signalTelegramChat" placeholder="es. 987654321" style="width:100%; background:#000; border:1px solid var(--border); color:#fff; padding:10px; border-radius:10px; font-family:var(--mono); font-size:12px;"><div style="font-size:10px; color:var(--text-secondary); margin-top:6px; line-height:1.4;">Bot via <b>@BotFather</b> · Chat ID via <b>@userinfobot</b>. Leggi il Manuale per la guida completa.</div><button class="btn-generic" style="margin-top:10px; padding:10px; font-size:12px; background:var(--blue); color:#fff;" onclick="testTelegramNotification()">Invia Test Telegram</button></div><div style="border-top:1px solid var(--border); padding-top:12px;"><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:6px;">Webhook Custom (opzionale)</label><input type="url" id="signalWebhookUrl" placeholder="https://..." style="width:100%; background:#000; border:1px solid var(--border); color:#fff; padding:10px; border-radius:10px; font-family:var(--mono); font-size:12px;"></div></div><div class="modal-actions" style="margin-top:20px;"><button class="btn-cancel" onclick="closeSignalSettings()">Chiudi</button><button class="btn-confirm" onclick="saveSignalSettingsFromUI()">Salva</button></div></div></div>
 <div class="modal-overlay" id="signalDetailModal"><div class="modal-box" style="text-align: left; max-width: 380px;"><h3 id="signalDetailTitle" style="text-align:center;">Dettaglio Segnale</h3><div id="signalDetailBody" style="font-size:13px; line-height:1.6; color:var(--text-secondary); margin-top:16px;"></div><div class="modal-actions" style="margin-top:20px;"><button class="btn-confirm" onclick="closeSignalDetailModal()">Chiudi</button></div></div></div>
 
 <div class="modal-overlay" id="autoAddModal"><div class="modal-box auto-add-box"><h3>Metti una strategia su carta</h3><p>Su carta il bot segue i segnali senza ordini. Ordinate per risultato oltre il mercato.</p><div id="autoAddList" class="auto-add-list"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeAutoAdd()">Chiudi</button></div></div></div>
-<div class="modal-overlay" id="autoRiskModal"><div class="modal-box auto-add-box"><h3>Limiti di rischio</h3><p>Controllati dall'esecutore prima di ogni ordine. Valgono anche in simulazione.</p><div id="autoRiskFields" class="auto-risk-fields"></div><div class="auto-risk-field"><span>Ordini veri su Bitget</span></div><input type="hidden" id="riskTrading" value="off"><div class="option-toggle compact" data-target="riskTrading"><button type="button" class="pill-btn active" data-value="off" onclick="selectOption(this)">Spenti</button><button type="button" class="pill-btn" data-value="on" onclick="selectOption(this)">Abilitati</button></div><div class="modal-actions"><button class="btn-cancel" onclick="closeAutoRisk()">Annulla</button><button class="btn-confirm" onclick="saveAutoRisk()">Salva</button></div></div></div>
+<div class="modal-overlay" id="autoRiskModal"><div class="modal-box auto-add-box"><h3>Limiti di rischio</h3><p>Controllati dall'esecutore prima di ogni ordine. Valgono anche in simulazione.</p><div id="autoRiskFields" class="auto-risk-fields"></div><div class="settings-hint">Simulato o reale si sceglie in Account.</div><div class="modal-actions"><button class="btn-cancel" onclick="closeAutoRisk()">Annulla</button><button class="btn-confirm" onclick="saveAutoRisk()">Salva</button></div></div></div>
 <div class="modal-overlay" id="autoConfirmModal"><div class="modal-box"><h3 id="autoConfirmTitle">Conferma</h3><p id="autoConfirmMsg"></p><div class="modal-actions"><button class="btn-cancel" onclick="closeAutoConfirm()">Annulla</button><button class="btn-confirm" id="autoConfirmOk" style="background: var(--danger); color: #fff;" onclick="okAutoConfirm()">Conferma</button></div></div></div>
 
-<!-- ==================== MODAL IMPOSTAZIONI ==================== -->
-<div class="modal-overlay" id="settingsModal">
+<!-- ==================== CONNESSIONI (Impostazioni → Avanzate) ==================== -->
+<div class="modal-overlay" id="connModal">
     <div class="modal-box settings-box">
         <div class="settings-header">
-            <h3>Impostazioni</h3>
-            <button class="settings-close" onclick="closeSettings()" title="Chiudi">
+            <h3>Connessioni</h3>
+            <button class="settings-close" onclick="closeConnections()" title="Chiudi">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
-
+        <div class="settings-hint conn-warn">Servono solo per inviare comandi dall'app (Aggiorna, Segnali → Auto, Account). Le chiavi Bitget non stanno qui: sono segreti su GitHub e l'app non le vede mai.</div>
         <div class="settings-section">
-            <div class="settings-section-title">Dati e Backup</div>
-            <button class="settings-item" onclick="exportBackup()">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                <span>Esporta Backup JSON</span>
-            </button>
-            <button class="settings-item" onclick="triggerImportBackup()">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                <span>Importa Backup JSON</span>
-            </button>
-            <input type="file" id="backupFileInput" accept=".json,application/json" style="display: none;" onchange="handleImportBackup(event)">
-        </div>
-
-        <div class="settings-section">
-            <div class="settings-section-title">Comandi (Segnali → Auto, Aggiorna)</div>
-            <div class="settings-hint">Token GitHub fine-grained, solo sul repository SGTRADER, permesso "Actions: Read and write". Resta solo su questo dispositivo. <span id="ghTokenState"></span></div>
+            <div class="settings-section-title">Token GitHub</div>
+            <div class="settings-hint">Fine-grained, solo sul repository SGTRADER, permesso "Actions: Read and write". Resta solo su questo dispositivo. <span id="ghTokenState"></span></div>
             <div class="settings-field">
                 <input type="password" id="ghTokenInput" placeholder="github_pat_…" autocomplete="off" autocapitalize="off" spellcheck="false">
                 <button class="btn-generic btn-generic-tight" onclick="saveGhToken()">Salva</button>
             </div>
-            <button class="settings-item" onclick="removeGhToken()">
+            <button class="settings-item settings-danger" onclick="removeGhToken()">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
-                <span>Rimuovi token GitHub</span>
+                <span>Rimuovi token da questo dispositivo</span>
             </button>
-            <div class="settings-hint">In alternativa, indirizzo di un server comandi (es. Cloudflare): se impostato ha la precedenza.</div>
+        </div>
+        <div class="settings-section">
+            <div class="settings-section-title">Server comandi (alternativa)</div>
+            <div class="settings-hint">Indirizzo di un server (es. Cloudflare): se impostato ha la precedenza sul token.</div>
             <div class="settings-field">
                 <input type="url" id="apiBaseInput" placeholder="https://sgtrader-server.….workers.dev" autocomplete="off" autocapitalize="off" spellcheck="false">
                 <button class="btn-generic btn-generic-tight" onclick="saveServerSettings()">Salva</button>
@@ -982,33 +1054,12 @@
                 <span>Cambia chiave app (solo server)</span>
             </button>
         </div>
-
-        <div class="settings-section">
-            <div class="settings-section-title">Zona Pericolo</div>
-            <button class="settings-item settings-danger" onclick="closeSettings(); confirmReset()">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                <span>Reset Diario (cancella trade + storico)</span>
-            </button>
-        </div>
-
-        <div class="settings-section">
-            <div class="settings-section-title">Info App</div>
-            <div class="settings-info-row">
-                <span>SGTRADER</span>
-                <span class="settings-version">v1.0</span>
-            </div>
-            <button class="settings-item" onclick="closeSettings(); switchTab('info')">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                <span>Leggi il Manuale</span>
-            </button>
-        </div>
-
         <div class="modal-actions" style="margin-top: 12px;">
-            <button class="btn-cancel" onclick="closeSettings()">Chiudi</button>
+            <button class="btn-cancel" onclick="closeConnections()">Chiudi</button>
         </div>
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=81"></script>
+<script type="module" src="./src/main.js?v=82"></script>
 </body>
 </html>

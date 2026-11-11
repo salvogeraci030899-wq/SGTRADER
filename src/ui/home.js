@@ -2,6 +2,7 @@ import { State } from '../core/state.js';
 import { $, SYM, fetchT, calcPnl, escapeHtml } from '../utils/helpers.js';
 import { aggregateCellSignals } from './signals.js';
 import { bitgetAccountText } from './automation.js';
+import { updateModePills } from './account.js';
 
 // --- HOME: panoramica ---
 // Ordine di lettura: mercato → conto simulato → automazione → stato → grafici.
@@ -37,6 +38,7 @@ export function updateHome() {
     renderAccount();
     renderAutomationCard();
     renderStatus();
+    updateModePills();
 }
 
 // ---------- Mercato ----------

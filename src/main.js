@@ -14,6 +14,7 @@ import * as HomeCharts from './ui/home-charts.js';
 import * as Backup from './core/backup.js';
 import * as LabUI from './ui/lab.js';
 import * as AutoUI from './ui/automation.js';
+import * as AccountUI from './ui/account.js';
 import { initManual } from './ui/manual.js';
 import { initPageFit } from './ui/page-fit.js';
 
@@ -26,15 +27,12 @@ window.KState = State;
 // ==========================================
 // FUNZIONI GLOBALI (definite SUBITO per l'HTML)
 // ==========================================
-window.openSettings = () => {
-    const modal = document.getElementById('settingsModal');
-    AutoUI.fillServerSettings();
-    if (modal) modal.classList.add('active');
-};
-window.closeSettings = () => {
-    const modal = document.getElementById('settingsModal');
-    if (modal) modal.classList.remove('active');
-};
+// Account (icona in Home) e Impostazioni (barra in basso): src/ui/account.js
+window.openAccount = AccountUI.openAccount;
+window.renderAccount = AccountUI.renderAccount;
+window.setTradingMode = AutoUI.setTradingMode;
+window.openConnections = AccountUI.openConnections;
+window.closeConnections = AccountUI.closeConnections;
 window.goToSlide = (idx) => {
     const carousel = document.getElementById('infoCarousel');
     if (!carousel) return;
@@ -254,6 +252,10 @@ window.switchTab = (tabId) => {
         setTimeout(JournalUI.updateTradeLogDots, 50);
     } else if (tabId === 'calculator') {
         CalculatorUI.setCtxLabel();
+    } else if (tabId === 'account') {
+        AccountUI.renderAccount();
+    } else if (tabId === 'settings') {
+        AccountUI.renderSettings();
     } else if (tabId === 'signals') {
         SignalsUI.renderSignalGrid();
         SignalsUI.renderSignalHistory();
