@@ -158,6 +158,7 @@ def simulate(df, tf, symbol, spec, signal=None, peers=None):
         long = s > 0
         entry, a = c[i], atr[i]
         stop = entry - ex["stop_atr"] * a if long else entry + ex["stop_atr"] * a
+        stop0 = stop                      # stop iniziale: serve al dimensionamento della posizione
         target = None if ex.get("target_atr") is None else (entry + ex["target_atr"] * a if long else entry - ex["target_atr"] * a)
         best, exit_price, reason, j = entry, None, "TEMPO", i
         last = min(i + ex["max_hold"], n - 1)
@@ -185,7 +186,7 @@ def simulate(df, tf, symbol, spec, signal=None, peers=None):
         if j > i or still_open:
             trades.append({"symbol": symbol, "tf": tf, "t": int(times[i]), "t_entry": int(times[i]) + step, "t_exit": int(times[j]) + step, "dir": 1 if long else -1,
                            "gross": float((exit_price - entry) / entry * 100 * (1 if long else -1)), "bars": j - i, "reason": reason,
-                           "open": bool(still_open), "entry": float(entry), "exit": float(exit_price), "stop": float(stop)})
+                           "open": bool(still_open), "entry": float(entry), "exit": float(exit_price), "stop": float(stop), "stop0": float(stop0)})
         if still_open:
             break
         i = max(j, i + 1)      # alla chiusura della candela di uscita si può rientrare
@@ -266,6 +267,64 @@ def net_returns(trades, scenario, funding_by_symbol):
 
 
 # =========================
+# PORTAFOGLIO
+# =========================
+def portfolio(trades, nets, risk=None):
+    """Simula la strategia come la userebbe l'esecutore, sulle tre coin insieme: stesso dimensionamento
+    (rischio per trade sulla distanza dello stop iniziale, tagliato da leva ed esposizione totale),
+    una posizione per coin, massimo di posizioni aperte. Patrimonio di partenza 100, nessun prelievo.
+    Il patrimonio si aggiorna alla chiusura dei trade (niente valutazione intermedia: il drawdown vero
+    dentro i trade può essere più profondo). Il limite di perdita giornaliera non è simulato."""
+    import executor
+    risk = {**executor.DEFAULT_RISK, **(risk or {})}
+    exact = {"volume_place": 12, "min_size": 0.0}
+    rows = sorted(((t, v) for t, v in zip(trades, nets) if v is not None), key=lambda r: (r[0].get("t_entry", r[0]["t"]), r[0]["symbol"]))
+    if not rows:
+        return {"n": 0}
+    equity, peak, max_dd = 100.0, 100.0, 0.0
+    open_pos, curve, taken, skipped = [], [], 0, 0
+
+    def close_until(ts):
+        nonlocal equity, peak, max_dd
+        for p in sorted([p for p in open_pos if p["t_exit"] <= ts], key=lambda p: p["t_exit"]):
+            open_pos.remove(p)
+            equity += p["notional"] * p["net"] / 100
+            peak = max(peak, equity)
+            max_dd = min(max_dd, (equity / peak - 1) * 100)
+            curve.append([p["t_exit"], round(equity, 3)])
+
+    for t, net in rows:
+        start = t.get("t_entry", t["t"])
+        close_until(start)
+        if equity <= 0:
+            break
+        if any(p["symbol"] == t["symbol"] for p in open_pos) or len(open_pos) >= risk["max_open_positions"]:
+            skipped += 1
+            continue
+        stop = t.get("stop0", t.get("stop"))
+        open_notional = sum(p["notional"] for p in open_pos)
+        size, why = executor.size_position(equity, t["entry"], stop, risk, open_notional, exact) if stop else (0, "senza stop")
+        if not size:
+            skipped += 1
+            continue
+        open_pos.append({"symbol": t["symbol"], "t_exit": t["t_exit"], "notional": size * t["entry"], "net": net})
+        taken += 1
+    close_until(float("inf"))
+    years = max((rows[-1][0]["t_exit"] - rows[0][0].get("t_entry", rows[0][0]["t"])) / (365.25 * 86400), 1e-9)
+    total = equity / 100
+    step = max(1, len(curve) // 200)
+    return {
+        "n": taken, "skipped": skipped,
+        "final_equity": round(equity, 2),
+        "total_return_pct": round((total - 1) * 100, 1),
+        "annual_return_pct": round(((total ** (1 / years)) - 1) * 100, 1) if total > 0 else -100.0,
+        "max_drawdown_pct": round(max_dd, 1),
+        "years": round(years, 1),
+        "curve": curve[::step] + ([curve[-1]] if curve and (len(curve) - 1) % step else []),
+    }
+
+
+# =========================
 # STATISTICHE
 # =========================
 def cluster_p_value(values, clusters):
@@ -341,6 +400,7 @@ def evaluate(trades, funding, block_seconds, holdout_ts):
         out["halves"] = [{"n": len(hv), "excess_avg_pct": round(float(np.mean(hv)), 3) if hv else None} for hv in halves]
         out["stable"] = bool(all(hv["excess_avg_pct"] is not None and hv["excess_avg_pct"] > 0 for hv in out["halves"])
                              and sum(1 for v in out["excess_by_coin"].values() if v > 0) >= min(2, len(out["excess_by_coin"])))
+        out["portfolio"] = portfolio(research, primary)
         out["funding_real_share_pct"] = round(float(np.mean([funding_cost(t, funding.get(t["symbol"]))[1] for t in research]) * 100), 0)
         out["other_scenarios"] = {}
         for name in SCENARIOS:
@@ -386,7 +446,10 @@ def build_summary(per_trial, funding, registry, unseal=(), today=None):
         if key not in results:
             continue
         trades = sealed[key]
-        d = describe(trades, net_returns(trades, PRIMARY, funding), results[key]["block_seconds"])
+        sealed_nets = net_returns(trades, PRIMARY, funding)
+        d = describe(trades, sealed_nets, results[key]["block_seconds"])
+        if d["n"]:
+            d["portfolio"] = portfolio(trades, sealed_nets)
         p = d.get("excess_p")
         d["confirmed"] = bool(d["n"] >= MIN_TRADES and p is not None and p < 0.05 / n_unsealed and d["excess_avg_pct"] > 0 and d["avg_net_pct"] > 0)
         d["unsealed_on"] = registry["unsealed"][key]
@@ -410,6 +473,11 @@ def build_summary(per_trial, funding, registry, unseal=(), today=None):
 # =========================
 # REPORT
 # =========================
+def _pf(r):
+    pf = r.get("portfolio") or {}
+    return f"{pf['annual_return_pct']:+.1f}% / {pf['max_drawdown_pct']:.1f}%" if pf.get("n") else "—"
+
+
 def to_markdown(s):
     sc = s["scenarios"][s["primary_scenario"]]
     pending = [k for k in s["candidates"] if "holdout" not in s["results"][k]]
@@ -423,7 +491,8 @@ def to_markdown(s):
            "della coin). Misura la scelta dei momenti, non il rialzo del mercato. Intervallo, p, metà e coin si riferiscono a questa misura.",
            f"- **Candidata** = netto positivo, e netto oltre il mercato che supera la correzione per prove multiple (falsi positivi attesi {round(s['fdr'] * 100)}%) "
            "**e** stabile (positivo in entrambe le metà del periodo e su almeno 2 coin su 3).",
-           "- **Netto annuo per coin**: somma dei netti divisa per anni e coin, senza leva e senza reinvestire. Indicativo.",
+           "- **Portafoglio**: la strategia sulle tre coin insieme con le regole dell'esecutore (rischio 0,5% a trade sullo stop iniziale, leva massima 3x, "
+           "esposizione 1,5x, massimo 3 posizioni): rendimento annuo composto e drawdown massimo, misurati alla chiusura dei trade.",
            "- Una candidata non è un segnale valido: deve ancora superare la prova finale e poi la prova dal vivo senza soldi.",
            "- I risultati passati non garantiscono quelli futuri. Non è consulenza finanziaria.", "",
            f"**Candidate in attesa della prova finale: {', '.join(pending) if pending else 'nessuna'}.** "
@@ -434,7 +503,7 @@ def to_markdown(s):
         if not rows:
             continue
         out += [f"### Timeframe {tf}", "",
-                "| Strategia | Famiglia | Trade | Vincenti | Durata media | Netto medio | Netto annuo per coin | Oltre il mercato | IC 95% | p | Metà 1 / Metà 2 | BTC / ETH / SOL | Esito |",
+                "| Strategia | Famiglia | Trade | Vincenti | Durata media | Netto medio | Portafoglio: annuo / max DD | Oltre il mercato | IC 95% | p | Metà 1 / Metà 2 | BTC / ETH / SOL | Esito |",
                 "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
         for r in rows:
             p = "n/d" if r.get("excess_p") is None else f"{r['excess_p']:.4f}"
@@ -442,7 +511,7 @@ def to_markdown(s):
             coins = " / ".join(f"{r['excess_by_coin'][c]:+.2f}%" if c in r["excess_by_coin"] else "—" for c in ALL_ASSETS)
             verdict = "**CANDIDATA**" if r["candidate"] else "significativa ma instabile" if r["significant"] else "campione piccolo" if r["n"] < MIN_TRADES else "no"
             out.append(f"| {r['strategy']} | {r['family']} | {r['n']} | {r['win_rate']}% | {r['avg_bars']} candele | {r['avg_net_pct']:+.3f}% | "
-                       f"{r['net_per_year_per_coin_pct']:+.1f}% | {r['excess_avg_pct']:+.3f}% | {vs._ci(r['excess_ci'])} | {p} | {halves} | {coins} | {verdict} |")
+                       f"{_pf(r)} | {r['excess_avg_pct']:+.3f}% | {vs._ci(r['excess_ci'])} | {p} | {halves} | {coins} | {verdict} |")
         out.append("")
     opened = [r for r in s["results"].values() if "holdout" in r]
     if opened:

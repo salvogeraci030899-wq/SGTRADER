@@ -118,7 +118,8 @@ export function openLabDetail(key) {
     const coins = Object.entries(r.excess_by_coin || {}).map(([s, v]) => `${s.replace('USDT', '')} ${pct(v)}`).join(' · ');
     const lines = [
         `${r.n} trade · ${r.win_rate}% vincenti · durata media ${r.avg_bars} candele`,
-        `Netto medio: ${pct(r.avg_net_pct, 3)} (circa ${pct(r.net_per_year_per_coin_pct, 1)} l'anno per coin, senza leva)`,
+        `Netto medio: ${pct(r.avg_net_pct, 3)} a trade`,
+        r.portfolio && r.portfolio.n ? `Con le regole dell'esecutore (3 coin): ${pct(r.portfolio.annual_return_pct, 1)} l'anno, drawdown massimo ${pct(r.portfolio.max_drawdown_pct, 1)} in ${r.portfolio.years} anni` : 'Portafoglio: n/d',
         `Oltre il mercato: ${pct(r.excess_avg_pct, 3)}, intervallo 95% ${ci(r.excess_ci)}, p ${r.excess_p == null ? 'n/d' : r.excess_p.toFixed(4)}`,
         `Prima / seconda metà: ${halves || 'n/d'}`,
         `Per coin: ${coins || 'n/d'}`,
