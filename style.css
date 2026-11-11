@@ -899,3 +899,11 @@ html.pwa-mode .nav-item svg { width: 22px; height: 22px; }
 .theme-toggle { display: grid; grid-template-columns: repeat(3, auto); background: var(--field); border: 1px solid var(--border); border-radius: 9px; padding: 2px; gap: 2px; flex-shrink: 0; }
 .theme-toggle button { background: transparent; border: none; color: var(--text-secondary); font-size: 12px; font-weight: 700; border-radius: 7px; padding: 0 10px; min-height: 32px; cursor: pointer; font-family: var(--font); }
 .theme-toggle button.active { background: var(--surface-hover); color: var(--text); }
+
+/* Impostazioni su schermi bassi (iPhone SE in Safari): righe un po' più basse */
+@media (max-height: 620px) {
+    #page-settings .set-row { min-height: 38px; }
+    #page-settings .set-title { padding-top: 6px; }
+    #page-settings .set-wrap { gap: 8px; }
+    #page-settings .theme-toggle button { min-height: 28px; }
+}

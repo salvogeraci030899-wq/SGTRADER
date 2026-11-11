@@ -22,12 +22,15 @@
             var pref = 'auto';
             try { pref = localStorage.getItem('sgt_theme') || 'auto'; } catch (e) {}
             var light = pref === 'light' || (pref === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
+            var bar = 'integrated';
+            try { bar = localStorage.getItem('sgt_statusbar') || 'integrated'; } catch (e) {}
             document.documentElement.setAttribute('data-theme', light ? 'light' : 'dark');
-            if (light) {
-                document.getElementById('metaThemeColor').setAttribute('content', '#f2f2f7');
-                // barra di stato di iOS: testo scuro su fondo chiaro (iOS la rilegge solo all'apertura dell'app)
-                document.getElementById('metaStatusBar').setAttribute('content', 'default');
-            }
+            if (light) document.getElementById('metaThemeColor').setAttribute('content', '#f2f2f7');
+            // Barra di stato di iOS (rilette solo all'apertura dell'app):
+            //   integrata: la pagina passa sotto l'ora e la batteria (black-translucent, testo bianco);
+            //   separata: barra piena disegnata da iOS, la pagina comincia sotto (niente sfocatura sul contenuto).
+            //   In chiaro c'è solo "default" (barra piena, testo scuro): black-translucent avrebbe il testo bianco.
+            document.getElementById('metaStatusBar').setAttribute('content', light ? 'default' : (bar === 'separate' ? 'black' : 'black-translucent'));
         })();
     </script>
 
@@ -43,35 +46,35 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=85">
-    <meta name="app-version" content="85">
+    <link rel="stylesheet" href="./style.css?v=86">
+    <meta name="app-version" content="86">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=85",
-            "./src/core/commands.js": "./src/core/commands.js?v=85",
-            "./src/core/config.js": "./src/core/config.js?v=85",
-            "./src/core/logger.js": "./src/core/logger.js?v=85",
-            "./src/core/state.js": "./src/core/state.js?v=85",
-            "./src/core/theme.js": "./src/core/theme.js?v=85",
-            "./src/main.js": "./src/main.js?v=85",
-            "./src/ui/account.js": "./src/ui/account.js?v=85",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=85",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=85",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=85",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=85",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=85",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=85",
-            "./src/ui/home.js": "./src/ui/home.js?v=85",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=85",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=85",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=85",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=85",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=85",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=85",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=85",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=85"
+            "./src/core/backup.js": "./src/core/backup.js?v=86",
+            "./src/core/commands.js": "./src/core/commands.js?v=86",
+            "./src/core/config.js": "./src/core/config.js?v=86",
+            "./src/core/logger.js": "./src/core/logger.js?v=86",
+            "./src/core/state.js": "./src/core/state.js?v=86",
+            "./src/core/theme.js": "./src/core/theme.js?v=86",
+            "./src/main.js": "./src/main.js?v=86",
+            "./src/ui/account.js": "./src/ui/account.js?v=86",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=86",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=86",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=86",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=86",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=86",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=86",
+            "./src/ui/home.js": "./src/ui/home.js?v=86",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=86",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=86",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=86",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=86",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=86",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=86",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=86",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=86"
         }
     }
     </script>
@@ -203,9 +206,6 @@
                     <button type="button" class="set-row" onclick="openAccount()"><span class="set-label">Account e modalità ordini</span><span class="set-val" id="setModeVal">—</span><svg class="set-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
                     <button type="button" class="set-row" onclick="openAutoRisk()"><span class="set-label">Limiti di rischio</span><svg class="set-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
                     <button type="button" class="set-row" onclick="openAutomation()"><span class="set-label">Strategie automatiche</span><svg class="set-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
-                </div>
-                <div class="set-group">
-                    <div class="set-title">Notifiche</div>
                     <button type="button" class="set-row" onclick="openSignalSettings()"><span class="set-label">Segnali, Telegram e webhook</span><svg class="set-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
                 </div>
                 <div class="set-group">
@@ -217,6 +217,12 @@
                             <button type="button" data-pref="dark" onclick="setTheme('dark')">Scuro</button>
                         </div>
                     </div>
+                    <div class="set-row set-static"><span class="set-label">Barra di stato</span>
+                        <div class="theme-toggle" id="statusBarToggle">
+                            <button type="button" data-bar="integrated" onclick="setStatusBar('integrated')">Integrata</button>
+                            <button type="button" data-bar="separate" onclick="setStatusBar('separate')">Separata</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="set-group">
                     <div class="set-title">Dati</div>
@@ -226,11 +232,8 @@
                     <button type="button" class="set-row set-danger" onclick="confirmReset()"><span class="set-label">Reset diario (trade e storico)</span><svg class="set-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
                 </div>
                 <div class="set-group">
-                    <div class="set-title">Avanzate</div>
+                    <div class="set-title">Altro</div>
                     <button type="button" class="set-row" onclick="openConnections()"><span class="set-label">Connessioni (token e server)</span><span class="set-val" id="setConnVal">—</span><svg class="set-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
-                </div>
-                <div class="set-group">
-                    <div class="set-title">Aiuto</div>
                     <button type="button" class="set-row" onclick="switchTab('info')"><span class="set-label">Manuale</span><svg class="set-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
                 </div>
             </div>
@@ -838,7 +841,7 @@
                         <div class="rule-step"><div class="content"><b>1. Crea il bot</b>: apri Telegram, cerca <b>@BotFather</b>, manda <span class="mono">/newbot</span>, scegli nome e username. Riceverai un <b>token</b> tipo <span class="mono">123456:ABC-DEF...</span>.</div></div>
                         <div class="rule-step"><div class="content"><b>2. Ottieni il Chat ID</b>: cerca <b>@userinfobot</b>, manda <span class="mono">/start</span>. Ti risponde con il tuo <b>chat_id</b> numerico (es. 987654321).</div></div>
                         <div class="rule-step"><div class="content"><b>3. Avvia il bot</b>: cerca il bot che hai creato e manda <span class="mono">/start</span>. Senza questo passaggio il bot non può scriverti.</div></div>
-                        <div class="rule-step"><div class="content"><b>4. Inserisci in SGTRADER</b>: apri Impostazioni (barra in basso) → Segnali, Telegram e webhook → incolla token e chat_id → Salva.</div></div>
+                        <div class="rule-step"><div class="content"><b>4. Inserisci in SGTRADER</b>: apri Impostazioni (barra in basso) → Trading → Segnali, Telegram e webhook → incolla token e chat_id → Salva.</div></div>
                         <div class="rule-step"><div class="content"><b>5. Test</b>: premi "Invia Test Telegram". Se il messaggio arriva, sei a posto. Se non arriva, ricontrolla token/chat_id e che il bot sia avviato.</div></div>
                     </div>
                     <div class="rule-card">
@@ -932,8 +935,8 @@
                         <div class="rule-step"><div class="content"><b>Emergenza</b>: spegne tutte le strategie, chiude le posizioni aperte dall'esecutore e blocca. <b>Sblocca</b> riattiva, ma le strategie restano spente.</div></div>
                         <div class="rule-step"><div class="content"><b>Bitget</b>: a ogni giro il bot legge patrimonio futures e posizioni, in sola lettura. "Lettura non riuscita" = chiave scaduta o errata (arriva anche un avviso su Telegram).</div></div>
                         <div class="rule-step"><div class="content"><b>Esecutore</b>: ogni posizione nasce con lo stop già su Bitget. A ogni giro confronta le posizioni su Bitget con quelle attese: se non coincidono si blocca e avvisa.</div></div>
-                        <div class="rule-step"><div class="content"><b>Aspetto</b>: Impostazioni → Aspetto → Auto (segue iOS), Chiaro o Scuro. Vale solo su questo dispositivo. Dopo un cambio, la barra di stato di iOS si aggiorna riaprendo l'app.</div></div>
-                        <div class="rule-step"><div class="content"><b>Primo avvio</b>: Impostazioni → Avanzate → Connessioni → token GitHub fine-grained, solo su SGTRADER, permesso "Actions: Read and write".</div></div>
+                        <div class="rule-step"><div class="content"><b>Aspetto</b>: Impostazioni → Aspetto → Auto (segue iOS), Chiaro o Scuro. <b>Barra di stato</b>: Integrata (la pagina passa sotto ora e batteria) o Separata (barra piena di iOS, utile se iOS sfoca la parte in alto). Valgono solo su questo dispositivo; la barra di stato cambia riaprendo l'app.</div></div>
+                        <div class="rule-step"><div class="content"><b>Primo avvio</b>: Impostazioni → Altro → Connessioni → token GitHub fine-grained, solo su SGTRADER, permesso "Actions: Read and write".</div></div>
                     </div>
                 </div>
                 <!-- SLIDE: COSA FARE SE -->
@@ -943,7 +946,7 @@
                         <div class="rule-step"><div class="content"><b>"Il bot non parte da X ore"</b> (avviso del controllo di salute, dopo 2 ore senza giri) → il server Cloudflare non lo sta avviando: Cloudflare → Workers → sgtrader-server → scheda dei log, oppure rilancia il workflow "Pubblica server comandi". Per forzare subito un giro: Grafici → tasto aggiorna.</div></div>
                         <div class="rule-step"><div class="content"><b>"Esecutore BLOCCATO"</b> → apri Bitget e confronta le posizioni con Segnali → Auto. Chiudi a mano ciò che non torna, poi Segnali → Auto → Sblocca automazione.</div></div>
                         <div class="rule-step"><div class="content"><b>Qualcosa va storto con soldi veri</b> → Segnali → Auto → Emergenza: spegne tutte le strategie e chiude le posizioni aperte dall'esecutore. In caso di dubbio chiudi anche direttamente su Bitget.</div></div>
-                        <div class="rule-step"><div class="content"><b>"Comando rifiutato" / "GitHub ha rifiutato il token"</b> → il token GitHub è scaduto o revocato: creane uno nuovo (solo SGTRADER, Actions: Read and write) e salvalo in Impostazioni → Avanzate → Connessioni.</div></div>
+                        <div class="rule-step"><div class="content"><b>"Comando rifiutato" / "GitHub ha rifiutato il token"</b> → il token GitHub è scaduto o revocato: creane uno nuovo (solo SGTRADER, Actions: Read and write) e salvalo in Impostazioni → Altro → Connessioni.</div></div>
                         <div class="rule-step"><div class="content"><b>L'app mostra un errore di caricamento</b> → ricarica la pagina; controlla la versione in Home, scheda Stato (es. v78). Su Vercel, se il deploy è in limite, usa la versione su GitHub Pages.</div></div>
                         <div class="rule-step"><div class="content"><b>Non arrivano messaggi Telegram</b> → controlla i segreti TELEGRAM_TOKEN e TELEGRAM_CHAT_ID su GitHub e che il bot su Telegram non sia stato bloccato.</div></div>
                     </div>
@@ -1057,7 +1060,7 @@
 <div class="modal-overlay" id="autoRiskModal"><div class="modal-box auto-add-box"><h3>Limiti di rischio</h3><p>Controllati dall'esecutore prima di ogni ordine. Valgono anche in simulazione.</p><div id="autoRiskFields" class="auto-risk-fields"></div><div class="settings-hint">Simulato o reale si sceglie in Account.</div><div class="modal-actions"><button class="btn-cancel" onclick="closeAutoRisk()">Annulla</button><button class="btn-confirm" onclick="saveAutoRisk()">Salva</button></div></div></div>
 <div class="modal-overlay" id="autoConfirmModal"><div class="modal-box"><h3 id="autoConfirmTitle">Conferma</h3><p id="autoConfirmMsg"></p><div class="modal-actions"><button class="btn-cancel" onclick="closeAutoConfirm()">Annulla</button><button class="btn-confirm" id="autoConfirmOk" style="background: var(--danger); color: #fff;" onclick="okAutoConfirm()">Conferma</button></div></div></div>
 
-<!-- ==================== CONNESSIONI (Impostazioni → Avanzate) ==================== -->
+<!-- ==================== CONNESSIONI (Impostazioni → Altro) ==================== -->
 <div class="modal-overlay" id="connModal">
     <div class="modal-box settings-box">
         <div class="settings-header">
@@ -1097,6 +1100,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=85"></script>
+<script type="module" src="./src/main.js?v=86"></script>
 </body>
 </html>
