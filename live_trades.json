@@ -23,6 +23,8 @@
   "demo": false,
   "equity": 0.0,
   "positions": 0,
+  "positions_detail": [],
+  "upl": 0,
   "spot_usdt": 0.0,
   "spot_coins": [
    {
@@ -40,7 +42,10 @@
    "bots": 0.0,
    "margin": 0.0
   },
-  "checked_at": "2026-11-11T15:25:04+00:00"
+  "checked_at": "2026-11-11T15:48:38+00:00",
+  "day": "2026-11-11",
+  "day_start_total": 0.0,
+  "day_change": 0.0
  },
  "halt_reason": null
 }
