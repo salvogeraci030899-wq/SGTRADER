@@ -36,7 +36,7 @@ function renderRealPositions(el) {
     if (sig === State.atSig) return;
     State.atSig = sig;
     const hidden = State.simState.activeTrades.length;
-    const note = `<div class="at-real-note">Lette da Bitget dal bot ogni 30 minuti${acc && acc.checked_at ? ` (ultima: ${new Date(acc.checked_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })})` : ''}. Le chiude l'esecutore o l'Emergenza.${hidden ? ` ${hidden} trade simulati nascosti: tornano in Simulato.` : ''}</div>`;
+    const note = `<div class="at-real-note">Lette da Bitget dal bot ogni 15 minuti${acc && acc.checked_at ? ` (ultima: ${new Date(acc.checked_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })})` : ''}. Le chiude l'esecutore o l'Emergenza.${hidden ? ` ${hidden} trade simulati nascosti: tornano in Simulato.` : ''}</div>`;
     if (!acc || !acc.connected) {
         el.classList.add('empty');
         el.innerHTML = `<div class="at-empty">Conto Bitget non letto.${note}</div>`;

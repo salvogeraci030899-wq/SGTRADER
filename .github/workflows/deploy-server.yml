@@ -1,7 +1,7 @@
 name: Pubblica server comandi
 
 # Pubblica il server comandi (worker/index.js + api/_core.js) su Cloudflare Workers, gratis.
-# Il worker fa anche da orologio: avvia il bot ogni 30 minuti in modo puntuale.
+# Il worker fa anche da orologio: avvia il bot ogni 15 minuti in modo puntuale.
 # Parte da solo quando cambiano quei file su main, oppure a mano.
 #
 # Da fare una volta sola (Settings -> Secrets and variables -> Actions -> New repository secret):
@@ -68,5 +68,5 @@ jobs:
           printf '%s' "$GH_TOKEN_S" | npx --yes wrangler@3.114.0 secret put GH_TOKEN
           if [ -n "$GROQ_API_KEY" ]; then printf '%s' "$GROQ_API_KEY" | npx --yes wrangler@3.114.0 secret put GROQ_API_KEY; fi
           url=$(grep -o 'https://[a-z0-9.-]*workers.dev' deploy.log | head -n 1)
-          echo "Server pubblicato: ${url:-vedi il log}. Da ora il bot parte ogni 30 minuti da Cloudflare." | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "Server pubblicato: ${url:-vedi il log}. Da ora il bot parte ogni 15 minuti da Cloudflare." | tee -a "$GITHUB_STEP_SUMMARY"
           if [ -n "$APP_SECRET" ]; then echo "Comandi dal server attivi: indirizzo da inserire in Impostazioni -> Comandi." | tee -a "$GITHUB_STEP_SUMMARY"; fi

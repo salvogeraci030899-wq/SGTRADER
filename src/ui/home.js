@@ -15,9 +15,9 @@ import { updateModePills, tradingMode } from './account.js';
 const COINS = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'];
 const MARKET_EVERY_MS = 10_000;
 const BOT_FILES_EVERY_MS = 60_000;
-// Il bot parte ogni 30 minuti (Cloudflare): verde fino a 45 min, giallo fino a 2 h (soglia del
+// Il bot parte ogni 15 minuti (Cloudflare): verde fino a 30 min, giallo fino a 2 h (soglia del
 // controllo di salute), poi rosso.
-const BOT_OK_MIN = 45, BOT_LATE_MIN = 120;
+const BOT_OK_MIN = 30, BOT_LATE_MIN = 120;
 
 const market = {};          // symbol -> { px, chg } (chg in %, null se non nota)
 let bot = null;             // { cfg, ledger, live }
@@ -86,7 +86,7 @@ function renderMarket() {
 const signed = v => (v > 0 ? '+' : '') + Number(v).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const tone = v => (v > 0 ? ' safe' : v < 0 ? ' danger' : '');
 
-// In modalità Reale la scheda mostra il conto Bitget (letto dal bot ogni 30 minuti), in Simulato
+// In modalità Reale la scheda mostra il conto Bitget (letto dal bot ogni 15 minuti), in Simulato
 // le posizioni aperte a mano nell'app. Il titolo dice sempre quale dei due si sta guardando.
 function renderAccount() {
     const set = (id, text, cls) => { const el = $(id); if (el) { el.textContent = text; el.className = 'home-kpi-value' + (cls || ''); } };

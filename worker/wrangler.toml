@@ -4,7 +4,8 @@ main = "index.js"
 compatibility_date = "2025-06-01"
 workers_dev = true
 
-# Orologio del bot: avvia il workflow "Kronos Bot" ai minuti 17 e 47 di ogni ora (come lo schedule di
-# GitHub, che però può ritardare di ore). Il bot salta da solo il modello se non c'è una candela nuova.
+# Orologio del bot: avvia il workflow "Kronos Bot" ogni 15 minuti (minuti 2, 17, 32, 47). Il giro dei
+# :02 prende subito la candela oraria appena chiusa; gli altri durano ~2 minuti (il bot salta da solo
+# il modello se non c'è una candela nuova). Gratis: Cloudflare e GitHub Actions (repository pubblico).
 [triggers]
-crons = ["17,47 * * * *"]
+crons = ["2,17,32,47 * * * *"]

@@ -15,7 +15,7 @@ from datetime import datetime, timedelta, timezone
 
 import requests
 
-MAX_BOT_GAP_HOURS = float(os.environ.get("WATCHDOG_MAX_HOURS", "2"))   # Cloudflare avvia il bot ogni 30 minuti: 2 ore = 4 giri saltati
+MAX_BOT_GAP_HOURS = float(os.environ.get("WATCHDOG_MAX_HOURS", "2"))   # Cloudflare avvia il bot ogni 15 minuti: 2 ore = 8 giri saltati
 MAX_ARCHIVE_AGE_DAYS = 10
 
 
@@ -36,7 +36,7 @@ def checks(now, last_run, last_conclusion, live=None, automation=None, archive_l
         gap = (now - last_run).total_seconds() / 3600
         if gap > MAX_BOT_GAP_HOURS:
             problems.append(f"Il bot non parte da {gap:.0f} ore (limite {MAX_BOT_GAP_HOURS:g}). "
-                            "Controlla il server Cloudflare (worker sgtrader-server): è lui che avvia il bot ogni 30 minuti.")
+                            "Controlla il server Cloudflare (worker sgtrader-server): è lui che avvia il bot ogni 15 minuti.")
         if last_conclusion not in (None, "", "success", "in_progress", "queued", "waiting", "requested", "pending"):
             problems.append(f"L'ultimo giro del bot è finito con esito: {last_conclusion}. Controlla i log in GitHub, scheda Actions.")
     if live and live.get("halted"):

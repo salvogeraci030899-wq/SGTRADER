@@ -46,35 +46,35 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=87">
-    <meta name="app-version" content="87">
+    <link rel="stylesheet" href="./style.css?v=88">
+    <meta name="app-version" content="88">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=87",
-            "./src/core/commands.js": "./src/core/commands.js?v=87",
-            "./src/core/config.js": "./src/core/config.js?v=87",
-            "./src/core/logger.js": "./src/core/logger.js?v=87",
-            "./src/core/state.js": "./src/core/state.js?v=87",
-            "./src/core/theme.js": "./src/core/theme.js?v=87",
-            "./src/main.js": "./src/main.js?v=87",
-            "./src/ui/account.js": "./src/ui/account.js?v=87",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=87",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=87",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=87",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=87",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=87",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=87",
-            "./src/ui/home.js": "./src/ui/home.js?v=87",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=87",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=87",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=87",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=87",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=87",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=87",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=87",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=87"
+            "./src/core/backup.js": "./src/core/backup.js?v=88",
+            "./src/core/commands.js": "./src/core/commands.js?v=88",
+            "./src/core/config.js": "./src/core/config.js?v=88",
+            "./src/core/logger.js": "./src/core/logger.js?v=88",
+            "./src/core/state.js": "./src/core/state.js?v=88",
+            "./src/core/theme.js": "./src/core/theme.js?v=88",
+            "./src/main.js": "./src/main.js?v=88",
+            "./src/ui/account.js": "./src/ui/account.js?v=88",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=88",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=88",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=88",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=88",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=88",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=88",
+            "./src/ui/home.js": "./src/ui/home.js?v=88",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=88",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=88",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=88",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=88",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=88",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=88",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=88",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=88"
         }
     }
     </script>
@@ -129,9 +129,9 @@
                 <div class="home-card">
                     <div class="home-card-header">
                         <span>Stato · <span class="home-version" id="homeAppVersion">—</span></span>
-                        <button class="btn-refresh-link" onclick="triggerRefresh()">
+                        <button class="btn-refresh-link" id="btn-refresh" onclick="triggerRefresh()" title="Avvia subito un giro del bot (di solito parte da solo ogni 15 minuti)">
                             <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><polyline points="21 3 21 8 16 8"/></svg>
-                            Aggiorna
+                            <span id="btn-refresh-label">Aggiorna ora</span>
                         </button>
                     </div>
                     <div class="home-line"><span>Bot</span><b><i class="home-dot" id="homeBotDot"></i><span id="homeLastUpdate">—</span></b></div>
@@ -358,9 +358,6 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     Analizza Setup
                 </button>
-                <button class="btn-refresh-compact" id="btn-refresh" onclick="triggerRefresh()" title="Aggiorna">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><polyline points="21 3 21 8 16 8"/></svg>
-                </button>
             </div>
         </section>
 
@@ -400,8 +397,8 @@
                         <label>Direzione</label>
                         <input type="hidden" id="calcDirection" value="LONG">
                         <div class="option-toggle compact" data-target="calcDirection" data-onchange="calc">
-                            <button type="button" class="pill-btn active" data-value="LONG" onclick="selectOption(this)">Long</button>
-                            <button type="button" class="pill-btn" data-value="SHORT" onclick="selectOption(this)">Short</button>
+                            <button type="button" class="pill-btn dir-long active" data-value="LONG" onclick="selectOption(this)">Long</button>
+                            <button type="button" class="pill-btn dir-short" data-value="SHORT" onclick="selectOption(this)">Short</button>
                         </div>
                     </div>
                 </div>
@@ -670,14 +667,14 @@
                         <div class="rule-card-title blue">Architettura del Sistema</div>
                         <div class="rule-step"><div class="content"><b>Bot Python</b> su <em>GitHub Actions</em>. Scarica candele da Bitget, calcola indicatori tecnici, esegue simulazioni Monte Carlo, genera un piano operativo con entry/SL/TP, e scrive il tutto in <span class="mono">dashboard.json</span>.</div></div>
                         <div class="rule-step"><div class="content"><b>dashboard.json</b> è il file statico che contiene, per ogni coppia asset/timeframe: storico candele, forecast, bande di confidenza, probabilità di rialzo e piano operativo AI. Viene pubblicato con il sito (GitHub Pages o Vercel).</div></div>
-                        <div class="rule-step"><div class="content"><b>Comandi</b> (Aggiorna, Segnali → Auto): partono da GitHub con il token salvato sul telefono, oppure da un server comandi (Vercel o Cloudflare) protetto da <span class="mono">APP_SECRET</span>. Avviano solo workflow del repository, che ricontrollano ogni comando.</div></div>
+                        <div class="rule-step"><div class="content"><b>Comandi</b> (Aggiorna ora, Segnali → Auto, Account): partono da GitHub con il token salvato sul telefono, oppure da un server comandi (Vercel o Cloudflare) protetto da <span class="mono">APP_SECRET</span>. Avviano solo workflow del repository, che ricontrollano ogni comando.</div></div>
                         <div class="rule-step"><div class="content"><b>Frontend PWA</b>: <span class="mono">index.html</span>, <span class="mono">style.css</span> e moduli JS in <span class="mono">src/</span>, Lightweight Charts 4.1.3, localStorage per persistenza, manifest e meta per comportamento nativo su iPhone.</div></div>
                         <div class="rule-step"><div class="content"><b>Bitget API</b>: prezzi, candele e dati futures pubblici. Le chiavi private servono solo all'esecutore per gli ordini veri, stanno nei segreti di GitHub e mai nell'app.</div></div>
                         <div class="rule-step"><div class="content"><b>Persistenza locale</b> su due chiavi separate: <span class="mono">kronos_state_v3</span> (trades) e <span class="mono">kronos_signals_v1</span> (segnali + impostazioni notifiche).</div></div>
                     </div>
                     <div class="rule-card">
                         <div class="rule-card-title default">Flusso Dati</div>
-                        <div class="rule-step"><div class="content"><b>GitHub Actions</b> (ogni 30 min) → scarica dati → calcola → scrive <span class="mono">dashboard.json</span>, track record, dati futures, prova su carta ed esecutore → il sito li pubblica → SGTRADER li legge.</div></div>
+                        <div class="rule-step"><div class="content"><b>GitHub Actions</b> (ogni 15 min, avviato da Cloudflare) → scarica dati → calcola → scrive <span class="mono">dashboard.json</span>, track record, dati futures, prova su carta ed esecutore → il sito li pubblica → SGTRADER li legge.</div></div>
                         <div class="rule-step"><div class="content"><b>Signal Engine</b> (ogni 10 min) → chiama Bitget per candele fresche → calcola 3 strategie + SGTRADER AI → aggrega consensus → eventualmente notifica.</div></div>
                         <div class="rule-step"><div class="content"><b>Price Polling</b> (ogni 5 sec) → aggiorna prezzo header, PnL trade attivi, verifica chiusure TP/SL automatiche.</div></div>
                     </div>
@@ -943,7 +940,7 @@
                 <div class="info-slide">
                     <div class="rule-card">
                         <div class="rule-card-title yellow">Cosa fare se…</div>
-                        <div class="rule-step"><div class="content"><b>"Il bot non parte da X ore"</b> (avviso del controllo di salute, dopo 2 ore senza giri) → il server Cloudflare non lo sta avviando: Cloudflare → Workers → sgtrader-server → scheda dei log, oppure rilancia il workflow "Pubblica server comandi". Per forzare subito un giro: Grafici → tasto aggiorna.</div></div>
+                        <div class="rule-step"><div class="content"><b>"Il bot non parte da X ore"</b> (avviso del controllo di salute, dopo 2 ore senza giri) → il server Cloudflare non lo sta avviando: Cloudflare → Workers → sgtrader-server → scheda dei log, oppure rilancia il workflow "Pubblica server comandi". Per forzare subito un giro: Home → Stato → Aggiorna ora.</div></div>
                         <div class="rule-step"><div class="content"><b>"Esecutore BLOCCATO"</b> → apri Bitget e confronta le posizioni con Segnali → Auto. Chiudi a mano ciò che non torna, poi Segnali → Auto → Sblocca automazione.</div></div>
                         <div class="rule-step"><div class="content"><b>Qualcosa va storto con soldi veri</b> → Segnali → Auto → Emergenza: spegne tutte le strategie e chiude le posizioni aperte dall'esecutore. In caso di dubbio chiudi anche direttamente su Bitget.</div></div>
                         <div class="rule-step"><div class="content"><b>"Comando rifiutato" / "GitHub ha rifiutato il token"</b> → il token GitHub è scaduto o revocato: creane uno nuovo (solo SGTRADER, Actions: Read and write) e salvalo in Impostazioni → Altro → Connessioni.</div></div>
@@ -1100,6 +1097,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=87"></script>
+<script type="module" src="./src/main.js?v=88"></script>
 </body>
 </html>

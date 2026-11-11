@@ -1,6 +1,6 @@
 // Server comandi su Cloudflare Workers (gratuito: 100.000 richieste al giorno).
 // Fa anche da orologio del bot: GitHub esegue lo schedule "quando può" (anche con ore di ritardo),
-// il Cron Trigger di Cloudflare invece avvia il bot ogni 30 minuti (wrangler.toml).
+// il Cron Trigger di Cloudflare invece avvia il bot ogni 15 minuti (wrangler.toml).
 // Stessa logica di Vercel (api/_core.js); qui si aggiunge solo il CORS, perché l'app (GitHub Pages
 // o altro dominio) chiama il worker da un'origine diversa.
 //
