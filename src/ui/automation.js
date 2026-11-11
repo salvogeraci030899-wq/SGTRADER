@@ -62,7 +62,7 @@ export function bitgetAccountText(acc) {
             : acc.spot_usdt != null
                 ? `spot ${usdt(acc.spot_usdt)} · futures ${usdt(acc.equity)} · ${pos}`
                 : `futures ${usdt(acc.equity)} · ${pos}${acc.spot_error ? ' · spot non leggibile' : ''}`;
-        return { text: `${usdt(total)} USDT · ${kind}`, cls: 'text-accent', detail };
+        return { text: `${usdt(total)} USDT · ${kind}`, cls: 'text-ui', detail };
     }
     if (acc.reason === 'chiavi non impostate') return { text: 'chiavi non impostate', cls: '', detail: '' };
     return { text: 'lettura non riuscita: controlla la chiave', cls: 'text-danger', detail: '' };
@@ -119,7 +119,7 @@ export function renderAutomation() {
     const { text: accText, cls: accClass, detail: accDetail } = bitgetAccountText(live && live.account);
     const acc = live && live.account;
     status.innerHTML = `
-        <div class="auto-row"><span>Comandi</span><b class="${mode === 'none' ? 'text-warning' : 'text-accent'}">${serverText}</b></div>
+        <div class="auto-row"><span>Comandi</span><b class="${mode === 'none' ? 'text-warning' : 'text-ui'}">${serverText}</b></div>
         <div class="auto-row"><span>Stato</span><b class="${emergency || halted ? 'text-danger' : 'text-accent'}">${emergency ? 'EMERGENZA: tutto bloccato' : (halted ? 'esecutore bloccato: controlla Bitget' : `${onPaper} ${onPaper === 1 ? 'strategia attiva' : 'strategie attive'}`)}</b></div>
         <div class="auto-row"><span>Saldo Bitget</span><b class="${accClass}" title="${escapeHtml((acc && acc.reason) || '')}">${accText}</b></div>
         ${accDetail ? `<div class="auto-row auto-sub"><span></span><b>${escapeHtml(accDetail)}</b></div>` : ''}

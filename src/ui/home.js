@@ -158,7 +158,7 @@ function renderAutomationCard() {
         const parts = [];
         if (real) parts.push(`${real} reale`);
         if (paper) parts.push(`${paper} su carta`);
-        setLine('homeAutoStrategies', `${parts.join(' · ')} · ${opened} aperti, ${closed} chiusi`, 'text-accent');
+        setLine('homeAutoStrategies', `${parts.join(' · ')} · ${opened} aperti, ${closed} chiusi`, 'text-ui');
     }
     const trading = !!(cfg && cfg.risk && cfg.risk.trading_enabled);
     setLine('homeAutoOrders', trading ? 'abilitati' : 'spenti', trading ? 'text-warning' : '');
