@@ -14,9 +14,9 @@ def paths(d, confirmed=()):
     return cfg, summ
 
 
-def rejected(argv, cfg, summ, text):
+def rejected(argv, cfg, summ, text, state=None):
     try:
-        au.run(argv, cfg, summ)
+        au.run(argv, cfg, summ, state or os.path.join(os.path.dirname(cfg), "live_trades.json"))
     except au.CommandError as e:
         assert text in str(e), (str(e), text)
         return
@@ -63,7 +63,8 @@ def test_emergenza():
         assert c["strategies"] == {} and c["emergency"] is True and c["history"][-1]["turned_off"] == ["big_candle_trail:1d", "donchian55:4h"]
         rejected(["set", "big_candle_trail:1d", "paper"], cfg, summ, "Emergenza attiva")
         assert "off" in au.run(["set", "big_candle_trail:1d", "off"], cfg, summ)               # spegnere resta sempre possibile
-        au.run(["resume"], cfg, summ)
+        state = os.path.join(d, "live_trades.json")                                           # mai il file vero del bot
+        au.run(["resume"], cfg, summ, state)
         c = json.load(open(cfg))
         assert c["emergency"] is False and c["strategies"] == {}                               # sbloccare non riaccende nulla
         rejected(["resume"], cfg, summ, "non è bloccata")
