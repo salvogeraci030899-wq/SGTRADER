@@ -35,6 +35,7 @@ jobs:
           python tests/test_executor.py
           python tests/test_daily_report.py
           python tests/test_futures_archive.py
+          python tests/test_watchdog.py
           node tests/test_core.mjs
       # Chiamate vere a Bitget futures: fallisce se mancano prezzo mark, funding o open interest
       - name: Dati futures veri
