@@ -31,6 +31,17 @@ async function getJson(name) {
     } catch (e) { return null; }
 }
 
+// Stato del conto Bitget letto dal bot (live_trades.json, campo account): usato qui e nella Home
+export function bitgetAccountText(acc) {
+    if (!acc) return { text: 'non ancora letto', cls: '' };
+    if (acc.connected) {
+        const eq = Number(acc.equity).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return { text: `${acc.demo ? 'demo' : 'conto reale'} · ${eq} USDT · ${acc.positions} ${acc.positions === 1 ? 'posizione' : 'posizioni'}`, cls: 'text-accent' };
+    }
+    if (acc.reason === 'chiavi non impostate') return { text: 'chiavi non impostate', cls: '' };
+    return { text: 'lettura non riuscita: controlla la chiave', cls: 'text-danger' };
+}
+
 export async function loadAutomation() {
     if (loading) return;
     loading = true;
@@ -71,11 +82,8 @@ export function renderAutomation() {
     const mode = commandMode();
     const serverText = { server: 'server impostato', github: 'token GitHub', site: 'questo sito', none: 'non impostati' }[mode];
     const onPaper = Object.values(cfg ? cfg.strategies : {}).filter(m => m !== 'off').length;
+    const { text: accText, cls: accClass } = bitgetAccountText(live && live.account);
     const acc = live && live.account;
-    const accText = !acc ? 'non ancora letto' : (acc.connected
-        ? `${acc.demo ? 'demo' : 'conto reale'} · ${Number(acc.equity).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT · ${acc.positions} ${acc.positions === 1 ? 'posizione' : 'posizioni'}`
-        : (acc.reason === 'chiavi non impostate' ? 'chiavi non impostate' : 'lettura non riuscita: controlla la chiave'));
-    const accClass = !acc ? '' : (acc.connected ? 'text-accent' : (acc.reason === 'chiavi non impostate' ? '' : 'text-danger'));
     status.innerHTML = `
         <div class="auto-row"><span>Comandi</span><b class="${mode === 'none' ? 'text-warning' : 'text-accent'}">${serverText}</b></div>
         <div class="auto-row"><span>Stato</span><b class="${emergency || halted ? 'text-danger' : 'text-accent'}">${emergency ? 'EMERGENZA: tutto bloccato' : (halted ? 'esecutore bloccato: controlla Bitget' : `${onPaper} ${onPaper === 1 ? 'strategia attiva' : 'strategie attive'}`)}</b></div>

@@ -174,6 +174,8 @@ window.removeGhToken = AutoUI.removeGhToken;
 
 // Home
 window.updateHome = HomeUI.updateHome;
+// dalla Home: Segnali → Auto in un tocco
+window.openAutomation = () => { window.switchTab('signals'); AutoUI.setSignalsView('auto'); };
 
 // Home Live Charts
 window.initHomeCharts = HomeCharts.initHomeCharts;

@@ -582,19 +582,55 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .warning-highlight { background: rgba(255, 159, 10, 0.1); border: 1px solid rgba(255, 159, 10, 0.3); border-radius: 10px; padding: 10px 12px; margin-top: 12px; font-size: 12px; line-height: 1.5; color: #fbbf24; text-align: center; text-wrap: pretty; }
 .warning-highlight b { color: var(--warning); }
 
-/* --- HOME --- */
-.home-container { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; min-height: 0; }
+/* --- HOME ---
+   Gerarchia: mercato (3 riquadri) → conto simulato (3 indicatori) → automazione → stato → grafici.
+   Le schede hanno altezza naturale; i grafici prendono tutto lo spazio che resta (flex: 1). */
+.home-container { flex: 1; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
 
-.home-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
-.home-card-header { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
-.home-card-value { font-size: 22px; font-weight: 800; font-family: var(--mono); color: var(--text); }
-.home-card-value.safe { color: var(--accent); }
-.home-card-value.danger { color: var(--danger); }
-.home-card-sub { font-size: 11px; color: var(--text-muted); }
-.home-card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.home-market { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; flex-shrink: 0; }
+.home-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 8px 10px; min-height: var(--touch-min); display: flex; flex-direction: column; align-items: flex-start; gap: 1px; color: var(--text); font: inherit; text-align: left; cursor: pointer; min-width: 0; transition: border-color 0.15s; }
+.home-tile.active { border-color: rgba(48, 209, 88, 0.45); }
+.home-tile:active { background: var(--surface-hover); }
+.home-tile-sym { font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; }
+.home-tile-px { font-size: 14px; font-weight: 800; font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.home-tile-chg { font-size: 11px; font-weight: 700; font-family: var(--mono); color: var(--text-secondary); }
+.home-tile-chg.up { color: var(--accent); }
+.home-tile-chg.down { color: var(--danger); }
 
-.home-charts-section { flex: 1; display: flex; flex-direction: column; min-height: 0; margin-top: 4px; }
-.home-charts-section .section-title { padding: 0 4px; }
+.home-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+.home-card.clickable:active { background: var(--surface-hover); }
+.home-card-header { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; min-height: 18px; }
+.home-card-link { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: none; letter-spacing: 0; }
+
+.home-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.home-kpi { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.home-kpi + .home-kpi { border-left: 1px solid var(--border); padding-left: 10px; }
+.home-kpi-label { font-size: 11px; color: var(--text-secondary); }
+.home-kpi-value { font-size: 16px; font-weight: 800; font-family: var(--mono); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.home-kpi-value.safe { color: var(--accent); }
+.home-kpi-value.danger { color: var(--danger); }
+
+.home-line { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13px; min-height: 22px; }
+.home-line > span { color: var(--text-secondary); flex-shrink: 0; }
+.home-line > b { font-weight: 600; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; justify-content: flex-end; gap: 6px; min-width: 0; }
+.home-line .sc-badge { font-size: 10px; font-weight: 800; padding: 3px 6px; border-radius: 5px; letter-spacing: 0.3px; }
+.home-version { font-family: var(--mono); text-transform: none; letter-spacing: 0; color: var(--text-secondary); }
+.home-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-secondary); display: inline-block; flex-shrink: 0; }
+.home-dot.good { background: var(--accent); }
+.home-dot.warn { background: var(--warning); }
+.home-dot.bad { background: var(--danger); }
+
+.home-charts-section { flex: 1; display: flex; flex-direction: column; min-height: 170px; }
+
+/* Schermi bassi (iPhone SE, Safari con la barra): schede più compatte, così il grafico resta leggibile */
+@media (max-height: 720px) {
+    .home-container { gap: 6px; }
+    .home-tile { padding: 6px 8px; }
+    .home-tile-px { font-size: 13px; }
+    .home-card { padding: 8px 12px; gap: 3px; border-radius: 14px; }
+    .home-kpi-value { font-size: 15px; }
+    .home-line { font-size: 12px; min-height: 20px; }
+}
 .home-charts-carousel-wrapper { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 
 .home-charts-list { flex: 1; min-height: 0; display: flex; flex-direction: row; gap: 10px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
@@ -611,7 +647,7 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .home-chart-fullscreen { position: static; background: rgba(0,0,0,0.6); border: 1px solid var(--border); width: var(--touch-min); height: var(--touch-min); border-radius: 8px; color: var(--text-secondary); cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); flex-shrink: 0; }
 .home-chart-fullscreen:active { background: rgba(0,0,0,0.9); color: #fff; }
 
-.home-chart-dots { flex-shrink: 0; display: flex; justify-content: center; gap: 6px; padding: 6px 0 0 0; }
+.home-chart-dots { flex-shrink: 0; display: flex; justify-content: center; gap: 6px; padding: 4px 0 0 0; }
 .home-chart-dots .info-dot { width: 6px; height: 6px; }
 .home-chart-dots .info-dot.active { width: 16px; border-radius: 3px; }
 
@@ -623,6 +659,7 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 
 body.chart-fullscreen #page-home > .header-row,
 body.chart-fullscreen .home-container > .home-card,
+body.chart-fullscreen .home-market,
 body.chart-fullscreen .home-charts-section > .section-title,
 body.chart-fullscreen .home-chart-dots,
 body.chart-fullscreen .home-chart-item:not(.fullscreen),
