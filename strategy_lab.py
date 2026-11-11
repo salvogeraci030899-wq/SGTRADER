@@ -509,7 +509,7 @@ def to_markdown(s):
             p = "n/d" if r.get("excess_p") is None else f"{r['excess_p']:.4f}"
             halves = " / ".join("—" if hv["excess_avg_pct"] is None else f"{hv['excess_avg_pct']:+.2f}%" for hv in r["halves"])
             coins = " / ".join(f"{r['excess_by_coin'][c]:+.2f}%" if c in r["excess_by_coin"] else "—" for c in ALL_ASSETS)
-            verdict = "**CANDIDATA**" if r["candidate"] else "significativa ma instabile" if r["significant"] else "campione piccolo" if r["n"] < MIN_TRADES else "no"
+            verdict = ("**CONFERMATA**" if r["holdout"]["confirmed"] else "bocciata alla prova finale") if "holdout" in r else "**CANDIDATA**" if r["candidate"] else "significativa ma instabile" if r["significant"] else "campione piccolo" if r["n"] < MIN_TRADES else "no"
             out.append(f"| {r['strategy']} | {r['family']} | {r['n']} | {r['win_rate']}% | {r['avg_bars']} candele | {r['avg_net_pct']:+.3f}% | "
                        f"{_pf(r)} | {r['excess_avg_pct']:+.3f}% | {vs._ci(r['excess_ci'])} | {p} | {halves} | {coins} | {verdict} |")
         out.append("")
