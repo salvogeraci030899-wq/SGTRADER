@@ -132,7 +132,7 @@ export function renderAutomation() {
         const st = ledger && ledger.strategies && ledger.strategies[key] && ledger.strategies[key].stats;
         const res = lab && lab.results && lab.results[key];
         const info = st && (st.n || st.open)
-            ? `Su carta: ${st.n} chiusi${st.n ? ` (${pct(st.avg_net_pct)} medio)` : ''}, ${st.open} aperti`
+            ? `Su carta: ${st.n} ${st.n === 1 ? 'chiuso' : 'chiusi'}${st.n ? ` (${pct(st.avg_net_pct)} medio)` : ''}, ${st.open} ${st.open === 1 ? 'aperto' : 'aperti'}${st.vs_backtest && st.vs_backtest.verdict !== 'pochi_trade' ? ' · ' + { in_linea: 'in linea con lo storico', sotto: '⚠ sotto lo storico', sopra: 'sopra lo storico' }[st.vs_backtest.verdict] : ''}`
             : (res ? `Storico: ${res.n} trade, oltre il mercato ${pct(res.excess_avg_pct)}${res.holdout ? (res.holdout.confirmed ? ' · confermata' : ' · bocciata alla prova finale') : ''}` : 'Nessun dato');
         const btn = (m, text, disabled, title) => `<button type="button" class="pill-btn${mode === m ? ' active' : ''}" ${disabled ? 'disabled' : ''} title="${title || ''}" onclick="setAutoMode('${escapeHtml(key)}','${m}')">${text}</button>`;
         return `<div class="auto-item">
@@ -253,6 +253,17 @@ export function updateAutoDots(force) {
     document.querySelectorAll('#autoList .auto-dots .info-dot').forEach((d, j) => d.classList.toggle('active', j === idx));
 }
 
+// Confronto carta / storico (paper.py, vs_backtest): dopo 10 trade chiusi
+export function vsBacktestText(st) {
+    const v = st && st.vs_backtest;
+    if (!v) return '';
+    if (v.verdict === 'pochi_trade') return `Confronto con lo storico dopo 10 trade chiusi (ora ${v.n}).`;
+    const ref = `media storica ${pct(v.bt_avg)} su ${v.bt_n} trade`;
+    if (v.verdict === 'in_linea') return `In linea con lo storico (${ref}).`;
+    if (v.verdict === 'sotto') return `⚠ Sotto lo storico (${ref}): la strategia potrebbe non funzionare più.`;
+    return `Sopra lo storico (${ref}): bene, ma in buona parte può essere fortuna.`;
+}
+
 // --- Trade su carta di una strategia (tocco sul nome) ---
 const dt = ts => (ts ? new Date(ts * 1000).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' }) : '—');
 const px = v => (v == null ? '—' : fmtIt(v, v >= 1000 ? 0 : 2));
@@ -264,7 +275,9 @@ export function openPaperTrades(key) {
     const head = st.n
         ? `${st.n} ${st.n === 1 ? 'chiuso' : 'chiusi'} · vinti ${fmtIt(st.win_rate, 1)}% · medio ${pct(st.avg_net_pct)} · totale ${pct(st.total_net_pct)} · ${st.open} ${st.open === 1 ? 'aperto' : 'aperti'}`
         : `${st.open || 0} ${st.open === 1 ? 'aperto' : 'aperti'}, nessuno chiuso finora`;
-    $('autoTradesBody').innerHTML = `<div class="settings-hint">${escapeHtml(head)}. Rendimenti per trade, netti di costi futures e funding.</div>` + (trades.length
+    const cmp = vsBacktestText(st);
+    $('autoTradesBody').innerHTML = `<div class="settings-hint">${escapeHtml(head)}. Rendimenti per trade, netti di costi futures e funding.</div>`
+        + (cmp ? `<div class="settings-hint ${st.vs_backtest.verdict === 'sotto' ? 'text-danger' : ''}">${escapeHtml(cmp)}</div>` : '') + (trades.length
         ? trades.map(t => {
             const side = t.dir > 0 ? 'LONG' : 'SHORT';
             const res = t.open ? '<span class="text-ui">aperto</span>'

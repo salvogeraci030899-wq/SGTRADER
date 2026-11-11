@@ -42,6 +42,39 @@ def confirmed_keys(summary_path=lab.SUMMARY_PATH):
         return set()
 
 
+def lab_result(key, summary_path=lab.SUMMARY_PATH):
+    try:
+        with open(summary_path) as f:
+            return (json.load(f).get("results") or {}).get(key)
+    except Exception:
+        return None
+
+
+MIN_COMPARE = 10      # trade chiusi su carta prima di confrontarli con lo storico
+
+
+def vs_backtest(nets, ref):
+    """La carta si comporta come lo storico? Confronta il netto medio per trade su carta con quello del
+    laboratorio. La variabilità del singolo trade si ricava dall'intervallo al 95% della media storica
+    (ampiezza / 3,92 * radice di n). z = differenza / (variabilità / radice dei trade su carta).
+    |z| < 2: in linea; z <= -2: sotto lo storico (la strategia potrebbe aver smesso di funzionare);
+    z >= 2: sopra (bene, ma probabilmente fortuna)."""
+    if not ref or not ref.get("avg_net_ci") or not ref.get("n") or ref.get("avg_net_pct") is None:
+        return None
+    n = len(nets)
+    out = {"bt_avg": round(ref["avg_net_pct"], 3), "bt_n": ref["n"], "n": n}
+    if n < MIN_COMPARE:
+        out["verdict"] = "pochi_trade"
+        return out
+    lo, hi = ref["avg_net_ci"]
+    sd = (hi - lo) / 3.92 * np.sqrt(ref["n"])
+    if not sd > 0:
+        return None
+    z = (float(np.mean(nets)) - ref["avg_net_pct"]) / (sd / np.sqrt(n))
+    out.update(z=round(float(z), 2), verdict="in_linea" if abs(z) < 2 else ("sotto" if z < 0 else "sopra"))
+    return out
+
+
 def effective_mode(key, mode, confirmed):
     """'live' vale solo per strategie confermate dalla prova finale: altrimenti si resta su carta."""
     if mode not in MODES:
@@ -93,17 +126,25 @@ def merge(old_trades, new_trades, key, now_iso):
     return sorted(out, key=lambda r: (r["t"], r["symbol"])), events
 
 
-def stats(trades, funding):
+def stats(trades, funding, ref=None):
     closed = [t for t in trades if not t["open"]]
     nets = lab.net_returns(closed, lab.PRIMARY, funding)
     if not closed:
-        return {"n": 0, "open": sum(1 for t in trades if t["open"])}
+        out = {"n": 0, "open": sum(1 for t in trades if t["open"])}
+        cmp = vs_backtest([], ref)
+        if cmp:
+            out["vs_backtest"] = cmp
+        return out
     arr = np.array(nets)
     for t, v in zip(closed, nets):
         t["net"] = round(float(v), 4)
-    return {"n": len(closed), "open": sum(1 for t in trades if t["open"]), "win_rate": round(float((arr > 0).mean() * 100), 1),
-            "avg_net_pct": round(float(arr.mean()), 3), "total_net_pct": round(float(arr.sum()), 2),
-            "revised": sum(1 for t in trades if t.get("revised"))}
+    out = {"n": len(closed), "open": sum(1 for t in trades if t["open"]), "win_rate": round(float((arr > 0).mean() * 100), 1),
+           "avg_net_pct": round(float(arr.mean()), 3), "total_net_pct": round(float(arr.sum()), 2),
+           "revised": sum(1 for t in trades if t.get("revised"))}
+    cmp = vs_backtest(list(arr), ref)
+    if cmp:
+        out["vs_backtest"] = cmp
+    return out
 
 
 def _save(path, data):
@@ -183,7 +224,7 @@ def update(last_candles, config_path=CONFIG_PATH, ledger_path=LEDGER_PATH, downl
             entry["last_candle"][symbol] = last_candles[f"{symbol}_{tf}"]
         if funding is None:
             funding = {s: (funding_fetch or lab.fetch_funding_history)(s) for s in ALL_ASSETS}
-        entry["stats"] = stats(entry["trades"], funding)
+        entry["stats"] = stats(entry["trades"], funding, lab_result(key))
         changed = True
         for kind, row in events:
             print(f"Prova su carta {key}: {kind} {row['symbol']} {row['reason']}")
