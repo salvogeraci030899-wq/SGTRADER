@@ -22,3 +22,4 @@ automation.py
 executor.py
 bitget_client.py
 live_trades.json
+daily_report.py

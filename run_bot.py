@@ -7,6 +7,7 @@ from datetime import datetime, timezone, timedelta
 import requests
 
 import futures_data
+import daily_report
 import executor
 import paper
 import track_record
@@ -313,6 +314,12 @@ def main():
     to_check = [(s, t) for s in ASSETS_TO_RUN for t in TIMEFRAMES_TO_RUN
                 if f"{s}_{t}" in dashboard_data]
     process_alerts(to_check, dashboard_data, alerts_state)
+
+    # Riepilogo giornaliero su Telegram (senza AI), una volta al giorno. Un errore qui non ferma il bot.
+    try:
+        daily_report.maybe_send(alerts_state, frames, send_telegram_alert)
+    except Exception as e:
+        print(f"Riepilogo giornaliero non inviato: {e}")
 
     # Track record: esito delle previsioni con orizzonte passato (candele già scaricate sopra)
     resolved_now = track_record.resolve(ledger, frames)
