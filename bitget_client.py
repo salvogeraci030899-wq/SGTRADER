@@ -102,6 +102,19 @@ class BitgetClient:
                 out[row.get("coin", "").upper()] = qty
         return out
 
+    def all_balances_usdt(self):
+        """Valore in USDT di ogni conto (spot, futures, funding, earn, bot, margin...), sola lettura.
+        Endpoint /api/v2/account/all-account-balance: {tipo di conto: USDT}."""
+        rows = self._request("GET", "/api/v2/account/all-account-balance")
+        out = {}
+        for row in rows or []:
+            kind = str(row.get("accountType") or "").lower()
+            try:
+                out[kind] = float(row.get("usdtBalance") or 0)
+            except (TypeError, ValueError):
+                continue
+        return out
+
     def spot_price_usdt(self, coin):
         """Prezzo pubblico in USDT (nessuna firma). None se la coppia non esiste."""
         if coin in ("USDT", "USDC"):

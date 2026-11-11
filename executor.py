@@ -301,6 +301,15 @@ def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
                        "positions": len(client.positions())}
             account.update(_spot_value(client))
             account["total_usdt"] = round(account["equity"] + (account.get("spot_usdt") or 0), 2)
+            # Tutti i conti (anche Earn, Funding, bot): se Bitget li dà, il totale è la loro somma
+            if hasattr(client, "all_balances_usdt"):
+                try:
+                    acc_all = {k: round(v, 2) for k, v in client.all_balances_usdt().items()}
+                    if acc_all:
+                        account["accounts_usdt"] = acc_all
+                        account["total_usdt"] = round(sum(acc_all.values()), 2)
+                except Exception as e:
+                    account["accounts_error"] = str(e)[:120]
         except Exception as e:
             account = {"connected": False, "demo": bool(getattr(client, "demo", False)), "reason": str(e)[:160]}
         account["checked_at"] = now.isoformat(timespec="seconds")
