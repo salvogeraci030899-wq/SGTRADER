@@ -1,0 +1,69 @@
+name: Archivio futures
+
+# Scarica dall'archivio pubblico di Binance (data.binance.vision) funding, open interest e rapporto
+# long/short giornalieri di BTC, ETH e SOL, e li salva in futures_archive/ (solo i giorni mancanti).
+# - Avvio manuale e ogni lunedì: aggiorna e fa commit.
+# - Sulle PR che toccano questi file: prova veloce su un periodo breve, senza commit.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 5 * * 1'
+  pull_request:
+    paths:
+      - 'futures_archive.py'
+      - '.github/workflows/futures_archive.yml'
+
+concurrency:
+  group: futures-archive-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Prova veloce (dati veri)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installa dipendenze minime
+        run: pip install "pandas>=2.2.2" numpy requests
+      - name: Ultime settimane
+        run: |
+          rm -rf futures_archive
+          python futures_archive.py --since 2025-10-01
+          python -c "import futures_archive as fa; d=fa.load('BTCUSDT'); print(d.tail(3).to_string()); assert len(d) > 300 and d['funding_pct'].notna().mean() > 0.9 and d['oi_value'].notna().mean() > 0.9, 'archivio incompleto'"
+
+  update:
+    name: Aggiorna l'archivio
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installa dipendenze minime
+        run: pip install "pandas>=2.2.2" numpy requests
+      - name: Scarica i giorni mancanti
+        run: python futures_archive.py | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Salva
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add futures_archive
+          git commit -m "Archivio futures aggiornato $(date -u +%Y-%m-%d)" || { echo "Nessuna modifica"; exit 0; }
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            echo "Push fallito (tentativo $i), riprovo..."
+            sleep $((i * 5))
+          done
+          exit 1

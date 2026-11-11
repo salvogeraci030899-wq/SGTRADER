@@ -34,6 +34,7 @@ import numpy as np
 import pandas as pd
 import requests
 
+import futures_archive
 import lab_strategies
 import strategies_validation as sv
 import validation as va
@@ -77,9 +78,11 @@ def peer_table(dfs):
     return pd.DataFrame(cols).sort_index()
 
 
-def indicators(df, symbol=None, peers=None):
+def indicators(df, symbol=None, peers=None, features=None):
     """Indicatori di una coppia. Le funzioni (ema, sma, ...) hanno memoria: ogni periodo si calcola una volta.
-    peers (facoltativo): tabella di peer_table, per le strategie di forza relativa."""
+    peers (facoltativo): tabella di peer_table, per le strategie di forza relativa.
+    features (facoltativo): caratteristiche giornaliere di futures_archive.daily_features (funding,
+    open interest, long/short), allineate a ciò che era noto alla chiusura di ogni candela."""
     o, h, l, c, v = (df[k].to_numpy(dtype=float) for k in ("open", "high", "low", "close", "volume"))
     cs, hs, ls = pd.Series(c), pd.Series(h), pd.Series(l)
     prev_close = cs.shift(1)
@@ -118,7 +121,14 @@ def indicators(df, symbol=None, peers=None):
         worst = (mine <= r.min(axis=1).to_numpy()) & full
         return np.where(best & ~worst, 1, np.where(worst & ~best, -1, 0))
 
+    def feat(name):
+        if features is None or name not in features.columns:
+            return np.full(len(c), np.nan)          # dato non disponibile: nessun segnale
+        step = int(times[1] - times[0]) if len(times) > 1 else 86400
+        return futures_archive.align(features[[name]], times, step)[name]
+
     return {
+        "feat": lambda name: memo(("feat", name), lambda: feat(name)),
         "rank_ret": lambda p: memo(("rank", p), lambda: rank_ret(p)),
         "open": o, "high": h, "low": l, "close": c, "volume": v, "atr": atr, "atr_pct": atr / c * 100,
         "ema": lambda p: memo(("ema", p), lambda: cs.ewm(span=p, adjust=False, min_periods=p).mean().to_numpy()),
@@ -137,12 +147,12 @@ def indicators(df, symbol=None, peers=None):
 # =========================
 # MOTORE
 # =========================
-def simulate(df, tf, symbol, spec, signal=None, peers=None):
+def simulate(df, tf, symbol, spec, signal=None, peers=None, features=None):
     """Trade di una strategia su una coppia, uno alla volta. Ingresso alla chiusura della candela del
     segnale. A ogni candela successiva: prima lo stop (se la candela apre già oltre lo stop si esce
     all'apertura, cioè peggio dello stop), poi il target, poi si aggiorna lo stop che segue il prezzo
     usando la chiusura, infine l'uscita a canale (chiusura oltre il minimo/massimo delle N candele precedenti). Se lo storico ha un buco si esce all'ultima chiusura disponibile."""
-    x = indicators(df, symbol, peers)
+    x = indicators(df, symbol, peers, features)
     sig = np.asarray(spec["fn"](x) if signal is None else signal)
     ex = spec["exit"]
     o, h, l, c, atr = x["open"], x["high"], x["low"], x["close"], x["atr"]
@@ -541,6 +551,15 @@ def main(start, symbols, tfs, unseal=(), save_registry=True):
         funding[symbol] = fetch_funding_history(symbol)
         ts = funding[symbol][0]
         print(f"Funding {symbol}: {len(ts)} valori" + (f" dal {datetime.fromtimestamp(ts[0], tz=timezone.utc):%d/%m/%Y}" if len(ts) else " (non disponibile)"))
+    # Storico di funding, open interest e long/short (archivio Binance, salvato nel repository)
+    features = {}
+    for symbol in symbols:
+        arch = futures_archive.load(symbol)
+        if len(arch) > 30:
+            features[symbol] = futures_archive.daily_features(arch)
+            print(f"Archivio futures {symbol}: {len(arch)} giorni dal {arch['date'].iloc[0]}")
+        else:
+            print(f"Archivio futures {symbol}: non disponibile (le strategie che lo usano non fanno trade)")
     per_trial = {}
     for tf in tfs:
         dfs = {}
@@ -555,7 +574,8 @@ def main(start, symbols, tfs, unseal=(), save_registry=True):
         for symbol, df in dfs.items():
             for name, spec in lab_strategies.STRATEGIES.items():
                 if spec["tfs"] is None or tf in spec["tfs"]:
-                    per_trial.setdefault((name, tf), []).extend(annotate_drift(simulate(df, tf, symbol, spec, peers=peers), df, holdout_ts))
+                    trades = simulate(df, tf, symbol, spec, peers=peers, features=features.get(symbol))
+                    per_trial.setdefault((name, tf), []).extend(annotate_drift(trades, df, holdout_ts))
     if not per_trial:
         raise SystemExit("Nessuno storico scaricato.")
     summary = build_summary(per_trial, funding, registry, unseal)

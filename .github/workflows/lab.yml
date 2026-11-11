@@ -19,6 +19,7 @@ on:
       - 'validation.py'
       - 'validation_stats.py'
       - 'kronos_core.py'
+      - 'futures_archive.py'
       - '.github/workflows/lab.yml'
 
 concurrency:

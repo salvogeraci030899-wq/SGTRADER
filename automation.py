@@ -82,8 +82,8 @@ def set_mode(cfg, key, mode, confirmed_keys, today=None):
         raise CommandError(f"Strategia sconosciuta: {name}.")
     if tf not in ("1d", "4h", "1h") or (spec["tfs"] is not None and tf not in spec["tfs"]):
         raise CommandError(f"{name} non è stata provata sul timeframe {tf}.")
-    if spec.get("family") == "forza relativa" and mode != "off":
-        raise CommandError(f"{name} confronta le tre coin: la prova su carta non la supporta ancora.")
+    if spec.get("family") in ("forza relativa", "funding") and mode != "off":
+        raise CommandError(f"{name} usa dati che la prova su carta non riceve ancora (altre coin o archivio futures).")
     if mode != "off" and cfg["emergency"]:
         raise CommandError("Emergenza attiva: prima va sbloccata.")
     if mode == "live" and key not in confirmed_keys:
