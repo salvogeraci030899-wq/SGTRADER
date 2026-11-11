@@ -7,6 +7,8 @@ import { $, escapeHtml, apiPost, getApiBase, setApiBase, clearAppKey, getGhToken
 // è ripetuto lì, in automation.py. I file letti qui sono quelli pubblicati: si aggiornano con ritardo.
 
 const MODE_LABEL = { off: 'Spenta', paper: 'Su carta', live: 'Reale' };
+const MAX_ACTIVE = 6;      // stesso limite di automation.py
+const PER_PAGE = 3;        // strategie per pagina nella lista (scorrimento orizzontale)
 let cfg = null, ledger = null, lab = null, live = null, loaded = false, loading = false;
 // Limiti di rischio dell'esecutore: stessi valori predefiniti e intervalli di executor.py
 const DEFAULT_RISK = { trading_enabled: false, risk_per_trade_pct: 0.5, max_leverage: 3, max_exposure_x: 1.5, max_open_positions: 3, max_daily_loss_pct: 3, dry_run_equity: 1000 };
@@ -76,6 +78,12 @@ function currentMode(key, ignorePending = false) {
     return (cfg && cfg.strategies && cfg.strategies[key]) || 'off';
 }
 
+function activeKeys() {
+    const keys = new Set(Object.entries((cfg && cfg.strategies) || {}).filter(([, m]) => m !== 'off').map(([k]) => k));
+    for (const [k, m] of Object.entries(pending)) { if (m === 'off') keys.delete(k); else keys.add(k); }
+    return keys;
+}
+
 const isConfirmed = key => !!(lab && (lab.confirmed || []).includes(key));
 
 // Strategie da mostrare: quelle accese, quelle confermate e le candidate ancora in attesa
@@ -109,10 +117,10 @@ export function renderAutomation() {
         <div class="auto-row"><span>Saldo Bitget</span><b class="${accClass}" title="${escapeHtml((acc && acc.reason) || '')}">${accText}</b></div>
         ${accDetail ? `<div class="auto-row auto-sub"><span></span><b>${escapeHtml(accDetail)}</b></div>` : ''}
         <div class="auto-row clickable" onclick="openAccount()"><span>Ordini veri</span><b class="${risk.trading_enabled ? 'text-warning' : ''}">${realText} ›</b></div>
-        <div class="auto-row"><span>Rischio</span><b>${risk.risk_per_trade_pct}% a trade · leva ${risk.max_leverage}x · max ${risk.max_open_positions} · −${risk.max_daily_loss_pct}%/giorno</b></div>`;
+        <div class="auto-row auto-row-risk"><span>Rischio</span><b>${risk.risk_per_trade_pct}% a trade · leva ${risk.max_leverage}x · max ${risk.max_open_positions} · −${risk.max_daily_loss_pct}%/giorno</b></div>`;
 
     const keys = shownKeys();
-    list.innerHTML = keys.length ? keys.map(key => {
+    const card = key => {
         const mode = currentMode(key);
         const st = ledger && ledger.strategies && ledger.strategies[key] && ledger.strategies[key].stats;
         const res = lab && lab.results && lab.results[key];
@@ -125,7 +133,18 @@ export function renderAutomation() {
             <div class="auto-item-info">${escapeHtml(info)}</div>
             <div class="option-toggle compact">${btn('off', 'Spenta')}${btn('paper', 'Su carta', emergency)}${btn('live', 'Reale', emergency || !isConfirmed(key), isConfirmed(key) ? '' : 'Solo per strategie confermate dalla prova finale')}</div>
         </div>`;
-    }).join('') : '<div class="empty-hint">Nessuna strategia attiva. Usa "Aggiungi" per metterne una su carta.</div>';
+    };
+    // Pagine da PER_PAGE strategie, scorrimento orizzontale con i puntini sotto
+    const pages = [];
+    for (let i = 0; i < keys.length; i += PER_PAGE) pages.push(keys.slice(i, i + PER_PAGE));
+    const prevPage = list.querySelector('.auto-pages') ? Math.round(list.querySelector('.auto-pages').scrollLeft / Math.max(1, list.querySelector('.auto-pages').clientWidth)) : 0;
+    list.innerHTML = keys.length
+        ? `<div class="auto-pages" onscroll="updateAutoDots()">${pages.map(p => `<div class="auto-page">${p.map(card).join('')}</div>`).join('')}</div>`
+          + (pages.length > 1 ? `<div class="auto-dots">${pages.map((_, i) => `<div class="info-dot${i === 0 ? ' active' : ''}" onclick="goToAutoPage(${i})"></div>`).join('')}</div>` : '')
+        : '<div class="empty-hint">Nessuna strategia attiva. Usa "Aggiungi" per metterne una su carta.</div>';
+    if (prevPage > 0) goToAutoPage(Math.min(prevPage, pages.length - 1), 'instant');
+    const count = $('autoCount');
+    if (count) count.textContent = `${activeKeys().size}/${MAX_ACTIVE}`;
 
     const btn = $('autoEmergencyBtn');
     if (btn) {
@@ -169,6 +188,10 @@ async function send(body, okText) {
 export async function setAutoMode(key, mode) {
     if (currentMode(key) === mode) return;
     if (mode === 'live' && !isConfirmed(key)) return;
+    if (mode !== 'off' && !activeKeys().has(key) && activeKeys().size >= MAX_ACTIVE) {
+        window.showAlert('Limite raggiunto', `Al massimo ${MAX_ACTIVE} strategie accese insieme: spegnine una prima.`);
+        return;
+    }
     const ok = await send({ type: 'set_mode', key, mode }, `${label(key)}: ${MODE_LABEL[mode].toLowerCase()}. Il bot applica il cambio entro qualche minuto.`);
     if (ok) { pending[key] = mode; renderAutomation(); setTimeout(loadAutomation, 90000); }
 }
@@ -198,14 +221,29 @@ export function openAutoAdd() {
     if (!box) return;
     const rows = lab && lab.results ? Object.entries(lab.results).filter(([, r]) => r.n > 0)
         .sort((a, b) => b[1].excess_avg_pct - a[1].excess_avg_pct) : [];
+    const full = activeKeys().size >= MAX_ACTIVE;
+    $('autoAddFull').textContent = full ? `Hai già ${MAX_ACTIVE} strategie accese (il massimo): spegnine una per aggiungerne un'altra.` : `Accese ${activeKeys().size} su ${MAX_ACTIVE}.`;
+    $('autoAddFull').className = 'settings-hint' + (full ? ' text-warning' : '');
     box.innerHTML = rows.length ? rows.map(([key, r]) => {
         const on = currentMode(key) !== 'off';
         const rel = r.family === 'forza relativa' || r.family === 'funding';
-        return `<button class="auto-add-item" ${on || rel ? 'disabled' : ''} onclick="addAutoPaper('${escapeHtml(key)}')">
+        return `<button class="auto-add-item" ${on || rel || full ? 'disabled' : ''} onclick="addAutoPaper('${escapeHtml(key)}')">
             <span><b>${escapeHtml(label(key))}</b><br><small>${r.n} trade · oltre il mercato ${pct(r.excess_avg_pct)}${r.holdout ? (r.holdout.confirmed ? ' · confermata' : ' · bocciata') : (r.candidate ? ' · candidata' : '')}</small></span>
-            <small>${on ? 'già attiva' : (rel ? 'non ancora' : 'su carta')}</small></button>`;
+            <small>${on ? 'già attiva' : (rel ? 'non ancora' : (full ? 'limite' : 'su carta'))}</small></button>`;
     }).join('') : '<div class="empty-hint">Risultati del laboratorio non disponibili.</div>';
     $('autoAddModal').classList.add('active');
+}
+
+export function goToAutoPage(i, behavior = 'smooth') {
+    const el = document.querySelector('#autoList .auto-pages');
+    if (el) el.scrollTo({ left: i * el.clientWidth, behavior });
+    updateAutoDots(i);
+}
+export function updateAutoDots(force) {
+    const el = document.querySelector('#autoList .auto-pages');
+    if (!el || !el.clientWidth) return;
+    const idx = typeof force === 'number' ? force : Math.round(el.scrollLeft / el.clientWidth);
+    document.querySelectorAll('#autoList .auto-dots .info-dot').forEach((d, j) => d.classList.toggle('active', j === idx));
 }
 
 export function closeAutoAdd() { $('autoAddModal').classList.remove('active'); }

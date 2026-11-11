@@ -77,6 +77,19 @@ def test_registro_limitato():
         assert len(json.load(open(cfg))["history"]) == au.HISTORY_MAX
 
 
+def test_massimo_sei_strategie():
+    with tempfile.TemporaryDirectory() as d:
+        cfg, summ = paths(d)
+        keys = ["big_candle_trail:1d", "big_candle_trail:4h", "donchian20:1d", "donchian20:4h", "donchian20:1h", "tsmom30:1d"]
+        for k in keys:
+            au.run(["set", k, "paper"], cfg, summ)
+        rejected(["set", "tsmom90:1d", "paper"], cfg, summ, "Al massimo 6")
+        assert "paper -> paper" in au.run(["set", "donchian20:1d", "paper"], cfg, summ)        # una già accesa si può riconfermare
+        au.run(["set", "donchian20:1h", "off"], cfg, summ)
+        assert "off -> paper" in au.run(["set", "tsmom90:1d", "paper"], cfg, summ)           # spenta una, si può aggiungerne un'altra
+        assert len(json.load(open(cfg))["strategies"]) == 6
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in tests:

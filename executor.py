@@ -154,8 +154,17 @@ def run(cfg, ledger, client=None, mode="simulata", state_path=STATE_PATH, now=No
                 say(f"Emergenza: chiusura di {p['symbol']} FALLITA ({e}). Controlla subito su Bitget.")
         if ours:
             say(f"Emergenza: chiuse {len(ours)} posizioni.")
-        state["halted"] = True
+        state["halted"], state["halt_reason"] = True, "emergency"
         return _finish(state, before, state_path, client, mode)
+
+    # Blocco dovuto all'emergenza ed emergenza ormai tolta: si sblocca da solo. Serve perché lo
+    # sblocco dall'app può arrivare prima che il bot abbia salvato il blocco (due workflow diversi).
+    # Il blocco per posizioni diverse dal previsto invece resta finché non lo togli tu.
+    if state["halted"]:
+        reason = state.get("halt_reason") or ("mismatch" if any(e.get("kind") == "halt" for e in state["events"]) else "emergency")
+        if reason == "emergency":
+            state["halted"], state["halt_reason"] = False, None
+            log("unhalt", reason="emergenza tolta")
 
     # --- riconciliazione: Bitget deve avere esattamente le posizioni aperte dall'esecutore ---
     try:
@@ -171,7 +180,7 @@ def run(cfg, ledger, client=None, mode="simulata", state_path=STATE_PATH, now=No
             say(f"Posizioni diverse dal previsto (attese {expected or 'nessuna'}, su Bitget {actual or 'nessuna'}). "
                 "Esecutore bloccato: controlla su Bitget, poi usa Sblocca nell'app.")
             log("halt", expected=expected, actual=actual)
-        state["halted"] = True
+        state["halted"], state["halt_reason"] = True, "mismatch"
     if state["halted"]:
         return _finish(state, before, state_path, client, mode)
 
@@ -327,6 +336,6 @@ def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
 def unhalt(state_path=STATE_PATH):
     """Sblocco dopo un blocco per riconciliazione o emergenza (dall'app, comando resume)."""
     state = _load(state_path)
-    state["halted"] = False
+    state["halted"], state["halt_reason"] = False, None
     state["events"].append({"at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "kind": "unhalt"})
     _save(state, state_path)

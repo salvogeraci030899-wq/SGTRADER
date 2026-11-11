@@ -150,6 +150,17 @@ def test_emergenza_chiude_tutto():
         st = json.load(open(path))
         assert client.positions() == {} and st["halted"] is True and all(p["status"] == "closed" for p in st["positions"].values())
         assert "Emergenza: chiuse 2" in notes[-1]
+        # emergenza tolta (anche se lo sblocco dall'app è arrivato prima del salvataggio del blocco):
+        # al giro dopo l'esecutore riparte da solo, senza riaprire i trade già chiusi
+        cfg["emergency"] = False
+        go(cfg, ledger, path, client)
+        st = json.load(open(path))
+        assert st["halted"] is False and st["events"][-1]["kind"] in ("unhalt", "skip") and client.positions() == {}
+        # il blocco per posizioni diverse dal previsto invece resta
+        client._positions["SOLUSDT"] = {"side": "long", "size": 1.0}
+        go(cfg, ledger, path, client)
+        go(cfg, ledger, path, client)
+        assert json.load(open(path))["halted"] is True and json.load(open(path))["halt_reason"] == "mismatch"
 
 
 def test_client_vero_solo_con_tutto_in_ordine():
