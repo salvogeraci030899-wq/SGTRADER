@@ -5,8 +5,14 @@
   "start_equity": 1000.0,
   "blocked": false
  },
- "halted": true,
- "events": [],
+ "halted": false,
+ "events": [
+  {
+   "at": "2026-11-11T15:25:04+00:00",
+   "kind": "unhalt",
+   "reason": "emergenza tolta"
+  }
+ ],
  "mode": "simulata",
  "simulated": {
   "equity": 1000.0,
@@ -34,6 +40,7 @@
    "bots": 0.0,
    "margin": 0.0
   },
-  "checked_at": "2026-11-11T14:48:55+00:00"
- }
+  "checked_at": "2026-11-11T15:25:04+00:00"
+ },
+ "halt_reason": null
 }
