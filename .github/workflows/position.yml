@@ -1,0 +1,74 @@
+name: Posizione Bitget
+
+# Comandi sulle posizioni REALI, avviati dall'assistente dell'app (chat o voce) dopo la conferma:
+# chiusura a mercato, take profit, stop loss, rimozione di TP/SL. Le regole sono in position_cmd.py.
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'close, tp, sl o clear'
+        required: true
+        type: choice
+        options: [close, tp, sl, clear]
+      symbol:
+        required: true
+        type: choice
+        options: [BTCUSDT, ETHUSDT, SOLUSDT]
+      side:
+        required: true
+        type: choice
+        options: [long, short]
+      price:
+        description: 'livello per tp/sl (vuoto per close/clear)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BITGET_API_KEY: ${{ secrets.BITGET_API_KEY }}
+      BITGET_API_SECRET: ${{ secrets.BITGET_API_SECRET }}
+      BITGET_API_PASSPHRASE: ${{ secrets.BITGET_API_PASSPHRASE }}
+      BITGET_DEMO: ${{ vars.BITGET_DEMO || '1' }}
+      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Installa dipendenze minime
+        run: pip install "pandas>=2.2.2" numpy requests
+      - name: Esegui il comando su Bitget
+        env:
+          # tutti gli input passano da variabili d'ambiente, mai dentro il comando (niente iniezioni)
+          ACTION: ${{ inputs.action }}
+          SYMBOL: ${{ inputs.symbol }}
+          SIDE: ${{ inputs.side }}
+          PRICE: ${{ inputs.price }}
+        run: |
+          set -o pipefail
+          python position_cmd.py "$ACTION" "$SYMBOL" "$SIDE" "$PRICE" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Salva lo stato
+        env:
+          ACTION: ${{ inputs.action }}
+          SYMBOL: ${{ inputs.symbol }}
+          SIDE: ${{ inputs.side }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # l'ordine è già partito: qui si salva solo lo stato, riapplicato sulla versione più recente
+          for i in 1 2 3 4 5; do
+            git fetch -q origin "${GITHUB_REF_NAME}" && git reset -q --hard "origin/${GITHUB_REF_NAME}"
+            python position_cmd.py sync "$ACTION" "$SYMBOL" "$SIDE"
+            git add live_trades.json
+            git commit -q -m "Posizione: $ACTION $SYMBOL $SIDE" || exit 0
+            git push -q origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            echo "Salvataggio rifiutato (tentativo $i), riprovo..."; sleep $((i * 5))
+          done
+          exit 1

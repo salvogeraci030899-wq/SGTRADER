@@ -37,7 +37,7 @@ function renderRealPositions(el) {
     if (sig === State.atSig) return;
     State.atSig = sig;
     const hidden = State.simState.activeTrades.length;
-    const note = `<div class="at-real-note">Lette da Bitget dal bot ogni 15 minuti${acc && acc.checked_at ? ` (ultima: ${new Date(acc.checked_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })})` : ''}. Le chiude l'esecutore o l'Emergenza.${hidden ? ` ${hidden} trade simulati nascosti: tornano in Simulato.` : ''}</div>`;
+    const note = `<div class="at-real-note">Lette da Bitget dal bot ogni 15 minuti${acc && acc.checked_at ? ` (ultima: ${new Date(acc.checked_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })})` : ''}. Si gestiscono con Chat e Voce (ordini veri, dopo conferma), dall'esecutore o con l'Emergenza.${hidden ? ` ${hidden} trade simulati nascosti: tornano in Simulato.` : ''}</div>`;
     if (!acc || !acc.connected) {
         el.classList.add('empty');
         el.innerHTML = `<div class="at-empty">Conto Bitget non letto.${note}</div>`;
@@ -60,6 +60,18 @@ function renderRealPositions(el) {
                     <div class="at-item"><span class="at-lbl">Margine</span><span class="at-val">${n(p.margin)}</span></div>
                     <div class="at-item"><span class="at-lbl">Liquidazione</span><span class="at-val red">${n(p.liq)}</span></div>
                     <div class="at-item"><span class="at-lbl">PnL aperto</span><span class="at-val" style="color:${(p.upl || 0) >= 0 ? 'var(--accent)' : 'var(--danger)'}">${p.upl == null ? '—' : (p.upl >= 0 ? '+' : '') + n(p.upl)}</span></div>
+                    <div class="at-item"><span class="at-lbl">Take profit</span><span class="at-val green">${p.tp ? n(p.tp) : '—'}</span></div>
+                    <div class="at-item"><span class="at-lbl">Stop loss</span><span class="at-val red">${p.sl ? n(p.sl) : '—'}</span></div>
+                </div>
+                <div class="at-actions at-actions-3 at-actions-2">
+                    <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistantReal('${p.symbol}', false)" title="Chat con l'assistente (ordini veri su Bitget)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        Chat
+                    </button>
+                    <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistantReal('${p.symbol}', true)" title="Parla con l'assistente (ordini veri su Bitget)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+                        Voce
+                    </button>
                 </div>
                 ${note}
             </div>`).join('');

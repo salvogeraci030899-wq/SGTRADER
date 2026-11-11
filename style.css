@@ -973,3 +973,10 @@ html.pwa-mode .nav-item svg { width: 22px; height: 22px; }
     .mode-pill { padding: 0 9px; letter-spacing: 0.3px; }
     #page-home .header-actions { gap: 6px; }
 }
+
+.at-actions-2 { grid-template-columns: 1fr 1fr; padding-top: 8px; }
+@media (max-height: 620px) {
+    .at-real .at-body { row-gap: 6px; }
+    .at-real .at-real-note { padding: 6px 12px; font-size: 10px; }
+    .at-actions-2 { padding-top: 6px; }
+}

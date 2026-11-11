@@ -16,12 +16,13 @@ const feeOf = t => (t.feeRate > 0 ? t.feeRate : DEFAULT_FEE);
 export function netPnlAt(t, price) {
     const gross = dir(t) * (price - t.entryPrice) * t.size;
     const before = gross - (t.entryPrice + price) * t.size * feeOf(t);
-    return before > 0 ? before * (1 - TAX_RATE) : before;
+    // posizioni reali (noTax): il PnL è quello di Bitget, senza tasse
+    return before > 0 && !t.noTax ? before * (1 - TAX_RATE) : before;
 }
 
 // Prezzo al quale il PnL netto vale esattamente `target` USDT
 export function priceForNetPnl(t, target) {
-    const before = target > 0 ? target / (1 - TAX_RATE) : target;
+    const before = target > 0 && !t.noTax ? target / (1 - TAX_RATE) : target;
     const f = feeOf(t), s = t.size, e = t.entryPrice;
     return t.type === 'SHORT'
         ? (e * (1 - f) - before / s) / (1 + f)

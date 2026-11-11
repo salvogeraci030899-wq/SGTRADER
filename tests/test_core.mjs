@@ -191,6 +191,22 @@ test('assistente generale: comanda il tool con azioni da un elenco chiuso', asyn
     assert.doesNotMatch(last.messages[1].content, /rm -rf/);                       // voci non valide scartate
 });
 
+test('comando sulla posizione reale: solo azioni e prezzi validi', async () => {
+    calls.length = 0;
+    let r = await handle('POST', '/api/command', { type: 'position', action: 'tp', symbol: 'BTCUSDT', side: 'long', price: '72000.5' }, ok, env, fakeFetch);
+    assert.equal(r.status, 200);
+    assert.match(calls[0].url, /position\.yml\/dispatches$/);
+    assert.deepEqual(calls[0].body.inputs, { action: 'tp', symbol: 'BTCUSDT', side: 'long', price: '72000.5' });
+    r = await handle('POST', '/api/command', { type: 'position', action: 'close', symbol: 'ETHUSDT', side: 'short' }, ok, env, fakeFetch);
+    assert.equal(r.status, 200); assert.equal(calls[1].body.inputs.price, '');
+    for (const bad of [{ action: 'buy', symbol: 'BTCUSDT', side: 'long' }, { action: 'tp', symbol: 'DOGEUSDT', side: 'long', price: '1' },
+                       { action: 'sl', symbol: 'BTCUSDT', side: 'long', price: '1; rm -rf /' }, { action: 'tp', symbol: 'BTCUSDT', side: 'long' },
+                       { action: 'close', symbol: 'BTCUSDT', side: 'long', price: '5' }]) {
+        assert.equal((await handle('POST', '/api/command', { type: 'position', ...bad }, ok, env, fakeFetch)).status, 400, JSON.stringify(bad));
+    }
+    assert.equal(calls.length, 2);
+});
+
 test('worker: CORS solo per le origini ammesse', async () => {
     const origFetch = globalThis.fetch;
     globalThis.fetch = fakeFetch;

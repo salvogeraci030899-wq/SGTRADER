@@ -312,6 +312,16 @@ def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
                        "positions_detail": [{"symbol": sym, **{k: (round(v, 6) if isinstance(v, float) else v) for k, v in p.items()}}
                                             for sym, p in sorted(pos.items())],
                        "upl": round(sum((p.get("upl") or 0) for p in pos.values()), 2)}
+            # take profit / stop loss impostati sull'exchange (per mostrarli sulla posizione)
+            if pos and hasattr(client, "tpsl_orders"):
+                try:
+                    orders = client.tpsl_orders()
+                    for row in account["positions_detail"]:
+                        o = orders.get(row["symbol"]) or {}
+                        row["tp"] = (o.get("tp") or {}).get("price")
+                        row["sl"] = (o.get("sl") or {}).get("price")
+                except Exception as e:
+                    account["tpsl_error"] = str(e)[:120]
             account.update(_spot_value(client))
             account["total_usdt"] = round(account["equity"] + (account.get("spot_usdt") or 0), 2)
             # Tutti i conti (anche Earn, Funding, bot): se Bitget li dà, il totale è la loro somma

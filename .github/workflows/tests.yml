@@ -36,6 +36,7 @@ jobs:
           python tests/test_daily_report.py
           python tests/test_futures_archive.py
           python tests/test_watchdog.py
+          python tests/test_position.py
           node tests/test_core.mjs
           node tests/test_rules.mjs
       # Chiamate vere a Bitget futures: fallisce se mancano prezzo mark, funding o open interest

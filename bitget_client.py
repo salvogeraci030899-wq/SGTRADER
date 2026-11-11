@@ -163,6 +163,53 @@ class BitgetClient:
         return self._request("POST", "/api/v2/mix/order/close-positions", body=body)
 
 
+    # ---------- take profit / stop loss della posizione (ordini sull'exchange) ----------
+    # Bitget v2: place-tpsl-order con planType pos_profit (TP) o pos_loss (SL) vale per tutta la posizione
+    # e scatta anche se il bot e l'app sono fermi. Prima di impostarne uno nuovo si toglie quello vecchio
+    # dello stesso tipo (orders-plan-pending + cancel-plan-order).
+    def tpsl_orders(self, symbol=None):
+        """Ordini TP/SL in attesa: {symbol: {"tp": {...}, "sl": {...}}} con orderId, triggerPrice, holdSide."""
+        params = {"productType": PRODUCT_TYPE, "planType": "profit_loss"}
+        if symbol:
+            params["symbol"] = symbol
+        data = self._request("GET", "/api/v2/mix/order/orders-plan-pending", params) or {}
+        rows = data.get("entrustedList") if isinstance(data, dict) else data
+        out = {}
+        for row in rows or []:
+            kind = {"pos_profit": "tp", "profit_plan": "tp", "pos_loss": "sl", "loss_plan": "sl"}.get(row.get("planType"))
+            if not kind:
+                continue
+            out.setdefault(row.get("symbol"), {})[kind] = {
+                "orderId": row.get("orderId"), "planType": row.get("planType"), "holdSide": row.get("posSide") or row.get("holdSide"),
+                "price": float(row.get("triggerPrice") or 0)}
+        return out
+
+    def cancel_tpsl(self, symbol, order_id, plan_type):
+        body = {"symbol": symbol, "productType": PRODUCT_TYPE, "marginCoin": MARGIN_COIN, "planType": plan_type,
+                "orderIdList": [{"orderId": str(order_id)}]}
+        return self._request("POST", "/api/v2/mix/order/cancel-plan-order", body=body)
+
+    def set_tpsl(self, symbol, side, kind, price):
+        """kind 'tp' o 'sl': toglie quello esistente dello stesso tipo e mette il nuovo, a mercato quando
+        il prezzo mark arriva al livello."""
+        current = (self.tpsl_orders(symbol).get(symbol) or {}).get(kind)
+        if current and current.get("orderId"):
+            self.cancel_tpsl(symbol, current["orderId"], current.get("planType") or ("pos_profit" if kind == "tp" else "pos_loss"))
+        body = {"marginCoin": MARGIN_COIN, "productType": PRODUCT_TYPE, "symbol": symbol,
+                "planType": "pos_profit" if kind == "tp" else "pos_loss", "triggerPrice": str(price),
+                "triggerType": "mark_price", "executePrice": "0", "holdSide": side,
+                "clientOid": f"sgt{uuid.uuid4().hex[:24]}"}
+        return self._request("POST", "/api/v2/mix/order/place-tpsl-order", body=body)
+
+    def cancel_all_tpsl(self, symbol):
+        done = 0
+        for kind, o in (self.tpsl_orders(symbol).get(symbol) or {}).items():
+            if o.get("orderId"):
+                self.cancel_tpsl(symbol, o["orderId"], o.get("planType"))
+                done += 1
+        return done
+
+
 class DryRunClient:
     """Stesse funzioni del client vero, ma non manda nulla a Bitget: registra cosa avrebbe fatto.
     È la modalità di partenza: l'esecutore gira davvero, gli ordini restano simulati."""
