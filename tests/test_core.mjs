@@ -45,6 +45,8 @@ test('comandi ammessi e workflow giusti', async () => {
         [{ type: 'set_mode', key: 'big_candle_trail:1d', mode: 'paper' }, 'automation.yml', { action: 'set', key: 'big_candle_trail:1d', mode: 'paper' }],
         [{ type: 'emergency' }, 'automation.yml', { action: 'emergency', key: '', mode: '' }],
         [{ type: 'resume' }, 'automation.yml', { action: 'resume', key: '', mode: '' }],
+        [{ type: 'set_risk', field: 'max_leverage', value: '2' }, 'automation.yml', { action: 'risk', key: 'max_leverage', mode: '2' }],
+        [{ type: 'trading', value: 'on' }, 'automation.yml', { action: 'trading', key: '', mode: 'on' }],
     ];
     for (const [body, wf, inputs] of cases) {
         const r = await handle('POST', '/api/command', body, ok, env, fakeFetch);
@@ -64,6 +66,9 @@ test('comandi rifiutati prima di toccare GitHub', async () => {
         { type: 'set_mode', key: 'x;rm -rf /:1d', mode: 'paper' },
         { type: 'set_mode', key: 'big_candle_trail:2h', mode: 'paper' },
         { type: 'run_lab', unseal: '$(whoami)' },
+        { type: 'set_risk', field: 'GH_TOKEN', value: '1' },
+        { type: 'set_risk', field: 'max_leverage', value: '2; rm -rf /' },
+        { type: 'trading', value: 'maybe' },
     ];
     for (const body of bad) assert.equal((await handle('POST', '/api/command', body, ok, env, fakeFetch)).status, 400, JSON.stringify(body));
     assert.equal((await handle('GET', '/api/command', {}, ok, env, fakeFetch)).status, 405);

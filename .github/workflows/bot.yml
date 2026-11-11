@@ -75,6 +75,11 @@ jobs:
           N_SAMPLES: ${{ vars.N_SAMPLES || '50' }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # Ordini veri solo con queste chiavi E l'interruttore generale acceso nell'app E una strategia confermata
+          BITGET_API_KEY: ${{ secrets.BITGET_API_KEY }}
+          BITGET_API_SECRET: ${{ secrets.BITGET_API_SECRET }}
+          BITGET_API_PASSPHRASE: ${{ secrets.BITGET_API_PASSPHRASE }}
+          BITGET_DEMO: ${{ vars.BITGET_DEMO || '1' }}
         run: python run_bot.py
 
       - name: Commit and Sync updated JSON
@@ -85,6 +90,7 @@ jobs:
           git add track_record.jsonl track_record_summary.json 2>/dev/null || true
           git add futures_data.json futures_history.jsonl 2>/dev/null || true
           git add paper_trades.json 2>/dev/null || true
+          git add live_trades.json 2>/dev/null || true
           git commit -m "chore: auto-update $(date -u +%Y-%m-%d_%H:%M)" || { echo "Nessuna modifica da salvare"; exit 0; }
           # Lo stato degli alert deve arrivare sul repo: se il push viene rifiutato
           # (qualcuno ha fatto push nel frattempo) riallineo e riprovo.

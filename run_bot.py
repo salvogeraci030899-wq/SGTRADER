@@ -7,6 +7,7 @@ from datetime import datetime, timezone, timedelta
 import requests
 
 import futures_data
+import executor
 import paper
 import track_record
 from kronos_core import (
@@ -332,6 +333,17 @@ def main():
         paper.update({k: int(df['time'].iloc[-1].timestamp()) for k, df in frames.items()}, notify=send_telegram_alert)
     except Exception as e:
         print(f"Prova su carta non aggiornata: {e}")
+
+    # Esecutore: porta su Bitget i trade delle strategie "live" (simulato finché non ci sono interruttore
+    # generale, chiavi Bitget e una strategia confermata). Un errore qui non deve fermare il bot.
+    try:
+        cfg = paper.load_config()
+        ledger = load_json(paper.LEDGER_PATH) if os.path.exists(paper.LEDGER_PATH) else {}
+        client, mode = executor.make_client(cfg)
+        executor.run(cfg, ledger, client, mode, notify=send_telegram_alert)
+    except Exception as e:
+        print(f"Esecutore non eseguito: {e}")
+        send_telegram_alert(f"⚠️ Esecutore: errore inatteso ({e}). Controlla le posizioni su Bitget.")
 
     # Salvo (e quindi il workflow fa commit) solo se c'è qualcosa di nuovo: una candela ricalcolata,
     # uno stato alert cambiato o il track record aggiornato. Il solo aggiornamento del prezzo live

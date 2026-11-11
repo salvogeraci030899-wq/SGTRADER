@@ -6,6 +6,8 @@ anche a mano:
     python automation.py set big_candle_trail:1d paper
     python automation.py emergency        # tutto spento subito, automazione bloccata
     python automation.py resume           # sblocca (le strategie restano spente: vanno riaccese una a una)
+    python automation.py risk risk_per_trade_pct 0.5    # limiti di rischio dell'esecutore
+    python automation.py trading on       # interruttore generale degli ordini veri (servono anche le chiavi Bitget)
 
 Regole che il codice fa rispettare, qualunque cosa arrivi dall'app:
 - si possono attivare solo strategie che esistono nel laboratorio, su timeframe su cui sono state provate;
@@ -19,6 +21,7 @@ import sys
 import tempfile
 from datetime import datetime, timezone
 
+import executor
 import lab_strategies
 
 CONFIG_PATH = "automation.json"
@@ -100,21 +103,62 @@ def emergency(cfg):
     turned_off = sorted(cfg["strategies"])
     cfg["strategies"] = {}
     cfg["emergency"] = True
+    cfg.setdefault("risk", {})["trading_enabled"] = False      # anche l'interruttore degli ordini veri torna spento
     cfg["history"].append({"at": _now(), "cmd": "emergency", "turned_off": turned_off})
     return f"Emergenza: spente {len(turned_off)} strategie, automazione bloccata."
 
 
-def resume(cfg):
-    if not cfg["emergency"]:
+def resume(cfg, state_path=executor.STATE_PATH):
+    """Sblocca l'automazione e, se l'esecutore si era fermato (emergenza o posizioni diverse dal
+    previsto su Bitget), sblocca anche lui. Le strategie restano spente."""
+    halted = False
+    if os.path.exists(state_path):
+        with open(state_path) as f:
+            halted = bool(json.load(f).get("halted"))
+    if not cfg["emergency"] and not halted:
         raise CommandError("L'automazione non è bloccata.")
     cfg["emergency"] = False
-    cfg["history"].append({"at": _now(), "cmd": "resume"})
+    if halted:
+        executor.unhalt(state_path)
+    cfg["history"].append({"at": _now(), "cmd": "resume", "executor_unhalted": halted})
     return "Automazione sbloccata. Le strategie restano spente finché non le riaccendi."
 
 
-def run(argv, path=CONFIG_PATH, summary_path=SUMMARY_PATH):
+def set_risk(cfg, field, value):
+    if field not in executor.RISK_BOUNDS:
+        raise CommandError(f"Limite sconosciuto: {field}.")
+    try:
+        v = float(value)
+    except ValueError:
+        raise CommandError(f"Valore non numerico: {value}.")
+    lo, hi = executor.RISK_BOUNDS[field]
+    if not lo <= v <= hi:
+        raise CommandError(f"{field} deve essere tra {lo:g} e {hi:g}.")
+    if field in ("max_leverage", "max_open_positions"):
+        if v != int(v):
+            raise CommandError(f"{field} deve essere un numero intero.")
+        v = int(v)
+    risk = cfg.setdefault("risk", {})
+    before = executor.risk_config(cfg)[field]
+    risk[field] = v
+    cfg["history"].append({"at": _now(), "cmd": "risk", "field": field, "from": before, "to": v})
+    return f"{field}: {before} -> {v}"
+
+
+def set_trading(cfg, value):
+    if value not in ("on", "off"):
+        raise CommandError("Valore ammesso: on oppure off.")
+    if value == "on" and cfg["emergency"]:
+        raise CommandError("Emergenza attiva: prima va sbloccata.")
+    cfg.setdefault("risk", {})["trading_enabled"] = value == "on"
+    cfg["history"].append({"at": _now(), "cmd": "trading", "to": value})
+    return ("Ordini veri ABILITATI: partono solo per strategie confermate in modalità Reale e con le chiavi Bitget impostate."
+            if value == "on" else "Ordini veri disabilitati: l'esecutore resta in simulazione.")
+
+
+def run(argv, path=CONFIG_PATH, summary_path=SUMMARY_PATH, state_path=executor.STATE_PATH):
     if not argv:
-        raise CommandError("Comando mancante: set, emergency o resume.")
+        raise CommandError("Comando mancante: set, emergency, resume, risk o trading.")
     cfg = load(path)
     cmd = argv[0]
     if cmd == "set" and len(argv) == 3:
@@ -122,7 +166,11 @@ def run(argv, path=CONFIG_PATH, summary_path=SUMMARY_PATH):
     elif cmd == "emergency" and len(argv) == 1:
         msg = emergency(cfg)
     elif cmd == "resume" and len(argv) == 1:
-        msg = resume(cfg)
+        msg = resume(cfg, state_path)
+    elif cmd == "risk" and len(argv) == 3:
+        msg = set_risk(cfg, argv[1], argv[2])
+    elif cmd == "trading" and len(argv) == 2:
+        msg = set_trading(cfg, argv[1])
     else:
         raise CommandError(f"Comando non valido: {' '.join(argv)}")
     save(cfg, path)

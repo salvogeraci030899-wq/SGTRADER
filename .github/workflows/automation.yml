@@ -10,13 +10,13 @@ on:
         description: 'set = cambia lo stato di una strategia, emergency = spegni tutto, resume = sblocca'
         required: true
         type: choice
-        options: [set, emergency, resume]
+        options: [set, emergency, resume, risk, trading]
       key:
-        description: 'Strategia, es. big_candle_trail:1d (solo per set)'
+        description: 'Strategia (set, es. big_candle_trail:1d) oppure limite di rischio (risk)'
         required: false
         default: ''
       mode:
-        description: 'off, paper o live (solo per set)'
+        description: 'off/paper/live (set), valore (risk), on/off (trading)'
         required: false
         default: ''
 
@@ -46,8 +46,11 @@ jobs:
           KEY: ${{ github.event.inputs.key }}
           MODE: ${{ github.event.inputs.mode }}
         run: |
-          if [ "$ACTION" = "set" ]; then
-            python automation.py set "$KEY" "$MODE" | tee -a "$GITHUB_STEP_SUMMARY"
+          set -o pipefail
+          if [ "$ACTION" = "set" ] || [ "$ACTION" = "risk" ]; then
+            python automation.py "$ACTION" "$KEY" "$MODE" | tee -a "$GITHUB_STEP_SUMMARY"
+          elif [ "$ACTION" = "trading" ]; then
+            python automation.py trading "$MODE" | tee -a "$GITHUB_STEP_SUMMARY"
           else
             python automation.py "$ACTION" | tee -a "$GITHUB_STEP_SUMMARY"
           fi
@@ -58,6 +61,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add automation.json
+          git add live_trades.json 2>/dev/null || true
           git commit -m "Automazione: $ACTION $(date -u +%Y-%m-%d_%H:%M)" || { echo "Nessuna modifica"; exit 0; }
           for i in 1 2 3 4 5; do
             git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
