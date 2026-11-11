@@ -155,11 +155,16 @@ def simulate(df, tf, symbol, spec, signal=None):
             if channel is not None and ((c[j] < channel[0][j]) if long else (c[j] > channel[1][j])):
                 exit_price, reason = c[j], "CANALE"      # chiusura oltre il canale opposto: si esce alla chiusura
                 break
+        # Lo storico è finito prima di una vera uscita: il trade è ancora aperto (serve alla prova su carta)
+        still_open = exit_price is None and reason == "TEMPO" and j == n - 1 and j < i + ex["max_hold"]
         if exit_price is None:
             exit_price = c[j]
-        if j > i:
-            trades.append({"symbol": symbol, "tf": tf, "t": int(times[i]), "t_exit": int(times[j]) + step, "dir": 1 if long else -1,
-                           "gross": float((exit_price - entry) / entry * 100 * (1 if long else -1)), "bars": j - i, "reason": reason})
+        if j > i or still_open:
+            trades.append({"symbol": symbol, "tf": tf, "t": int(times[i]), "t_entry": int(times[i]) + step, "t_exit": int(times[j]) + step, "dir": 1 if long else -1,
+                           "gross": float((exit_price - entry) / entry * 100 * (1 if long else -1)), "bars": j - i, "reason": reason,
+                           "open": bool(still_open), "entry": float(entry), "exit": float(exit_price), "stop": float(stop)})
+        if still_open:
+            break
         i = max(j, i + 1)      # alla chiusura della candela di uscita si può rientrare
     return trades
 
@@ -210,15 +215,16 @@ def funding_cost(trade, funding):
     vale l'ipotesi prudente (il long paga il tasso base, lo short non riceve). Ritorna (costo, True se
     interamente da dati reali)."""
     ts, rates = funding if funding is not None else (np.array([]), np.array([]))
+    start = trade.get("t_entry", trade["t"])      # si entra alla CHIUSURA della candela del segnale
     first = int(ts[0]) if len(ts) else None
-    covered = first is not None and trade["t"] >= first
+    covered = first is not None and start >= first
     cost = 0.0
     if first is not None:
-        lo, hi = np.searchsorted(ts, trade["t"], side="right"), np.searchsorted(ts, trade["t_exit"], side="right")
+        lo, hi = np.searchsorted(ts, start, side="right"), np.searchsorted(ts, trade["t_exit"], side="right")
         cost = float(rates[lo:hi].sum()) * trade["dir"]
     if not covered:   # tutto o parte del trade è prima dell'inizio dello storico reale
         end = trade["t_exit"] if first is None else min(trade["t_exit"], first)
-        missing = max(0, (end - trade["t"]) // FUNDING_INTERVAL)
+        missing = max(0, (end - start) // FUNDING_INTERVAL)
         cost += missing * FUNDING_ASSUMED_LONG_PCT if trade["dir"] > 0 else 0.0
     return cost, bool(covered)
 

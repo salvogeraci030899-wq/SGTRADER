@@ -7,6 +7,7 @@ import { $, escapeHtml } from '../utils/helpers.js';
 
 const ROWS_PER_PAGE = 6;
 let summary = null;
+let paperLedger = null;     // prova su carta (paper_trades.json, scritto dal bot)
 let loaded = false;
 let loading = false;
 
@@ -27,6 +28,10 @@ async function load() {
         const r = await fetch('./lab_summary.json?t=' + Date.now());
         summary = r.ok ? await r.json() : null;
     } catch (e) { summary = null; }
+    try {
+        const r = await fetch('./paper_trades.json?t=' + Date.now());
+        paperLedger = r.ok ? await r.json() : null;
+    } catch (e) { paperLedger = null; }
     loaded = true;
     loading = false;
     renderLab();
@@ -59,6 +64,15 @@ export function renderLab() {
     const conf = names(summary.confirmed);
     const failed = Object.keys(summary.results).filter(k => tested(k) && !summary.results[k].holdout.confirmed);
 
+    // Prova su carta: segnali seguiti dal vivo dal bot, senza ordini
+    const onPaper = Object.entries((paperLedger && paperLedger.strategies) || {}).filter(([, e]) => e.mode === 'paper' || e.mode === 'live');
+    const paperLine = onPaper.length
+        ? `<div class="lab-summary"><b>Su carta dal ${day(paperLedger.started)}:</b> ${onPaper.map(([k, e]) => {
+            const st = e.stats || { n: 0, open: 0 };
+            return `${escapeHtml(k.replace(':', ' ').replace(/_/g, ' '))} · ${st.n} chiusi${st.n ? ' (netto medio ' + pct(st.avg_net_pct) + ')' : ''}, ${st.open || 0} aperti`;
+        }).join(' · ')}</div>`
+        : '';
+
     const pages = [];
     for (let i = 0; i < rows.length; i += ROWS_PER_PAGE) pages.push(rows.slice(i, i + ROWS_PER_PAGE));
     const table = chunk => `
@@ -74,6 +88,7 @@ export function renderLab() {
 
     box.innerHTML = `
         <div class="lab-summary"><b>Candidate in attesa:</b> ${escapeHtml(cand)} · <b>Confermate:</b> ${escapeHtml(conf)}${failed.length ? ` · <b>Non confermate:</b> ${escapeHtml(names(failed))}` : ''}</div>
+        ${paperLine}
         ${rows.length ? `<div class="lab-pages" id="labPages">${pages.map(p => `<div class="lab-page">${table(p)}</div>`).join('')}</div>
         <div class="info-dots" id="labDots">${pages.map((_, i) => `<div class="info-dot${i === 0 ? ' active' : ''}" onclick="goToLabPage(${i})"></div>`).join('')}</div>`
             : `<div class="empty-hint">Nessuna strategia provata su ${tf.toUpperCase()}.</div>`}

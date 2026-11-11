@@ -1,0 +1,7 @@
+{
+ "note": "Stato di ogni strategia: off, paper (solo su carta) o live (ordini reali). 'live' è accettato solo per strategie confermate dalla prova finale: per le altre viene trattato come paper.",
+ "paper_start": "2026-11-11",
+ "strategies": {
+  "big_candle_trail:1d": "paper"
+ }
+}
