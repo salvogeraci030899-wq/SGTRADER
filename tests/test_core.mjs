@@ -1,6 +1,6 @@
 // Test del server comandi (api/_core.js e worker/index.js). Eseguibile con: node tests/test_core.mjs
 import assert from 'node:assert/strict';
-import { handle, safeEqual, pickModel, summarizeCandles, buildAnalysisPrompt } from '../api/_core.js';
+import { handle, safeEqual, pickModel, summarizeCandles, buildAnalysisPrompt, modelOptions } from '../api/_core.js';
 import worker, { scheduled } from '../worker/index.js';
 
 const env = { APP_SECRET: 'segreto-lungo', GH_TOKEN: 'tok', GH_REPO: 'io/repo', GH_REF: 'main', GROQ_API_KEY: 'g' };
@@ -162,6 +162,12 @@ test('trascrizione della voce: whisper su Groq', async () => {
     assert.match(sent.url, /audio\/transcriptions$/);
     assert.equal(sent.form.get('model'), 'whisper-large-v3-turbo'); assert.equal(sent.form.get('language'), 'it');
     assert.equal((await handle('POST', '/api/transcribe', { audio: '' }, ok, env, groq)).status, 400);
+});
+
+test('modelli che ragionano: ragionamento breve e più spazio per la risposta', () => {
+    assert.deepEqual(modelOptions('openai/gpt-oss-120b', 1000), { max_tokens: 3000, reasoning_effort: 'low' });
+    assert.deepEqual(modelOptions('qwen/qwen3-32b', 500), { max_tokens: 1500 });
+    assert.deepEqual(modelOptions('llama-3.3-70b-versatile', 1000), { max_tokens: 1000 });
 });
 
 test('worker: CORS solo per le origini ammesse', async () => {

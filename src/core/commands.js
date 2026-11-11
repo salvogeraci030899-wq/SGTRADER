@@ -227,6 +227,16 @@ async function availableModel(key, fetchFn, refresh = false) {
     return cachedModel;
 }
 
+// Modelli che ragionano prima di rispondere (gpt-oss, qwen3...): il ragionamento consuma il limite di
+// token e la risposta può arrivare troncata. Si chiede un ragionamento breve e si alza il limite.
+const REASONING = /gpt-oss|qwen3|deepseek-r1|reason/i;
+export function modelOptions(model, maxTokens) {
+    const opts = { max_tokens: REASONING.test(model) ? maxTokens * 3 : maxTokens };
+    if (/gpt-oss/i.test(model)) opts.reasoning_effort = 'low';
+    return opts;
+}
+const truncated = data => data && data.choices && data.choices[0] && data.choices[0].finish_reason === 'length';
+
 const modelGone = (status, msg) => status === 404 || /model.*(not exist|not found|decommission|deprecat|access)/i.test(msg || '');
 
 export async function analyze(body, env, fetchFn) {
@@ -240,7 +250,7 @@ export async function analyze(body, env, fetchFn) {
     const call = model => fetchFn('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model, messages: [{ role: 'system', content: SYSTEM_PROMPT }, { role: 'user', content: prompt }], temperature: 0.2, max_tokens: 900 })
+        body: JSON.stringify({ model, messages: [{ role: 'system', content: SYSTEM_PROMPT }, { role: 'user', content: prompt }], temperature: 0.2, ...modelOptions(model, 1000) })
     });
     try {
         const forced = String(env.GROQ_MODEL || '').trim();
@@ -255,6 +265,7 @@ export async function analyze(body, env, fetchFn) {
         let analysis = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
         if (!analysis) return json(502, { error: 'Risposta vuota da Groq' });
         analysis = analysis.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/\*\*/g, '').trim();
+        if (truncated(data)) analysis += '\n\n(Risposta interrotta dal limite di lunghezza del modello: riprova.)';
         return json(200, { analysis, model });
     } catch (e) {
         return json(500, { error: 'Errore di rete verso Groq' });
@@ -302,7 +313,7 @@ export async function assistant(body, env, fetchFn) {
     const call = model => fetchFn('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model, messages, temperature: 0.1, max_tokens: 400, response_format: { type: 'json_object' } })
+        body: JSON.stringify({ model, messages, temperature: 0.1, ...modelOptions(model, 500), response_format: { type: 'json_object' } })
     });
     try {
         const forced = String(env.GROQ_MODEL || '').trim();
