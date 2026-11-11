@@ -287,7 +287,7 @@ Azioni possibili (usa SOLO queste, con questi campi):
 - {"type":"close_now"}: chiudi subito
 - {"type":"clear_rules"}: togli le regole automatiche attive
 Se l'utente fa una domanda o la richiesta non è chiara, action è null e nella reply chiedi di precisare.
-Non inventare numeri: usa quelli forniti. Nella reply spiega l'azione proposta e ricorda che va confermata.
+Non inventare numeri: usa quelli forniti. Nella reply spiega l'azione proposta senza dire che è già fatta e chiudi con «Confermi?».
 Non dare consigli finanziari come certezze.`;
 
 function positionFacts(p) {
@@ -313,7 +313,7 @@ Azioni possibili (usa SOLO queste, con questi campi):
 - {"type":"analyze","symbol":"BTCUSDT"|"ETHUSDT"|"SOLUSDT","timeframe":"1d"|"4h"|"1h"}: apri l'analisi AI live
 - {"type":"open_page","page":"home"|"terminal"|"signals"|"trade"|"calculator"|"journal"|"test"|"settings"|"account"}: apri una pagina
 Per le domande rispondi con i dati forniti e action null. Non inventare numeri. Se la richiesta non è chiara, chiedi di precisare.
-Ricorda che le azioni vanno confermate. Nessuna strategia è confermata dalla prova finale finché l'elenco "confermate" è vuoto: dillo se l'utente chiede di andare in reale.`;
+Quando proponi un'azione NON dire mai che è già fatta: scrivi cosa farai e chiudi con «Confermi?» (es. «Metto donchian55 1d su carta. Confermi?»). Nessuna strategia è confermata dalla prova finale finché l'elenco "confermate" è vuoto: dillo se l'utente chiede di andare in reale.`;
 
 const PAGES_OK = ['home', 'terminal', 'signals', 'trade', 'calculator', 'journal', 'test', 'settings', 'account'];
 export function sanitizeGeneralAction(a) {
