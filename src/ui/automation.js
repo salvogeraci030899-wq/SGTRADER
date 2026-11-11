@@ -17,7 +17,10 @@ const RISK_FIELDS = [
     ['max_open_positions', 'Posizioni aperte al massimo', 1, 6, 1],
     ['max_daily_loss_pct', 'Perdita massima al giorno (%)', 1, 10, 0.5],
 ];
-const riskCfg = () => ({ ...DEFAULT_RISK, ...((cfg && cfg.risk) || {}) });
+export const riskCfg = () => ({ ...DEFAULT_RISK, ...((cfg && cfg.risk) || {}) });
+// Stato letto dai file pubblicati, per le pagine Account e Impostazioni
+export const getAutoState = () => ({ cfg, ledger, lab, live, loaded, pendingTrading });
+let pendingTrading = null;   // 'on' / 'off' inviato ma non ancora visibile in automation.json
 const pending = {};   // comandi inviati ma non ancora visibili nei file pubblicati
 
 const pct = (v, d = 2) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${v.toFixed(d)}%`);
@@ -63,7 +66,9 @@ export async function loadAutomation() {
     loaded = true;
     loading = false;
     for (const [key, mode] of Object.entries(pending)) if (currentMode(key, true) === mode) delete pending[key];
+    if (pendingTrading && (pendingTrading === 'on') === !!riskCfg().trading_enabled) pendingTrading = null;
     renderAutomation();
+    if (window.renderAccount) window.renderAccount();
 }
 
 function currentMode(key, ignorePending = false) {
@@ -103,7 +108,7 @@ export function renderAutomation() {
         <div class="auto-row"><span>Stato</span><b class="${emergency || halted ? 'text-danger' : 'text-accent'}">${emergency ? 'EMERGENZA: tutto bloccato' : (halted ? 'esecutore bloccato: controlla Bitget' : `${onPaper} ${onPaper === 1 ? 'strategia attiva' : 'strategie attive'}`)}</b></div>
         <div class="auto-row"><span>Saldo Bitget</span><b class="${accClass}" title="${escapeHtml((acc && acc.reason) || '')}">${accText}</b></div>
         ${accDetail ? `<div class="auto-row auto-sub"><span></span><b>${escapeHtml(accDetail)}</b></div>` : ''}
-        <div class="auto-row"><span>Ordini veri</span><b class="${risk.trading_enabled ? 'text-warning' : ''}">${realText}</b></div>
+        <div class="auto-row clickable" onclick="openAccount()"><span>Ordini veri</span><b class="${risk.trading_enabled ? 'text-warning' : ''}">${realText} ›</b></div>
         <div class="auto-row"><span>Rischio</span><b>${risk.risk_per_trade_pct}% a trade · leva ${risk.max_leverage}x · max ${risk.max_open_positions} · −${risk.max_daily_loss_pct}%/giorno</b></div>`;
 
     const keys = shownKeys();
@@ -215,8 +220,6 @@ export function openAutoRisk() {
     const risk = riskCfg();
     $('autoRiskFields').innerHTML = RISK_FIELDS.map(([f, text, lo, hi, step]) =>
         `<label class="auto-risk-field"><span>${text}</span><input type="number" inputmode="decimal" id="risk_${f}" value="${risk[f]}" min="${lo}" max="${hi}" step="${step}"></label>`).join('');
-    $('riskTrading').value = risk.trading_enabled ? 'on' : 'off';
-    document.querySelectorAll('.option-toggle[data-target="riskTrading"] button').forEach(b => b.classList.toggle('active', b.dataset.value === $('riskTrading').value));
     $('autoRiskModal').classList.add('active');
 }
 export function closeAutoRisk() { $('autoRiskModal').classList.remove('active'); }
@@ -232,17 +235,31 @@ export async function saveAutoRisk() {
         }
         if (v !== Number(risk[f])) changes.push({ type: 'set_risk', field: f, value: String(v) });
     }
-    const trading = $('riskTrading').value;
-    if ((trading === 'on') !== !!risk.trading_enabled) changes.push({ type: 'trading', value: trading });
     closeAutoRisk();
     if (!changes.length) return;
+    for (const c of changes) if (!(await send(c, ''))) return;
+    window.showAlert('Comandi inviati', `${changes.length} ${changes.length === 1 ? 'modifica inviata' : 'modifiche inviate'}: visibili qui dopo qualche minuto.`);
+    setTimeout(loadAutomation, 90000);
+}
+
+// --- Modalità ordini: Simulato / Reale (pagina Account) ---
+// "Reale" accende l'interruttore generale; gli ordini partono comunque solo per strategie confermate
+// dalla prova finale e messe su Reale, con le chiavi Bitget impostate (lo ricontrolla automation.py).
+export function setTradingMode(value) {
+    const now = pendingTrading || (riskCfg().trading_enabled ? 'on' : 'off');
+    if (value === now) return;
     const go = async () => {
-        for (const c of changes) if (!(await send(c, ''))) return;
-        window.showAlert('Comandi inviati', `${changes.length} ${changes.length === 1 ? 'modifica inviata' : 'modifiche inviate'}: visibili qui dopo qualche minuto.`);
-        setTimeout(loadAutomation, 90000);
+        const ok = await send({ type: 'trading', value }, value === 'on'
+            ? 'Modalità reale inviata. Diventa attiva entro qualche minuto.'
+            : 'Modalità simulata inviata: nessun nuovo ordine vero.');
+        if (ok) { pendingTrading = value; if (window.renderAccount) window.renderAccount(); setTimeout(loadAutomation, 90000); }
     };
-    if (trading === 'on' && !risk.trading_enabled) {
-        openAutoConfirm('Ordini veri', 'Abiliti gli ordini veri su Bitget. Partiranno solo per strategie confermate e messe su Reale, e solo con le chiavi Bitget impostate su GitHub. Con la leva puoi perdere tutto il capitale impiegato.', 'Abilita', go);
+    if (value === 'on') {
+        const confirmed = (lab && lab.confirmed) || [];
+        openAutoConfirm('Passa al reale',
+            (confirmed.length ? '' : 'Oggi nessuna strategia è confermata dalla prova finale: anche in Reale nessun ordine partirà finché una non lo sarà. ')
+            + 'In Reale l\'esecutore apre ordini veri su Bitget per le strategie confermate e messe su Reale, con i limiti di rischio impostati. Con la leva puoi perdere tutto il capitale impiegato.',
+            'Passa al reale', go);
     } else {
         go();
     }

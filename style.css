@@ -46,7 +46,9 @@ main {
 #page-signals.active,
 #page-info.active { height: 100%; overflow: hidden; }
 #page-calculator.active { height: 100%; overflow-y: auto; }
-#page-test.active { height: 100%; overflow: hidden; }
+#page-test.active,
+#page-account.active,
+#page-settings.active { height: 100%; overflow: hidden; }
 
 /* Adattamento automatico (src/ui/page-fit.js): margine in fondo se la pagina scende sotto la parte
    visibile, zoom dei blocchi se il contenuto non entra (l'intestazione resta sempre uguale).
@@ -63,6 +65,10 @@ main {
 #page-signals.active > *:not(.header-row) { zoom: var(--fit-zoom-signals, 1); }
 #page-test.active { padding-bottom: calc(10px + var(--fit-extra-bottom-test, 0px)); overflow-y: var(--fit-overflow-test, hidden); }
 #page-test.active > *:not(.header-row) { zoom: var(--fit-zoom-test, 1); }
+#page-account.active { padding-bottom: calc(10px + var(--fit-extra-bottom-account, 0px)); overflow-y: var(--fit-overflow-account, hidden); }
+#page-account.active > *:not(.header-row) { zoom: var(--fit-zoom-account, 1); }
+#page-settings.active { padding-bottom: calc(10px + var(--fit-extra-bottom-settings, 0px)); overflow-y: var(--fit-overflow-settings, hidden); }
+#page-settings.active > *:not(.header-row) { zoom: var(--fit-zoom-settings, 1); }
 
 /* --- UTILITY --- */
 .clickable { cursor: pointer; }
@@ -772,3 +778,44 @@ html.pwa-mode .nav-item svg { width: 22px; height: 22px; }
 .settings-item.settings-danger:active { background: rgba(255,69,58,.1); }
 .settings-info-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: #000; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; font-size: 13px; font-weight: 600; }
 .settings-version { color: var(--text-muted); font-family: var(--mono); font-size: 12px; font-weight: 700; }
+
+/* --- HOME: pastiglia modalità + icona Account --- */
+.header-actions { display: flex; align-items: center; gap: 8px; }
+.mode-pill { background: var(--surface); border: 1px solid var(--border); color: var(--text-secondary); border-radius: 999px; padding: 0 12px; min-height: 32px; font-size: 11px; font-weight: 800; letter-spacing: 0.6px; cursor: pointer; font-family: var(--font); }
+.mode-pill.real { background: rgba(255, 159, 10, 0.15); border-color: rgba(255, 159, 10, 0.5); color: var(--warning); }
+.mode-pill:active { transform: scale(0.96); }
+
+/* --- ACCOUNT --- */
+.acc-wrap { display: flex; flex-direction: column; gap: 10px; }
+.acc-card { display: flex; flex-direction: column; gap: 6px; }
+.acc-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; min-height: 24px; }
+.acc-head .btn-link-secondary { text-transform: none; letter-spacing: 0; }
+.acc-kind { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; }
+.acc-kind.real { background: rgba(255, 159, 10, 0.15); color: var(--warning); }
+.acc-kind.demo { background: rgba(10, 132, 255, 0.15); color: var(--blue); }
+.acc-total { font-size: 28px; font-weight: 800; font-family: var(--mono); color: var(--text); }
+.acc-total.muted { font-size: 18px; color: var(--text-secondary); }
+.acc-detail { font-size: 12px; color: var(--text-secondary); }
+.acc-meta { font-size: 11px; color: var(--text-secondary); opacity: 0.8; }
+.acc-line { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
+.acc-line span { color: var(--text-secondary); }
+.acc-explain { font-size: 12px; color: var(--text-secondary); line-height: 1.45; }
+.acc-explain.warn { color: var(--warning); }
+.mode-switch { display: grid; grid-template-columns: 1fr 1fr; background: #000; border: 1px solid var(--border); border-radius: 12px; padding: 4px; gap: 4px; }
+.mode-switch button { background: transparent; border: none; color: var(--text-secondary); font-size: 15px; font-weight: 800; border-radius: 9px; min-height: 48px; cursor: pointer; font-family: var(--font); }
+.mode-switch button.active { background: var(--surface-hover); color: var(--accent); }
+.mode-switch button.real.active { background: rgba(255, 159, 10, 0.18); color: var(--warning); }
+
+/* --- IMPOSTAZIONI (pagina) --- */
+.set-wrap { display: flex; flex-direction: column; gap: 10px; }
+.set-group { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.set-title { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; padding: 8px 14px 2px; }
+.set-row { display: flex; align-items: center; gap: 10px; width: 100%; background: transparent; border: none; border-top: 1px solid var(--border); color: var(--text); padding: 0 14px; min-height: var(--touch-min); font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; font-family: var(--font); }
+.set-title + .set-row { border-top: none; }
+.set-row:active:not(.set-static) { background: var(--surface-hover); }
+.set-label { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.set-val { color: var(--text-secondary); font-size: 13px; font-weight: 500; white-space: nowrap; }
+.set-chev { color: var(--text-secondary); flex-shrink: 0; }
+.set-danger { color: var(--danger); }
+.set-static { cursor: default; }
+.conn-warn { background: rgba(255, 159, 10, 0.08); border: 1px solid rgba(255, 159, 10, 0.25); border-radius: 10px; padding: 8px 10px; margin: 0 0 14px; color: #fbbf24; }

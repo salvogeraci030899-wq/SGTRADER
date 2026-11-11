@@ -394,6 +394,7 @@ export function updateNotifButton() {
 
 export function openSignalSettings() {
     $('signalMinAgreement').value = String(State.signalSettings.minAgreement);
+    document.querySelectorAll('.option-toggle[data-target="signalMinAgreement"] button').forEach(b => b.classList.toggle('active', b.dataset.value === $('signalMinAgreement').value));
     $('signalTelegramToken').value = State.signalSettings.telegramBotToken || '';
     $('signalTelegramChat').value = State.signalSettings.telegramChatId || '';
     $('signalWebhookUrl').value = State.signalSettings.webhookUrl || '';
