@@ -2,7 +2,7 @@
  "note": "Stato di ogni strategia: off, paper (solo su carta) o live (ordini reali). 'live' è accettato solo per strategie confermate dalla prova finale: per le altre viene trattato come paper.",
  "paper_start": "2026-11-11",
  "strategies": {},
- "emergency": true,
+ "emergency": false,
  "history": [
   {
    "at": "2026-11-11T13:19:25+00:00",
@@ -47,6 +47,11 @@
    "key": "donchian20_turtle:1d",
    "from": "off",
    "to": "off"
+  },
+  {
+   "at": "2026-11-11T14:48:28+00:00",
+   "cmd": "resume",
+   "executor_unhalted": false
   }
  ],
  "risk": {
