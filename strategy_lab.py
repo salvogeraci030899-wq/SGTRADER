@@ -70,8 +70,16 @@ def _ts(date):
 # =========================
 # INDICATORI
 # =========================
-def indicators(df):
-    """Indicatori di una coppia. Le funzioni (ema, sma, ...) hanno memoria: ogni periodo si calcola una volta."""
+def peer_table(dfs):
+    """Chiusure di tutte le coin di un timeframe allineate per tempo (secondi): serve alle strategie
+    di forza relativa, che confrontano una coin con le altre nello stesso istante."""
+    cols = {s: pd.Series(df["close"].to_numpy(dtype=float), index=[int(t.timestamp()) for t in df["time"]]) for s, df in dfs.items()}
+    return pd.DataFrame(cols).sort_index()
+
+
+def indicators(df, symbol=None, peers=None):
+    """Indicatori di una coppia. Le funzioni (ema, sma, ...) hanno memoria: ogni periodo si calcola una volta.
+    peers (facoltativo): tabella di peer_table, per le strategie di forza relativa."""
     o, h, l, c, v = (df[k].to_numpy(dtype=float) for k in ("open", "high", "low", "close", "volume"))
     cs, hs, ls = pd.Series(c), pd.Series(h), pd.Series(l)
     prev_close = cs.shift(1)
@@ -96,7 +104,22 @@ def indicators(df):
         out[idx] = signals[name]
         return out
 
+    times = [int(t.timestamp()) for t in df["time"]]
+
+    def rank_ret(p):
+        """+1 se la coin ha il rendimento a p candele più alto delle tre, -1 se il più basso, 0 altrimenti.
+        0 anche quando manca anche una sola coin in quell'istante (es. SOL prima del 2021)."""
+        if peers is None or symbol not in peers.columns or peers.shape[1] < 3:
+            return np.zeros(len(c), dtype=int)
+        r = (peers / peers.shift(p) - 1).reindex(times)
+        full = r.notna().all(axis=1).to_numpy()
+        mine = r[symbol].to_numpy()
+        best = (mine >= r.max(axis=1).to_numpy()) & full
+        worst = (mine <= r.min(axis=1).to_numpy()) & full
+        return np.where(best & ~worst, 1, np.where(worst & ~best, -1, 0))
+
     return {
+        "rank_ret": lambda p: memo(("rank", p), lambda: rank_ret(p)),
         "open": o, "high": h, "low": l, "close": c, "volume": v, "atr": atr, "atr_pct": atr / c * 100,
         "ema": lambda p: memo(("ema", p), lambda: cs.ewm(span=p, adjust=False, min_periods=p).mean().to_numpy()),
         "sma": lambda p: memo(("sma", p), lambda: cs.rolling(p).mean().to_numpy()),
@@ -114,12 +137,12 @@ def indicators(df):
 # =========================
 # MOTORE
 # =========================
-def simulate(df, tf, symbol, spec, signal=None):
+def simulate(df, tf, symbol, spec, signal=None, peers=None):
     """Trade di una strategia su una coppia, uno alla volta. Ingresso alla chiusura della candela del
     segnale. A ogni candela successiva: prima lo stop (se la candela apre già oltre lo stop si esce
     all'apertura, cioè peggio dello stop), poi il target, poi si aggiorna lo stop che segue il prezzo
     usando la chiusura, infine l'uscita a canale (chiusura oltre il minimo/massimo delle N candele precedenti). Se lo storico ha un buco si esce all'ultima chiusura disponibile."""
-    x = indicators(df)
+    x = indicators(df, symbol, peers)
     sig = np.asarray(spec["fn"](x) if signal is None else signal)
     ex = spec["exit"]
     o, h, l, c, atr = x["open"], x["high"], x["low"], x["close"], x["atr"]
@@ -450,16 +473,20 @@ def main(start, symbols, tfs, unseal=(), save_registry=True):
         ts = funding[symbol][0]
         print(f"Funding {symbol}: {len(ts)} valori" + (f" dal {datetime.fromtimestamp(ts[0], tz=timezone.utc):%d/%m/%Y}" if len(ts) else " (non disponibile)"))
     per_trial = {}
-    for symbol in symbols:
-        for tf in tfs:
+    for tf in tfs:
+        dfs = {}
+        for symbol in symbols:
             df = va.download_history(symbol, tf, start_ms)
             if df is None or len(df) < WARMUP + 200:
                 print(f"{symbol} {tf}: storico insufficiente, salto.")
                 continue
             print(f"{symbol} {tf}: {len(df)} candele dal {df['time'].iloc[0]:%d/%m/%Y}")
+            dfs[symbol] = df
+        peers = peer_table(dfs) if dfs else None
+        for symbol, df in dfs.items():
             for name, spec in lab_strategies.STRATEGIES.items():
                 if spec["tfs"] is None or tf in spec["tfs"]:
-                    per_trial.setdefault((name, tf), []).extend(annotate_drift(simulate(df, tf, symbol, spec), df, holdout_ts))
+                    per_trial.setdefault((name, tf), []).extend(annotate_drift(simulate(df, tf, symbol, spec, peers=peers), df, holdout_ts))
     if not per_trial:
         raise SystemExit("Nessuno storico scaricato.")
     summary = build_summary(per_trial, funding, registry, unseal)

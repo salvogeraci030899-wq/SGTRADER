@@ -124,6 +124,32 @@ def test_oltre_il_mercato():
     assert r["avg_net_pct"] > 0.5 and r["p_value"] < 0.001 and not r["significant"] and not r["candidate"]
 
 
+def test_forza_relativa():
+    # tre coin: A sale del 2% a candela, B dell'1%, C scende dell'1% (C parte più tardi)
+    n = W + 400                                 # anche SOL, che parte dopo, ha più candele del riscaldamento
+    t = [T0 + i * D for i in range(n)]
+    def mk(rate, start=0):
+        c = 100 * (1 + rate) ** np.arange(n - start)
+        o = np.concatenate([[c[0]], c[:-1]])
+        return pd.DataFrame({"time": pd.to_datetime(t[start:], unit="s", utc=True), "open": o, "high": np.maximum(o, c) * 1.001,
+                             "low": np.minimum(o, c) * 0.999, "close": c, "volume": 1.0})
+    dfs = {"BTCUSDT": mk(0.02), "ETHUSDT": mk(0.01), "SOLUSDT": mk(-0.01, start=200)}
+    peers = lab.peer_table(dfs)
+    assert list(peers.columns) == ["BTCUSDT", "ETHUSDT", "SOLUSDT"] and len(peers) == n
+    rank = {s: lab.indicators(df, s, peers)["rank_ret"](30) for s, df in dfs.items()}
+    k = n - 1                                   # ultima candela: tutte e tre presenti da tempo
+    assert rank["BTCUSDT"][k] == 1 and rank["ETHUSDT"][k] == 0 and rank["SOLUSDT"][-1] == -1
+    assert rank["BTCUSDT"][100] == 0            # SOL non c'è ancora: nessun segnale
+    assert (rank["BTCUSDT"][200 + 30:] == 1).all() and (rank["SOLUSDT"][30:] == -1).all()
+    # senza le altre coin nessun segnale (es. prova su carta di una sola coin)
+    assert (lab.indicators(dfs["BTCUSDT"], "BTCUSDT", None)["rank_ret"](30) == 0).all()
+    spec = ls.STRATEGIES["relstrength30"]
+    long_trades = lab.simulate(dfs["BTCUSDT"], "1d", "BTCUSDT", spec, peers=peers)
+    short_trades = lab.simulate(dfs["SOLUSDT"], "1d", "SOLUSDT", spec, peers=peers)
+    assert long_trades and all(t["dir"] == 1 for t in long_trades) and short_trades and all(t["dir"] == -1 for t in short_trades)
+    assert lab.simulate(dfs["ETHUSDT"], "1d", "ETHUSDT", spec, peers=peers) == []
+
+
 def test_prove_multiple():
     # con 1 prova p=0.04 passa (soglia 0.10); con 40 prove registrate no; i p molto piccoli passano comunque
     assert lab.benjamini_hochberg({"a": 0.04}, 1) == {"a"}
@@ -187,14 +213,14 @@ def test_strategie_registrate_girano():
     df = pd.DataFrame({"time": pd.to_datetime([T0 + i * D for i in range(n)], unit="s", utc=True), "open": o,
                        "high": np.maximum(o, c) * 1.004, "low": np.minimum(o, c) * 0.996, "close": c, "volume": rng.lognormal(0, 1.2, n)})
     x = lab.indicators(df)
-    assert len(ls.STRATEGIES) >= 16
+    assert len(ls.STRATEGIES) >= 19
     for name, spec in ls.STRATEGIES.items():
         sig = np.asarray(spec["fn"](x))
         assert len(sig) == n and set(np.unique(sig)) <= {-1, 0, 1}, name
         assert set(spec["exit"]) == {"stop_atr", "target_atr", "trail_atr", "max_hold", "channel_exit"}, name
         assert spec["tfs"] is None or set(spec["tfs"]) <= {"1d", "4h", "1h"}, name
         trades = lab.simulate(df, "1d", "BTCUSDT", spec)
-        assert trades, name                                                  # ogni regola scatta almeno una volta
+        assert trades or spec["family"] == "forza relativa", name           # ogni regola scatta (la forza relativa ha il suo test)
         assert all(t["t"] >= T0 + W * D and t["bars"] >= 1 and t["bars"] <= spec["exit"]["max_hold"] for t in trades), name
     # nessuna strategia guarda avanti: i segnali fino alla candela k non cambiano se si tolgono le candele successive
     k = 900

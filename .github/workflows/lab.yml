@@ -44,8 +44,8 @@ jobs:
       # Periodo breve, tutto prima dei mesi sigillati: qui si prova solo che il percorso funzioni
       - name: Laboratorio su un periodo breve
         run: |
-          python strategy_lab.py --start 2023-06-01 --symbols BTCUSDT SOLUSDT --tfs 1d 4h --no-registry | head -n 60
-          python -c "import json; s=json.load(open('lab_summary.json')); r=s['results']; assert len(r) >= 32 and all('excess_avg_pct' in x for x in r.values() if x['n']), len(r); print(len(r), 'prove,', sum(x['n'] for x in r.values()), 'trade, funding reale:', sorted({x.get('funding_real_share_pct') for x in r.values()}))"
+          python strategy_lab.py --start 2023-06-01 --symbols BTCUSDT ETHUSDT SOLUSDT --tfs 1d --no-registry | head -n 60
+          python -c "import json; s=json.load(open('lab_summary.json')); r=s['results']; assert len(r) >= 18 and any(x['strategy'] == 'relstrength30' and x['n'] > 0 for x in r.values()) and all('excess_avg_pct' in x for x in r.values() if x['n']), len(r); print(len(r), 'prove,', sum(x['n'] for x in r.values()), 'trade, funding reale:', sorted({x.get('funding_real_share_pct') for x in r.values()}))"
           test ! -f lab_registry.json || git diff --exit-code lab_registry.json
 
   run:
