@@ -61,9 +61,9 @@ async function dispatch(env, fetchFn, workflow, inputs) {
 }
 
 export async function trigger(body, env, fetchFn) {
-    const { symbol = 'ALL', timeframe = 'ALL' } = body || {};
-    if (!SYMBOLS.includes(symbol) || !TIMEFRAMES.includes(timeframe)) return json(400, { error: 'Parametri non validi' });
-    return dispatch(env, fetchFn, 'bot.yml', { symbol, timeframe });
+    const { symbol = 'ALL', timeframe = 'ALL', force = 'true' } = body || {};
+    if (!SYMBOLS.includes(symbol) || !TIMEFRAMES.includes(timeframe) || !['true', 'false'].includes(force)) return json(400, { error: 'Parametri non validi' });
+    return dispatch(env, fetchFn, 'bot.yml', { symbol, timeframe, force });
 }
 
 // Ogni comando ammesso, con i soli parametri che può ricevere

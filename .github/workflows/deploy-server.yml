@@ -1,13 +1,14 @@
 name: Pubblica server comandi
 
 # Pubblica il server comandi (worker/index.js + api/_core.js) su Cloudflare Workers, gratis.
+# Il worker fa anche da orologio: avvia il bot ogni 30 minuti in modo puntuale.
 # Parte da solo quando cambiano quei file su main, oppure a mano.
 #
 # Da fare una volta sola (Settings -> Secrets and variables -> Actions -> New repository secret):
 #   CLOUDFLARE_API_TOKEN   token Cloudflare con permesso "Edit Cloudflare Workers"
 #   CLOUDFLARE_ACCOUNT_ID  ID dell'account Cloudflare
-#   APP_SECRET             chiave che l'app userà per i comandi (inventala lunga)
 #   SERVER_GH_TOKEN        token GitHub (fine-grained) solo su questo repository, permesso "Actions: Read and write"
+#   APP_SECRET             facoltativo: solo se vuoi mandare i comandi dell'app dal server invece che dal token sul telefono
 #   GROQ_API_KEY           facoltativo, per l'analisi AI
 # Senza questi segreti il workflow si ferma subito e spiega cosa manca, senza errori rossi.
 on:
@@ -39,7 +40,6 @@ jobs:
           missing=""
           [ -n "$CF_TOKEN" ] || missing="$missing CLOUDFLARE_API_TOKEN"
           [ -n "$CF_ACCOUNT" ] || missing="$missing CLOUDFLARE_ACCOUNT_ID"
-          [ -n "$APP_SECRET" ] || missing="$missing APP_SECRET"
           [ -n "$GH_TOKEN_S" ] || missing="$missing SERVER_GH_TOKEN"
           if [ -n "$missing" ]; then
             echo "Segreti mancanti:$missing. Server non pubblicato." | tee -a "$GITHUB_STEP_SUMMARY"
@@ -64,8 +64,9 @@ jobs:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
           npx --yes wrangler@3.114.0 deploy 2>&1 | tee deploy.log
-          printf '%s' "$APP_SECRET" | npx --yes wrangler@3.114.0 secret put APP_SECRET
+          if [ -n "$APP_SECRET" ]; then printf '%s' "$APP_SECRET" | npx --yes wrangler@3.114.0 secret put APP_SECRET; fi
           printf '%s' "$GH_TOKEN_S" | npx --yes wrangler@3.114.0 secret put GH_TOKEN
           if [ -n "$GROQ_API_KEY" ]; then printf '%s' "$GROQ_API_KEY" | npx --yes wrangler@3.114.0 secret put GROQ_API_KEY; fi
           url=$(grep -o 'https://[a-z0-9.-]*workers.dev' deploy.log | head -n 1)
-          echo "Server comandi pubblicato: ${url:-vedi il log}. Inseriscilo nell'app: Home -> Impostazioni -> Server comandi." | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "Server pubblicato: ${url:-vedi il log}. Da ora il bot parte ogni 30 minuti da Cloudflare." | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ -n "$APP_SECRET" ]; then echo "Comandi dal server attivi: indirizzo da inserire in Impostazioni -> Comandi." | tee -a "$GITHUB_STEP_SUMMARY"; fi

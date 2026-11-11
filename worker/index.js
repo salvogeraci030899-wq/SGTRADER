@@ -1,4 +1,6 @@
 // Server comandi su Cloudflare Workers (gratuito: 100.000 richieste al giorno).
+// Fa anche da orologio del bot: GitHub esegue lo schedule "quando può" (anche con ore di ritardo),
+// il Cron Trigger di Cloudflare invece avvia il bot ogni 30 minuti (wrangler.toml).
 // Stessa logica di Vercel (api/_core.js); qui si aggiunge solo il CORS, perché l'app (GitHub Pages
 // o altro dominio) chiama il worker da un'origine diversa.
 //
@@ -7,7 +9,7 @@
 //   GH_TOKEN         token GitHub che può avviare i workflow del repository
 //   GROQ_API_KEY     facoltativa, per l'analisi AI
 //   ALLOWED_ORIGINS  origini ammesse, separate da virgola
-import { handle } from '../api/_core.js';
+import { handle, trigger } from '../api/_core.js';
 
 const DEFAULT_ORIGINS = 'https://salvogeraci030899-wq.github.io,https://sgtrader.vercel.app';
 
@@ -24,7 +26,17 @@ function cors(request, env) {
     return h;
 }
 
+// Avvio programmato del bot (stesso comando di "Aggiorna" nell'app, per tutte le coppie)
+export async function scheduled(env, fetchFn = fetch) {
+    const r = await trigger({ symbol: 'ALL', timeframe: 'ALL', force: 'false' }, env, fetchFn);
+    if (r.status !== 200) console.log('Avvio programmato del bot fallito:', JSON.stringify(r.body));
+    return r;
+}
+
 export default {
+    async scheduled(event, env, ctx) {
+        ctx.waitUntil(scheduled(env));
+    },
     async fetch(request, env) {
         const headersOut = cors(request, env);
         if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: headersOut });

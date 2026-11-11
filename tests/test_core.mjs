@@ -1,7 +1,7 @@
 // Test del server comandi (api/_core.js e worker/index.js). Eseguibile con: node tests/test_core.mjs
 import assert from 'node:assert/strict';
 import { handle, safeEqual } from '../api/_core.js';
-import worker from '../worker/index.js';
+import worker, { scheduled } from '../worker/index.js';
 
 const env = { APP_SECRET: 'segreto-lungo', GH_TOKEN: 'tok', GH_REPO: 'io/repo', GH_REF: 'main', GROQ_API_KEY: 'g' };
 const calls = [];
@@ -87,7 +87,7 @@ test('trigger e analisi', async () => {
     calls.length = 0;
     let r = await handle('POST', '/api/trigger', { symbol: 'ETHUSDT', timeframe: '4h' }, ok, env, fakeFetch);
     assert.equal(r.status, 200);
-    assert.deepEqual(calls[0].body.inputs, { symbol: 'ETHUSDT', timeframe: '4h' });
+    assert.deepEqual(calls[0].body.inputs, { symbol: 'ETHUSDT', timeframe: '4h', force: 'true' });
     assert.equal((await handle('POST', '/api/trigger', { symbol: 'DOGE' }, ok, env, fakeFetch)).status, 400);
     r = await handle('POST', '/api/analyze', { symbol: 'BTCUSDT', timeframe: '1d', type: 'LONG', entry: '1e5', ai_plan: { bias: 'LONG' } }, ok, env, fakeFetch);
     assert.equal(r.status, 200);
@@ -112,6 +112,18 @@ test('worker: CORS solo per le origini ammesse', async () => {
     } finally {
         globalThis.fetch = origFetch;
     }
+});
+
+test('orologio del bot: avvio programmato', async () => {
+    calls.length = 0;
+    const r = await scheduled({ GH_TOKEN: 'tok', GH_REPO: 'io/repo' }, fakeFetch);
+    assert.equal(r.status, 200);
+    assert.equal(calls[0].url, 'https://api.github.com/repos/io/repo/actions/workflows/bot.yml/dispatches');
+    assert.deepEqual(calls[0].body, { ref: 'main', inputs: { symbol: 'ALL', timeframe: 'ALL', force: 'false' } });
+    // senza token: nessuna chiamata, errore registrato
+    calls.length = 0;
+    assert.equal((await scheduled({}, fakeFetch)).status, 500);
+    assert.equal(calls.length, 0);
 });
 
 let failed = 0;
