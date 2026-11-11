@@ -6,10 +6,10 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: 'close, tp, sl o clear'
+        description: 'close, tp, sl, clear o refresh (solo rilettura del conto)'
         required: true
         type: choice
-        options: [close, tp, sl, clear]
+        options: [close, tp, sl, clear, refresh]
       symbol:
         required: true
         type: choice
@@ -26,6 +26,11 @@ on:
         description: "codice della richiesta dell'app (per mostrarne l'esito)"
         required: false
         default: ''
+
+# un comando alla volta; le riletture del conto in coda non servono, ne basta l'ultima
+concurrency:
+  group: position-${{ inputs.action == 'refresh' && 'refresh' || 'cmd' }}
+  cancel-in-progress: false
 
 permissions:
   contents: write
