@@ -106,7 +106,9 @@ export function fmtDateTime(ts) {
 }
 
 export const fmtUsd = v => '$' + Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-export const fmtUsdt = v => Number(v).toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' USDT';
+// Formato italiano con il punto delle migliaia sempre presente (Intl lo omette sotto 10.000)
+export const fmtIt = (v, d = 2) => { const n = Number(v); const [i, f] = Math.abs(n).toFixed(d).split('.'); return (n < 0 ? '-' : '') + i.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + (d > 0 ? ',' + f : ''); };
+export const fmtUsdt = v => fmtIt(v) + ' USDT';
 
 export function calcEMA(closes, period) { 
     if (closes.length < period) return closes[closes.length - 1]; 

@@ -306,8 +306,12 @@ def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
         now = now or datetime.now(timezone.utc)
         try:
             client = client or BitgetClient.from_env()
+            pos = client.positions()
             account = {"connected": True, "demo": bool(client.demo), "equity": round(float(client.equity()), 2),
-                       "positions": len(client.positions())}
+                       "positions": len(pos),
+                       "positions_detail": [{"symbol": sym, **{k: (round(v, 6) if isinstance(v, float) else v) for k, v in p.items()}}
+                                            for sym, p in sorted(pos.items())],
+                       "upl": round(sum((p.get("upl") or 0) for p in pos.values()), 2)}
             account.update(_spot_value(client))
             account["total_usdt"] = round(account["equity"] + (account.get("spot_usdt") or 0), 2)
             # Tutti i conti (anche Earn, Funding, bot): se Bitget li dà, il totale è la loro somma
@@ -324,6 +328,14 @@ def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
         account["checked_at"] = now.isoformat(timespec="seconds")
     state = _load(state_path)
     previous = state.get("account") or {}
+    # Variazione di oggi: patrimonio totale rispetto alla prima lettura del giorno (UTC). Comprende
+    # anche depositi e prelievi del giorno: nell'app è indicata come "variazione", non come guadagno.
+    if account.get("connected") and account.get("total_usdt") is not None:
+        today = (now or datetime.now(timezone.utc)).strftime("%Y-%m-%d")
+        same_day = previous.get("day") == today and previous.get("day_start_total") is not None
+        account["day"] = today
+        account["day_start_total"] = previous["day_start_total"] if same_day else account["total_usdt"]
+        account["day_change"] = round(account["total_usdt"] - account["day_start_total"], 2)
     if notify and keys and previous.get("connected") and not account["connected"]:
         notify(f"⚠️ Bitget non risponde alla lettura del conto: {account.get('reason')}. "
                "Se la chiave è scaduta, creane una nuova e aggiorna i segreti BITGET_*.")

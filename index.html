@@ -30,34 +30,34 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=83">
-    <meta name="app-version" content="83">
+    <link rel="stylesheet" href="./style.css?v=84">
+    <meta name="app-version" content="84">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=83",
-            "./src/core/commands.js": "./src/core/commands.js?v=83",
-            "./src/core/config.js": "./src/core/config.js?v=83",
-            "./src/core/logger.js": "./src/core/logger.js?v=83",
-            "./src/core/state.js": "./src/core/state.js?v=83",
-            "./src/main.js": "./src/main.js?v=83",
-            "./src/ui/account.js": "./src/ui/account.js?v=83",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=83",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=83",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=83",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=83",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=83",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=83",
-            "./src/ui/home.js": "./src/ui/home.js?v=83",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=83",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=83",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=83",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=83",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=83",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=83",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=83",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=83"
+            "./src/core/backup.js": "./src/core/backup.js?v=84",
+            "./src/core/commands.js": "./src/core/commands.js?v=84",
+            "./src/core/config.js": "./src/core/config.js?v=84",
+            "./src/core/logger.js": "./src/core/logger.js?v=84",
+            "./src/core/state.js": "./src/core/state.js?v=84",
+            "./src/main.js": "./src/main.js?v=84",
+            "./src/ui/account.js": "./src/ui/account.js?v=84",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=84",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=84",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=84",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=84",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=84",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=84",
+            "./src/ui/home.js": "./src/ui/home.js?v=84",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=84",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=84",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=84",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=84",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=84",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=84",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=84",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=84"
         }
     }
     </script>
@@ -91,9 +91,9 @@
 
                 <!-- 2. Conto simulato (posizioni aperte a mano dall'app) -->
                 <div class="home-card clickable" onclick="switchTab('trade')">
-                    <div class="home-card-header"><span>Conto simulato</span><span class="home-card-link">Posizioni ›</span></div>
+                    <div class="home-card-header"><span id="homeAccTitle">Conto simulato</span><span class="home-card-link">Posizioni ›</span></div>
                     <div class="home-kpis">
-                        <div class="home-kpi"><span class="home-kpi-label">PnL oggi</span><span class="home-kpi-value" id="homePnlToday">—</span></div>
+                        <div class="home-kpi"><span class="home-kpi-label" id="homePnlLabel">PnL oggi</span><span class="home-kpi-value" id="homePnlToday">—</span></div>
                         <div class="home-kpi"><span class="home-kpi-label">Aperte</span><span class="home-kpi-value" id="homeOpenCount">0</span></div>
                         <div class="home-kpi"><span class="home-kpi-label">PnL aperto</span><span class="home-kpi-value" id="homeOpenPnl">—</span></div>
                     </div>
@@ -234,6 +234,18 @@
                 <button class="pill-btn" onclick="setTF('1h')" id="btn-1h">1H</button>
             </div>
             <div class="chart-container" id="mainChartContainer">
+                <!-- barra visibile solo a schermo intero: stessa della Home -->
+                <div class="home-chart-header chart-fs-header">
+                    <button class="home-chart-fullscreen" onclick="toggleFullscreenChart()" title="Chiudi">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+                    </button>
+                    <span class="home-chart-symbol" id="fsChartSymbol">BTC / USDT</span>
+                    <div class="home-chart-tf-bar" id="fsChartTf">
+                        <button class="home-tf-btn active" data-tf="1d" onclick="setTF('1d')">1D</button>
+                        <button class="home-tf-btn" data-tf="4h" onclick="setTF('4h')">4H</button>
+                        <button class="home-tf-btn" data-tf="1h" onclick="setTF('1h')">1H</button>
+                    </div>
+                </div>
                 <div id="chart"></div>
                 <button class="btn-fullscreen" id="btnFullscreen" onclick="toggleFullscreenChart()" title="Schermo Intero">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
@@ -396,12 +408,12 @@
             <div class="header-row">
                 <div class="header-title">
                     <h1>Posizioni</h1>
-                    <p>Trade aperti</p>
+                    <p id="tradeSubtitle">Trade simulati</p>
                 </div>
                 <div class="text-right">
                     <div class="capital-label">
-                        Capitale Libero
-                        <button class="capital-edit-btn" onclick="openCapitalModal()" title="Modifica">
+                        <span id="capitalLabel">Capitale Libero</span>
+                        <button class="capital-edit-btn" id="capitalEditBtn" onclick="openCapitalModal()" title="Modifica">
                             <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                         </button>
                     </div>
@@ -1008,7 +1020,7 @@
 <!-- ==================== MODALI ==================== -->
 <div class="modal-overlay" id="deleteModal"><div class="modal-box"><h3 id="modalTitle">Elimina Trade?</h3><p id="modalText">Sei sicuro?</p><div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Annulla</button><button class="btn-confirm" id="modalConfirmBtn" onclick="confirmDelete()">Elimina</button></div></div></div>
 <div class="modal-overlay" id="closeTradeModal"><div class="modal-box"><h3>Chiudi Posizione?</h3><p>Sei sicuro di voler chiudere questo trade al prezzo attuale di mercato?</p><div class="modal-actions"><button class="btn-cancel" onclick="closeCloseTradeModal()">Annulla</button><button class="btn-confirm" onclick="executeCloseTrade()">Conferma Chiusura</button></div></div></div>
-<div class="modal-overlay" id="capitalModal"><div class="modal-box"><h3>Modifica Capitale</h3><p style="margin-bottom:12px;">Aggiungi fondi (deposito) o inserisci un numero negativo per prelevare.</p><div style="margin-bottom:14px; text-align:left;"><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; margin-bottom:4px; display:block;">Importo (USDT)</label><input type="number" id="capitalChangeInput" placeholder="es. 500 o -200" style="width:100%; background:#000; border:1px solid var(--border); color:var(--text); padding:12px; border-radius:10px; font-size:16px; font-family:var(--mono);"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeCapitalModal()">Annulla</button><button class="btn-confirm" style="background:var(--accent);" onclick="applyCapitalChange()">Applica</button></div></div></div>
+<div class="modal-overlay" id="capitalModal"><div class="modal-box"><h3>Capitale simulato</h3><p style="margin-bottom:12px;">Scegli + per depositare o − per prelevare, poi l'importo.</p><input type="hidden" id="capitalSign" value="+"><div class="cap-sign" id="capitalSignToggle"><button type="button" data-sign="+" class="active" onclick="setCapitalSign('+')">+ Deposita</button><button type="button" data-sign="-" onclick="setCapitalSign('-')">− Preleva</button></div><div style="margin-bottom:14px; text-align:left;"><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; margin-bottom:4px; display:block;">Importo (USDT)</label><input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" id="capitalChangeInput" placeholder="es. 500" style="width:100%; background:#000; border:1px solid var(--border); color:var(--text); padding:12px; border-radius:10px; font-size:16px; font-family:var(--mono);"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeCapitalModal()">Annulla</button><button class="btn-confirm" style="background:var(--accent);" onclick="applyCapitalChange()">Applica</button></div></div></div>
 <div class="modal-overlay" id="alertModal"><div class="modal-box"><h3 id="alertTitle">Attenzione</h3><p id="alertMessage">Messaggio</p><div class="modal-actions"><button class="btn-confirm" style="background:var(--surface-hover); color:var(--text);" onclick="closeAlert()">OK</button></div></div></div>
 <div class="modal-overlay" id="forceTradeModal"><div class="modal-box"><h3 style="color: var(--warning);">Trade Bloccato</h3><p id="forceTradeReason" style="margin-bottom: 20px;">Motivo del blocco</p><div class="modal-actions"><button class="btn-cancel" onclick="closeForceTradeModal()">Annulla</button><button class="btn-confirm" style="background: var(--warning); color: #000;" onclick="confirmForceTrade()">Esegui comunque</button></div></div></div>
 <div class="modal-overlay" id="resetModal"><div class="modal-box"><h3 style="color: var(--danger);">Reset Diario</h3><p>Sei sicuro di voler resettare il diario? Tutti i trade attivi e lo storico verranno eliminati definitivamente.</p><div class="modal-actions"><button class="btn-cancel" onclick="closeResetModal()">Annulla</button><button class="btn-confirm" style="background: var(--danger); color: #fff;" onclick="executeReset()">Reset</button></div></div></div>
@@ -1060,6 +1072,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=83"></script>
+<script type="module" src="./src/main.js?v=84"></script>
 </body>
 </html>

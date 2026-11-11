@@ -44,18 +44,27 @@ function initChart() {
 }
 
 // --- CHART ACTIONS ---
+// Barra dello schermo intero: coin e timeframe correnti (stessa grafica del grafico della Home)
+function syncFsHeader() {
+    const sym = document.getElementById('fsChartSymbol');
+    if (sym) sym.textContent = `${State.currentAsset.replace('USDT', '')} / USDT`;
+    document.querySelectorAll('#fsChartTf .home-tf-btn').forEach(b => b.classList.toggle('active', b.dataset.tf === State.currentTF));
+}
+
 export function toggleFullscreenChart() {
+    syncFsHeader();
     const isFullscreen = mainChartContainer.classList.toggle('fullscreen');
     document.body.classList.toggle('chart-fullscreen', isFullscreen);
     const btn = document.getElementById('btnFullscreen');
     if (isFullscreen) btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>`;
     else btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>`;
-    setTimeout(() => {
+    // due passaggi: iOS assesta le misure dopo il primo frame
+    [50, 300].forEach(ms => setTimeout(() => {
         if (chartHandle) {
             chartHandle.resize();
             chartHandle.fitContent();
         }
-    }, 50);
+    }, ms));
 }
 
 export async function takeSnapshot(btn) {
@@ -456,6 +465,7 @@ export function setAsset(asset) {
     State.lastHeaderPrice = null;
     ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'].forEach(a => document.getElementById(`btn-${a}`).classList.toggle('active', a === asset));
     document.getElementById('current-asset-label').textContent = `${asset.replace('USDT', '')} / USDT · ${getTFLabel(State.currentTF)}`;
+    syncFsHeader();
     updateChart();
     pollPrices();
     loadTechData();
@@ -465,6 +475,7 @@ export function setTF(tf) {
     State.currentTF = tf;
     ['1d', '4h', '1h'].forEach(t => document.getElementById(`btn-${t}`).classList.toggle('active', t === tf));
     document.getElementById('current-asset-label').textContent = `${State.currentAsset.replace('USDT', '')} / USDT · ${getTFLabel(tf)}`;
+    syncFsHeader();
     updateChart();
     loadTechData();
 }

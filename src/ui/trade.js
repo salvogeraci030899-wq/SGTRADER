@@ -5,15 +5,65 @@ import { $, SYM, fetchT, apiPost, escapeHtml, fmtDateTime, fmtUsdt, calcPnl } fr
 import * as Terminal from './terminal.js';
 import * as Calculator from './calculator.js';
 import * as AI from './ai.js';
+import { tradingMode } from './account.js';
+import { getAutoState } from './automation.js';
 
 export function initTrade() {
     // Inizializzazione modali, listener locali se ci saranno
 }
 
+// In modalità Reale la pagina mostra il conto Bitget (letto dal bot): saldo non modificabile e
+// posizioni vere in sola lettura. I trade simulati restano salvati e tornano visibili in Simulato.
+export const isReal = () => tradingMode().mode === 'on';
+const bitgetAccount = () => { const st = getAutoState(); return st.live && st.live.account; };
+
 export function refreshCapitalUI() {
     const el = document.getElementById('simCapitalDisplay');
-    if (el) el.textContent = fmtUsdt(State.simState.freeBalance);
+    const real = isReal(), acc = bitgetAccount();
+    const total = acc && acc.connected ? (acc.total_usdt != null ? acc.total_usdt : acc.equity) : null;
+    if (el) el.textContent = real ? (total != null ? fmtUsdt(total) : '—') : fmtUsdt(State.simState.freeBalance);
+    const lbl = document.getElementById('capitalLabel'), btn = document.getElementById('capitalEditBtn'), sub = document.getElementById('tradeSubtitle');
+    if (lbl) lbl.textContent = real ? 'Saldo Bitget' : 'Capitale Libero';
+    if (btn) btn.style.display = real ? 'none' : '';
+    if (sub) sub.textContent = real ? 'Bitget · reale' : 'Trade simulati';
     Calculator.syncCapital();
+}
+
+function renderRealPositions(el) {
+    const acc = bitgetAccount();
+    const list = (acc && acc.positions_detail) || [];
+    const sig = `real|${acc && acc.checked_at}|${list.length}|${State.simState.activeTrades.length}`;
+    if (sig === State.atSig) return;
+    State.atSig = sig;
+    const hidden = State.simState.activeTrades.length;
+    const note = `<div class="at-real-note">Lette da Bitget dal bot ogni 30 minuti${acc && acc.checked_at ? ` (ultima: ${new Date(acc.checked_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })})` : ''}. Le chiude l'esecutore o l'Emergenza.${hidden ? ` ${hidden} trade simulati nascosti: tornano in Simulato.` : ''}</div>`;
+    if (!acc || !acc.connected) {
+        el.classList.add('empty');
+        el.innerHTML = `<div class="at-empty">Conto Bitget non letto.${note}</div>`;
+    } else if (!list.length) {
+        el.classList.add('empty');
+        el.innerHTML = `<div class="at-empty">Nessuna posizione aperta su Bitget.${note}</div>`;
+    } else {
+        el.classList.remove('empty');
+        const n = (v, d = 2) => (v == null ? '—' : Number(v).toLocaleString('it-IT', { minimumFractionDigits: d, maximumFractionDigits: d }));
+        el.innerHTML = list.map(p => `
+            <div class="active-trade-card at-real">
+                <div class="at-header"><div class="at-title">
+                    <span class="at-coin">${SYM(p.symbol)} ${String(p.side || '').toUpperCase()}</span>
+                    <span class="at-market futures">FUTURES</span>${p.leverage ? `<span class="at-lev">${n(p.leverage, 0)}x</span>` : ''}
+                </div></div>
+                <div class="at-body">
+                    <div class="at-item"><span class="at-lbl">Entry</span><span class="at-val">${n(p.entry)}</span></div>
+                    <div class="at-item"><span class="at-lbl">Mark</span><span class="at-val">${n(p.mark)}</span></div>
+                    <div class="at-item"><span class="at-lbl">Quantità</span><span class="at-val">${n(p.size, 4)}</span></div>
+                    <div class="at-item"><span class="at-lbl">Margine</span><span class="at-val">${n(p.margin)}</span></div>
+                    <div class="at-item"><span class="at-lbl">Liquidazione</span><span class="at-val red">${n(p.liq)}</span></div>
+                    <div class="at-item"><span class="at-lbl">PnL aperto</span><span class="at-val" style="color:${(p.upl || 0) >= 0 ? 'var(--accent)' : 'var(--danger)'}">${p.upl == null ? '—' : (p.upl >= 0 ? '+' : '') + n(p.upl)}</span></div>
+                </div>
+                ${note}
+            </div>`).join('');
+    }
+    renderActiveTradeDots();
 }
 
 export function startTimer() {
@@ -114,6 +164,7 @@ export function closeTrade(id, reason = 'MANUALE', exitPrice = 0, when = 0) {
 export function renderActiveTrades() {
     const el = document.getElementById('activeTradesList');
     if (!el) return;
+    if (isReal()) { renderRealPositions(el); return; }
     const sig = State.simState.activeTrades.map(t => `${t.id}|${t.granularity || ''}|${t.margin ?? ''}|${t.market || ''}|${t.leverage || ''}`).join(',');
     
     if (sig !== State.atSig) {
@@ -192,11 +243,27 @@ export function openCloseTradeModal(id) { State.tradeToCloseId = id; document.ge
 export function closeCloseTradeModal() { State.tradeToCloseId = null; document.getElementById('closeTradeModal').classList.remove('active'); }
 export function executeCloseTrade() { if (State.tradeToCloseId) { closeTrade(State.tradeToCloseId, 'MANUALE', 0); closeCloseTradeModal(); } }
 
-export function openCapitalModal() { document.getElementById('capitalChangeInput').value = ''; document.getElementById('capitalModal').classList.add('active'); }
+export function openCapitalModal() {
+    if (isReal()) {
+        if (window.showAlert) window.showAlert('Conto reale', 'In Reale il capitale è il saldo di Bitget: si cambia solo depositando o prelevando su Bitget.');
+        return;
+    }
+    document.getElementById('capitalChangeInput').value = '';
+    setCapitalSign('+');
+    document.getElementById('capitalModal').classList.add('active');
+    setTimeout(() => document.getElementById('capitalChangeInput').focus(), 150);
+}
+
+// Deposita (+) o preleva (−): l'importo si scrive sempre positivo con la tastiera numerica
+export function setCapitalSign(sign) {
+    document.getElementById('capitalSign').value = sign;
+    document.querySelectorAll('#capitalSignToggle button').forEach(b => b.classList.toggle('active', b.dataset.sign === sign));
+}
 export function closeCapitalModal() { document.getElementById('capitalModal').classList.remove('active'); }
 
 export function applyCapitalChange() {
-    const change = parseFloat(document.getElementById('capitalChangeInput').value);
+    const amount = parseFloat(String(document.getElementById('capitalChangeInput').value).replace(',', '.'));
+    const change = (document.getElementById('capitalSign').value === '-' ? -1 : 1) * Math.abs(amount);
     if (isNaN(change) || change === 0) { if (window.showAlert) window.showAlert('Errore', 'Importo non valido.'); return; }
     if (State.simState.freeBalance + change < 0) { if (window.showAlert) window.showAlert('Errore', 'Il capitale non può scendere sotto 0.'); return; }
     State.simState.initialAccountBalance += change;

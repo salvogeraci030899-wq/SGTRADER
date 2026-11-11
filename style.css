@@ -171,7 +171,8 @@ main {
 
 /* --- CHART --- */
 .chart-container { flex: 1; min-height: 150px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; position: relative; margin-bottom: 8px; }
-#chart { width: 100%; height: 100%; }
+#chart { width: 100%; height: 100%; min-width: 0; overflow: hidden; }
+.chart-fs-header { display: none; }
 
 .btn-fullscreen { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); border: 1px solid var(--border); color: var(--text-secondary); width: var(--touch-min); height: var(--touch-min); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
 .btn-fullscreen:active { background: rgba(0,0,0,0.9); color: #fff; }
@@ -180,9 +181,22 @@ main {
 .btn-snapshot-overlay:active { background: rgba(0,0,0,0.9); color: #fff; }
 .btn-snapshot-overlay:disabled { opacity: 0.5; }
 
-.chart-container.fullscreen { position: fixed; top: 0; left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0px); width: 100vw; height: auto; z-index: 3000; border-radius: 0; border: none; margin: 0; padding-top: env(safe-area-inset-top, 0px); box-sizing: border-box; }
-.chart-container.fullscreen .btn-fullscreen { top: calc(env(safe-area-inset-top, 0px) + 10px); }
-.chart-container.fullscreen .btn-snapshot-overlay { bottom: 30px; }
+/* Schermo intero (Grafici e Home, stessa grafica): barra in alto con chiudi, coin e timeframe,
+   grafico sotto a tutta altezza; rispetta le aree sicure anche in orizzontale */
+.chart-container.fullscreen,
+.home-chart-item.fullscreen { position: fixed; inset: 0; width: auto; height: auto; max-width: none; z-index: 3000; border-radius: 0; border: none; margin: 0;
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+    box-sizing: border-box; background: var(--surface); display: flex; flex-direction: column; }
+.chart-container.fullscreen .chart-fs-header,
+.home-chart-item.fullscreen .home-chart-header { display: flex; position: static; align-items: center; justify-content: flex-start; gap: 10px; padding: 10px 12px; margin: 0; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.chart-container.fullscreen .home-chart-symbol,
+.home-chart-item.fullscreen .home-chart-symbol { display: block !important; flex: 1; font-size: 15px; }
+.chart-container.fullscreen .home-chart-tf-bar,
+.home-chart-item.fullscreen .home-chart-tf-bar { display: flex !important; }
+.chart-container.fullscreen #chart,
+.home-chart-item.fullscreen .home-chart-canvas { flex: 1; width: 100%; height: auto; min-height: 0; }
+.chart-container.fullscreen .btn-fullscreen { display: none; }
+.chart-container.fullscreen .btn-snapshot-overlay { bottom: calc(env(safe-area-inset-bottom, 0px) + 30px); left: calc(env(safe-area-inset-left, 0px) + 10px); }
 
 body.chart-fullscreen .header-row, body.chart-fullscreen .asset-bar, body.chart-fullscreen .tf-bar, body.chart-fullscreen .last-update-bar, body.chart-fullscreen .dashboard-carousel-container, body.chart-fullscreen .controls-row, body.chart-fullscreen .nav-bar { display: none !important; }
 body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { visibility: hidden; }
@@ -672,14 +686,14 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .home-charts-list { flex: 1; min-height: 0; display: flex; flex-direction: row; gap: 10px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
 .home-charts-list::-webkit-scrollbar { display: none; }
 
-.home-chart-item { flex: 0 0 100%; scroll-snap-align: start; scroll-snap-stop: always; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; position: relative; }
+.home-chart-item { flex: 0 0 100%; min-width: 0; max-width: 100%; scroll-snap-align: start; scroll-snap-stop: always; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; position: relative; }
 .home-chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-shrink: 0; gap: 8px; }
 .home-chart-symbol { font-size: 13px; font-weight: 800; color: var(--text); letter-spacing: 0.5px; flex: 1; }
 .home-chart-tf-bar { display: flex; gap: 4px; flex-shrink: 0; }
 .home-tf-btn { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); border-radius: 6px; padding: 6px 10px; min-height: 32px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
 .home-tf-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
-.home-chart-canvas { flex: 1; width: 100%; min-height: 0; position: relative; }
+.home-chart-canvas { flex: 1; width: 100%; min-height: 0; min-width: 0; position: relative; overflow: hidden; }
 .home-chart-fullscreen { position: static; background: rgba(0,0,0,0.6); border: 1px solid var(--border); width: var(--touch-min); height: var(--touch-min); border-radius: 8px; color: var(--text-secondary); cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); flex-shrink: 0; }
 .home-chart-fullscreen:active { background: rgba(0,0,0,0.9); color: #fff; }
 
@@ -687,11 +701,6 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .home-chart-dots .info-dot { width: 6px; height: 6px; }
 .home-chart-dots .info-dot.active { width: 16px; border-radius: 3px; }
 
-.home-chart-item.fullscreen { position: fixed; top: 0; left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0px); width: 100vw; height: auto; z-index: 3000; border-radius: 0; border: none; margin: 0; padding-top: env(safe-area-inset-top, 0px); box-sizing: border-box; background: var(--surface); display: flex; flex-direction: column; }
-.home-chart-item.fullscreen .home-chart-header { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 10px); left: 10px; right: 10px; margin-bottom: 0; justify-content: flex-start; z-index: 10; }
-.home-chart-item.fullscreen .home-chart-symbol,
-.home-chart-item.fullscreen .home-chart-tf-bar { display: none !important; }
-.home-chart-item.fullscreen .home-chart-canvas { flex: 1; width: 100%; height: 100%; min-height: 0; }
 
 body.chart-fullscreen #page-home > .header-row,
 body.chart-fullscreen .home-container > .home-card,
@@ -835,3 +844,14 @@ html.pwa-mode .nav-item svg { width: 22px; height: 22px; }
     #autoView .auto-item .pill-btn { min-height: 30px; padding-top: 4px; padding-bottom: 4px; }
     #autoView .auto-row-risk, #autoView #autoNote { display: none; }
 }
+
+/* Posizioni in modalità Reale (sola lettura) */
+.at-real-note { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+.at-real .at-real-note { padding: 10px 12px; background: rgba(0,0,0,0.4); border-top: 1px solid var(--border); }
+.at-real .at-body { row-gap: 14px; }
+.at-empty { color: var(--text-secondary); font-size: 12px; text-align: center; }
+/* Capitale simulato: segno + / − */
+.cap-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+.cap-sign button { background: #000; border: 1px solid var(--border); color: var(--text-secondary); border-radius: 10px; min-height: 44px; font-size: 14px; font-weight: 800; cursor: pointer; font-family: var(--font); }
+.cap-sign button.active[data-sign="+"] { border-color: rgba(48, 209, 88, 0.6); color: var(--accent); background: rgba(48, 209, 88, 0.1); }
+.cap-sign button.active[data-sign="-"] { border-color: rgba(255, 69, 58, 0.6); color: var(--danger); background: rgba(255, 69, 58, 0.1); }

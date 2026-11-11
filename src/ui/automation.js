@@ -21,6 +21,13 @@ const RISK_FIELDS = [
 ];
 export const riskCfg = () => ({ ...DEFAULT_RISK, ...((cfg && cfg.risk) || {}) });
 // Stato letto dai file pubblicati, per le pagine Account e Impostazioni
+// Pagine che cambiano tra Simulato e Reale: Account, Posizioni (saldo e lista), Home
+function onModeData() {
+    if (window.renderAccount) window.renderAccount();
+    if (window.refreshCapitalUI) window.refreshCapitalUI();
+    if (window.renderActiveTrades) window.renderActiveTrades();
+    if (window.updateHome) window.updateHome();
+}
 export const getAutoState = () => ({ cfg, ledger, lab, live, loaded, pendingTrading });
 let pendingTrading = null;   // 'on' / 'off' inviato ma non ancora visibile in automation.json
 const pending = {};   // comandi inviati ma non ancora visibili nei file pubblicati
@@ -70,7 +77,7 @@ export async function loadAutomation() {
     for (const [key, mode] of Object.entries(pending)) if (currentMode(key, true) === mode) delete pending[key];
     if (pendingTrading && (pendingTrading === 'on') === !!riskCfg().trading_enabled) pendingTrading = null;
     renderAutomation();
-    if (window.renderAccount) window.renderAccount();
+    onModeData();
 }
 
 function currentMode(key, ignorePending = false) {
@@ -290,7 +297,7 @@ export function setTradingMode(value) {
         const ok = await send({ type: 'trading', value }, value === 'on'
             ? 'Modalità reale inviata. Diventa attiva entro qualche minuto.'
             : 'Modalità simulata inviata: nessun nuovo ordine vero.');
-        if (ok) { pendingTrading = value; if (window.renderAccount) window.renderAccount(); setTimeout(loadAutomation, 90000); }
+        if (ok) { pendingTrading = value; onModeData(); setTimeout(loadAutomation, 90000); }
     };
     if (value === 'on') {
         const confirmed = (lab && lab.confirmed) || [];
