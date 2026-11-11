@@ -28,9 +28,6 @@ export function initTerminal() {
 function initChart() {
     if (chartHandle) chartHandle.destroy();
     chartHandle = createChart(chartContainer, {
-        bgColor: '#0a0a0a',
-        textColor: '#8e8e93',
-        gridColor: '#1c1c1e',
         showForecast: true,
         showBands: true,
         interactive: true
@@ -76,7 +73,7 @@ export async function takeSnapshot(btn) {
         if (document.fonts && document.fonts.ready) await document.fonts.ready;
         const targetEl = document.getElementById('page-terminal');
         const canvas = await html2canvas(targetEl, {
-            backgroundColor: '#000000', scale: 3, useCORS: true, allowTaint: true, logging: false,
+            backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#000000', scale: 3, useCORS: true, allowTaint: true, logging: false,
             onclone: (clonedDoc) => {
                 clonedDoc.querySelectorAll('*').forEach(el => {
                     el.style.backdropFilter = 'none';
@@ -375,7 +372,7 @@ export function updatePriceLines() {
     const lines = [];
     const activeTrade = State.simState.activeTrades.find(t => t.symbol === State.currentAsset);
     if (activeTrade) {
-        lines.push({ price: activeTrade.entryPrice, color: 'rgba(255,255,255,0.4)', lineWidth: 1, lineStyle: LightweightCharts.LineStyle.Dashed, axisLabelVisible: true, title: 'ENTRY' });
+        lines.push({ price: activeTrade.entryPrice, color: 'rgba(142,142,147,0.7)', lineWidth: 1, lineStyle: LightweightCharts.LineStyle.Dashed, axisLabelVisible: true, title: 'ENTRY' });
         lines.push({ price: activeTrade.slPrice, color: 'rgba(255,69,58,0.8)', lineWidth: 1, lineStyle: LightweightCharts.LineStyle.Dotted, axisLabelVisible: true, title: 'SL' });
         lines.push({ price: activeTrade.tpPrice, color: 'rgba(48,209,88,0.8)', lineWidth: 1, lineStyle: LightweightCharts.LineStyle.Dotted, axisLabelVisible: true, title: 'TP' });
     } else if (State.currentAIPlan && State.currentAIPlan.entry > 0 && State.currentAIPlan.stop_loss > 0 && State.currentAIPlan.take_profit > 0) {
@@ -396,7 +393,7 @@ export function updateCalcBtnUI() {
     }
     btnCalc.disabled = false;
     if (State.currentAIPlan.tradeable === false) {
-        btnCalc.style.background = 'var(--warning)'; btnCalc.style.color = '#000';
+        btnCalc.style.background = 'var(--warning)'; btnCalc.style.color = 'var(--on-accent)';
         btnCalc.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Analizza (R/R Basso)`;
     } else {
         btnCalc.style.background = ''; btnCalc.style.color = '';

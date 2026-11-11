@@ -4,6 +4,27 @@
 // e da ui/home-charts.js (candele + volume).
 
 import { Logger } from '../core/logger.js';
+import { cssVar } from '../core/theme.js';
+
+// Grafici creati: al cambio di tema (evento "sgt-theme") prendono i colori nuovi
+const ALL = new Set();
+function themeColors(transparent) {
+    return {
+        bg: transparent ? 'transparent' : (cssVar('--chart-bg') || '#0a0a0a'),
+        text: cssVar('--chart-text') || '#8e8e93',
+        grid: cssVar('--chart-grid') || '#1c1c1e'
+    };
+}
+function paint(handle) {
+    const c = themeColors(handle.transparent);
+    handle.chart.applyOptions({
+        layout: { background: { type: 'solid', color: c.bg }, textColor: c.text },
+        grid: { vertLines: { color: c.grid }, horzLines: { color: c.grid } },
+        rightPriceScale: { borderColor: c.grid },
+        timeScale: { borderColor: c.grid }
+    });
+}
+window.addEventListener('sgt-theme', () => ALL.forEach(h => { try { paint(h); } catch (e) {} }));
 
 const DEFAULTS = {
     bgColor: '#0a0a0a',
@@ -34,6 +55,8 @@ export function createChart(el, opts = {}) {
     }
 
     const cfg = { ...DEFAULTS, ...opts };
+    const theme = themeColors(cfg.bgColor === 'transparent');
+    cfg.bgColor = theme.bg; cfg.textColor = theme.text; cfg.gridColor = theme.grid;
 
     const chart = LightweightCharts.createChart(el, {
         layout: {
@@ -82,7 +105,9 @@ export function createChart(el, opts = {}) {
         lowerSeries: null,
         priceLines: [],
 
+        transparent: opts.bgColor === 'transparent',
         destroy: () => {
+            ALL.delete(handle);
             try { if (ro) ro.disconnect(); } catch (e) {}
             try { chart.remove(); } catch (e) {}
             handle.priceLines = [];
@@ -134,6 +159,7 @@ export function createChart(el, opts = {}) {
         if (w > 0 && h > 0) chart.applyOptions({ width: w, height: h });
     });
     ro.observe(el);
+    ALL.add(handle);
 
     return handle;
 }

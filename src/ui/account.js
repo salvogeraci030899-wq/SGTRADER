@@ -1,4 +1,5 @@
 import { State } from '../core/state.js';
+import { getThemePref, setThemePref } from '../core/theme.js';
 import { $, fmtUsdt, getApiBase, getGhToken, commandMode } from '../utils/helpers.js';
 import { getAutoState, riskCfg, loadAutomation, bitgetAccountText } from './automation.js';
 
@@ -88,7 +89,15 @@ export function updateModePills() {
     set('setModeVal', !m.known ? '—' : (m.mode === 'on' ? 'Reale' : 'Simulato'));
 }
 
+// Aspetto: Auto segue iOS (anche mentre l'app è aperta), Chiaro e Scuro sono fissi
+export function setTheme(pref) {
+    setThemePref(pref);
+    renderSettings();
+}
+
 export function renderSettings() {
+    const pref = getThemePref();
+    document.querySelectorAll('#themeToggle button').forEach(b => b.classList.toggle('active', b.dataset.pref === pref));
     const version = document.querySelector('meta[name="app-version"]')?.content || '—';
     set('settingsSubtitle', `SGTRADER · v${version}`);
     const mode = commandMode();
