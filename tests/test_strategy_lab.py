@@ -171,6 +171,7 @@ def test_candidate_sigillo_e_registro():
     assert s["results"][f"{names[0]}:1d"]["holdout"]["unsealed_on"] == "2026-11-12"
     md = lab.to_markdown(s)
     assert "CANDIDATA" in md and "CONFERMATA" in md and "sigillat" in md
+    assert "Candidate in attesa della prova finale: nessuna" in md and f"Confermate: {names[0]}:1d" in md   # già provata: non è più in attesa
     # una strategia instabile (positiva solo su una coin) non è candidata anche se significativa
     skew = [dict(t, gross=t["gross"] + (6.0 if t["symbol"] == "BTCUSDT" else -1.5)) for t in fake_trades(5, 0.0, n=900)]
     r = lab.build_summary({(names[0], "1d"): skew}, {}, {"holdout_start": lab.HOLDOUT_START, "trials": {}, "unsealed": {}})["results"][f"{names[0]}:1d"]
