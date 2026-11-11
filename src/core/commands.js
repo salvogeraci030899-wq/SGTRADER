@@ -1,3 +1,4 @@
+import { sanitizeAction } from './rules.js';
 // Logica comune dei comandi: la usano l'app nel browser (utils/helpers.js), Vercel (api/*.js, tramite api/_core.js)
 // e Cloudflare Workers (worker/index.js).
 // Nessuna dipendenza da Node: solo fetch e JavaScript standard.
@@ -260,10 +261,108 @@ export async function analyze(body, env, fetchFn) {
     }
 }
 
+// ---------- Assistente sulle posizioni (chat e voce) ----------
+// Risponde in breve e, se l'utente chiede qualcosa da fare, propone UNA azione strutturata scelta da
+// un elenco chiuso. L'app la ricontrolla (src/core/rules.js) e la applica solo dopo conferma.
+const ASSISTANT_SYSTEM = `Sei l'assistente di trading di SGTRADER e parli in italiano, in modo breve (massimo 60 parole).
+Ricevi i dati di UNA posizione simulata e un messaggio dell'utente. Rispondi SOLO con un oggetto JSON:
+{"reply": "testo per l'utente", "action": null oppure un'azione}
+Azioni possibili (usa SOLO queste, con questi campi):
+- {"type":"close_at_pnl","value":numero,"unit":"usdt" o "pct"}: chiudi quando il PnL netto arriva a value (negativo per una perdita massima; pct = percentuale del capitale della posizione)
+- {"type":"close_at_price","price":numero}: chiudi quando il prezzo arriva a quel livello
+- {"type":"set_stop","price":numero}: sposta lo stop loss
+- {"type":"stop_breakeven"}: sposta lo stop a pareggio
+- {"type":"set_target","price":numero}: sposta il take profit
+- {"type":"close_now"}: chiudi subito
+- {"type":"clear_rules"}: togli le regole automatiche attive
+Se l'utente fa una domanda o la richiesta non è chiara, action è null e nella reply chiedi di precisare.
+Non inventare numeri: usa quelli forniti. Nella reply spiega l'azione proposta e ricorda che va confermata.
+Non dare consigli finanziari come certezze.`;
+
+function positionFacts(p) {
+    const n = v => show(num(v));
+    const rules = Array.isArray(p.rules) ? p.rules.slice(0, 5).map(r => (typeof r === 'string' ? r.slice(0, 80) : '')).filter(Boolean) : [];
+    return `Posizione: ${ANALYZE_SYMBOLS.includes(p.symbol) ? p.symbol : 'N/D'} ${['LONG', 'SHORT'].includes(p.type) ? p.type : 'N/D'}, `
+        + `mercato ${p.market === 'FUTURES' ? 'futures' : 'spot'}, leva ${n(p.leverage)}x, timeframe ${ANALYZE_TFS.includes(p.timeframe) ? p.timeframe : 'N/D'}.
+Entry ${n(p.entry)}, prezzo attuale ${n(p.price)}, stop ${n(p.stop)}, target ${n(p.take)}.
+Quantità ${n(p.size)}, capitale impiegato ${n(p.capital)} USDT, PnL netto ora ${n(p.pnl)} USDT, aperta da ${n(p.hours_open)} ore.
+Regole automatiche attive: ${rules.length ? rules.join('; ') : 'nessuna'}.`;
+}
+
+export async function assistant(body, env, fetchFn) {
+    const key = String(env.GROQ_API_KEY || '').trim();
+    if (!key) return json(500, { error: 'GROQ_API_KEY non configurata sul server.' });
+    const b = body || {};
+    const text = typeof b.text === 'string' ? b.text.trim().slice(0, 500) : '';
+    if (!text || !b.position || typeof b.position !== 'object') return json(400, { error: 'Parametri non validi' });
+    const history = (Array.isArray(b.history) ? b.history : []).slice(-6)
+        .filter(m => m && ['user', 'assistant'].includes(m.role) && typeof m.content === 'string')
+        .map(m => ({ role: m.role, content: m.content.slice(0, 400) }));
+    const messages = [{ role: 'system', content: ASSISTANT_SYSTEM }, { role: 'system', content: positionFacts(b.position) }, ...history, { role: 'user', content: text }];
+    const call = model => fetchFn('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model, messages, temperature: 0.1, max_tokens: 400, response_format: { type: 'json_object' } })
+    });
+    try {
+        const forced = String(env.GROQ_MODEL || '').trim();
+        let model = forced || await availableModel(key, fetchFn);
+        if (!model) return json(502, { error: 'Nessun modello Groq disponibile per questa chiave.' });
+        let r = await call(model), data = await r.json();
+        if (!r.ok && modelGone(r.status, data.error && data.error.message)) {
+            const next = await availableModel(key, fetchFn, true);
+            if (next && next !== model) { model = next; r = await call(model); data = await r.json(); }
+        }
+        if (!r.ok) return json(r.status, { error: (data.error && data.error.message) || 'Errore sconosciuto API Groq' });
+        const raw = String((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '')
+            .replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+        let parsed = null;
+        try { parsed = JSON.parse(raw); } catch (e) { const m = raw.match(/\{[\s\S]*\}/); if (m) { try { parsed = JSON.parse(m[0]); } catch (e2) {} } }
+        if (!parsed || typeof parsed.reply !== 'string') return json(200, { reply: raw.slice(0, 600) || 'Non ho capito, puoi ripetere?', action: null, model });
+        return json(200, { reply: parsed.reply.slice(0, 600), action: sanitizeAction(parsed.action), model });
+    } catch (e) {
+        return json(500, { error: 'Errore di rete verso Groq' });
+    }
+}
+
+// Trascrizione della voce (Whisper su Groq, gratuito). Audio in base64, al massimo ~2 MB.
+export async function transcribe(body, env, fetchFn) {
+    const key = String(env.GROQ_API_KEY || '').trim();
+    if (!key) return json(500, { error: 'GROQ_API_KEY non configurata sul server.' });
+    const b = body || {};
+    const audio = typeof b.audio === 'string' ? b.audio : '';
+    const mime = /^audio\/[a-z0-9.+-]+$/i.test(b.mime || '') ? b.mime.split(';')[0] : 'audio/mp4';
+    if (!audio || audio.length > 2_800_000) return json(400, { error: 'Audio mancante o troppo lungo (massimo circa un minuto).' });
+    let bytes;
+    try {
+        const bin = atob(audio);
+        bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    } catch (e) { return json(400, { error: 'Audio non valido.' }); }
+    const ext = { 'audio/mp4': 'm4a', 'audio/aac': 'm4a', 'audio/webm': 'webm', 'audio/ogg': 'ogg', 'audio/mpeg': 'mp3', 'audio/wav': 'wav' }[mime] || 'm4a';
+    const send = model => {
+        const form = new FormData();
+        form.append('file', new Blob([bytes], { type: mime }), `voce.${ext}`);
+        form.append('model', model);
+        form.append('language', 'it');
+        form.append('response_format', 'json');
+        return fetchFn('https://api.groq.com/openai/v1/audio/transcriptions', { method: 'POST', headers: { 'Authorization': `Bearer ${key}` }, body: form });
+    };
+    try {
+        let r = await send('whisper-large-v3-turbo'), data = await r.json();
+        if (!r.ok && modelGone(r.status, data.error && data.error.message)) { r = await send('whisper-large-v3'); data = await r.json(); }
+        if (!r.ok) return json(r.status, { error: (data.error && data.error.message) || 'Trascrizione non riuscita' });
+        const text = String(data.text || '').trim();
+        return text ? json(200, { text }) : json(422, { error: 'Non ho sentito nulla: riprova parlando più vicino.' });
+    } catch (e) {
+        return json(500, { error: 'Errore di rete verso Groq' });
+    }
+}
+
 // Instradamento unico: path, corpo già letto, header in minuscolo, variabili d'ambiente, fetch
 export async function handle(method, path, body, headers, env, fetchFn) {
     const route = path.replace(/\/+$/, '');
-    const routes = { '/api/trigger': [trigger, false], '/api/analyze': [analyze, false], '/api/command': [command, true] };
+    const routes = { '/api/trigger': [trigger, false], '/api/analyze': [analyze, false], '/api/assistant': [assistant, false], '/api/transcribe': [transcribe, false], '/api/command': [command, true] };
     if (!routes[route]) return json(404, { error: 'Endpoint sconosciuto' });
     if (method !== 'POST') return json(405, { error: 'Metodo non consentito' });
     const [fn, secretRequired] = routes[route];

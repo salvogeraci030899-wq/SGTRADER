@@ -132,6 +132,38 @@ test('analisi AI: indicatori calcolati sul server, solo numeri nel prompt', () =
     assert.doesNotMatch(p, /ignora/);
 });
 
+test('assistente: risposta JSON, azione validata, azioni inventate scartate', async () => {
+    let last = null;
+    const groq = reply => async (url, opts) => {
+        if (url.endsWith('/models')) return { ok: true, status: 200, json: async () => ({ data: [{ id: 'qwen/qwen3-32b' }] }) };
+        last = JSON.parse(opts.body);
+        return { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: reply } }] }) };
+    };
+    const position = { symbol: 'BTCUSDT', type: 'LONG', entry: 70000, price: 70500, pnl: '<script>', rules: ['prezzo ≥ 72000'] };
+    let r = await handle('POST', '/api/assistant', { text: 'se arriva a 10 usdt di profitto chiudi', position }, ok, env,
+        groq('{"reply":"Imposto la chiusura a +10 USDT. Confermi?","action":{"type":"close_at_pnl","value":10,"unit":"usdt","hack":1}}'));
+    assert.equal(r.status, 200, JSON.stringify(r.body));
+    assert.deepEqual(r.body.action, { type: 'close_at_pnl', value: 10, unit: 'usdt' });
+    assert.equal(last.response_format.type, 'json_object');
+    assert.match(last.messages[1].content, /PnL netto ora N\/D/);                // testo al posto di un numero: scartato
+    r = await handle('POST', '/api/assistant', { text: 'compra 5 BTC', position }, ok, env, groq('{"reply":"ok","action":{"type":"buy","qty":5}}'));
+    assert.equal(r.body.action, null);                                              // azione fuori elenco
+    r = await handle('POST', '/api/assistant', { text: 'come va?', position }, ok, env, groq('Va bene, sei in profitto.'));
+    assert.equal(r.body.reply, 'Va bene, sei in profitto.'); assert.equal(r.body.action, null);   // testo semplice
+    assert.equal((await handle('POST', '/api/assistant', { text: '' }, ok, env, groq('{}'))).status, 400);
+});
+
+test('trascrizione della voce: whisper su Groq', async () => {
+    let sent = null;
+    const groq = async (url, opts) => { sent = { url, form: opts.body }; return { ok: true, status: 200, json: async () => ({ text: ' chiudi a dieci usdt ' }) }; };
+    const audio = Buffer.from('finto audio').toString('base64');
+    const r = await handle('POST', '/api/transcribe', { audio, mime: 'audio/mp4' }, ok, env, groq);
+    assert.equal(r.status, 200); assert.equal(r.body.text, 'chiudi a dieci usdt');
+    assert.match(sent.url, /audio\/transcriptions$/);
+    assert.equal(sent.form.get('model'), 'whisper-large-v3-turbo'); assert.equal(sent.form.get('language'), 'it');
+    assert.equal((await handle('POST', '/api/transcribe', { audio: '' }, ok, env, groq)).status, 400);
+});
+
 test('worker: CORS solo per le origini ammesse', async () => {
     const origFetch = globalThis.fetch;
     globalThis.fetch = fakeFetch;
