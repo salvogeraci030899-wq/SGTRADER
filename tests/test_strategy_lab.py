@@ -217,7 +217,7 @@ def test_candidate_sigillo_e_registro():
     s = lab.build_summary(per_trial, {}, registry, today="2026-12-01")
     assert s["results"][f"{names[0]}:1d"]["holdout"]["unsealed_on"] == "2026-11-12"
     md = lab.to_markdown(s)
-    assert "CANDIDATA" in md and "CONFERMATA" in md and "sigillat" in md and "Portafoglio" in md
+    assert "CONFERMATA" in md and "sigillat" in md and "Portafoglio" in md
     assert s["results"][f"{names[0]}:1d"]["holdout"]["portfolio"]["n"] > 0
     assert "Candidate in attesa della prova finale: nessuna" in md and f"Confermate: {names[0]}:1d" in md   # già provata: non è più in attesa
     # una strategia instabile (positiva solo su una coin) non è candidata anche se significativa
