@@ -1,0 +1,19 @@
+{
+ "started": "2026-11-11",
+ "strategies": {
+  "big_candle_trail:1d": {
+   "mode": "paper",
+   "trades": [],
+   "last_candle": {
+    "BTCUSDT": 1794240000,
+    "ETHUSDT": 1794240000,
+    "SOLUSDT": 1794240000
+   },
+   "stats": {
+    "n": 0,
+    "open": 0
+   }
+  }
+ },
+ "updated_at": "2026-11-11T10:00:27+00:00"
+}

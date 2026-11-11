@@ -1,0 +1,15 @@
+{
+ "positions": {},
+ "day": {
+  "date": "2026-11-11",
+  "start_equity": 1000.0,
+  "blocked": false
+ },
+ "halted": false,
+ "events": [],
+ "mode": "simulata",
+ "simulated": {
+  "equity": 1000.0,
+  "positions": {}
+ }
+}
