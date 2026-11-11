@@ -7,9 +7,13 @@ Non usa segreti: chiama il server come farebbe l'app e controlla che
 - l'analisi AI risponda con il testo strutturato.
 Stampa il modello Groq usato. Nessun ordine, nessuna modifica.
 """
+import base64
 import json
 import os
+import shutil
+import subprocess
 import sys
+import tempfile
 import time
 
 import requests
@@ -69,6 +73,21 @@ def main():
     sections = [s for s in ("QUADRO", "LIVELLI", "SCENARI", "AZIONE") if s in text]
     print(f"   sezioni trovate: {', '.join(sections) or 'nessuna'}")
     ok &= status == 200 and len(sections) >= 3
+
+    # 4) Voce: frase italiana sintetica (espeak-ng) → trascrizione Whisper sul server
+    if shutil.which("espeak-ng"):
+        with tempfile.TemporaryDirectory() as d:
+            wav = os.path.join(d, "voce.wav")
+            subprocess.run(["espeak-ng", "-v", "it", "-s", "140", "-w", wav, "chiudi la posizione se arriva a dieci dollari di profitto"], check=True)
+            audio = base64.b64encode(open(wav, "rb").read()).decode()
+        t0 = time.time()
+        status, body = post("/api/transcribe", {"audio": audio, "mime": "audio/wav"})
+        text = (body.get("text") or body.get("error") or "") if isinstance(body, dict) else ""
+        heard = status == 200 and "chiudi" in text.lower() and ("dieci" in text.lower() or "10" in text)
+        print(f"4) Trascrizione vocale: HTTP {status} in {time.time() - t0:.1f}s → «{text[:120]}» {'OK' if heard else '(ATTESO chiudi ... dieci)'}")
+        ok &= status == 200
+    else:
+        print("4) Trascrizione vocale: saltata (espeak-ng non installato)")
 
     print("ESITO: server e IA funzionano." if ok else "ESITO: qualcosa non va, vedi sopra.")
     return 0 if ok else 1
