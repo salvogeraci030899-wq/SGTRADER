@@ -260,48 +260,68 @@ export function updateCalcHints() {
     } else beHint.style.display = 'none';
 }
 
-export function renderBreakEven() {
-    const slIn = document.getElementById('calcStop');
-    const tpIn = document.getElementById('calcTarget');
-    if(!slIn || !tpIn) return;
+// Break-even (win rate minimo per non perdere): dai trade chiusi del Diario quando ci sono sia vinti sia
+// persi (perdita media / (guadagno medio + perdita media), già netti di costi e tasse); altrimenti dal
+// setup della pagina Rischio (entry, stop, target). Il win rate reale si mostra sempre.
+function setupBreakEven() {
     const entry = getVal('calcEntry');
-    if (!entry) return;
+    if (!entry) return null;
     const slPct = Math.abs(entry - getVal('calcStop')) / entry;
     const tpPct = Math.abs(getVal('calcTarget') - entry) / entry;
-    if(slPct === 0 || tpPct === 0) return;
-
+    if (!(slPct > 0) || !(tpPct > 0)) return null;
     const cap = 1000;
     const winGross = cap * tpPct; const winFees = cap * CONFIG.FEE_RATE + (cap + winGross) * CONFIG.FEE_RATE;
     const winBeforeTax = winGross - winFees; const winTax = winBeforeTax > 0 ? winBeforeTax * CONFIG.TAX_RATE : 0;
     const winNetPct = (winBeforeTax - winTax) / cap; const lossGross = -cap * slPct;
     const lossFees = cap * CONFIG.FEE_RATE + (cap + lossGross) * CONFIG.FEE_RATE; const lossNetPct = (lossGross - lossFees) / cap;
-    const breakEven = Math.abs(lossNetPct) / (winNetPct + Math.abs(lossNetPct));
-    const bePct = breakEven * 100;
+    return Math.abs(lossNetPct) / (winNetPct + Math.abs(lossNetPct)) * 100;
+}
 
-    document.getElementById('beValue').textContent = bePct.toFixed(1) + '%';
-    document.getElementById('beMarker').style.left = Math.min(100, Math.max(0, bePct)) + '%';
-    
+export function renderBreakEven() {
+    const el = id => document.getElementById(id);
+    if (!el('beValue')) return;
     const trades = State.simState.history;
-    if (trades.length === 0) {
-        document.getElementById('beActualWr').textContent = '—';
-        document.getElementById('beDelta').textContent = '—';
-        document.getElementById('beDot').style.display = 'none';
-        document.getElementById('beBadge').textContent = 'In attesa';
-        document.getElementById('beBadge').className = 'be-badge neutral';
+    const wins = trades.filter(t => t.pnl > 0), losses = trades.filter(t => t.pnl < 0);
+    let bePct = null, source = '';
+    if (wins.length && losses.length) {
+        const avgW = wins.reduce((s, t) => s + t.pnl, 0) / wins.length;
+        const avgL = Math.abs(losses.reduce((s, t) => s + t.pnl, 0) / losses.length);
+        bePct = avgL / (avgW + avgL) * 100; source = 'dai tuoi trade';
+    } else {
+        bePct = setupBreakEven(); source = bePct != null ? 'dal setup Rischio' : '';
+    }
+    el('beValue').textContent = bePct != null ? bePct.toFixed(1) + '%' : '—';
+    el('beSource').textContent = bePct != null ? `win rate min · ${source}` : 'win rate min';
+    el('beMarker').style.display = bePct != null ? '' : 'none';
+    if (bePct != null) el('beMarker').style.left = Math.min(100, Math.max(0, bePct)) + '%';
+
+    if (!trades.length) {
+        el('beActualWr').textContent = '—'; el('beActualWr').style.color = '';
+        el('beDelta').textContent = '—'; el('beDelta').style.color = '';
+        el('beDot').style.display = 'none';
+        el('beBadge').textContent = 'In attesa'; el('beBadge').className = 'be-badge neutral';
         return;
     }
-    const wins = trades.filter(t => t.pnl > 0);
-    const wrPct = (wins.length / trades.length) * 100;
-    const delta = wrPct - bePct;
-    document.getElementById('beActualWr').textContent = wrPct.toFixed(1) + '%';
-    document.getElementById('beActualWr').style.color = delta >= 0 ? 'var(--accent)' : 'var(--danger)';
-    document.getElementById('beDelta').textContent = (delta >= 0 ? '+' : '') + delta.toFixed(1) + '%';
-    document.getElementById('beDelta').style.color = delta >= 0 ? 'var(--accent)' : 'var(--danger)';
-    const dot = document.getElementById('beDot');
+    const wrPct = wins.length / trades.length * 100;
+    el('beActualWr').textContent = wrPct.toFixed(1) + '%';
+    const dot = el('beDot');
     dot.style.display = 'block'; dot.style.left = Math.min(100, Math.max(0, wrPct)) + '%';
-    if (delta >= 5) { document.getElementById('beBadge').textContent = 'Profittevole'; document.getElementById('beBadge').className = 'be-badge good'; }
-    else if (delta >= 0) { document.getElementById('beBadge').textContent = 'Marginale'; document.getElementById('beBadge').className = 'be-badge warn'; }
-    else { document.getElementById('beBadge').textContent = 'In perdita'; document.getElementById('beBadge').className = 'be-badge bad'; }
+    if (bePct == null) {
+        el('beActualWr').style.color = '';
+        el('beDelta').textContent = '—'; el('beDelta').style.color = '';
+        el('beBadge').textContent = 'Pochi dati'; el('beBadge').className = 'be-badge neutral';
+        return;
+    }
+    const delta = wrPct - bePct;
+    const color = delta >= 0 ? 'var(--accent)' : 'var(--danger)';
+    el('beActualWr').style.color = color;
+    el('beDelta').textContent = (delta >= 0 ? '+' : '') + delta.toFixed(1) + '%';
+    el('beDelta').style.color = color;
+    // con pochi trade il risultato è soprattutto caso: lo dico invece di dare un verdetto
+    if (trades.length < 20) { el('beBadge').textContent = `${trades.length} trade: pochi`; el('beBadge').className = 'be-badge neutral'; }
+    else if (delta >= 5) { el('beBadge').textContent = 'Profittevole'; el('beBadge').className = 'be-badge good'; }
+    else if (delta >= 0) { el('beBadge').textContent = 'Marginale'; el('beBadge').className = 'be-badge warn'; }
+    else { el('beBadge').textContent = 'In perdita'; el('beBadge').className = 'be-badge bad'; }
 }
 
 export function sendToCalculator() {

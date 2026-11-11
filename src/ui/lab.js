@@ -1,4 +1,4 @@
-import { $, escapeHtml } from '../utils/helpers.js';
+import { $, escapeHtml, fmtIt } from '../utils/helpers.js';
 
 // --- LABORATORIO STRATEGIE (lab_summary.json, scritto dal workflow "Laboratorio strategie") ---
 // Classifica delle strategie provate sullo storico, per timeframe, ordinata per risultato "oltre il
@@ -11,7 +11,7 @@ let paperLedger = null;     // prova su carta (paper_trades.json, scritto dal bo
 let loaded = false;
 let loading = false;
 
-const pct = (v, d = 2) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${v.toFixed(d)}%`);
+const pct = (v, d = 2) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${fmtIt(v, d)}%`);
 const day = iso => new Date(iso).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' });
 
 function outcome(r) {

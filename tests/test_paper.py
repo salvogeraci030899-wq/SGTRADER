@@ -91,6 +91,16 @@ def test_modi_e_blocco_del_reale():
         calls, notes = [], []
         run(cfg, led, 6, calls, notes)
         assert calls == [] and notes == [] and not os.path.exists(led)        # spenta: nessun download, nessun registro
+    # spenta dopo essere stata su carta (es. emergenza): resta nel registro con i trade, ma "off"
+    with tempfile.TemporaryDirectory() as d:
+        cfg, led = setup(d)
+        calls, notes = [], []
+        run(cfg, led, 3, calls, notes)
+        trades = json.load(open(led))["strategies"][KEY]["trades"]
+        json.dump({"paper_start": START, "strategies": {}}, open(cfg, "w"))
+        assert run(cfg, led, 4, calls, notes) is True
+        e = json.load(open(led))["strategies"][KEY]
+        assert e["mode"] == "off" and e["trades"] == trades
     # senza configurazione non succede nulla
     with tempfile.TemporaryDirectory() as d:
         assert paper.update({}, os.path.join(d, "no.json"), os.path.join(d, "l.json")) is False

@@ -1,6 +1,6 @@
 import { State } from '../core/state.js';
 import { CONFIG } from '../core/config.js';
-import { $, SYM, fmtDateTime, fmtUsdt, tradeMarket, tradeLeverage } from '../utils/helpers.js';
+import { $, SYM, fmtDateTime, fmtUsdt, tradeMarket, tradeLeverage, fmtIt } from '../utils/helpers.js';
 import * as Calculator from './calculator.js';
 import * as Trade from './trade.js';
 
@@ -54,7 +54,7 @@ export function renderHistory() {
             <span>Aperto ${fmtDateTime(h.entryTime)}</span><span class="arrow">→</span><span>Chiuso ${fmtDateTime(h.closedAt)}</span>
         </div>
         <div class="lg-body">
-            <div class="lg-item"><span class="lg-lbl">Entry / Exit</span><span class="lg-val">${h.entry.toFixed(2)} → ${h.exit.toFixed(2)}</span></div>
+            <div class="lg-item"><span class="lg-lbl">Entry / Exit</span><span class="lg-val">${fmtIt(h.entry)} → ${fmtIt(h.exit)}</span></div>
             <div class="lg-item"><span class="lg-lbl">Size</span><span class="lg-val">${fmtUsdt(h.capitalInvested)}</span></div>
             <div class="lg-item"><span class="lg-lbl">Durata</span><span class="lg-val">${durStr}</span></div>
             <div class="lg-item"><span class="lg-lbl">PnL Lordo</span><span class="lg-val" style="color:${grossColor};">${grossSign}${fmtUsdt(h.grossPnl)}</span></div>
@@ -66,7 +66,7 @@ export function renderHistory() {
                 <span class="lg-lbl">PnL Netto</span>
                 <div class="lg-pnl" style="color:${h.pnl >= 0 ? 'var(--accent)' : 'var(--danger)'};">
                     ${h.pnl >= 0 ? '+' : ''}${fmtUsdt(h.pnl)}
-                    <span class="lg-pnl-perc" style="color:${h.pnl >= 0 ? 'var(--accent)' : 'var(--danger)'};">${pnlPerc >= 0 ? '+' : ''}${pnlPerc.toFixed(2)}%</span>
+                    <span class="lg-pnl-perc" style="color:${h.pnl >= 0 ? 'var(--accent)' : 'var(--danger)'};">${pnlPerc >= 0 ? '+' : ''}${fmtIt(pnlPerc)}%</span>
                 </div>
             </div>
         </div>`;
