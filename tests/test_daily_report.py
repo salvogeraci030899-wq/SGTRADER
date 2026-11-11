@@ -16,8 +16,10 @@ NOW = datetime(2026, 11, 12, 8, 17, tzinfo=timezone.utc)
 def files(d, emergency=False, halted=False):
     paths = {k: os.path.join(d, f"{k}.json") for k in ("futures", "paper", "live", "automation", "lab")}
     json.dump({"symbols": {"BTCUSDT": {"funding_rate_pct": 0.01, "open_interest_change_24h_pct": -3.2}}}, open(paths["futures"], "w"))
-    json.dump({"strategies": {"big_candle_trail:1d": {"stats": {"n": 3, "open": 1, "win_rate": 66.7, "avg_net_pct": 1.234}}}}, open(paths["paper"], "w"))
-    json.dump({"mode": "simulata", "halted": halted, "positions": {"x": {"status": "open"}}}, open(paths["live"], "w"))
+    json.dump({"strategies": {"big_candle_trail:1d": {"mode": "paper", "stats": {"n": 3, "open": 1, "win_rate": 66.7, "avg_net_pct": 1.234}},
+                              "donchian55:1d": {"mode": "off", "stats": {"n": 9, "open": 0}}}}, open(paths["paper"], "w"))
+    json.dump({"mode": "simulata", "halted": halted, "positions": {"x": {"status": "open"}},
+               "account": {"connected": True, "demo": False, "equity": 500.0, "total_usdt": 1523.4, "day_change": -12.5, "positions": 1, "upl": 3.2}}, open(paths["live"], "w"))
     json.dump({"emergency": emergency, "strategies": {"big_candle_trail:1d": "paper"}}, open(paths["automation"], "w"))
     json.dump({"confirmed": []}, open(paths["lab"], "w"))
     return paths
@@ -31,11 +33,14 @@ def test_contenuto():
     with tempfile.TemporaryDirectory() as d:
         text = dr.build(frames(), NOW, files(d))
         assert text.startswith("📊 RIEPILOGO 12/11/2026")
-        assert "BTC 102,000.00 (+2.00%)" in text and "ETH" not in text.split("\n")[1]          # ETH senza due candele: omesso
-        assert "BTC funding +0.0100%, OI 24h -3.2%" in text
+        assert "BTC 102.000,00 (+2,00%)" in text and "ETH" not in text.split("\n")[1]          # ETH senza due candele: omesso
+        assert "BTC funding +0,0100%, OI 24h -3,2%" in text
         assert "Strategie attive: big candle trail:1d (carta)" in text
-        assert "Su carta big candle trail:1d: 3 chiusi (vincenti 67%, netto medio +1.23%), 1 aperti" in text
+        assert "Su carta big candle trail:1d: 3 chiusi (vincenti 67%, netto medio +1,23%), 1 aperti" in text
         assert "Esecutore: modalità simulata, 1 posizioni aperte" in text and "nessuna (ordini veri non consentiti)" in text
+        assert "donchian55" not in text                                                            # spenta: non è nella prova
+        assert "Modalità ordini: simulato, nessun ordine vero" in text
+        assert "Bitget (reale): saldo 1.523,40 USDT, variazione oggi -12,50, 1 posizioni (PnL aperto +3,20)" in text
         assert "_" not in text and "*" not in text                                                 # Markdown di Telegram
         alarm = dr.build({}, NOW, files(d, emergency=True, halted=True))
         assert "EMERGENZA ATTIVA" in alarm and "BLOCCATO" in alarm
