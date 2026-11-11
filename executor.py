@@ -265,6 +265,27 @@ def _finish(state, before, path, client, mode):
     return changed
 
 
+def _spot_value(client):
+    """Valore del conto spot in USDT (saldi * prezzo pubblico). Le coin senza prezzo restano fuori
+    dal totale ma sono elencate. Errori qui non rendono il conto "non collegato"."""
+    if not hasattr(client, "spot_balances"):
+        return {}
+    try:
+        balances = client.spot_balances()
+    except Exception as e:
+        return {"spot_error": str(e)[:120]}
+    coins, total = [], 0.0
+    for coin, qty in sorted(balances.items()):
+        px = client.spot_price_usdt(coin)
+        value = qty * px if px else None
+        if value is not None:
+            total += value
+        if value is None or value >= 0.01:
+            coins.append({"coin": coin, "qty": round(qty, 8), "usdt": round(value, 2) if value is not None else None})
+    coins.sort(key=lambda c: -(c["usdt"] or 0))
+    return {"spot_usdt": round(total, 2), "spot_coins": coins[:10]}
+
+
 def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
     """Lettura del conto Bitget in SOLA LETTURA (patrimonio futures e numero di posizioni), a ogni giro,
     anche con gli ordini veri spenti: l'app mostra se le chiavi funzionano. Nessun ordine.
@@ -278,6 +299,8 @@ def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
             client = client or BitgetClient.from_env()
             account = {"connected": True, "demo": bool(client.demo), "equity": round(float(client.equity()), 2),
                        "positions": len(client.positions())}
+            account.update(_spot_value(client))
+            account["total_usdt"] = round(account["equity"] + (account.get("spot_usdt") or 0), 2)
         except Exception as e:
             account = {"connected": False, "demo": bool(getattr(client, "demo", False)), "reason": str(e)[:160]}
         account["checked_at"] = now.isoformat(timespec="seconds")

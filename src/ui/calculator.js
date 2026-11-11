@@ -201,7 +201,10 @@ export function calc() {
     resGross.textContent = `+${Math.round(grossProfit)} USDT`;
     resCosts.textContent = `-${Math.round(totalFees)} USDT`;
     resTax.textContent = `-${Math.round(taxes)} USDT`;
-    resNet.textContent = `${netProfit > 0 ? '+' : ''}${Math.round(netProfit)} USDT`;
+    // Il netto in USDT non dipende dalla leva (la size viene dal rischio); dipende dalla leva il
+    // margine bloccato, quindi il rendimento sul margine: lo mostro accanto in futures
+    const onMargin = State.currentMarket === 'FUTURES' && marginRequired > 0 ? ` (${netProfit > 0 ? '+' : ''}${Math.round(netProfit / marginRequired * 100)}% sul margine)` : '';
+    resNet.textContent = `${netProfit > 0 ? '+' : ''}${Math.round(netProfit)} USDT${onMargin}`;
     if (levMin !== null && resLevMin) {
         const x = v => `${(Math.ceil(v * 10) / 10).toLocaleString('it-IT')}x`;
         resLevMin.textContent = levMin <= 1 ? '1x (basta il capitale)' : x(levMin);

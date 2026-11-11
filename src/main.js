@@ -9,6 +9,7 @@ import * as JournalUI from './ui/journal.js';
 import * as SignalsUI from './ui/signals.js';
 import * as BacktestUI from './ui/backtest.js';
 import * as HomeUI from './ui/home.js';
+import * as AI from './ui/ai.js';
 import * as HomeCharts from './ui/home-charts.js';
 import * as Backup from './core/backup.js';
 import * as LabUI from './ui/lab.js';
@@ -174,6 +175,7 @@ window.removeGhToken = AutoUI.removeGhToken;
 
 // Home
 window.updateHome = HomeUI.updateHome;
+window.requestMarketAnalysis = AI.requestMarketAnalysis;
 // dalla Home: Segnali → Auto in un tocco
 window.openAutomation = () => { window.switchTab('signals'); AutoUI.setSignalsView('auto'); };
 

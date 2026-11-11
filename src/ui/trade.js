@@ -4,6 +4,7 @@ import { Logger } from '../core/logger.js';
 import { $, SYM, fetchT, apiPost, escapeHtml, fmtDateTime, fmtUsdt, calcPnl } from '../utils/helpers.js';
 import * as Terminal from './terminal.js';
 import * as Calculator from './calculator.js';
+import * as AI from './ai.js';
 
 export function initTrade() {
     // Inizializzazione modali, listener locali se ci saranno
@@ -236,58 +237,7 @@ export function goToActiveTradePage(idx) {
 export async function requestAIAnalysis(id) {
     const trade = State.simState.activeTrades.find(t => t.id === id);
     if (!trade) return;
-    const sym = trade.symbol;
-    const tf = trade.granularity;
-    const data = State.allData && State.allData[`${sym}_${tf}`];
-    if (!data || !data.ai_plan) { if (window.showAlert) window.showAlert("Analisi AI", "Impossibile recuperare i dati."); return; }
-    
-    const livePx = trade.currentPrice || trade.entryPrice;
-    const pnlData = calcPnl(trade, livePx);
-    let recentCandles = [];
-    if (data.historical && data.historical.length > 0) recentCandles = data.historical.slice(-10);
-
-    const payload = {
-        symbol: sym, timeframe: tf, type: trade.type,
-        entry: trade.entryPrice, stop: trade.slPrice, take: trade.tpPrice,
-        currentPrice: livePx, pnl: pnlData.net.toFixed(2),
-        ai_plan: { bias: data.ai_plan.bias, prob_up: data.prob_up, reasoning: data.ai_plan.reasoning, rr: data.ai_plan.rr },
-        recent_candles: recentCandles
-    };
-
-    document.getElementById('aiAnalysisTitle').innerHTML = `Analisi: ${SYM(sym)} ${trade.type}`;
-    const badgeEl = document.getElementById('aiAnalysisBadge');
-    badgeEl.textContent = "In corso...";
-    badgeEl.className = `be-badge warn`;
-    document.getElementById('aiAnalysisBody').innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 0; gap: 12px;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" style="animation: spin 1s linear infinite;">
-                <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
-            </svg>
-            <span style="color: var(--text-secondary); font-size: 13px;">L'IA sta analizzando...</span>
-        </div>
-    `;
-    if (!document.getElementById('spin-anim')) {
-        const style = document.createElement('style');
-        style.id = 'spin-anim';
-        style.innerHTML = `@keyframes spin { 100% { transform: rotate(360deg); } }`;
-        document.head.appendChild(style);
-    }
-    document.getElementById('aiAnalysisModal').classList.add('active');
-    
-    try {
-        const res = await apiPost('/api/analyze', payload);
-        const textData = await res.text();
-        let result;
-        try { result = JSON.parse(textData); } catch (e) { throw new Error(`Risposta non valida (HTTP ${res.status}): ${textData.substring(0, 100)}...`); }
-        if (!res.ok) throw new Error(result.error || 'Errore durante l\'analisi');
-        badgeEl.textContent = "Completata";
-        badgeEl.className = `be-badge good`;
-        document.getElementById('aiAnalysisBody').innerHTML = escapeHtml(result.analysis).replace(/\n/g, '<br>');
-    } catch (err) {
-        badgeEl.textContent = "Errore";
-        badgeEl.className = `be-badge bad`;
-        document.getElementById('aiAnalysisBody').innerHTML = `<div style="color: var(--danger); padding: 10px 0;"><b>Impossibile completare:</b><br>${escapeHtml(err.message)}</div>`;
-    }
+    return AI.runAIAnalysis({ symbol: trade.symbol, tf: trade.granularity || '4h', trade });
 }
 
 export function closeAIAnalysisModal() { document.getElementById('aiAnalysisModal').classList.remove('active'); }

@@ -1,5 +1,7 @@
 export const CONFIG = {
     TAX_RATE: 0.33,
+    // Server su Cloudflare (ha la chiave Groq): l'analisi AI passa da qui quando non c'è un altro server
+    AI_SERVER: 'https://sgtrader-server.salvogeraci030899.workers.dev',
     FEE_RATE: 0.001,
     REFRESH_MAX_WAIT: 900,
     SIGNAL_SCAN_INTERVAL_MS: 600000,

@@ -267,6 +267,14 @@ def test_lettura_conto_sola_lettura():
             a = ex.account_snapshot(path, ok, NOW, msgs.append)
             assert a["connected"] and a["equity"] == 123.46 and a["positions"] == 1 and not a["demo"] and ok.orders == 0
             assert json.load(open(path))["account"]["equity"] == 123.46
+            class WithSpot(Fake):
+                def spot_balances(self):
+                    return {"USDT": 500.0, "BTC": 0.01, "XYZ": 3.0}
+                def spot_price_usdt(self, coin):
+                    return {"USDT": 1.0, "BTC": 70000.0}.get(coin)
+            s = ex.account_snapshot(path, WithSpot(), NOW, msgs.append)
+            assert s["spot_usdt"] == 1200.0 and s["total_usdt"] == 1323.46, s                     # 500 + 0,01*70000; XYZ senza prezzo
+            assert [c["coin"] for c in s["spot_coins"]] == ["BTC", "USDT", "XYZ"] and s["spot_coins"][2]["usdt"] is None
             b = ex.account_snapshot(path, Fake(fail=True), NOW, msgs.append)
             assert not b["connected"] and "scaduta" in b["reason"] and len(msgs) == 1        # avviso al passaggio ok -> errore
             ex.account_snapshot(path, Fake(fail=True), NOW, msgs.append)

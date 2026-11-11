@@ -142,6 +142,7 @@ function renderAutomationCard() {
     setLine('homeAutoOrders', trading ? 'abilitati' : 'spenti', trading ? 'text-warning' : '');
     const acc = bitgetAccountText(live && live.account);
     setLine('homeAutoBitget', acc.text, acc.cls);
+    setLine('homeAutoBitgetDetail', acc.detail || '—');
 }
 
 // ---------- Stato ----------

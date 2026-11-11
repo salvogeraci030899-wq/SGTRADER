@@ -4,9 +4,9 @@ name: Test
 on:
   push:
     branches: [main]
-    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', '.github/workflows/tests.yml']
+    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', 'src/core/**', '.github/workflows/tests.yml']
   pull_request:
-    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', '.github/workflows/tests.yml']
+    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', 'src/core/**', '.github/workflows/tests.yml']
 
 permissions:
   contents: read

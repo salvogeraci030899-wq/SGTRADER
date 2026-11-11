@@ -30,6 +30,15 @@ def main():
         else:
             print("Se la chiave è del conto demo, imposta BITGET_DEMO=1. Controlla anche che la chiave abbia il permesso Futures.")
     try:
+        bal = client.spot_balances()
+        parts = []
+        for coin, qty in sorted(bal.items()):
+            px = client.spot_price_usdt(coin)
+            parts.append(f"{coin} {qty:g}" + (f" (~{qty * px:,.2f} USDT)" if px else ""))
+        print("Conto spot: " + (", ".join(parts) or "vuoto"))
+    except BitgetError as e:
+        print(f"Lettura del conto spot non riuscita: {e} (serve il permesso di lettura dello spot)")
+    try:
         pos = client.positions()
         print("Posizioni aperte: " + (", ".join(f"{s} {p['side']} {p['size']}" for s, p in pos.items()) or "nessuna"))
     except BitgetError as e:
