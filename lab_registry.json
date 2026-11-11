@@ -45,6 +45,14 @@
    "description": "Long se la chiusura \u00e8 sotto la banda inferiore di Bollinger (20, 2) ma sopra la media a 200; short speculare. Tenuta 5 candele, stop 3 ATR.",
    "first_tested": "2026-11-11"
   },
+  "crowd_fade:1d": {
+   "description": "Contro la folla: short quando la quota di conti long \u00e8 molto sopra la sua media a 30 giorni (z > 2), long quando \u00e8 molto sotto (z < -2). Tenuta 7 candele, stop 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
+  "crowd_fade:4h": {
+   "description": "Contro la folla: short quando la quota di conti long \u00e8 molto sopra la sua media a 30 giorni (z > 2), long quando \u00e8 molto sotto (z < -2). Tenuta 7 candele, stop 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
   "donchian20:1d": {
    "description": "Long se la chiusura supera il massimo delle 20 candele precedenti, short sotto il minimo. Stop 2 ATR, poi stop che segue a 3 ATR, massimo 60 candele.",
    "first_tested": "2026-11-11"
@@ -79,6 +87,14 @@
   },
   "donchian20_long:4h": {
    "description": "Solo la parte long di donchian20 (utilizzabile anche in spot).",
+   "first_tested": "2026-11-11"
+  },
+  "donchian20_oi:1d": {
+   "description": "Rotture di donchian20 solo se l'open interest \u00e8 cresciuto negli ultimi 7 giorni (soldi nuovi che entrano). Uscite di donchian20.",
+   "first_tested": "2026-11-11"
+  },
+  "donchian20_oi:4h": {
+   "description": "Rotture di donchian20 solo se l'open interest \u00e8 cresciuto negli ultimi 7 giorni (soldi nuovi che entrano). Uscite di donchian20.",
    "first_tested": "2026-11-11"
   },
   "donchian20_regime:1d": {
@@ -119,6 +135,14 @@
   },
   "ema_pullback:4h": {
    "description": "Con EMA50 sopra EMA200, long quando la chiusura torna sopra l'EMA20 dopo esserne scesa sotto (speculare per lo short). Stop 2 ATR, stop che segue a 3 ATR, massimo 60 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "funding_fade:1d": {
+   "description": "Contro la folla: short quando il funding degli ultimi 7 giorni \u00e8 nel 10% pi\u00f9 alto dell'ultimo anno (troppi long a leva), long quando \u00e8 nel 10% pi\u00f9 basso. Tenuta 7 candele, stop 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
+  "funding_fade:4h": {
+   "description": "Contro la folla: short quando il funding degli ultimi 7 giorni \u00e8 nel 10% pi\u00f9 alto dell'ultimo anno (troppi long a leva), long quando \u00e8 nel 10% pi\u00f9 basso. Tenuta 7 candele, stop 3 ATR.",
    "first_tested": "2026-11-11"
   },
   "relstrength30:1d": {

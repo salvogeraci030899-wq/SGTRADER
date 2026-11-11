@@ -1,6 +1,6 @@
 # Laboratorio strategie
 
-Generato il 2026-11-11T08:56:09+00:00 · 50 prove in questa esecuzione, 50 registrate in tutto.
+Generato il 2026-11-11T09:39:30+00:00 · 56 prove in questa esecuzione, 56 registrate in tutto.
 
 - **Ricerca** solo sullo storico prima del 2025-11-11; da lì in poi è **sigillato** per la prova finale.
 - **Costi** (scenario principale: futures, ordini a mercato): 0.11% per lato più funding. "Netto" = dopo questi costi, tasse escluse.
@@ -25,16 +25,19 @@ Generato il 2026-11-11T08:56:09+00:00 · 50 prove in questa esecuzione, 50 regis
 | donchian20_regime | trend | 147 | 38.1% | 19.1 candele | +2.364% | +4.0% / -9.2% | +2.152% | [-1.74%, +6.50%] | 0.1600 | +6.12% / -0.29% | +0.56% / +2.76% / +3.91% | no |
 | donchian20_long | trend | 115 | 41.7% | 17.4 candele | +4.950% | +5.6% / -5.4% | +1.954% | [-2.21%, +5.99%] | 0.1840 | +4.80% / +0.19% | -0.41% / +4.35% / +2.30% | no |
 | big_candle | volatilità | 247 | 52.6% | 3.9 candele | +1.871% | +4.8% / -3.4% | +1.785% | [+0.42%, +3.21%] | 0.0064 | +2.94% / +0.86% | +1.05% / +2.00% / +3.19% | no |
+| donchian20_oi | funding | 104 | 37.5% | 18.9 candele | +3.259% | +4.2% / -7.4% | +1.755% | [-2.35%, +6.05%] | 0.2018 | +4.21% / +0.34% | +0.87% / +2.60% / +2.24% | no |
 | donchian20 | trend | 192 | 35.9% | 19.6 candele | +1.746% | +4.2% / -11.3% | +1.743% | [-1.41%, +5.09%] | 0.1597 | +5.14% / -0.25% | +0.61% / +2.05% / +3.35% | no |
 | ema_pullback | trend | 159 | 34.0% | 22.4 candele | +2.180% | +3.2% / -6.7% | +1.361% | [-2.60%, +6.43%] | 0.2744 | +4.08% / -0.33% | +0.63% / +2.19% / +1.20% | no |
 | tsmom30 | momentum | 889 | 50.1% | 6.8 candele | +0.848% | +4.6% / -6.2% | +0.759% | [-0.07%, +1.57%] | 0.0363 | +1.56% / +0.20% | +0.58% / +0.83% / +0.97% | no |
 | tsmom_combo | momentum | 669 | 51.1% | 6.7 candele | +0.935% | +3.8% / -5.4% | +0.696% | [-0.30%, +1.71%] | 0.0878 | +1.37% / +0.24% | +0.39% / +0.91% / +0.87% | no |
 | tsmom30_long | momentum | 420 | 51.7% | 6.7 candele | +1.639% | +3.8% / -3.9% | +0.486% | [-0.81%, +1.77%] | 0.2356 | +1.49% / -0.18% | +0.24% / +0.95% / +0.04% | no |
+| crowd_fade | funding | 151 | 46.4% | 6.7 candele | -0.083% | -0.4% / -7.1% | +0.397% | [-1.48%, +2.31%] | 0.3453 | +3.08% / -1.10% | -0.08% / +0.79% / +0.66% | no |
 | relstrength30 | forza relativa | 519 | 47.6% | 6.7 candele | +0.267% | +0.9% / -3.4% | +0.283% | [-0.49%, +1.06%] | 0.2400 | +0.31% / +0.26% | +0.00% / -0.51% / +1.33% | no |
 | tsmom90 | momentum | 898 | 47.6% | 6.7 candele | +0.181% | +1.2% / -9.6% | -0.052% | [-0.90%, +0.81%] | 0.5482 | +0.18% / -0.21% | +0.00% / -0.09% / -0.08% | no |
 | relstrength90 | forza relativa | 480 | 46.7% | 6.6 candele | -0.207% | -1.1% / -6.5% | -0.213% | [-0.93%, +0.51%] | 0.7181 | -0.21% / -0.22% | -0.44% / -0.70% / +0.54% | no |
 | relstrength30_long | forza relativa | 275 | 47.3% | 6.7 candele | +0.980% | +1.8% / -5.5% | -0.241% | [-1.55%, +1.13%] | 0.6349 | -1.12% / +0.57% | -1.04% / -0.73% / +1.33% | no |
 | bollinger_revert | ritorno alla media | 111 | 52.3% | 4.5 candele | -0.324% | -0.5% / -4.0% | -0.424% | [-2.43%, +1.71%] | 0.6533 | -2.04% / +0.53% | -0.12% / -2.74% / +4.04% | no |
+| funding_fade | funding | 225 | 44.0% | 6.6 candele | -0.657% | -1.2% / -8.5% | -0.693% | [-2.19%, +0.85%] | 0.8006 | -0.49% / -0.88% | -0.97% / -1.00% / +0.13% | no |
 | rsi2_pullback | ritorno alla media | 308 | 50.3% | 4.7 candele | -0.633% | -1.4% / -8.9% | -0.752% | [-2.00%, +0.51%] | 0.8849 | -1.08% / -0.54% | +0.00% / -1.45% / -0.91% | no |
 
 ### Timeframe 4h
@@ -45,6 +48,7 @@ Generato il 2026-11-11T08:56:09+00:00 · 50 prove in questa esecuzione, 50 regis
 | donchian20_regime | trend | 930 | 39.9% | 20.8 candele | +0.753% | +16.5% / -11.2% | +0.721% | [+0.16%, +1.29%] | 0.0070 | +0.82% / +0.65% | +0.57% / +0.74% / +0.92% | no |
 | ema_pullback | trend | 941 | 35.4% | 25.6 candele | +0.606% | +13.1% / -15.5% | +0.566% | [-0.06%, +1.17%] | 0.0362 | +0.82% / +0.39% | +0.49% / +0.34% / +1.07% | no |
 | donchian55 | trend | 712 | 37.6% | 21.5 candele | +0.594% | +9.7% / -13.3% | +0.520% | [-0.14%, +1.19%] | 0.0598 | +0.48% / +0.55% | +0.22% / +0.59% / +0.88% | no |
+| donchian20_oi | funding | 573 | 38.6% | 21.8 candele | +0.558% | +10.1% / -9.1% | +0.462% | [-0.18%, +1.11%] | 0.0890 | +0.26% / +0.60% | -0.09% / +0.30% / +1.45% | no |
 | donchian20_turtle | trend | 1203 | 31.4% | 22.4 candele | +0.442% | +19.0% / -19.2% | +0.374% | [-0.18%, +0.95%] | 0.0944 | +0.62% / +0.20% | +0.34% / +0.30% / +0.54% | no |
 | big_candle_trail | volatilità | 1442 | 37.8% | 11.6 candele | +0.271% | +17.5% / -13.9% | +0.274% | [-0.07%, +0.64%] | 0.0656 | +0.38% / +0.20% | +0.11% / +0.34% / +0.49% | no |
 | donchian20 | trend | 1203 | 38.0% | 21.2 candele | +0.294% | +14.1% / -12.0% | +0.259% | [-0.26%, +0.79%] | 0.1643 | +0.20% / +0.31% | +0.10% / +0.18% / +0.65% | no |
@@ -55,11 +59,13 @@ Generato il 2026-11-11T08:56:09+00:00 · 50 prove in questa esecuzione, 50 regis
 | relstrength90 | forza relativa | 3169 | 47.9% | 6.7 candele | -0.053% | -6.4% / -33.3% | -0.048% | [-0.16%, +0.06%] | 0.8027 | +0.01% / -0.10% | -0.23% / -0.03% / +0.09% | no |
 | tsmom30 | momentum | 6004 | 45.0% | 6.7 candele | -0.053% | -3.6% / -47.0% | -0.062% | [-0.20%, +0.07%] | 0.8080 | +0.06% / -0.15% | -0.09% / -0.12% / +0.08% | no |
 | donchian20_long | trend | 676 | 38.5% | 20.7 candele | +0.540% | +11.7% / -16.4% | -0.093% | [-0.71%, +0.61%] | 0.6057 | +0.25% / -0.35% | +0.00% / +0.05% / -0.48% | no |
+| crowd_fade | funding | 310 | 42.9% | 6.8 candele | -0.186% | -0.3% / -6.8% | -0.106% | [-0.60%, +0.42%] | 0.6615 | +0.55% / -0.51% | -0.00% / +0.30% / -0.56% | no |
 | tsmom90 | momentum | 6038 | 45.8% | 6.7 candele | -0.098% | -8.0% / -47.5% | -0.110% | [-0.24%, +0.02%] | 0.9447 | -0.11% / -0.11% | -0.16% / -0.12% / +0.00% | no |
 | relstrength30 | forza relativa | 3384 | 45.8% | 6.7 candele | -0.134% | -11.7% / -43.3% | -0.131% | [-0.24%, -0.01%] | 0.9874 | -0.09% / -0.17% | -0.26% / -0.35% / +0.17% | no |
 | rsi2_pullback | ritorno alla media | 1919 | 48.6% | 4.8 candele | -0.144% | -5.8% / -34.8% | -0.145% | [-0.34%, +0.04%] | 0.9317 | -0.26% / -0.07% | -0.26% / -0.20% / +0.15% | no |
 | bollinger_revert | ritorno alla media | 723 | 48.7% | 4.8 candele | -0.244% | -3.2% / -25.8% | -0.246% | [-0.55%, +0.07%] | 0.9377 | -0.61% / -0.01% | -0.37% / -0.30% / +0.07% | no |
 | relstrength30_long | forza relativa | 1831 | 47.0% | 6.7 candele | -0.031% | -4.2% / -24.1% | -0.249% | [-0.48%, +0.01%] | 0.9778 | -0.32% / -0.18% | -0.26% / -0.37% / -0.13% | no |
+| funding_fade | funding | 1120 | 45.4% | 6.6 candele | -0.307% | -5.0% / -27.2% | -0.325% | [-0.66%, +0.01%] | 0.9731 | -0.23% / -0.43% | -0.16% / -0.29% / -0.57% | no |
 
 ### Timeframe 1h
 
@@ -105,3 +111,6 @@ Generato il 2026-11-11T08:56:09+00:00 · 50 prove in questa esecuzione, 50 regis
 - **relstrength30** (forza relativa): Long la coin con il rendimento a 30 candele più alto delle tre, short quella con il più basso. Tenuta 7 candele, stop 3 ATR.
 - **relstrength90** (forza relativa): Come relstrength30 ma sul rendimento a 90 candele.
 - **relstrength30_long** (forza relativa): Solo la parte long di relstrength30: compra la coin più forte delle tre.
+- **funding_fade** (funding): Contro la folla: short quando il funding degli ultimi 7 giorni è nel 10% più alto dell'ultimo anno (troppi long a leva), long quando è nel 10% più basso. Tenuta 7 candele, stop 3 ATR.
+- **donchian20_oi** (funding): Rotture di donchian20 solo se l'open interest è cresciuto negli ultimi 7 giorni (soldi nuovi che entrano). Uscite di donchian20.
+- **crowd_fade** (funding): Contro la folla: short quando la quota di conti long è molto sopra la sua media a 30 giorni (z > 2), long quando è molto sotto (z < -2). Tenuta 7 candele, stop 3 ATR.
