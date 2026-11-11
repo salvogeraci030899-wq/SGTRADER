@@ -4,6 +4,7 @@
 // l'app è aperta. Chi deve ridisegnarsi (i grafici) ascolta l'evento "sgt-theme".
 
 const KEY = 'sgt_theme';
+const BAR_KEY = 'sgt_statusbar';     // 'integrated' | 'separate'
 const MODES = ['auto', 'light', 'dark'];
 const media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
 
@@ -23,7 +24,7 @@ export function applyTheme() {
     const meta = document.getElementById('metaThemeColor');
     if (meta) meta.setAttribute('content', theme === 'light' ? '#f2f2f7' : '#000000');
     const bar = document.getElementById('metaStatusBar');
-    if (bar) bar.setAttribute('content', theme === 'light' ? 'default' : 'black-translucent');
+    if (bar) bar.setAttribute('content', theme === 'light' ? 'default' : (getStatusBarPref() === 'separate' ? 'black' : 'black-translucent'));
     window.dispatchEvent(new CustomEvent('sgt-theme', { detail: theme }));
     return theme;
 }
@@ -45,3 +46,11 @@ export function initTheme() {
 
 // Colore di una variabile CSS del tema (per i grafici, che non leggono il CSS da soli)
 export const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+export function getStatusBarPref() {
+    try { return localStorage.getItem(BAR_KEY) === 'separate' ? 'separate' : 'integrated'; } catch (e) { return 'integrated'; }
+}
+export function setStatusBarPref(pref) {
+    try { localStorage.setItem(BAR_KEY, pref === 'separate' ? 'separate' : 'integrated'); } catch (e) {}
+    applyTheme();
+}

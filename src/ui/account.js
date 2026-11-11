@@ -1,5 +1,5 @@
 import { State } from '../core/state.js';
-import { getThemePref, setThemePref } from '../core/theme.js';
+import { getThemePref, setThemePref, getStatusBarPref, setStatusBarPref } from '../core/theme.js';
 import { $, fmtUsdt, getApiBase, getGhToken, commandMode } from '../utils/helpers.js';
 import { getAutoState, riskCfg, loadAutomation, bitgetAccountText } from './automation.js';
 
@@ -95,7 +95,17 @@ export function setTheme(pref) {
     renderSettings();
 }
 
+// Barra di stato: iOS la rilegge solo alla riapertura dell'app
+export function setStatusBar(pref) {
+    const changed = pref !== getStatusBarPref();
+    setStatusBarPref(pref);
+    renderSettings();
+    if (changed && window.showAlert) window.showAlert('Barra di stato', "Chiudi e riapri l'app dalla schermata Home per vedere il cambio. Nel tema chiaro la barra è sempre separata.");
+}
+
 export function renderSettings() {
+    const bar = getStatusBarPref();
+    document.querySelectorAll('#statusBarToggle button').forEach(b => b.classList.toggle('active', b.dataset.bar === bar));
     const pref = getThemePref();
     document.querySelectorAll('#themeToggle button').forEach(b => b.classList.toggle('active', b.dataset.pref === pref));
     const version = document.querySelector('meta[name="app-version"]')?.content || '—';
@@ -106,7 +116,7 @@ export function renderSettings() {
     if (!getAutoState().loaded) loadAutomation();
 }
 
-// Connessioni: schermata a parte (Impostazioni → Avanzate)
+// Connessioni: schermata a parte (Impostazioni → Altro)
 export function openConnections() {
     const input = $('apiBaseInput'), tok = $('ghTokenInput');
     if (input) input.value = getApiBase();
