@@ -7,6 +7,7 @@ from datetime import datetime, timezone, timedelta
 import requests
 
 import futures_data
+import paper
 import track_record
 from kronos_core import (
     ALL_ASSETS, ALL_TIMEFRAMES, TF_DELTA, LOOKBACK, ATR_PERIOD, ATR_MULT, MIN_RR, MODEL_NAME,
@@ -324,6 +325,13 @@ def main():
         futures_data.collect()
     except Exception as e:
         print(f"Dati futures non aggiornati: {e}")
+
+    # Prova su carta delle strategie attivate in automation.json: nessun ordine, solo registro.
+    # Si ricalcola quando arriva una candela nuova. Anche qui un errore non deve fermare il bot.
+    try:
+        paper.update({k: int(df['time'].iloc[-1].timestamp()) for k, df in frames.items()}, notify=send_telegram_alert)
+    except Exception as e:
+        print(f"Prova su carta non aggiornata: {e}")
 
     # Salvo (e quindi il workflow fa commit) solo se c'è qualcosa di nuovo: una candela ricalcolata,
     # uno stato alert cambiato o il track record aggiornato. Il solo aggiornamento del prezzo live
