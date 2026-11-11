@@ -1,5 +1,5 @@
 import { CONFIG } from '../core/config.js';
-import { trigger as ghTrigger, command as ghCommand } from '../../api/_core.js';
+import { trigger as ghTrigger, command as ghCommand } from '../core/commands.js';
 
 export const $ = id => document.getElementById(id);
 export const SYM = s => (s || '').replace('USDT', '');
