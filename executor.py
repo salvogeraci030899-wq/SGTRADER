@@ -265,6 +265,33 @@ def _finish(state, before, path, client, mode):
     return changed
 
 
+def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
+    """Lettura del conto Bitget in SOLA LETTURA (patrimonio futures e numero di posizioni), a ogni giro,
+    anche con gli ordini veri spenti: l'app mostra se le chiavi funzionano. Nessun ordine.
+    Avvisa una sola volta quando la lettura passa da riuscita a fallita (es. chiave scaduta)."""
+    keys = all(os.environ.get(k) for k in ("BITGET_API_KEY", "BITGET_API_SECRET", "BITGET_API_PASSPHRASE"))
+    if client is None and not keys:
+        account = {"connected": False, "reason": "chiavi non impostate"}
+    else:
+        now = now or datetime.now(timezone.utc)
+        try:
+            client = client or BitgetClient.from_env()
+            account = {"connected": True, "demo": bool(client.demo), "equity": round(float(client.equity()), 2),
+                       "positions": len(client.positions())}
+        except Exception as e:
+            account = {"connected": False, "demo": bool(getattr(client, "demo", False)), "reason": str(e)[:160]}
+        account["checked_at"] = now.isoformat(timespec="seconds")
+    state = _load(state_path)
+    previous = state.get("account") or {}
+    if notify and keys and previous.get("connected") and not account["connected"]:
+        notify(f"⚠️ Bitget non risponde alla lettura del conto: {account.get('reason')}. "
+               "Se la chiave è scaduta, creane una nuova e aggiorna i segreti BITGET_*.")
+    if account != previous:
+        state["account"] = account
+        _save(state, state_path)
+    return account
+
+
 def unhalt(state_path=STATE_PATH):
     """Sblocco dopo un blocco per riconciliazione o emergenza (dall'app, comando resume)."""
     state = _load(state_path)

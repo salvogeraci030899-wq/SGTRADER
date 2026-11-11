@@ -71,9 +71,15 @@ export function renderAutomation() {
     const mode = commandMode();
     const serverText = { server: 'server impostato', github: 'token GitHub', site: 'questo sito', none: 'non impostati' }[mode];
     const onPaper = Object.values(cfg ? cfg.strategies : {}).filter(m => m !== 'off').length;
+    const acc = live && live.account;
+    const accText = !acc ? 'non ancora letto' : (acc.connected
+        ? `${acc.demo ? 'demo' : 'conto reale'} · ${Number(acc.equity).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT · ${acc.positions} ${acc.positions === 1 ? 'posizione' : 'posizioni'}`
+        : (acc.reason === 'chiavi non impostate' ? 'chiavi non impostate' : 'lettura non riuscita: controlla la chiave'));
+    const accClass = !acc ? '' : (acc.connected ? 'text-accent' : (acc.reason === 'chiavi non impostate' ? '' : 'text-danger'));
     status.innerHTML = `
         <div class="auto-row"><span>Comandi</span><b class="${mode === 'none' ? 'text-warning' : 'text-accent'}">${serverText}</b></div>
         <div class="auto-row"><span>Stato</span><b class="${emergency || halted ? 'text-danger' : 'text-accent'}">${emergency ? 'EMERGENZA: tutto bloccato' : (halted ? 'esecutore bloccato: controlla Bitget' : `${onPaper} ${onPaper === 1 ? 'strategia attiva' : 'strategie attive'}`)}</b></div>
+        <div class="auto-row"><span>Bitget</span><b class="${accClass}" title="${escapeHtml((acc && acc.reason) || '')}">${accText}</b></div>
         <div class="auto-row"><span>Ordini veri</span><b class="${risk.trading_enabled ? 'text-warning' : ''}">${realText}</b></div>
         <div class="auto-row"><span>Rischio</span><b>${risk.risk_per_trade_pct}% a trade · leva ${risk.max_leverage}x · max ${risk.max_open_positions} · −${risk.max_daily_loss_pct}%/giorno</b></div>`;
 

@@ -244,6 +244,40 @@ def test_comandi_rischio_e_interruttore():
             pass
 
 
+def test_lettura_conto_sola_lettura():
+    class Fake:
+        demo = False
+        def __init__(self, fail=False):
+            self.fail, self.orders = fail, 0
+        def equity(self):
+            if self.fail:
+                raise bg.BitgetError("40014 chiave scaduta")
+            return 123.456
+        def positions(self):
+            return {"BTCUSDT": {"side": "long", "size": 0.01}}
+        def open_position(self, *a, **k):
+            self.orders += 1
+    saved = {k: os.environ.pop(k, None) for k in ("BITGET_API_KEY", "BITGET_API_SECRET", "BITGET_API_PASSPHRASE")}
+    try:
+        with tempfile.TemporaryDirectory() as d:
+            path, msgs = os.path.join(d, "live.json"), []
+            assert ex.account_snapshot(path) == {"connected": False, "reason": "chiavi non impostate"}
+            os.environ.update({"BITGET_API_KEY": "k", "BITGET_API_SECRET": "s", "BITGET_API_PASSPHRASE": "p"})
+            ok = Fake()
+            a = ex.account_snapshot(path, ok, NOW, msgs.append)
+            assert a["connected"] and a["equity"] == 123.46 and a["positions"] == 1 and not a["demo"] and ok.orders == 0
+            assert json.load(open(path))["account"]["equity"] == 123.46
+            b = ex.account_snapshot(path, Fake(fail=True), NOW, msgs.append)
+            assert not b["connected"] and "scaduta" in b["reason"] and len(msgs) == 1        # avviso al passaggio ok -> errore
+            ex.account_snapshot(path, Fake(fail=True), NOW, msgs.append)
+            assert len(msgs) == 1                                                            # una volta sola
+    finally:
+        for k, v in saved.items():
+            os.environ.pop(k, None)
+            if v is not None:
+                os.environ[k] = v
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in tests:
