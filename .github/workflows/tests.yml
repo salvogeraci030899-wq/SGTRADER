@@ -29,6 +29,7 @@ jobs:
           python tests/test_futures_data.py
           python tests/test_strategies_validation.py
           python tests/test_strategy_lab.py
+          python tests/test_run_bot.py
       # Chiamate vere a Bitget futures: fallisce se mancano prezzo mark, funding o open interest
       - name: Dati futures veri
         run: python futures_data.py --check

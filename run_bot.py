@@ -151,6 +151,19 @@ def other_timeframe_signals(dashboard_data, symbol, tf):
     return result
 
 
+def validation_note(symbol, tf, path="validation_summary.json"):
+    """Riga di avviso per l'alert: i segnali di Kronos sono dichiarati validi solo se la validazione
+    storica (validation_summary.json) ha dimostrato un vantaggio per quella coppia. Altrimenti lo si dice."""
+    try:
+        with open(path) as f:
+            pair = json.load(f)["by_pair"][f"{symbol}_{tf}"]
+        if pair.get("verdict") == "positivo":
+            return ""
+        return f"⚠️ Segnale NON validato: su {pair['n']} previsioni storiche nessun vantaggio dimostrato. Solo informativo."
+    except Exception:
+        return "⚠️ Segnale NON validato: validazione storica non disponibile. Solo informativo."
+
+
 def build_alert_text(symbol, tf, payload, signal, others):
     plan = payload['ai_plan']
     prob_up = payload['prob_up']
@@ -171,6 +184,9 @@ def build_alert_text(symbol, tf, payload, signal, others):
         others_txt = ", ".join(f"{k} {v}" for k, v in others.items())
         text += f"🔗 *Altri timeframe:* {others_txt}\n"
     text += f"🕯 Ultima candela chiusa alle: {candle_dt.strftime('%d/%m %H:%M')} UTC"
+    note = validation_note(symbol, tf)
+    if note:
+        text += f"\n\n{note}"
     return text
 
 
