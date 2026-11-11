@@ -22,6 +22,10 @@ on:
         description: 'livello per tp/sl (vuoto per close/clear)'
         required: false
         default: ''
+      req:
+        description: "codice della richiesta dell'app (per mostrarne l'esito)"
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -51,11 +55,16 @@ jobs:
           SYMBOL: ${{ inputs.symbol }}
           SIDE: ${{ inputs.side }}
           PRICE: ${{ inputs.price }}
+          POSITION_RESULT: ${{ runner.temp }}/position_result.json
         run: |
           set -o pipefail
           python position_cmd.py "$ACTION" "$SYMBOL" "$SIDE" "$PRICE" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Salva lo stato
+        # anche se il comando è fallito: l'app legge l'esito (e il motivo) da live_trades.json
+        if: always()
         env:
+          REQ: ${{ inputs.req }}
+          POSITION_RESULT: ${{ runner.temp }}/position_result.json
           ACTION: ${{ inputs.action }}
           SYMBOL: ${{ inputs.symbol }}
           SIDE: ${{ inputs.side }}

@@ -106,7 +106,9 @@ export async function command(body, env, fetchFn) {
             if (['tp', 'sl'].includes(b.action) ? !/^\d{1,9}(\.\d{1,8})?$/.test(price) || !(Number(price) > 0) : price !== '') {
                 return json(400, { error: 'Prezzo non valido' });
             }
-            return dispatch(env, fetchFn, 'position.yml', { action: b.action, symbol: b.symbol, side: b.side, price });
+            // codice della richiesta (facoltativo): l'app lo ritrova in live_trades.json per mostrare l'esito
+            const req = typeof b.req === 'string' && /^[a-z0-9]{6,20}$/.test(b.req) ? b.req : '';
+            return dispatch(env, fetchFn, 'position.yml', { action: b.action, symbol: b.symbol, side: b.side, price, ...(req ? { req } : {}) });
         }
         default:
             return json(400, { error: 'Comando sconosciuto' });

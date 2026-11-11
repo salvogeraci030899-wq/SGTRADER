@@ -85,6 +85,35 @@ def test_chiusura_allinea_l_esecutore():
         assert json.load(open(path))["events"][-1]["action"] == "close"
 
 
+def test_esito_salvato_anche_se_fallito():
+    with tempfile.TemporaryDirectory() as d:
+        path, res = os.path.join(d, "live.json"), os.path.join(d, "res.json")
+        json.dump({"positions": {"x": {"symbol": "BTCUSDT", "side": "long", "status": "open"}}, "day": {}, "halted": False, "events": []}, open(path, "w"))
+        pc.write_result(False, "Comando NON eseguito: niente posizione", res)
+        os.environ["REQ"] = "abc123xyz"
+        try:
+            pc.sync_only(["close", "BTCUSDT", "long"], state_path=path, result_path=res)
+        finally:
+            del os.environ["REQ"]
+        st = json.load(open(path))
+        ev = st["events"][-1]
+        assert ev["ok"] is False and ev["req"] == "abc123xyz" and "NON eseguito" in ev["msg"]
+        assert st["positions"]["x"]["status"] == "open"                                    # fallito: non si chiude nulla
+        # file dell'esito mancante: evento comunque registrato, senza chiudere
+        pc.sync_only(["close", "BTCUSDT", "long"], state_path=path, result_path=os.path.join(d, "manca.json"))
+        st = json.load(open(path))
+        assert st["events"][-1]["ok"] is False and st["positions"]["x"]["status"] == "open"
+        # riuscito: chiude; un codice non valido non viene salvato
+        pc.write_result(True, "Chiusa a mercato BTC LONG su Bitget.", res)
+        os.environ["REQ"] = "../x"
+        try:
+            pc.sync_only(["close", "BTCUSDT", "long"], state_path=path, result_path=res)
+        finally:
+            del os.environ["REQ"]
+        st = json.load(open(path))
+        assert st["events"][-1]["ok"] is True and "req" not in st["events"][-1] and st["positions"]["x"]["status"] == "closed"
+
+
 def test_client_tpsl_richieste():
     import bitget_client as bg
 

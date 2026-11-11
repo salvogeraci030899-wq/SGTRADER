@@ -164,6 +164,38 @@ function realCommand(p, plan) {
     return null;
 }
 
+// Esito dei comandi reali: il workflow lo scrive in live_trades.json (evento "manual" con lo stesso
+// codice), riuscito o no. Lo si cerca ogni 15 s per 5 minuti; poi si rimanda a Telegram.
+const OUTCOME_EVERY_MS = 15_000, OUTCOME_MAX_MS = 5 * 60_000;
+const newReq = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+
+export function findOutcome(live, req) {
+    const ev = ((live && live.events) || []).slice().reverse().find(e => e && e.kind === 'manual' && e.req === req);
+    return ev ? { ok: ev.ok !== false, msg: ev.msg || (ev.ok === false ? 'Comando non eseguito.' : 'Comando eseguito su Bitget.') } : null;
+}
+
+function waitOutcome(req, status) {
+    const start = Date.now();
+    const tick = async () => {
+        let live = null;
+        try { const r = await fetch(`./live_trades.json?t=${Date.now()}`); live = r.ok ? await r.json() : null; } catch (e) {}
+        const out = findOutcome(live, req);
+        if (out) {
+            status.textContent = `${out.ok ? '✓' : '✗'} ${out.msg}`;
+            status.className = 'assist-plan-done ' + (out.ok ? 'text-accent' : 'text-danger');
+            say(out.msg);
+            Auto.loadAutomation();
+            return;
+        }
+        if (Date.now() - start >= OUTCOME_MAX_MS) {
+            status.textContent = 'Inviato, ma l\'esito non è ancora arrivato: controlla Telegram o la posizione fra qualche minuto.';
+            return;
+        }
+        setTimeout(tick, OUTCOME_EVERY_MS);
+    };
+    setTimeout(tick, OUTCOME_EVERY_MS);
+}
+
 function showRealPlan(action) {
     const p = realPos();
     if (!p) { addMsg('bot warn', 'La posizione non risulta più aperta su Bitget.'); return; }
@@ -182,14 +214,16 @@ function showRealPlan(action) {
     no.onclick = () => done('Annullato.');
     yes.onclick = async () => {
         done('Invio a Bitget…');
+        const req = newReq();
         try {
-            const res = await apiPost('/api/command', { type: 'position', symbol: p.symbol, side: p.side, action: cmd.action, price: cmd.price != null ? String(cmd.price) : '' });
+            const res = await apiPost('/api/command', { type: 'position', symbol: p.symbol, side: p.side, action: cmd.action, price: cmd.price != null ? String(cmd.price) : '', req });
             let out = {};
             try { out = await res.json(); } catch (e) {}
             if (!res.ok) throw new Error(out.error || `Errore ${res.status}`);
-            box.querySelector('.assist-plan-done').textContent = 'Inviato ✓ Esito su Telegram e qui entro 1-2 minuti.';
+            const status = box.querySelector('.assist-plan-done');
+            status.textContent = 'Inviato ✓ Attendo l\'esito da Bitget (1-3 minuti)…';
             say('Comando inviato a Bitget.');
-            setTimeout(() => Auto.loadAutomation(), 90000);
+            waitOutcome(req, status);
         } catch (e) {
             box.querySelector('.assist-plan-done').textContent = `Non inviato: ${e.message}`;
         }

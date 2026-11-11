@@ -15,6 +15,7 @@ riletto e avviso su Telegram. Le chiavi arrivano solo dai segreti di GitHub.
 """
 import json
 import os
+import re
 import sys
 from datetime import datetime, timezone
 
@@ -22,6 +23,8 @@ import executor
 from bitget_client import BitgetClient, BitgetError
 
 ACTIONS = ("close", "tp", "sl", "clear")
+# esito del comando, letto dal passo che salva lo stato (anche se il comando è fallito) e mostrato nell'app
+RESULT_PATH = os.environ.get("POSITION_RESULT", "position_result.json")
 SYMBOLS = ("BTCUSDT", "ETHUSDT", "SOLUSDT")
 
 
@@ -60,16 +63,27 @@ def validate(action, symbol, side, price, position):
     return round(price, places)
 
 
-def sync_executor(symbol, side, action, state_path=executor.STATE_PATH, now=None):
+def clean_req(req):
+    """Codice della richiesta generato dall'app: serve solo a ritrovarne l'esito in live_trades.json."""
+    return req if isinstance(req, str) and re.fullmatch(r"[a-z0-9]{6,20}", req) else ""
+
+
+def sync_executor(symbol, side, action, state_path=executor.STATE_PATH, now=None, req="", ok=True, msg=""):
     """Una chiusura manuale toglie la posizione anche dallo stato dell'esecutore, che altrimenti al giro
-    dopo la cercherebbe su Bitget e si bloccherebbe. Registra comunque l'evento."""
+    dopo la cercherebbe su Bitget e si bloccherebbe. Registra comunque l'evento, riuscito o no, con
+    l'esito leggibile dall'app."""
     now = (now or datetime.now(timezone.utc)).isoformat(timespec="seconds")
     state = executor._load(state_path)
-    if action == "close":
+    if action == "close" and ok:
         for p in state["positions"].values():
             if p.get("status") == "open" and p.get("symbol") == symbol and p.get("side") == side:
                 p.update(status="closed", closed_at=now, close_reason="MANUALE (assistente)")
-    state["events"].append({"at": now, "kind": "manual", "action": action, "symbol": symbol, "side": side})
+    ev = {"at": now, "kind": "manual", "action": action, "symbol": symbol, "side": side, "ok": bool(ok)}
+    if clean_req(req):
+        ev["req"] = clean_req(req)
+    if msg:
+        ev["msg"] = str(msg)[:300]
+    state["events"].append(ev)
     executor._save(state, state_path)
 
 
@@ -97,7 +111,7 @@ def run(argv, client=None, notify=None, state_path=executor.STATE_PATH):
     else:
         client.set_tpsl(symbol, side, action, price)
         msg = f"{'Take profit' if action == 'tp' else 'Stop loss'} di {name} impostato su Bitget a {_fmt(price)} (scatta sul prezzo mark, a mercato)."
-    sync_executor(symbol, side, action, state_path)
+    sync_executor(symbol, side, action, state_path, msg=msg)
     try:
         executor.account_snapshot(state_path, client=client)
     except Exception as e:
@@ -107,12 +121,28 @@ def run(argv, client=None, notify=None, state_path=executor.STATE_PATH):
     return msg
 
 
-def sync_only(argv, state_path=executor.STATE_PATH):
+def write_result(ok, msg, path=None):
+    with open(path or RESULT_PATH, "w") as f:
+        json.dump({"ok": bool(ok), "msg": str(msg)}, f)
+
+
+def read_result(path=None):
+    try:
+        with open(path or RESULT_PATH) as f:
+            r = json.load(f)
+        return bool(r.get("ok")), str(r.get("msg", ""))
+    except (OSError, ValueError, AttributeError):
+        return False, "Esito sconosciuto: controlla la posizione su Bitget e i messaggi su Telegram."
+
+
+def sync_only(argv, state_path=executor.STATE_PATH, result_path=None):
     """Solo l'aggiornamento dello stato (nessun ordine): usato dal workflow per riapplicarlo sulla
-    versione più recente del repository se il salvataggio incontra un giro del bot."""
+    versione più recente del repository se il salvataggio incontra un giro del bot. Gira anche se il
+    comando è fallito, così l'app vede il motivo."""
     action, symbol, side = argv[0], argv[1], argv[2]
-    sync_executor(symbol, side, action, state_path)
-    if all(os.environ.get(k) for k in ("BITGET_API_KEY", "BITGET_API_SECRET", "BITGET_API_PASSPHRASE")):
+    ok, msg = read_result(result_path)
+    sync_executor(symbol, side, action, state_path, req=os.environ.get("REQ", ""), ok=ok, msg=msg)
+    if ok and all(os.environ.get(k) for k in ("BITGET_API_KEY", "BITGET_API_SECRET", "BITGET_API_PASSPHRASE")):
         try:
             executor.account_snapshot(state_path)
         except Exception as e:
@@ -125,10 +155,16 @@ if __name__ == "__main__":
         sync_only(sys.argv[2:])
         sys.exit(0)
     try:
-        print(run(sys.argv[1:], notify=watchdog.send))
+        msg = run(sys.argv[1:], notify=watchdog.send)
+        write_result(True, msg)
+        print(msg)
     except (CommandError, BitgetError) as e:
+        write_result(False, f"Comando NON eseguito: {e}")
         try:
             watchdog.send(f"⚠️ ASSISTENTE: comando sulla posizione NON eseguito.\n{e}")
         except Exception:
             pass
         sys.exit(f"Comando NON eseguito: {e}")
+    except Exception as e:
+        write_result(False, f"Errore imprevisto ({type(e).__name__}): controlla la posizione su Bitget.")
+        raise
