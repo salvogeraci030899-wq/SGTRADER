@@ -5,7 +5,7 @@
   "start_equity": 1000.0,
   "blocked": false
  },
- "halted": false,
+ "halted": true,
  "events": [],
  "mode": "simulata",
  "simulated": {
@@ -34,6 +34,6 @@
    "bots": 0.0,
    "margin": 0.0
   },
-  "checked_at": "2026-11-11T14:23:03+00:00"
+  "checked_at": "2026-11-11T14:48:55+00:00"
  }
 }
