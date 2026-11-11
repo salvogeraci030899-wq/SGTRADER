@@ -186,3 +186,28 @@ def relstrength90(x):
           REL_EXIT, tfs=SLOW)
 def relstrength30_long(x):
     return np.where(x["rank_ret"](30) > 0, 1, 0)
+
+
+# =====================================================================
+# QUARTA SERIE (dichiarata l'11/11/2026, prima di vederne i risultati): funding, open interest e
+# posizionamento dei trader (archivio pubblico di Binance, futures_archive.py). Informazione nuova:
+# non viene dai prezzi. Solo 1d e 4h. I dati di un giorno si usano solo dopo la sua chiusura.
+# =====================================================================
+@strategy("funding_fade", "funding", "Contro la folla: short quando il funding degli ultimi 7 giorni è nel 10% più alto "
+          "dell'ultimo anno (troppi long a leva), long quando è nel 10% più basso. Tenuta 7 candele, stop 3 ATR.", REL_EXIT, tfs=SLOW)
+def funding_fade(x):
+    r = x["feat"]("funding_7d_rank")
+    return np.where(r >= 0.9, -1, np.where(r <= 0.1, 1, 0))
+
+
+@strategy("donchian20_oi", "funding", "Rotture di donchian20 solo se l'open interest è cresciuto negli ultimi 7 giorni "
+          "(soldi nuovi che entrano). Uscite di donchian20.", TREND_EXIT, tfs=SLOW)
+def donchian20_oi(x):
+    return np.where(x["feat"]("oi_chg_7d") > 0, donchian20(x), 0)
+
+
+@strategy("crowd_fade", "funding", "Contro la folla: short quando la quota di conti long è molto sopra la sua media a 30 giorni "
+          "(z > 2), long quando è molto sotto (z < -2). Tenuta 7 candele, stop 3 ATR.", REL_EXIT, tfs=SLOW)
+def crowd_fade(x):
+    z = x["feat"]("ls_z_30")
+    return np.where(z > 2, -1, np.where(z < -2, 1, 0))

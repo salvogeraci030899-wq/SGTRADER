@@ -235,14 +235,14 @@ def test_strategie_registrate_girano():
     df = pd.DataFrame({"time": pd.to_datetime([T0 + i * D for i in range(n)], unit="s", utc=True), "open": o,
                        "high": np.maximum(o, c) * 1.004, "low": np.minimum(o, c) * 0.996, "close": c, "volume": rng.lognormal(0, 1.2, n)})
     x = lab.indicators(df)
-    assert len(ls.STRATEGIES) >= 19
+    assert len(ls.STRATEGIES) >= 22
     for name, spec in ls.STRATEGIES.items():
         sig = np.asarray(spec["fn"](x))
         assert len(sig) == n and set(np.unique(sig)) <= {-1, 0, 1}, name
         assert set(spec["exit"]) == {"stop_atr", "target_atr", "trail_atr", "max_hold", "channel_exit"}, name
         assert spec["tfs"] is None or set(spec["tfs"]) <= {"1d", "4h", "1h"}, name
         trades = lab.simulate(df, "1d", "BTCUSDT", spec)
-        assert trades or spec["family"] == "forza relativa", name           # ogni regola scatta (la forza relativa ha il suo test)
+        assert trades or spec["family"] in ("forza relativa", "funding"), name   # ogni regola scatta (le altre hanno il loro test)
         assert all(t["t"] >= T0 + W * D and t["bars"] >= 1 and t["bars"] <= spec["exit"]["max_hold"] for t in trades), name
     # nessuna strategia guarda avanti: i segnali fino alla candela k non cambiano se si tolgono le candele successive
     k = 900

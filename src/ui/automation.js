@@ -166,7 +166,7 @@ export function openAutoAdd() {
         .sort((a, b) => b[1].excess_avg_pct - a[1].excess_avg_pct) : [];
     box.innerHTML = rows.length ? rows.map(([key, r]) => {
         const on = currentMode(key) !== 'off';
-        const rel = r.family === 'forza relativa';
+        const rel = r.family === 'forza relativa' || r.family === 'funding';
         return `<button class="auto-add-item" ${on || rel ? 'disabled' : ''} onclick="addAutoPaper('${escapeHtml(key)}')">
             <span><b>${escapeHtml(label(key))}</b><br><small>${r.n} trade · oltre il mercato ${pct(r.excess_avg_pct)}${r.holdout ? (r.holdout.confirmed ? ' · confermata' : ' · bocciata') : (r.candidate ? ' · candidata' : '')}</small></span>
             <small>${on ? 'già attiva' : (rel ? 'non ancora' : 'su carta')}</small></button>`;

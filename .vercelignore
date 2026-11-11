@@ -23,3 +23,5 @@ executor.py
 bitget_client.py
 live_trades.json
 daily_report.py
+futures_archive.py
+futures_archive

@@ -43,7 +43,8 @@ def test_regole_di_sicurezza():
         rejected(["set", "inesistente:1d", "paper"], cfg, summ, "sconosciuta")
         rejected(["set", "big_candle_trail:1h", "paper"], cfg, summ, "non è stata provata")      # provata solo su 1d e 4h
         rejected(["set", "big_candle_trail:1d", "acceso"], cfg, summ, "Stato sconosciuto")
-        rejected(["set", "relstrength30:1d", "paper"], cfg, summ, "confronta le tre coin")
+        rejected(["set", "relstrength30:1d", "paper"], cfg, summ, "prova su carta non riceve")
+        rejected(["set", "funding_fade:1d", "paper"], cfg, summ, "prova su carta non riceve")
         rejected(["set", "big_candle_trail", "paper"], cfg, summ, "formato")
         rejected(["boh"], cfg, summ, "non valido")
         assert not os.path.exists(cfg)                                                         # nessun comando rifiutato scrive il file
