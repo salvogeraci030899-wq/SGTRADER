@@ -1,4 +1,6 @@
 import { State } from '../core/state.js';
+import { tradingMode } from './account.js';
+import { getAutoState } from './automation.js';
 import { CONFIG } from '../core/config.js';
 import { Logger } from '../core/logger.js';
 import { $, SYM, fetchT, fmtUsd, fmtUsdt } from '../utils/helpers.js';
@@ -76,7 +78,11 @@ export function syncCapital() {
     if (State.capitalTouched) return;
     const capInput = $('calcCapital');
     if (!capInput) return;
-    capInput.value = Math.round(State.simState.freeBalance * 100) / 100;
+    // in Reale il capitale di partenza è il saldo Bitget letto dal bot
+    const st = getAutoState(), acc = st.live && st.live.account;
+    const real = tradingMode().mode === 'on' && acc && acc.connected;
+    const cap = real ? (acc.total_usdt != null ? acc.total_usdt : acc.equity) : State.simState.freeBalance;
+    capInput.value = Math.round(cap * 100) / 100;
     calc();
 }
 

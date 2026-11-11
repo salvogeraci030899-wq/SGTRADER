@@ -136,10 +136,15 @@ class BitgetClient:
         """Posizioni aperte: {symbol: {"side": "long"/"short", "size": contratti}}."""
         rows = self._request("GET", "/api/v2/mix/position/all-position", {"productType": PRODUCT_TYPE, "marginCoin": MARGIN_COIN})
         out = {}
+        num = lambda v: float(v) if v not in (None, "") else None
         for row in rows or []:
             size = float(row.get("total") or 0)
             if size > 0:
-                out[row["symbol"]] = {"side": row.get("holdSide"), "size": size}
+                # side e size servono alla riconciliazione; il resto è solo da mostrare nell'app
+                out[row["symbol"]] = {"side": row.get("holdSide"), "size": size,
+                                      "entry": num(row.get("openPriceAvg")), "mark": num(row.get("markPrice")),
+                                      "upl": num(row.get("unrealizedPL")), "leverage": num(row.get("leverage")),
+                                      "margin": num(row.get("marginSize")), "liq": num(row.get("liquidationPrice"))}
         return out
 
     # ---------- ordini ----------

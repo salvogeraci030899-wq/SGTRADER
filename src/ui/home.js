@@ -2,7 +2,7 @@ import { State } from '../core/state.js';
 import { $, SYM, fetchT, calcPnl, escapeHtml } from '../utils/helpers.js';
 import { aggregateCellSignals } from './signals.js';
 import { bitgetAccountText } from './automation.js';
-import { updateModePills } from './account.js';
+import { updateModePills, tradingMode } from './account.js';
 
 // --- HOME: panoramica ---
 // Ordine di lettura: mercato → conto simulato → automazione → stato → grafici.
@@ -86,14 +86,33 @@ function renderMarket() {
 const signed = v => (v > 0 ? '+' : '') + Number(v).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const tone = v => (v > 0 ? ' safe' : v < 0 ? ' danger' : '');
 
+// In modalità Reale la scheda mostra il conto Bitget (letto dal bot ogni 30 minuti), in Simulato
+// le posizioni aperte a mano nell'app. Il titolo dice sempre quale dei due si sta guardando.
 function renderAccount() {
+    const set = (id, text, cls) => { const el = $(id); if (el) { el.textContent = text; el.className = 'home-kpi-value' + (cls || ''); } };
+    const label = (id, text) => { const el = $(id); if (el) el.textContent = text; };
+    if (tradingMode().mode === 'on') {
+        const acc = bot && bot.live && bot.live.account;
+        label('homeAccTitle', 'Conto Bitget · reale');
+        label('homePnlLabel', 'Variazione oggi');
+        if (!acc || !acc.connected) {
+            set('homePnlToday', '—'); set('homeOpenCount', '—'); set('homeOpenPnl', '—');
+            return;
+        }
+        const ch = acc.day_change != null ? acc.day_change : 0;
+        set('homePnlToday', signed(ch), tone(ch));
+        set('homeOpenCount', String(acc.positions || 0));
+        set('homeOpenPnl', acc.positions ? signed(acc.upl || 0) : '—', acc.positions ? tone(acc.upl || 0) : '');
+        return;
+    }
+    label('homeAccTitle', 'Conto simulato');
+    label('homePnlLabel', 'PnL oggi');
     const today = new Date().toLocaleDateString('it-IT');
     const todayPnl = State.simState.history
         .filter(h => h.closedAt && new Date(h.closedAt).toLocaleDateString('it-IT') === today)
         .reduce((s, h) => s + h.pnl, 0);
     const open = State.simState.activeTrades;
     const floating = open.reduce((s, t) => s + calcPnl(t, t.currentPrice || t.entryPrice).net, 0);
-    const set = (id, text, cls) => { const el = $(id); if (el) { el.textContent = text; el.className = 'home-kpi-value' + (cls || ''); } };
     set('homePnlToday', signed(todayPnl), tone(todayPnl));
     set('homeOpenCount', String(open.length));
     set('homeOpenPnl', open.length ? signed(floating) : '—', open.length ? tone(floating) : '');
@@ -115,6 +134,7 @@ async function refreshBotFiles() {
         bot = { cfg, ledger, live };
     } finally { botInFlight = false; }
     renderAutomationCard();
+    renderAccount();
 }
 
 function setLine(id, text, cls = '') {

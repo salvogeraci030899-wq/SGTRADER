@@ -110,22 +110,21 @@ export function toggleFullscreen(symbol) {
         btn.title = isEntering ? 'Chiudi' : 'Schermo intero';
     }
 
-    setTimeout(() => {
+    // all'uscita il riquadro torna stretto: il grafico va rimisurato sulla scheda (non sullo schermo),
+    // altrimenti la larghezza dello schermo intero resta e allarga la scheda
+    [60, 300].forEach(ms => setTimeout(() => {
         const s = charts[symbol];
         if (s && s.handle && s.el) {
-            const w = s.el.clientWidth;
-            const h = s.el.clientHeight;
-            if (w > 0 && h > 0) {
-                s.handle.chart.applyOptions({ width: w, height: h });
-                s.handle.fitContent();
-            }
+            s.handle.resize();
+            s.handle.fitContent();
         }
-    }, 150);
+        if (!isEntering) goToHomeChart(COINS.findIndex(c => c.symbol === symbol), 'instant');
+    }, ms));
 }
 
-export function goToHomeChart(idx) {
+export function goToHomeChart(idx, behavior = 'smooth') {
     const list = document.getElementById('homeChartsList');
-    if (list) list.scrollTo({ left: idx * list.clientWidth, behavior: 'smooth' });
+    if (list && idx >= 0) list.scrollTo({ left: idx * list.clientWidth, behavior });
 }
 
 export function updateHomeChartDots() {

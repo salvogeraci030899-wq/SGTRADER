@@ -206,13 +206,15 @@ def test_client_firma_e_richieste():
                                          hashlib.sha256).digest()).decode()
     assert bg.sign("s3cr3t", "1700000000000", "get", "/api/v2/mix/position/all-position", "marginCoin=USDT&productType=USDT-FUTURES") == expected
     sess = FakeSession([
-        FakeResponse(200, {"code": "00000", "data": [{"symbol": "BTCUSDT", "holdSide": "long", "total": "0.025"}, {"symbol": "ETHUSDT", "holdSide": "short", "total": "0"}]}),
+        FakeResponse(200, {"code": "00000", "data": [{"symbol": "BTCUSDT", "holdSide": "long", "total": "0.025", "openPriceAvg": "70000", "unrealizedPL": "12.5", "leverage": "3"}, {"symbol": "ETHUSDT", "holdSide": "short", "total": "0"}]}),
         FakeResponse(200, {"code": "00000", "data": {"orderId": "1"}}),
         FakeResponse(200, {"code": "40001", "msg": "errore"}),
         FakeResponse(200, {"code": "00000", "data": [{"marginCoin": "USDT", "accountEquity": "1234.5"}]}),
     ])
     c = bg.BitgetClient("key", "s3cr3t", "pass", demo=True, session=sess, clock=lambda: 1_700_000_000)
-    assert c.positions() == {"BTCUSDT": {"side": "long", "size": 0.025}}
+    pos = c.positions()
+    assert list(pos) == ["BTCUSDT"] and pos["BTCUSDT"]["side"] == "long" and pos["BTCUSDT"]["size"] == 0.025
+    assert pos["BTCUSDT"]["entry"] == 70000.0 and pos["BTCUSDT"]["upl"] == 12.5 and pos["BTCUSDT"]["mark"] is None
     h = sess.calls[0]["headers"]
     assert sess.calls[0]["url"] == "https://api.bitget.com/api/v2/mix/position/all-position?marginCoin=USDT&productType=USDT-FUTURES"
     assert h["ACCESS-KEY"] == "key" and h["ACCESS-PASSPHRASE"] == "pass" and h["ACCESS-TIMESTAMP"] == "1700000000000" and h["ACCESS-SIGN"] == expected
@@ -291,6 +293,13 @@ def test_lettura_conto_sola_lettura():
                     return {"spot": 1200.0, "futures": 123.456, "earn": 500.0}
             a2 = ex.account_snapshot(path, WithAll(), NOW, msgs.append)
             assert a2["total_usdt"] == 1823.46 and a2["accounts_usdt"]["earn"] == 500.0, a2
+            assert a2["positions_detail"][0]["symbol"] == "BTCUSDT" and a2["day"] == NOW.strftime("%Y-%m-%d")
+            # variazione di oggi: rispetto alla prima lettura del giorno
+            class Richer(WithAll):
+                def all_balances_usdt(self):
+                    return {"spot": 1200.0, "futures": 223.456, "earn": 500.0}
+            a3 = ex.account_snapshot(path, Richer(), NOW, msgs.append)
+            assert a3["day_start_total"] == a2["day_start_total"] == 123.46 and a3["day_change"] == 1800.0, a3   # base: prima lettura del giorno
             b = ex.account_snapshot(path, Fake(fail=True), NOW, msgs.append)
             assert not b["connected"] and "scaduta" in b["reason"] and len(msgs) == 1        # avviso al passaggio ok -> errore
             ex.account_snapshot(path, Fake(fail=True), NOW, msgs.append)

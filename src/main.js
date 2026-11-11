@@ -92,6 +92,7 @@ window.openCloseTradeModal = TradeUI.openCloseTradeModal;
 window.closeCloseTradeModal = TradeUI.closeCloseTradeModal;
 window.executeCloseTrade = TradeUI.executeCloseTrade;
 window.openCapitalModal = TradeUI.openCapitalModal;
+window.setCapitalSign = TradeUI.setCapitalSign;
 window.closeCapitalModal = TradeUI.closeCapitalModal;
 window.applyCapitalChange = TradeUI.applyCapitalChange;
 window.requestAIAnalysis = TradeUI.requestAIAnalysis;
@@ -244,6 +245,7 @@ window.switchTab = (tabId) => {
         setTimeout(TerminalUI.resizeChart, 50);
         setTimeout(TerminalUI.resizeChart, 350);
     } else if (tabId === 'trade') {
+        TradeUI.refreshCapitalUI();
         TradeUI.renderActiveTrades();
         TradeUI.renderActiveTradeDots();
         setTimeout(TradeUI.renderActiveTradeDots, 50);
