@@ -13,6 +13,7 @@ Regole che il codice fa rispettare, qualunque cosa arrivi dall'app:
 - si possono attivare solo strategie che esistono nel laboratorio, su timeframe su cui sono state provate;
 - "live" (ordini reali) solo per strategie confermate dalla prova finale (lab_summary.json);
 - durante l'emergenza non si può accendere nulla;
+- al massimo MAX_ACTIVE (6) strategie accese insieme;
 - ogni comando resta nel registro "history" di automation.json, con data e ora.
 """
 import json
@@ -28,6 +29,7 @@ CONFIG_PATH = "automation.json"
 SUMMARY_PATH = "lab_summary.json"
 MODES = ("off", "paper", "live")
 HISTORY_MAX = 200
+MAX_ACTIVE = 6          # strategie accese insieme (su carta o reali): più prove = più risultati "buoni" per caso
 
 
 class CommandError(ValueError):
@@ -86,6 +88,9 @@ def set_mode(cfg, key, mode, confirmed_keys, today=None):
         raise CommandError(f"{name} usa dati che la prova su carta non riceve ancora (altre coin o archivio futures).")
     if mode != "off" and cfg["emergency"]:
         raise CommandError("Emergenza attiva: prima va sbloccata.")
+    active = [k for k, m in cfg["strategies"].items() if m != "off"]
+    if mode != "off" and key not in active and len(active) >= MAX_ACTIVE:
+        raise CommandError(f"Al massimo {MAX_ACTIVE} strategie accese insieme: spegnine una prima di aggiungerne un'altra.")
     if mode == "live" and key not in confirmed_keys:
         raise CommandError(f"{key} non è confermata dalla prova finale: il reale non è consentito.")
     before = cfg["strategies"].get(key, "off")

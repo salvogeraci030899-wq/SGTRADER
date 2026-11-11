@@ -435,7 +435,15 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .auto-row b { text-align: right; }
 .auto-row.auto-sub { margin-top: -2px; }
 .auto-row.auto-sub b { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
-.auto-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; flex-shrink: 0; }
+.auto-list { display: flex; flex-direction: column; margin-bottom: 8px; flex-shrink: 0; }
+/* pagine da 3 strategie, scorrimento orizzontale a scatto */
+.auto-pages { display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.auto-pages::-webkit-scrollbar { display: none; }
+.auto-page { flex: 0 0 100%; scroll-snap-align: start; scroll-snap-stop: always; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.auto-dots { display: flex; justify-content: center; gap: 6px; padding-top: 6px; }
+.auto-dots .info-dot { width: 6px; height: 6px; }
+.auto-dots .info-dot.active { width: 16px; border-radius: 3px; }
+.auto-count { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-left: 4px; }
 .auto-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 8px 10px; }
 .auto-item-head { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
 .auto-item-head span { font-size: 11px; }
@@ -819,3 +827,11 @@ html.pwa-mode .nav-item svg { width: 22px; height: 22px; }
 .set-danger { color: var(--danger); }
 .set-static { cursor: default; }
 .conn-warn { background: rgba(255, 159, 10, 0.08); border: 1px solid rgba(255, 159, 10, 0.25); border-radius: 10px; padding: 8px 10px; margin: 0 0 14px; color: #fbbf24; }
+
+/* Segnali → Auto su schermi bassi (iPhone SE in Safari): 3 strategie per pagina devono entrare */
+@media (max-height: 620px) {
+    #autoView .auto-item { padding: 6px 10px; }
+    #autoView .auto-item-info { margin: 1px 0 4px; }
+    #autoView .auto-item .pill-btn { min-height: 30px; padding-top: 4px; padding-bottom: 4px; }
+    #autoView .auto-row-risk, #autoView #autoNote { display: none; }
+}
