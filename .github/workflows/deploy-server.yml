@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['worker/**', 'api/_core.js', '.github/workflows/deploy-server.yml']
+    paths: ['worker/**', 'api/_core.js', 'src/core/commands.js', '.github/workflows/deploy-server.yml']
 
 concurrency:
   group: deploy-server

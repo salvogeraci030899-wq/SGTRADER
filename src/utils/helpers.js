@@ -58,7 +58,10 @@ export async function apiPost(path, body) {
         const { status, body: out } = await fn(body, { GH_TOKEN: getGhToken() }, (u, o) => fetch(u, o));
         return new Response(JSON.stringify(out), { status, headers: { 'Content-Type': 'application/json' } });
     }
-    const url = getApiBase() + path;
+    // L'analisi AI serve la chiave Groq, che sta solo sui server: senza un indirizzo impostato e fuori
+    // da Vercel si usa il server Cloudflare del progetto
+    const base = getApiBase() || (path === '/api/analyze' && !location.hostname.endsWith('vercel.app') ? CONFIG.AI_SERVER : '');
+    const url = base + path;
     const send = () => {
         let key = '';
         try { key = localStorage.getItem(APP_KEY_STORAGE) || ''; } catch (e) {}

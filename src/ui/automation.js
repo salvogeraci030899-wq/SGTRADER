@@ -31,15 +31,23 @@ async function getJson(name) {
     } catch (e) { return null; }
 }
 
-// Stato del conto Bitget letto dal bot (live_trades.json, campo account): usato qui e nella Home
+// Stato del conto Bitget letto dal bot (live_trades.json, campo account): usato qui e nella Home.
+// text = riga breve; detail = composizione (spot e futures) quando il bot l'ha letta
+// separatore delle migliaia sempre presente (Intl in italiano lo omette sotto 10.000)
+const usdt = v => { const [i, d] = Math.abs(Number(v)).toFixed(2).split('.'); return (Number(v) < 0 ? '-' : '') + i.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + d; };
 export function bitgetAccountText(acc) {
-    if (!acc) return { text: 'non ancora letto', cls: '' };
+    if (!acc) return { text: 'non ancora letto', cls: '', detail: '' };
     if (acc.connected) {
-        const eq = Number(acc.equity).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        return { text: `${acc.demo ? 'demo' : 'conto reale'} · ${eq} USDT · ${acc.positions} ${acc.positions === 1 ? 'posizione' : 'posizioni'}`, cls: 'text-accent' };
+        const total = acc.total_usdt != null ? acc.total_usdt : acc.equity;
+        const kind = acc.demo ? 'demo' : 'reale';
+        const pos = `${acc.positions} ${acc.positions === 1 ? 'posizione' : 'posizioni'}`;
+        const detail = acc.spot_usdt != null
+            ? `spot ${usdt(acc.spot_usdt)} · futures ${usdt(acc.equity)} · ${pos}`
+            : `futures ${usdt(acc.equity)} · ${pos}${acc.spot_error ? ' · spot non leggibile' : ''}`;
+        return { text: `${usdt(total)} USDT · ${kind}`, cls: 'text-accent', detail };
     }
-    if (acc.reason === 'chiavi non impostate') return { text: 'chiavi non impostate', cls: '' };
-    return { text: 'lettura non riuscita: controlla la chiave', cls: 'text-danger' };
+    if (acc.reason === 'chiavi non impostate') return { text: 'chiavi non impostate', cls: '', detail: '' };
+    return { text: 'lettura non riuscita: controlla la chiave', cls: 'text-danger', detail: '' };
 }
 
 export async function loadAutomation() {
@@ -82,12 +90,13 @@ export function renderAutomation() {
     const mode = commandMode();
     const serverText = { server: 'server impostato', github: 'token GitHub', site: 'questo sito', none: 'non impostati' }[mode];
     const onPaper = Object.values(cfg ? cfg.strategies : {}).filter(m => m !== 'off').length;
-    const { text: accText, cls: accClass } = bitgetAccountText(live && live.account);
+    const { text: accText, cls: accClass, detail: accDetail } = bitgetAccountText(live && live.account);
     const acc = live && live.account;
     status.innerHTML = `
         <div class="auto-row"><span>Comandi</span><b class="${mode === 'none' ? 'text-warning' : 'text-accent'}">${serverText}</b></div>
         <div class="auto-row"><span>Stato</span><b class="${emergency || halted ? 'text-danger' : 'text-accent'}">${emergency ? 'EMERGENZA: tutto bloccato' : (halted ? 'esecutore bloccato: controlla Bitget' : `${onPaper} ${onPaper === 1 ? 'strategia attiva' : 'strategie attive'}`)}</b></div>
-        <div class="auto-row"><span>Bitget</span><b class="${accClass}" title="${escapeHtml((acc && acc.reason) || '')}">${accText}</b></div>
+        <div class="auto-row"><span>Saldo Bitget</span><b class="${accClass}" title="${escapeHtml((acc && acc.reason) || '')}">${accText}</b></div>
+        ${accDetail ? `<div class="auto-row auto-sub"><span></span><b>${escapeHtml(accDetail)}</b></div>` : ''}
         <div class="auto-row"><span>Ordini veri</span><b class="${risk.trading_enabled ? 'text-warning' : ''}">${realText}</b></div>
         <div class="auto-row"><span>Rischio</span><b>${risk.risk_per_trade_pct}% a trade · leva ${risk.max_leverage}x · max ${risk.max_open_positions} · −${risk.max_daily_loss_pct}%/giorno</b></div>`;
 

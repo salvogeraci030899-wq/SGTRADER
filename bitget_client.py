@@ -92,6 +92,27 @@ class BitgetClient:
                 return float(row.get("accountEquity") or row.get("usdtEquity") or 0)
         raise BitgetError("Conto USDT-FUTURES non trovato")
 
+    def spot_balances(self):
+        """Saldi del conto spot (sola lettura): {coin: quantità totale, compresa quella bloccata in ordini}."""
+        rows = self._request("GET", "/api/v2/spot/account/assets")
+        out = {}
+        for row in rows or []:
+            qty = sum(float(row.get(k) or 0) for k in ("available", "frozen", "locked"))
+            if qty > 0:
+                out[row.get("coin", "").upper()] = qty
+        return out
+
+    def spot_price_usdt(self, coin):
+        """Prezzo pubblico in USDT (nessuna firma). None se la coppia non esiste."""
+        if coin in ("USDT", "USDC"):
+            return 1.0
+        try:
+            r = self.session.get(f"{BASE_URL}/api/v2/spot/market/tickers", params={"symbol": f"{coin}USDT"}, timeout=10)
+            data = r.json().get("data") or []
+            return float(data[0]["lastPr"]) if data else None
+        except Exception:
+            return None
+
     def setup_symbol(self, symbol, leverage):
         """Margine isolato e leva per la coin. Da chiamare prima di aprire."""
         base = {"symbol": symbol, "productType": PRODUCT_TYPE, "marginCoin": MARGIN_COIN}
