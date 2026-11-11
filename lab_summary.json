@@ -1,0 +1,2081 @@
+{
+ "generated_at": "2026-11-11T01:32:56+00:00",
+ "holdout_start": "2025-11-11",
+ "trials_registered": 36,
+ "fdr": 0.1,
+ "primary_scenario": "futures_taker",
+ "scenarios": {
+  "futures_taker": {
+   "label": "Futures, ordini a mercato",
+   "cost_pct_per_side": 0.11,
+   "funding": true
+  },
+  "futures_maker": {
+   "label": "Futures, ordini limite (ottimistico: l'ordine deve essere eseguito)",
+   "cost_pct_per_side": 0.02,
+   "funding": true
+  },
+  "spot": {
+   "label": "Spot (solo long)",
+   "cost_pct_per_side": 0.15000000000000002,
+   "funding": false
+  }
+ },
+ "tax_rate": 0.33,
+ "candidates": [],
+ "confirmed": [],
+ "results": {
+  "donchian20:1d": {
+   "n": 192,
+   "win_rate": 35.9,
+   "avg_gross_pct": 2.266,
+   "avg_net_pct": 1.729,
+   "avg_net_ci": [
+    -1.482,
+    5.141
+   ],
+   "p_value": 0.16998171914881982,
+   "avg_bars": 19.6,
+   "net_per_year_per_coin_pct": 17.4,
+   "after_tax_per_year_per_coin_pct": 11.6,
+   "by_coin": {
+    "BTCUSDT": 1.138,
+    "ETHUSDT": 1.757,
+    "SOLUSDT": 2.814
+   },
+   "halves": [
+    {
+     "n": 71,
+     "avg_net_pct": 4.973
+    },
+    {
+     "n": 121,
+     "avg_net_pct": -0.175
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 192,
+     "avg_net_pct": 1.909,
+     "avg_net_ci": [
+      -1.302,
+      5.321
+     ],
+     "net_per_year_per_coin_pct": 19.2
+    },
+    "spot": {
+     "n": 112,
+     "avg_net_pct": 5.07,
+     "avg_net_ci": [
+      0.6224,
+      9.5105
+     ],
+     "net_per_year_per_coin_pct": 29.7
+    }
+   },
+   "strategy": "donchian20",
+   "tf": "1d",
+   "family": "trend",
+   "block_seconds": 5184000,
+   "significant": false,
+   "candidate": false
+  },
+  "donchian55:1d": {
+   "n": 111,
+   "win_rate": 39.6,
+   "avg_gross_pct": 3.795,
+   "avg_net_pct": 3.197,
+   "avg_net_ci": [
+    -0.9852,
+    8.5134
+   ],
+   "p_value": 0.09962283782700948,
+   "avg_bars": 22.0,
+   "net_per_year_per_coin_pct": 18.7,
+   "after_tax_per_year_per_coin_pct": 12.5,
+   "by_coin": {
+    "BTCUSDT": 2.138,
+    "ETHUSDT": 3.632,
+    "SOLUSDT": 4.391
+   },
+   "halves": [
+    {
+     "n": 45,
+     "avg_net_pct": 6.314
+    },
+    {
+     "n": 66,
+     "avg_net_pct": 1.072
+    }
+   ],
+   "stable": true,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 111,
+     "avg_net_pct": 3.377,
+     "avg_net_ci": [
+      -0.8052,
+      8.6934
+     ],
+     "net_per_year_per_coin_pct": 19.7
+    },
+    "spot": {
+     "n": 77,
+     "avg_net_pct": 5.838,
+     "avg_net_ci": [
+      1.3098,
+      12.792
+     ],
+     "net_per_year_per_coin_pct": 23.7
+    }
+   },
+   "strategy": "donchian55",
+   "tf": "1d",
+   "family": "trend",
+   "block_seconds": 10368000,
+   "significant": false,
+   "candidate": false
+  },
+  "donchian20_long:1d": {
+   "n": 115,
+   "win_rate": 41.7,
+   "avg_gross_pct": 5.693,
+   "avg_net_pct": 4.92,
+   "avg_net_ci": [
+    0.5824,
+    9.2838
+   ],
+   "p_value": 0.015634267631398586,
+   "avg_bars": 17.4,
+   "net_per_year_per_coin_pct": 29.6,
+   "after_tax_per_year_per_coin_pct": 19.8,
+   "by_coin": {
+    "BTCUSDT": 2.286,
+    "ETHUSDT": 6.825,
+    "SOLUSDT": 6.772
+   },
+   "halves": [
+    {
+     "n": 44,
+     "avg_net_pct": 7.461
+    },
+    {
+     "n": 71,
+     "avg_net_pct": 3.346
+    }
+   ],
+   "stable": true,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 115,
+     "avg_net_pct": 5.1,
+     "avg_net_ci": [
+      0.7624,
+      9.4638
+     ],
+     "net_per_year_per_coin_pct": 30.7
+    },
+    "spot": {
+     "n": 115,
+     "avg_net_pct": 5.393,
+     "avg_net_ci": [
+      1.0325,
+      9.7702
+     ],
+     "net_per_year_per_coin_pct": 32.4
+    }
+   },
+   "strategy": "donchian20_long",
+   "tf": "1d",
+   "family": "trend",
+   "block_seconds": 5184000,
+   "significant": false,
+   "candidate": false
+  },
+  "donchian20_calm:1d": {
+   "n": 119,
+   "win_rate": 42.0,
+   "avg_gross_pct": 4.596,
+   "avg_net_pct": 4.006,
+   "avg_net_ci": [
+    0.4372,
+    8.1563
+   ],
+   "p_value": 0.021749726214514806,
+   "avg_bars": 17.5,
+   "net_per_year_per_coin_pct": 25.2,
+   "after_tax_per_year_per_coin_pct": 16.9,
+   "by_coin": {
+    "BTCUSDT": 3.457,
+    "ETHUSDT": 5.969,
+    "SOLUSDT": 1.412
+   },
+   "halves": [
+    {
+     "n": 44,
+     "avg_net_pct": 10.208
+    },
+    {
+     "n": 75,
+     "avg_net_pct": 0.367
+    }
+   ],
+   "stable": true,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 119,
+     "avg_net_pct": 4.186,
+     "avg_net_ci": [
+      0.6172,
+      8.3363
+     ],
+     "net_per_year_per_coin_pct": 26.3
+    },
+    "spot": {
+     "n": 84,
+     "avg_net_pct": 5.325,
+     "avg_net_ci": [
+      1.3187,
+      9.2987
+     ],
+     "net_per_year_per_coin_pct": 23.6
+    }
+   },
+   "strategy": "donchian20_calm",
+   "tf": "1d",
+   "family": "trend",
+   "block_seconds": 5184000,
+   "significant": false,
+   "candidate": false
+  },
+  "ema_pullback:1d": {
+   "n": 159,
+   "win_rate": 34.0,
+   "avg_gross_pct": 2.826,
+   "avg_net_pct": 2.159,
+   "avg_net_ci": [
+    -1.5231,
+    6.9
+   ],
+   "p_value": 0.15681913855299284,
+   "avg_bars": 22.4,
+   "net_per_year_per_coin_pct": 17.8,
+   "after_tax_per_year_per_coin_pct": 12.0,
+   "by_coin": {
+    "BTCUSDT": 2.347,
+    "ETHUSDT": 3.039,
+    "SOLUSDT": 0.207
+   },
+   "halves": [
+    {
+     "n": 61,
+     "avg_net_pct": 4.901
+    },
+    {
+     "n": 98,
+     "avg_net_pct": 0.452
+    }
+   ],
+   "stable": true,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 159,
+     "avg_net_pct": 2.339,
+     "avg_net_ci": [
+      -1.3431,
+      7.08
+     ],
+     "net_per_year_per_coin_pct": 19.3
+    },
+    "spot": {
+     "n": 109,
+     "avg_net_pct": 3.079,
+     "avg_net_ci": [
+      -1.8565,
+      9.1565
+     ],
+     "net_per_year_per_coin_pct": 17.4
+    }
+   },
+   "strategy": "ema_pullback",
+   "tf": "1d",
+   "family": "trend",
+   "block_seconds": 5184000,
+   "significant": false,
+   "candidate": false
+  },
+  "tsmom30:1d": {
+   "n": 889,
+   "win_rate": 50.1,
+   "avg_gross_pct": 1.178,
+   "avg_net_pct": 0.832,
+   "avg_net_ci": [
+    0.0081,
+    1.6415
+   ],
+   "p_value": 0.025280730005237905,
+   "avg_bars": 6.8,
+   "net_per_year_per_coin_pct": 38.1,
+   "after_tax_per_year_per_coin_pct": 25.5,
+   "by_coin": {
+    "BTCUSDT": 0.688,
+    "ETHUSDT": 0.882,
+    "SOLUSDT": 1.002
+   },
+   "halves": [
+    {
+     "n": 363,
+     "avg_net_pct": 1.635
+    },
+    {
+     "n": 526,
+     "avg_net_pct": 0.277
+    }
+   ],
+   "stable": true,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 889,
+     "avg_net_pct": 1.012,
+     "avg_net_ci": [
+      0.1881,
+      1.8215
+     ],
+     "net_per_year_per_coin_pct": 46.3
+    },
+    "spot": {
+     "n": 482,
+     "avg_net_pct": 1.777,
+     "avg_net_ci": [
+      0.5932,
+      2.963
+     ],
+     "net_per_year_per_coin_pct": 44.6
+    }
+   },
+   "strategy": "tsmom30",
+   "tf": "1d",
+   "family": "momentum",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "tsmom90:1d": {
+   "n": 898,
+   "win_rate": 47.6,
+   "avg_gross_pct": 0.523,
+   "avg_net_pct": 0.163,
+   "avg_net_ci": [
+    -0.6538,
+    1.0353
+   ],
+   "p_value": 0.35303271916621115,
+   "avg_bars": 6.7,
+   "net_per_year_per_coin_pct": 7.6,
+   "after_tax_per_year_per_coin_pct": 5.1,
+   "by_coin": {
+    "BTCUSDT": 0.213,
+    "ETHUSDT": 0.134,
+    "SOLUSDT": 0.125
+   },
+   "halves": [
+    {
+     "n": 368,
+     "avg_net_pct": 0.296
+    },
+    {
+     "n": 530,
+     "avg_net_pct": 0.071
+    }
+   ],
+   "stable": true,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 898,
+     "avg_net_pct": 0.343,
+     "avg_net_ci": [
+      -0.4738,
+      1.2153
+     ],
+     "net_per_year_per_coin_pct": 15.9
+    },
+    "spot": {
+     "n": 542,
+     "avg_net_pct": 0.934,
+     "avg_net_ci": [
+      -0.1913,
+      2.1139
+     ],
+     "net_per_year_per_coin_pct": 26.1
+    }
+   },
+   "strategy": "tsmom90",
+   "tf": "1d",
+   "family": "momentum",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "tsmom30_long:1d": {
+   "n": 420,
+   "win_rate": 51.4,
+   "avg_gross_pct": 2.061,
+   "avg_net_pct": 1.609,
+   "avg_net_ci": [
+    0.2995,
+    2.8909
+   ],
+   "p_value": 0.008796490733139385,
+   "avg_bars": 6.7,
+   "net_per_year_per_coin_pct": 34.9,
+   "after_tax_per_year_per_coin_pct": 23.4,
+   "by_coin": {
+    "BTCUSDT": 1.208,
+    "ETHUSDT": 1.97,
+    "SOLUSDT": 1.71
+   },
+   "halves": [
+    {
+     "n": 167,
+     "avg_net_pct": 2.481
+    },
+    {
+     "n": 253,
+     "avg_net_pct": 1.034
+    }
+   ],
+   "stable": true,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 420,
+     "avg_net_pct": 1.789,
+     "avg_net_ci": [
+      0.4795,
+      3.0709
+     ],
+     "net_per_year_per_coin_pct": 38.8
+    },
+    "spot": {
+     "n": 420,
+     "avg_net_pct": 1.761,
+     "avg_net_ci": [
+      0.4489,
+      3.0457
+     ],
+     "net_per_year_per_coin_pct": 38.2
+    }
+   },
+   "strategy": "tsmom30_long",
+   "tf": "1d",
+   "family": "momentum",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "rsi2_pullback:1d": {
+   "n": 308,
+   "win_rate": 49.7,
+   "avg_gross_pct": -0.329,
+   "avg_net_pct": -0.65,
+   "avg_net_ci": [
+    -1.8768,
+    0.5828
+   ],
+   "p_value": 0.8522712493380183,
+   "avg_bars": 4.7,
+   "net_per_year_per_coin_pct": -10.4,
+   "after_tax_per_year_per_coin_pct": -10.4,
+   "by_coin": {
+    "BTCUSDT": 0.205,
+    "ETHUSDT": -1.33,
+    "SOLUSDT": -1.048
+   },
+   "halves": [
+    {
+     "n": 119,
+     "avg_net_pct": -1.082
+    },
+    {
+     "n": 189,
+     "avg_net_pct": -0.379
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 308,
+     "avg_net_pct": -0.47,
+     "avg_net_ci": [
+      -1.6968,
+      0.7628
+     ],
+     "net_per_year_per_coin_pct": -7.5
+    },
+    "spot": {
+     "n": 182,
+     "avg_net_pct": -0.671,
+     "avg_net_ci": [
+      -2.2289,
+      0.7281
+     ],
+     "net_per_year_per_coin_pct": -6.3
+    }
+   },
+   "strategy": "rsi2_pullback",
+   "tf": "1d",
+   "family": "ritorno alla media",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "bollinger_revert:1d": {
+   "n": 111,
+   "win_rate": 51.4,
+   "avg_gross_pct": -0.027,
+   "avg_net_pct": -0.341,
+   "avg_net_ci": [
+    -2.3777,
+    1.8191
+   ],
+   "p_value": 0.6231130666231453,
+   "avg_bars": 4.5,
+   "net_per_year_per_coin_pct": -2.0,
+   "after_tax_per_year_per_coin_pct": -2.0,
+   "by_coin": {
+    "BTCUSDT": -0.031,
+    "ETHUSDT": -2.649,
+    "SOLUSDT": 4.085
+   },
+   "halves": [
+    {
+     "n": 41,
+     "avg_net_pct": -2.181
+    },
+    {
+     "n": 70,
+     "avg_net_pct": 0.737
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 111,
+     "avg_net_pct": -0.161,
+     "avg_net_ci": [
+      -2.1977,
+      1.9991
+     ],
+     "net_per_year_per_coin_pct": -0.9
+    },
+    "spot": {
+     "n": 62,
+     "avg_net_pct": 0.09,
+     "avg_net_ci": [
+      -2.4989,
+      2.5643
+     ],
+     "net_per_year_per_coin_pct": 0.3
+    }
+   },
+   "strategy": "bollinger_revert",
+   "tf": "1d",
+   "family": "ritorno alla media",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "big_candle:1d": {
+   "n": 247,
+   "win_rate": 52.6,
+   "avg_gross_pct": 2.156,
+   "avg_net_pct": 1.854,
+   "avg_net_ci": [
+    0.4869,
+    3.2524
+   ],
+   "p_value": 0.004669426494221598,
+   "avg_bars": 3.9,
+   "net_per_year_per_coin_pct": 23.9,
+   "after_tax_per_year_per_coin_pct": 16.0,
+   "by_coin": {
+    "BTCUSDT": 1.123,
+    "ETHUSDT": 1.99,
+    "SOLUSDT": 3.462
+   },
+   "halves": [
+    {
+     "n": 110,
+     "avg_net_pct": 2.902
+    },
+    {
+     "n": 137,
+     "avg_net_pct": 1.012
+    }
+   ],
+   "stable": true,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 247,
+     "avg_net_pct": 2.034,
+     "avg_net_ci": [
+      0.6669,
+      3.4324
+     ],
+     "net_per_year_per_coin_pct": 26.2
+    },
+    "spot": {
+     "n": 139,
+     "avg_net_pct": 1.558,
+     "avg_net_ci": [
+      0.0261,
+      3.1306
+     ],
+     "net_per_year_per_coin_pct": 11.5
+    }
+   },
+   "strategy": "big_candle",
+   "tf": "1d",
+   "family": "volatilit\u00e0",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "app_breakout_trail:1d": {
+   "n": 42,
+   "win_rate": 40.5,
+   "avg_gross_pct": 3.699,
+   "avg_net_pct": 3.172,
+   "avg_net_ci": [
+    -6.4136,
+    13.977
+   ],
+   "p_value": 0.28026351168673236,
+   "avg_bars": 31.7,
+   "net_per_year_per_coin_pct": 7.1,
+   "after_tax_per_year_per_coin_pct": 4.8,
+   "by_coin": {
+    "BTCUSDT": 1.145,
+    "ETHUSDT": 3.375,
+    "SOLUSDT": 6.25
+   },
+   "halves": [
+    {
+     "n": 9,
+     "avg_net_pct": 18.726
+    },
+    {
+     "n": 33,
+     "avg_net_pct": -1.07
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 42,
+     "avg_net_pct": 3.352,
+     "avg_net_ci": [
+      -6.2336,
+      14.157
+     ],
+     "net_per_year_per_coin_pct": 7.5
+    },
+    "spot": {
+     "n": 15,
+     "avg_net_pct": 4.692,
+     "avg_net_ci": [
+      -5.6379,
+      17.4448
+     ],
+     "net_per_year_per_coin_pct": 3.8
+    }
+   },
+   "strategy": "app_breakout_trail",
+   "tf": "1d",
+   "family": "trend",
+   "block_seconds": 5184000,
+   "significant": false,
+   "candidate": false
+  },
+  "donchian20:4h": {
+   "n": 1203,
+   "win_rate": 38.0,
+   "avg_gross_pct": 0.57,
+   "avg_net_pct": 0.292,
+   "avg_net_ci": [
+    -0.2291,
+    0.8316
+   ],
+   "p_value": 0.13528652768851995,
+   "avg_bars": 21.2,
+   "net_per_year_per_coin_pct": 16.4,
+   "after_tax_per_year_per_coin_pct": 11.0,
+   "by_coin": {
+    "BTCUSDT": 0.138,
+    "ETHUSDT": 0.244,
+    "SOLUSDT": 0.623
+   },
+   "halves": [
+    {
+     "n": 506,
+     "avg_net_pct": 0.233
+    },
+    {
+     "n": 697,
+     "avg_net_pct": 0.334
+    }
+   ],
+   "stable": true,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 1203,
+     "avg_net_pct": 0.472,
+     "avg_net_ci": [
+      -0.0491,
+      1.0116
+     ],
+     "net_per_year_per_coin_pct": 26.5
+    },
+    "spot": {
+     "n": 651,
+     "avg_net_pct": 0.657,
+     "avg_net_ci": [
+      -0.0491,
+      1.4146
+     ],
+     "net_per_year_per_coin_pct": 20.0
+    }
+   },
+   "strategy": "donchian20",
+   "tf": "4h",
+   "family": "trend",
+   "block_seconds": 864000,
+   "significant": false,
+   "candidate": false
+  },
+  "donchian55:4h": {
+   "n": 712,
+   "win_rate": 37.6,
+   "avg_gross_pct": 0.873,
+   "avg_net_pct": 0.591,
+   "avg_net_ci": [
+    -0.0899,
+    1.2818
+   ],
+   "p_value": 0.04220761391615386,
+   "avg_bars": 21.5,
+   "net_per_year_per_coin_pct": 19.7,
+   "after_tax_per_year_per_coin_pct": 13.2,
+   "by_coin": {
+    "BTCUSDT": 0.291,
+    "ETHUSDT": 0.724,
+    "SOLUSDT": 0.859
+   },
+   "halves": [
+    {
+     "n": 304,
+     "avg_net_pct": 0.595
+    },
+    {
+     "n": 408,
+     "avg_net_pct": 0.588
+    }
+   ],
+   "stable": true,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 712,
+     "avg_net_pct": 0.771,
+     "avg_net_ci": [
+      0.0901,
+      1.4618
+     ],
+     "net_per_year_per_coin_pct": 25.7
+    },
+    "spot": {
+     "n": 405,
+     "avg_net_pct": 1.198,
+     "avg_net_ci": [
+      0.3259,
+      2.0921
+     ],
+     "net_per_year_per_coin_pct": 22.8
+    }
+   },
+   "strategy": "donchian55",
+   "tf": "4h",
+   "family": "trend",
+   "block_seconds": 1728000,
+   "significant": false,
+   "candidate": false
+  },
+  "donchian20_long:4h": {
+   "n": 676,
+   "win_rate": 38.5,
+   "avg_gross_pct": 0.861,
+   "avg_net_pct": 0.535,
+   "avg_net_ci": [
+    -0.123,
+    1.2509
+   ],
+   "p_value": 0.0681903895324974,
+   "avg_bars": 20.7,
+   "net_per_year_per_coin_pct": 16.9,
+   "after_tax_per_year_per_coin_pct": 11.3,
+   "by_coin": {
+    "BTCUSDT": 0.523,
+    "ETHUSDT": 0.612,
+    "SOLUSDT": 0.424
+   },
+   "halves": [
+    {
+     "n": 290,
+     "avg_net_pct": 0.83
+    },
+    {
+     "n": 386,
+     "avg_net_pct": 0.314
+    }
+   ],
+   "stable": true,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 676,
+     "avg_net_pct": 0.715,
+     "avg_net_ci": [
+      0.057,
+      1.4309
+     ],
+     "net_per_year_per_coin_pct": 22.6
+    },
+    "spot": {
+     "n": 676,
+     "avg_net_pct": 0.561,
+     "avg_net_ci": [
+      -0.1022,
+      1.279
+     ],
+     "net_per_year_per_coin_pct": 17.7
+    }
+   },
+   "strategy": "donchian20_long",
+   "tf": "4h",
+   "family": "trend",
+   "block_seconds": 864000,
+   "significant": false,
+   "candidate": false
+  },
+  "donchian20_calm:4h": {
+   "n": 826,
+   "win_rate": 36.1,
+   "avg_gross_pct": 0.422,
+   "avg_net_pct": 0.149,
+   "avg_net_ci": [
+    -0.3639,
+    0.6905
+   ],
+   "p_value": 0.28960756115745445,
+   "avg_bars": 18.1,
+   "net_per_year_per_coin_pct": 5.7,
+   "after_tax_per_year_per_coin_pct": 3.8,
+   "by_coin": {
+    "BTCUSDT": 0.022,
+    "ETHUSDT": 0.407,
+    "SOLUSDT": -0.049
+   },
+   "halves": [
+    {
+     "n": 345,
+     "avg_net_pct": 0.537
+    },
+    {
+     "n": 481,
+     "avg_net_pct": -0.13
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 826,
+     "avg_net_pct": 0.329,
+     "avg_net_ci": [
+      -0.1839,
+      0.8705
+     ],
+     "net_per_year_per_coin_pct": 12.7
+    },
+    "spot": {
+     "n": 491,
+     "avg_net_pct": 0.395,
+     "avg_net_ci": [
+      -0.2827,
+      1.1478
+     ],
+     "net_per_year_per_coin_pct": 9.1
+    }
+   },
+   "strategy": "donchian20_calm",
+   "tf": "4h",
+   "family": "trend",
+   "block_seconds": 864000,
+   "significant": false,
+   "candidate": false
+  },
+  "ema_pullback:4h": {
+   "n": 941,
+   "win_rate": 35.4,
+   "avg_gross_pct": 0.892,
+   "avg_net_pct": 0.603,
+   "avg_net_ci": [
+    -0.0278,
+    1.2174
+   ],
+   "p_value": 0.029890062927309467,
+   "avg_bars": 25.6,
+   "net_per_year_per_coin_pct": 26.4,
+   "after_tax_per_year_per_coin_pct": 17.7,
+   "by_coin": {
+    "BTCUSDT": 0.522,
+    "ETHUSDT": 0.393,
+    "SOLUSDT": 1.092
+   },
+   "halves": [
+    {
+     "n": 384,
+     "avg_net_pct": 0.9
+    },
+    {
+     "n": 557,
+     "avg_net_pct": 0.399
+    }
+   ],
+   "stable": true,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 941,
+     "avg_net_pct": 0.783,
+     "avg_net_ci": [
+      0.1522,
+      1.3974
+     ],
+     "net_per_year_per_coin_pct": 34.3
+    },
+    "spot": {
+     "n": 493,
+     "avg_net_pct": 1.504,
+     "avg_net_ci": [
+      0.5879,
+      2.526
+     ],
+     "net_per_year_per_coin_pct": 35.4
+    }
+   },
+   "strategy": "ema_pullback",
+   "tf": "4h",
+   "family": "trend",
+   "block_seconds": 864000,
+   "significant": false,
+   "candidate": false
+  },
+  "tsmom30:4h": {
+   "n": 6004,
+   "win_rate": 45.0,
+   "avg_gross_pct": 0.182,
+   "avg_net_pct": -0.058,
+   "avg_net_ci": [
+    -0.199,
+    0.0796
+   ],
+   "p_value": 0.7923548224293238,
+   "avg_bars": 6.7,
+   "net_per_year_per_coin_pct": -16.3,
+   "after_tax_per_year_per_coin_pct": -16.3,
+   "by_coin": {
+    "BTCUSDT": -0.081,
+    "ETHUSDT": -0.115,
+    "SOLUSDT": 0.075
+   },
+   "halves": [
+    {
+     "n": 2506,
+     "avg_net_pct": 0.071
+    },
+    {
+     "n": 3498,
+     "avg_net_pct": -0.151
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 6004,
+     "avg_net_pct": 0.122,
+     "avg_net_ci": [
+      -0.019,
+      0.2596
+     ],
+     "net_per_year_per_coin_pct": 34.0
+    },
+    "spot": {
+     "n": 3147,
+     "avg_net_pct": 0.054,
+     "avg_net_ci": [
+      -0.1429,
+      0.2521
+     ],
+     "net_per_year_per_coin_pct": 7.9
+    }
+   },
+   "strategy": "tsmom30",
+   "tf": "4h",
+   "family": "momentum",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "tsmom90:4h": {
+   "n": 6038,
+   "win_rate": 45.7,
+   "avg_gross_pct": 0.137,
+   "avg_net_pct": -0.103,
+   "avg_net_ci": [
+    -0.2289,
+    0.0297
+   ],
+   "p_value": 0.931002440256038,
+   "avg_bars": 6.7,
+   "net_per_year_per_coin_pct": -29.0,
+   "after_tax_per_year_per_coin_pct": -29.0,
+   "by_coin": {
+    "BTCUSDT": -0.151,
+    "ETHUSDT": -0.118,
+    "SOLUSDT": 0.003
+   },
+   "halves": [
+    {
+     "n": 2537,
+     "avg_net_pct": -0.094
+    },
+    {
+     "n": 3501,
+     "avg_net_pct": -0.11
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 6038,
+     "avg_net_pct": 0.077,
+     "avg_net_ci": [
+      -0.0489,
+      0.2097
+     ],
+     "net_per_year_per_coin_pct": 21.6
+    },
+    "spot": {
+     "n": 3229,
+     "avg_net_pct": -0.003,
+     "avg_net_ci": [
+      -0.2171,
+      0.1961
+     ],
+     "net_per_year_per_coin_pct": -0.5
+    }
+   },
+   "strategy": "tsmom90",
+   "tf": "4h",
+   "family": "momentum",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "tsmom30_long:4h": {
+   "n": 2592,
+   "win_rate": 47.6,
+   "avg_gross_pct": 0.415,
+   "avg_net_pct": 0.157,
+   "avg_net_ci": [
+    -0.0527,
+    0.3733
+   ],
+   "p_value": 0.07941473346287631,
+   "avg_bars": 6.7,
+   "net_per_year_per_coin_pct": 19.0,
+   "after_tax_per_year_per_coin_pct": 12.8,
+   "by_coin": {
+    "BTCUSDT": 0.036,
+    "ETHUSDT": 0.222,
+    "SOLUSDT": 0.265
+   },
+   "halves": [
+    {
+     "n": 1154,
+     "avg_net_pct": 0.319
+    },
+    {
+     "n": 1438,
+     "avg_net_pct": 0.026
+    }
+   ],
+   "stable": true,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 2592,
+     "avg_net_pct": 0.337,
+     "avg_net_ci": [
+      0.1273,
+      0.5533
+     ],
+     "net_per_year_per_coin_pct": 40.9
+    },
+    "spot": {
+     "n": 2592,
+     "avg_net_pct": 0.115,
+     "avg_net_ci": [
+      -0.0945,
+      0.3318
+     ],
+     "net_per_year_per_coin_pct": 14.0
+    }
+   },
+   "strategy": "tsmom30_long",
+   "tf": "4h",
+   "family": "momentum",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "rsi2_pullback:4h": {
+   "n": 1919,
+   "win_rate": 48.6,
+   "avg_gross_pct": 0.086,
+   "avg_net_pct": -0.148,
+   "avg_net_ci": [
+    -0.3367,
+    0.034
+   ],
+   "p_value": 0.936996507086325,
+   "avg_bars": 4.8,
+   "net_per_year_per_coin_pct": -13.3,
+   "after_tax_per_year_per_coin_pct": -13.3,
+   "by_coin": {
+    "BTCUSDT": -0.264,
+    "ETHUSDT": -0.21,
+    "SOLUSDT": 0.145
+   },
+   "halves": [
+    {
+     "n": 764,
+     "avg_net_pct": -0.254
+    },
+    {
+     "n": 1155,
+     "avg_net_pct": -0.078
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 1919,
+     "avg_net_pct": 0.032,
+     "avg_net_ci": [
+      -0.1567,
+      0.214
+     ],
+     "net_per_year_per_coin_pct": 2.8
+    },
+    "spot": {
+     "n": 970,
+     "avg_net_pct": -0.164,
+     "avg_net_ci": [
+      -0.4277,
+      0.0864
+     ],
+     "net_per_year_per_coin_pct": -7.5
+    }
+   },
+   "strategy": "rsi2_pullback",
+   "tf": "4h",
+   "family": "ritorno alla media",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "bollinger_revert:4h": {
+   "n": 723,
+   "win_rate": 48.7,
+   "avg_gross_pct": -0.015,
+   "avg_net_pct": -0.249,
+   "avg_net_ci": [
+    -0.5537,
+    0.0652
+   ],
+   "p_value": 0.9402829493907214,
+   "avg_bars": 4.8,
+   "net_per_year_per_coin_pct": -8.4,
+   "after_tax_per_year_per_coin_pct": -8.4,
+   "by_coin": {
+    "BTCUSDT": -0.365,
+    "ETHUSDT": -0.309,
+    "SOLUSDT": 0.063
+   },
+   "halves": [
+    {
+     "n": 291,
+     "avg_net_pct": -0.599
+    },
+    {
+     "n": 432,
+     "avg_net_pct": -0.013
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 723,
+     "avg_net_pct": -0.069,
+     "avg_net_ci": [
+      -0.3737,
+      0.2452
+     ],
+     "net_per_year_per_coin_pct": -2.3
+    },
+    "spot": {
+     "n": 372,
+     "avg_net_pct": -0.345,
+     "avg_net_ci": [
+      -0.7768,
+      0.0754
+     ],
+     "net_per_year_per_coin_pct": -6.1
+    }
+   },
+   "strategy": "bollinger_revert",
+   "tf": "4h",
+   "family": "ritorno alla media",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "big_candle:4h": {
+   "n": 1906,
+   "win_rate": 48.2,
+   "avg_gross_pct": 0.473,
+   "avg_net_pct": 0.24,
+   "avg_net_ci": [
+    0.04,
+    0.4402
+   ],
+   "p_value": 0.009404271703073515,
+   "avg_bars": 4.1,
+   "net_per_year_per_coin_pct": 21.4,
+   "after_tax_per_year_per_coin_pct": 14.3,
+   "by_coin": {
+    "BTCUSDT": 0.193,
+    "ETHUSDT": 0.219,
+    "SOLUSDT": 0.387
+   },
+   "halves": [
+    {
+     "n": 768,
+     "avg_net_pct": 0.42
+    },
+    {
+     "n": 1138,
+     "avg_net_pct": 0.119
+    }
+   ],
+   "stable": true,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 1906,
+     "avg_net_pct": 0.42,
+     "avg_net_ci": [
+      0.22,
+      0.6202
+     ],
+     "net_per_year_per_coin_pct": 37.4
+    },
+    "spot": {
+     "n": 969,
+     "avg_net_pct": 0.421,
+     "avg_net_ci": [
+      0.1766,
+      0.6601
+     ],
+     "net_per_year_per_coin_pct": 19.1
+    }
+   },
+   "strategy": "big_candle",
+   "tf": "4h",
+   "family": "volatilit\u00e0",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "app_breakout_trail:4h": {
+   "n": 354,
+   "win_rate": 35.3,
+   "avg_gross_pct": 0.867,
+   "avg_net_pct": 0.616,
+   "avg_net_ci": [
+    -0.3573,
+    1.5372
+   ],
+   "p_value": 0.10196645000261971,
+   "avg_bars": 23.0,
+   "net_per_year_per_coin_pct": 10.2,
+   "after_tax_per_year_per_coin_pct": 6.8,
+   "by_coin": {
+    "BTCUSDT": 1.574,
+    "ETHUSDT": -0.085,
+    "SOLUSDT": 0.499
+   },
+   "halves": [
+    {
+     "n": 119,
+     "avg_net_pct": 2.203
+    },
+    {
+     "n": 235,
+     "avg_net_pct": -0.187
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 354,
+     "avg_net_pct": 0.796,
+     "avg_net_ci": [
+      -0.1773,
+      1.7172
+     ],
+     "net_per_year_per_coin_pct": 13.2
+    },
+    "spot": {
+     "n": 105,
+     "avg_net_pct": 1.684,
+     "avg_net_ci": [
+      0.0311,
+      3.4173
+     ],
+     "net_per_year_per_coin_pct": 8.4
+    }
+   },
+   "strategy": "app_breakout_trail",
+   "tf": "4h",
+   "family": "trend",
+   "block_seconds": 864000,
+   "significant": false,
+   "candidate": false
+  },
+  "donchian20:1h": {
+   "n": 4941,
+   "win_rate": 31.8,
+   "avg_gross_pct": 0.104,
+   "avg_net_pct": -0.128,
+   "avg_net_ci": [
+    -0.2428,
+    -0.0075
+   ],
+   "p_value": 0.9852982768860347,
+   "avg_bars": 21.2,
+   "net_per_year_per_coin_pct": -29.1,
+   "after_tax_per_year_per_coin_pct": -29.1,
+   "by_coin": {
+    "BTCUSDT": -0.181,
+    "ETHUSDT": -0.056,
+    "SOLUSDT": -0.161
+   },
+   "halves": [
+    {
+     "n": 1975,
+     "avg_net_pct": 0.002
+    },
+    {
+     "n": 2966,
+     "avg_net_pct": -0.215
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 4941,
+     "avg_net_pct": 0.052,
+     "avg_net_ci": [
+      -0.0628,
+      0.1725
+     ],
+     "net_per_year_per_coin_pct": 11.7
+    },
+    "spot": {
+     "n": 2544,
+     "avg_net_pct": -0.024,
+     "avg_net_ci": [
+      -0.1888,
+      0.1564
+     ],
+     "net_per_year_per_coin_pct": -2.8
+    }
+   },
+   "strategy": "donchian20",
+   "tf": "1h",
+   "family": "trend",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "donchian55:1h": {
+   "n": 2782,
+   "win_rate": 31.5,
+   "avg_gross_pct": 0.162,
+   "avg_net_pct": -0.072,
+   "avg_net_ci": [
+    -0.238,
+    0.1035
+   ],
+   "p_value": 0.7938155342288721,
+   "avg_bars": 23.5,
+   "net_per_year_per_coin_pct": -9.2,
+   "after_tax_per_year_per_coin_pct": -9.2,
+   "by_coin": {
+    "BTCUSDT": -0.148,
+    "ETHUSDT": 0.071,
+    "SOLUSDT": -0.177
+   },
+   "halves": [
+    {
+     "n": 1146,
+     "avg_net_pct": -0.022
+    },
+    {
+     "n": 1636,
+     "avg_net_pct": -0.107
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 2782,
+     "avg_net_pct": 0.108,
+     "avg_net_ci": [
+      -0.058,
+      0.2835
+     ],
+     "net_per_year_per_coin_pct": 13.8
+    },
+    "spot": {
+     "n": 1492,
+     "avg_net_pct": 0.042,
+     "avg_net_ci": [
+      -0.1805,
+      0.2693
+     ],
+     "net_per_year_per_coin_pct": 2.9
+    }
+   },
+   "strategy": "donchian55",
+   "tf": "1h",
+   "family": "trend",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "donchian20_long:1h": {
+   "n": 2636,
+   "win_rate": 32.4,
+   "avg_gross_pct": 0.264,
+   "avg_net_pct": 0.021,
+   "avg_net_ci": [
+    -0.1398,
+    0.1989
+   ],
+   "p_value": 0.40582471282217064,
+   "avg_bars": 21.3,
+   "net_per_year_per_coin_pct": 2.5,
+   "after_tax_per_year_per_coin_pct": 1.7,
+   "by_coin": {
+    "BTCUSDT": -0.001,
+    "ETHUSDT": 0.068,
+    "SOLUSDT": -0.02
+   },
+   "halves": [
+    {
+     "n": 1045,
+     "avg_net_pct": 0.309
+    },
+    {
+     "n": 1591,
+     "avg_net_pct": -0.169
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 2636,
+     "avg_net_pct": 0.201,
+     "avg_net_ci": [
+      0.0402,
+      0.3789
+     ],
+     "net_per_year_per_coin_pct": 24.3
+    },
+    "spot": {
+     "n": 2636,
+     "avg_net_pct": -0.036,
+     "avg_net_ci": [
+      -0.1968,
+      0.1429
+     ],
+     "net_per_year_per_coin_pct": -4.4
+    }
+   },
+   "strategy": "donchian20_long",
+   "tf": "1h",
+   "family": "trend",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "donchian20_calm:1h": {
+   "n": 3077,
+   "win_rate": 30.8,
+   "avg_gross_pct": 0.169,
+   "avg_net_pct": -0.062,
+   "avg_net_ci": [
+    -0.1862,
+    0.068
+   ],
+   "p_value": 0.8304945631658982,
+   "avg_bars": 17.9,
+   "net_per_year_per_coin_pct": -8.7,
+   "after_tax_per_year_per_coin_pct": -8.7,
+   "by_coin": {
+    "BTCUSDT": -0.079,
+    "ETHUSDT": -0.005,
+    "SOLUSDT": -0.122
+   },
+   "halves": [
+    {
+     "n": 1261,
+     "avg_net_pct": 0.188
+    },
+    {
+     "n": 1816,
+     "avg_net_pct": -0.235
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 3077,
+     "avg_net_pct": 0.118,
+     "avg_net_ci": [
+      -0.0062,
+      0.248
+     ],
+     "net_per_year_per_coin_pct": 16.7
+    },
+    "spot": {
+     "n": 1711,
+     "avg_net_pct": 0.001,
+     "avg_net_ci": [
+      -0.1873,
+      0.1893
+     ],
+     "net_per_year_per_coin_pct": 0.1
+    }
+   },
+   "strategy": "donchian20_calm",
+   "tf": "1h",
+   "family": "trend",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "ema_pullback:1h": {
+   "n": 4197,
+   "win_rate": 32.6,
+   "avg_gross_pct": 0.192,
+   "avg_net_pct": -0.041,
+   "avg_net_ci": [
+    -0.1858,
+    0.0949
+   ],
+   "p_value": 0.7206252389436468,
+   "avg_bars": 23.6,
+   "net_per_year_per_coin_pct": -7.9,
+   "after_tax_per_year_per_coin_pct": -7.9,
+   "by_coin": {
+    "BTCUSDT": -0.1,
+    "ETHUSDT": -0.039,
+    "SOLUSDT": 0.049
+   },
+   "halves": [
+    {
+     "n": 1675,
+     "avg_net_pct": 0.147
+    },
+    {
+     "n": 2522,
+     "avg_net_pct": -0.166
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 4197,
+     "avg_net_pct": 0.139,
+     "avg_net_ci": [
+      -0.0058,
+      0.2749
+     ],
+     "net_per_year_per_coin_pct": 26.8
+    },
+    "spot": {
+     "n": 2173,
+     "avg_net_pct": -0.012,
+     "avg_net_ci": [
+      -0.2043,
+      0.1968
+     ],
+     "net_per_year_per_coin_pct": -1.2
+    }
+   },
+   "strategy": "ema_pullback",
+   "tf": "1h",
+   "family": "trend",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "tsmom30:1h": {
+   "n": 24515,
+   "win_rate": 39.6,
+   "avg_gross_pct": 0.023,
+   "avg_net_pct": -0.202,
+   "avg_net_ci": [
+    -0.2375,
+    -0.1662
+   ],
+   "p_value": 1.0,
+   "avg_bars": 6.7,
+   "net_per_year_per_coin_pct": -226.8,
+   "after_tax_per_year_per_coin_pct": -226.8,
+   "by_coin": {
+    "BTCUSDT": -0.212,
+    "ETHUSDT": -0.201,
+    "SOLUSDT": -0.184
+   },
+   "halves": [
+    {
+     "n": 10304,
+     "avg_net_pct": -0.198
+    },
+    {
+     "n": 14211,
+     "avg_net_pct": -0.205
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 24515,
+     "avg_net_pct": -0.022,
+     "avg_net_ci": [
+      -0.0575,
+      0.0138
+     ],
+     "net_per_year_per_coin_pct": -24.3
+    },
+    "spot": {
+     "n": 12578,
+     "avg_net_pct": -0.239,
+     "avg_net_ci": [
+      -0.2882,
+      -0.1899
+     ],
+     "net_per_year_per_coin_pct": -138.1
+    }
+   },
+   "strategy": "tsmom30",
+   "tf": "1h",
+   "family": "momentum",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "tsmom90:1h": {
+   "n": 24583,
+   "win_rate": 41.2,
+   "avg_gross_pct": 0.06,
+   "avg_net_pct": -0.165,
+   "avg_net_ci": [
+    -0.2004,
+    -0.1302
+   ],
+   "p_value": 1.0,
+   "avg_bars": 6.7,
+   "net_per_year_per_coin_pct": -185.9,
+   "after_tax_per_year_per_coin_pct": -185.9,
+   "by_coin": {
+    "BTCUSDT": -0.192,
+    "ETHUSDT": -0.157,
+    "SOLUSDT": -0.133
+   },
+   "halves": [
+    {
+     "n": 10331,
+     "avg_net_pct": -0.148
+    },
+    {
+     "n": 14252,
+     "avg_net_pct": -0.177
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 24583,
+     "avg_net_pct": 0.015,
+     "avg_net_ci": [
+      -0.0204,
+      0.0498
+     ],
+     "net_per_year_per_coin_pct": 17.1
+    },
+    "spot": {
+     "n": 12926,
+     "avg_net_pct": -0.209,
+     "avg_net_ci": [
+      -0.2566,
+      -0.1611
+     ],
+     "net_per_year_per_coin_pct": -124.3
+    }
+   },
+   "strategy": "tsmom90",
+   "tf": "1h",
+   "family": "momentum",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "tsmom30_long:1h": {
+   "n": 10499,
+   "win_rate": 40.7,
+   "avg_gross_pct": 0.087,
+   "avg_net_pct": -0.142,
+   "avg_net_ci": [
+    -0.1967,
+    -0.0917
+   ],
+   "p_value": 0.9999999466938961,
+   "avg_bars": 6.7,
+   "net_per_year_per_coin_pct": -68.9,
+   "after_tax_per_year_per_coin_pct": -68.9,
+   "by_coin": {
+    "BTCUSDT": -0.165,
+    "ETHUSDT": -0.161,
+    "SOLUSDT": -0.068
+   },
+   "halves": [
+    {
+     "n": 4632,
+     "avg_net_pct": -0.101
+    },
+    {
+     "n": 5867,
+     "avg_net_pct": -0.175
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 10499,
+     "avg_net_pct": 0.038,
+     "avg_net_ci": [
+      -0.0167,
+      0.0883
+     ],
+     "net_per_year_per_coin_pct": 18.1
+    },
+    "spot": {
+     "n": 10499,
+     "avg_net_pct": -0.213,
+     "avg_net_ci": [
+      -0.2677,
+      -0.1626
+     ],
+     "net_per_year_per_coin_pct": -103.1
+    }
+   },
+   "strategy": "tsmom30_long",
+   "tf": "1h",
+   "family": "momentum",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "rsi2_pullback:1h": {
+   "n": 7493,
+   "win_rate": 45.9,
+   "avg_gross_pct": 0.08,
+   "avg_net_pct": -0.14,
+   "avg_net_ci": [
+    -0.1902,
+    -0.0905
+   ],
+   "p_value": 0.9999999819423503,
+   "avg_bars": 4.8,
+   "net_per_year_per_coin_pct": -48.3,
+   "after_tax_per_year_per_coin_pct": -48.3,
+   "by_coin": {
+    "BTCUSDT": -0.165,
+    "ETHUSDT": -0.175,
+    "SOLUSDT": -0.046
+   },
+   "halves": [
+    {
+     "n": 3144,
+     "avg_net_pct": -0.108
+    },
+    {
+     "n": 4349,
+     "avg_net_pct": -0.164
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 7493,
+     "avg_net_pct": 0.04,
+     "avg_net_ci": [
+      -0.0102,
+      0.0895
+     ],
+     "net_per_year_per_coin_pct": 13.6
+    },
+    "spot": {
+     "n": 3817,
+     "avg_net_pct": -0.193,
+     "avg_net_ci": [
+      -0.2583,
+      -0.1288
+     ],
+     "net_per_year_per_coin_pct": -33.9
+    }
+   },
+   "strategy": "rsi2_pullback",
+   "tf": "1h",
+   "family": "ritorno alla media",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "bollinger_revert:1h": {
+   "n": 2783,
+   "win_rate": 46.5,
+   "avg_gross_pct": 0.011,
+   "avg_net_pct": -0.209,
+   "avg_net_ci": [
+    -0.2876,
+    -0.1306
+   ],
+   "p_value": 0.9999999778990744,
+   "avg_bars": 4.7,
+   "net_per_year_per_coin_pct": -26.7,
+   "after_tax_per_year_per_coin_pct": -26.7,
+   "by_coin": {
+    "BTCUSDT": -0.252,
+    "ETHUSDT": -0.235,
+    "SOLUSDT": -0.09
+   },
+   "halves": [
+    {
+     "n": 1146,
+     "avg_net_pct": -0.23
+    },
+    {
+     "n": 1637,
+     "avg_net_pct": -0.194
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 2783,
+     "avg_net_pct": -0.029,
+     "avg_net_ci": [
+      -0.1076,
+      0.0494
+     ],
+     "net_per_year_per_coin_pct": -3.7
+    },
+    "spot": {
+     "n": 1526,
+     "avg_net_pct": -0.225,
+     "avg_net_ci": [
+      -0.3167,
+      -0.1308
+     ],
+     "net_per_year_per_coin_pct": -15.9
+    }
+   },
+   "strategy": "bollinger_revert",
+   "tf": "1h",
+   "family": "ritorno alla media",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "big_candle:1h": {
+   "n": 7250,
+   "win_rate": 39.2,
+   "avg_gross_pct": 0.072,
+   "avg_net_pct": -0.148,
+   "avg_net_ci": [
+    -0.1986,
+    -0.0978
+   ],
+   "p_value": 0.9999999950134512,
+   "avg_bars": 3.9,
+   "net_per_year_per_coin_pct": -49.2,
+   "after_tax_per_year_per_coin_pct": -49.2,
+   "by_coin": {
+    "BTCUSDT": -0.162,
+    "ETHUSDT": -0.131,
+    "SOLUSDT": -0.154
+   },
+   "halves": [
+    {
+     "n": 2872,
+     "avg_net_pct": -0.11
+    },
+    {
+     "n": 4378,
+     "avg_net_pct": -0.173
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 7250,
+     "avg_net_pct": 0.032,
+     "avg_net_ci": [
+      -0.0186,
+      0.0822
+     ],
+     "net_per_year_per_coin_pct": 10.7
+    },
+    "spot": {
+     "n": 3579,
+     "avg_net_pct": -0.204,
+     "avg_net_ci": [
+      -0.2704,
+      -0.1384
+     ],
+     "net_per_year_per_coin_pct": -33.6
+    }
+   },
+   "strategy": "big_candle",
+   "tf": "1h",
+   "family": "volatilit\u00e0",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  },
+  "app_breakout_trail:1h": {
+   "n": 1447,
+   "win_rate": 33.6,
+   "avg_gross_pct": 0.176,
+   "avg_net_pct": -0.05,
+   "avg_net_ci": [
+    -0.2931,
+    0.2072
+   ],
+   "p_value": 0.651993104101264,
+   "avg_bars": 22.7,
+   "net_per_year_per_coin_pct": -3.3,
+   "after_tax_per_year_per_coin_pct": -3.3,
+   "by_coin": {
+    "BTCUSDT": -0.291,
+    "ETHUSDT": 0.132,
+    "SOLUSDT": 0.024
+   },
+   "halves": [
+    {
+     "n": 510,
+     "avg_net_pct": -0.129
+    },
+    {
+     "n": 937,
+     "avg_net_pct": -0.007
+    }
+   ],
+   "stable": false,
+   "funding_real_share_pct": 0.0,
+   "other_scenarios": {
+    "futures_maker": {
+     "n": 1447,
+     "avg_net_pct": 0.13,
+     "avg_net_ci": [
+      -0.1131,
+      0.3872
+     ],
+     "net_per_year_per_coin_pct": 8.7
+    },
+    "spot": {
+     "n": 387,
+     "avg_net_pct": 0.285,
+     "avg_net_ci": [
+      -0.168,
+      0.7706
+     ],
+     "net_per_year_per_coin_pct": 5.1
+    }
+   },
+   "strategy": "app_breakout_trail",
+   "tf": "1h",
+   "family": "trend",
+   "block_seconds": 604800,
+   "significant": false,
+   "candidate": false
+  }
+ }
+}

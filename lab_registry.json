@@ -1,0 +1,150 @@
+{
+ "holdout_start": "2025-11-11",
+ "trials": {
+  "app_breakout_trail:1d": {
+   "description": "La regola Breakout della pagina Segnali (rottura a 20 candele con volume, RSI e EMA200), ma lasciata correre: stop 2 ATR, stop che segue a 3 ATR, massimo 60 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "app_breakout_trail:1h": {
+   "description": "La regola Breakout della pagina Segnali (rottura a 20 candele con volume, RSI e EMA200), ma lasciata correre: stop 2 ATR, stop che segue a 3 ATR, massimo 60 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "app_breakout_trail:4h": {
+   "description": "La regola Breakout della pagina Segnali (rottura a 20 candele con volume, RSI e EMA200), ma lasciata correre: stop 2 ATR, stop che segue a 3 ATR, massimo 60 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "big_candle:1d": {
+   "description": "Segue la direzione di una candela il cui corpo supera 1,5 volte l'ATR precedente. Tenuta 5 candele, stop 1,5 ATR, target 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
+  "big_candle:1h": {
+   "description": "Segue la direzione di una candela il cui corpo supera 1,5 volte l'ATR precedente. Tenuta 5 candele, stop 1,5 ATR, target 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
+  "big_candle:4h": {
+   "description": "Segue la direzione di una candela il cui corpo supera 1,5 volte l'ATR precedente. Tenuta 5 candele, stop 1,5 ATR, target 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
+  "bollinger_revert:1d": {
+   "description": "Long se la chiusura \u00e8 sotto la banda inferiore di Bollinger (20, 2) ma sopra la media a 200; short speculare. Tenuta 5 candele, stop 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
+  "bollinger_revert:1h": {
+   "description": "Long se la chiusura \u00e8 sotto la banda inferiore di Bollinger (20, 2) ma sopra la media a 200; short speculare. Tenuta 5 candele, stop 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
+  "bollinger_revert:4h": {
+   "description": "Long se la chiusura \u00e8 sotto la banda inferiore di Bollinger (20, 2) ma sopra la media a 200; short speculare. Tenuta 5 candele, stop 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
+  "donchian20:1d": {
+   "description": "Long se la chiusura supera il massimo delle 20 candele precedenti, short sotto il minimo. Stop 2 ATR, poi stop che segue a 3 ATR, massimo 60 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "donchian20:1h": {
+   "description": "Long se la chiusura supera il massimo delle 20 candele precedenti, short sotto il minimo. Stop 2 ATR, poi stop che segue a 3 ATR, massimo 60 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "donchian20:4h": {
+   "description": "Long se la chiusura supera il massimo delle 20 candele precedenti, short sotto il minimo. Stop 2 ATR, poi stop che segue a 3 ATR, massimo 60 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "donchian20_calm:1d": {
+   "description": "donchian20 solo quando la volatilit\u00e0 (ATR in % del prezzo) \u00e8 sotto la sua mediana delle ultime 100 candele: rotture che partono da una fase calma.",
+   "first_tested": "2026-11-11"
+  },
+  "donchian20_calm:1h": {
+   "description": "donchian20 solo quando la volatilit\u00e0 (ATR in % del prezzo) \u00e8 sotto la sua mediana delle ultime 100 candele: rotture che partono da una fase calma.",
+   "first_tested": "2026-11-11"
+  },
+  "donchian20_calm:4h": {
+   "description": "donchian20 solo quando la volatilit\u00e0 (ATR in % del prezzo) \u00e8 sotto la sua mediana delle ultime 100 candele: rotture che partono da una fase calma.",
+   "first_tested": "2026-11-11"
+  },
+  "donchian20_long:1d": {
+   "description": "Solo la parte long di donchian20 (utilizzabile anche in spot).",
+   "first_tested": "2026-11-11"
+  },
+  "donchian20_long:1h": {
+   "description": "Solo la parte long di donchian20 (utilizzabile anche in spot).",
+   "first_tested": "2026-11-11"
+  },
+  "donchian20_long:4h": {
+   "description": "Solo la parte long di donchian20 (utilizzabile anche in spot).",
+   "first_tested": "2026-11-11"
+  },
+  "donchian55:1d": {
+   "description": "Come donchian20 ma su 55 candele (rotture pi\u00f9 rare e pi\u00f9 importanti), massimo 120 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "donchian55:1h": {
+   "description": "Come donchian20 ma su 55 candele (rotture pi\u00f9 rare e pi\u00f9 importanti), massimo 120 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "donchian55:4h": {
+   "description": "Come donchian20 ma su 55 candele (rotture pi\u00f9 rare e pi\u00f9 importanti), massimo 120 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "ema_pullback:1d": {
+   "description": "Con EMA50 sopra EMA200, long quando la chiusura torna sopra l'EMA20 dopo esserne scesa sotto (speculare per lo short). Stop 2 ATR, stop che segue a 3 ATR, massimo 60 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "ema_pullback:1h": {
+   "description": "Con EMA50 sopra EMA200, long quando la chiusura torna sopra l'EMA20 dopo esserne scesa sotto (speculare per lo short). Stop 2 ATR, stop che segue a 3 ATR, massimo 60 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "ema_pullback:4h": {
+   "description": "Con EMA50 sopra EMA200, long quando la chiusura torna sopra l'EMA20 dopo esserne scesa sotto (speculare per lo short). Stop 2 ATR, stop che segue a 3 ATR, massimo 60 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "rsi2_pullback:1d": {
+   "description": "Sopra la media a 200: long se RSI(2) < 10. Sotto: short se RSI(2) > 90. Tenuta 5 candele, stop 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
+  "rsi2_pullback:1h": {
+   "description": "Sopra la media a 200: long se RSI(2) < 10. Sotto: short se RSI(2) > 90. Tenuta 5 candele, stop 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
+  "rsi2_pullback:4h": {
+   "description": "Sopra la media a 200: long se RSI(2) < 10. Sotto: short se RSI(2) > 90. Tenuta 5 candele, stop 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
+  "tsmom30:1d": {
+   "description": "Direzione del rendimento delle ultime 30 candele, tenuta 7 candele, stop 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
+  "tsmom30:1h": {
+   "description": "Direzione del rendimento delle ultime 30 candele, tenuta 7 candele, stop 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
+  "tsmom30:4h": {
+   "description": "Direzione del rendimento delle ultime 30 candele, tenuta 7 candele, stop 3 ATR.",
+   "first_tested": "2026-11-11"
+  },
+  "tsmom30_long:1d": {
+   "description": "Solo long quando il rendimento a 30 candele \u00e8 positivo e il prezzo \u00e8 sopra la media a 200.",
+   "first_tested": "2026-11-11"
+  },
+  "tsmom30_long:1h": {
+   "description": "Solo long quando il rendimento a 30 candele \u00e8 positivo e il prezzo \u00e8 sopra la media a 200.",
+   "first_tested": "2026-11-11"
+  },
+  "tsmom30_long:4h": {
+   "description": "Solo long quando il rendimento a 30 candele \u00e8 positivo e il prezzo \u00e8 sopra la media a 200.",
+   "first_tested": "2026-11-11"
+  },
+  "tsmom90:1d": {
+   "description": "Come tsmom30 ma sul rendimento delle ultime 90 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "tsmom90:1h": {
+   "description": "Come tsmom30 ma sul rendimento delle ultime 90 candele.",
+   "first_tested": "2026-11-11"
+  },
+  "tsmom90:4h": {
+   "description": "Come tsmom30 ma sul rendimento delle ultime 90 candele.",
+   "first_tested": "2026-11-11"
+  }
+ },
+ "unsealed": {}
+}
