@@ -15,6 +15,7 @@ import * as Backup from './core/backup.js';
 import * as LabUI from './ui/lab.js';
 import * as AutoUI from './ui/automation.js';
 import * as AccountUI from './ui/account.js';
+import { initTheme } from './core/theme.js';
 import { initManual } from './ui/manual.js';
 import { initPageFit } from './ui/page-fit.js';
 
@@ -29,6 +30,7 @@ window.KState = State;
 // ==========================================
 // Account (icona in Home) e Impostazioni (barra in basso): src/ui/account.js
 window.openAccount = AccountUI.openAccount;
+window.setTheme = AccountUI.setTheme;
 window.renderAccount = AccountUI.renderAccount;
 window.setTradingMode = AutoUI.setTradingMode;
 window.openConnections = AccountUI.openConnections;
@@ -268,6 +270,8 @@ window.switchTab = (tabId) => {
         AutoUI.renderAutomation();
     }
 };
+
+initTheme();
 
 document.addEventListener('DOMContentLoaded', () => {
     Logger.log('INFO', 'SYSTEM', 'SGTRADER avviato');

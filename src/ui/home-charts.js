@@ -44,8 +44,6 @@ function initChart(symbol) {
     try {
         const handle = createChart(el, {
             bgColor: 'transparent',
-            textColor: '#8e8e93',
-            gridColor: 'rgba(255,255,255,0.04)',
             showVolume: true,
             interactive: true
         });
