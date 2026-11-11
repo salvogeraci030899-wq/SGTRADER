@@ -179,6 +179,9 @@ export function renderValidation() {
     if (!grid || !foot || !badge) return;
     const pair = valSummary && valSummary.by_pair && valSummary.by_pair[`${State.currentAsset}_${State.currentTF}`];
     foot.classList.remove('text-warning');
+    // Il piano di Kronos è presentato come valido solo se la validazione storica lo ha dimostrato per questa coppia
+    const planTitle = document.querySelector('#ai-panel .ai-title');
+    if (planTitle) planTitle.textContent = pair && pair.verdict === 'positivo' ? 'Piano Operativo IA' : 'Piano IA · non validato';
     if (!pair || !pair.n) {
         badge.textContent = '—';
         grid.innerHTML = '';
