@@ -1,0 +1,39 @@
+name: Controllo di salute
+
+# Controllo indipendente dal bot, due volte al giorno: se il bot non parte, fallisce, l'esecutore è
+# bloccato o l'archivio futures è vecchio, arriva un avviso su Telegram. Senza problemi non scrive nulla.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '35 6,18 * * *'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installa dipendenze minime
+        run: pip install requests
+      - name: Ultimo giro del bot
+        id: bot
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run list --workflow bot.yml --limit 1 --json createdAt,conclusion,status > last.json || echo "[]" > last.json
+          echo "created=$(python -c "import json; r=json.load(open('last.json')); print(r[0]['createdAt'] if r else '')")" >> "$GITHUB_OUTPUT"
+          echo "conclusion=$(python -c "import json; r=json.load(open('last.json')); print((r[0].get('conclusion') or r[0].get('status')) if r else '')")" >> "$GITHUB_OUTPUT"
+      - name: Controlla
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          LAST_RUN: ${{ steps.bot.outputs.created }}
+          LAST_CONCLUSION: ${{ steps.bot.outputs.conclusion }}
+        run: python watchdog.py --last-run "$LAST_RUN" --last-conclusion "$LAST_CONCLUSION" | tee -a "$GITHUB_STEP_SUMMARY"
