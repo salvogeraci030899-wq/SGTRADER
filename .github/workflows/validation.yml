@@ -41,13 +41,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
           cache: 'pip'
       - name: Cache modelli Hugging Face
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/huggingface
           key: hf-kronos-v1
@@ -79,13 +79,13 @@ jobs:
         symbol: [BTCUSDT, ETHUSDT, SOLUSDT]
         tf: ['1d', '4h', '1h']
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
           cache: 'pip'
       - name: Cache modelli Hugging Face
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/huggingface
           key: hf-kronos-v1
@@ -101,7 +101,7 @@ jobs:
         run: python validation.py run --symbol "$SYMBOL" --tf "$TF" --n-samples "$N_SAMPLES" --max-minutes "$MAX_MINUTES"
       - name: Consegna le previsioni
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: predictions-${{ matrix.symbol }}-${{ matrix.tf }}
           path: validation/predictions_${{ matrix.symbol }}_${{ matrix.tf }}.jsonl
@@ -118,17 +118,17 @@ jobs:
       contents: write
     steps:
       # Versione più recente del ramo: nel frattempo il bot ha fatto altri commit
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.ref_name }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
       - name: Installa dipendenze minime
         run: pip install "pandas>=2.2.2" numpy requests
       # Ogni file consegnato contiene le righe già nel repository più quelle nuove
       - name: Raccoglie le previsioni dei 9 job
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: predictions-*
           path: validation
