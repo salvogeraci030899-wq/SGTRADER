@@ -1,6 +1,6 @@
 # Validazione storica di Kronos
 
-Generato il 2026-11-11T06:58:17+00:00 · modello Kronos-small · orizzonte 7 candele.
+Generato il 2026-11-11T17:44:14+00:00 · modello Kronos-small · orizzonte 7 candele.
 
 - **Fuori campione**: solo previsioni successive alla data di pubblicazione dei pesi del modello su Hugging Face (30/06/2025).
 - **Costi**: commissione 0.1% e slippage 0.05% per lato. "Netto" = dopo questi costi. Tasse 33% applicate una volta al guadagno complessivo (le perdite compensano i guadagni).
@@ -9,52 +9,52 @@ Generato il 2026-11-11T06:58:17+00:00 · modello Kronos-small · orizzonte 7 can
 
 ### Tutte le coppie
 
-3701 previsioni dal 01/07/2025 al 09/11/2026. **Segnali operativi: vantaggio NON dimostrato.**
+4736 previsioni dal 01/07/2025 al 10/11/2026. **Segnali operativi: vantaggio NON dimostrato.**
 
 | Direzione e probabilità | Valore |
 |---|---|
-| Direzioni giuste di Kronos | 50.6% (IC 95% [47.1, 54.1]) |
-| Momentum sugli stessi punti | 50.8% (differenza IC [-5.2, 5.0]) |
-| Quante volte il prezzo è salito | 49.5% |
-| Brier Kronos / frequenza storica / moneta | 0.3445 / 0.2539 / 0.25 |
-| Vantaggio sul Brier (sopra 0 = meglio) | [-0.12, -0.06] → svantaggio dimostrato |
-| Prezzo finale dentro la fascia P10-P90 | 48.4% (atteso 80%) |
-| Calibrazione walk-forward (3578 casi) | Brier 0.3392 → 0.2583 (frequenza storica 0.2554); dopo la calibrazione: vantaggio NON dimostrato |
+| Direzioni giuste di Kronos | 50.4% (IC 95% [47.3, 53.5]) |
+| Momentum sugli stessi punti | 50.8% (differenza IC [-5.0, 4.2]) |
+| Quante volte il prezzo è salito | 49.7% |
+| Brier Kronos / frequenza storica / moneta | 0.341 / 0.253 / 0.25 |
+| Vantaggio sul Brier (sopra 0 = meglio) | [-0.11, -0.06] → svantaggio dimostrato |
+| Prezzo finale dentro la fascia P10-P90 | 48.9% (atteso 80%) |
+| Calibrazione walk-forward (4610 casi) | Brier 0.3384 → 0.2561 (frequenza storica 0.2535); dopo la calibrazione: svantaggio dimostrato |
 
 | Fascia prob. rialzo | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-10% | 583 | 3.6% | 48.9% |
-| 10-20% | 407 | 13.7% | 46.7% |
-| 20-30% | 358 | 24.1% | 48.3% |
-| 30-40% | 335 | 33.7% | 51.9% |
-| 40-50% | 330 | 44.1% | 50.0% |
-| 50-60% | 312 | 53.9% | 48.1% |
-| 60-70% | 290 | 63.8% | 52.8% |
-| 70-80% | 317 | 74.1% | 49.5% |
-| 80-90% | 311 | 83.9% | 51.8% |
-| 90-100% | 458 | 95.6% | 49.1% |
+| 0-10% | 682 | 3.6% | 48.8% |
+| 10-20% | 509 | 13.8% | 46.8% |
+| 20-30% | 489 | 24.1% | 48.7% |
+| 30-40% | 459 | 33.8% | 51.4% |
+| 40-50% | 475 | 44.1% | 51.6% |
+| 50-60% | 407 | 53.8% | 49.1% |
+| 60-70% | 384 | 63.8% | 52.6% |
+| 70-80% | 404 | 74.0% | 50.2% |
+| 80-90% | 387 | 84.0% | 51.9% |
+| 90-100% | 540 | 95.5% | 47.8% |
 
-Probabilità di chiudere in utile calcolata dalle traiettorie (3701 casi): prevista 70.1%, reale 48.9%; Brier 0.2834 contro 0.2515 della frequenza storica → svantaggio dimostrato. Valore atteso netto positivo secondo il modello nel 66.0% dei casi.
+Probabilità di chiudere in utile calcolata dalle traiettorie (4736 casi): prevista 68.0%, reale 47.7%; Brier 0.2751 contro 0.2506 della frequenza storica → vantaggio NON dimostrato. Valore atteso netto positivo secondo il modello nel 62.7% dei casi.
 
 | Prob. di utile prevista | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-20% | 556 | 0.0% | 0.0% |
+| 0-20% | 798 | 0.0% | 0.0% |
 | 20-40% | 1 | 30.0% | 100.0% |
-| 40-60% | 24 | 55.1% | 75.0% |
-| 60-80% | 1223 | 72.2% | 65.1% |
-| 80-100% | 1897 | 89.4% | 52.3% |
+| 40-60% | 31 | 55.6% | 77.4% |
+| 60-80% | 1630 | 72.2% | 64.4% |
+| 80-100% | 2276 | 89.1% | 52.1% |
 
 | Strategia | Trade | Vincenti | Lordo medio | Netto medio | IC 95% netto | Somma netta | Somma dopo le tasse | Giudizio |
 |---|---|---|---|---|---|---|---|---|
-| Kronos: segnali operativi (stop e target) | 246 | 47.2% | +0.308% | +0.008% | [-1.26%, +1.49%] | +2.1% | +1.4% | vantaggio NON dimostrato |
-| Kronos: piano solo se valore atteso netto > 0 | 2442 | 53.7% | +0.134% | -0.166% | [-0.62%, +0.28%] | -404.8% | -404.8% | vantaggio NON dimostrato |
-| Kronos: piano su ogni previsione | 3701 | 48.9% | +0.061% | -0.239% | [-0.54%, +0.06%] | -884.5% | -884.5% | vantaggio NON dimostrato |
-| Kronos: segnali tenuti a fine orizzonte | 1828 | 46.0% | +0.008% | -0.292% | [-1.11%, +0.53%] | -534.3% | -534.3% | vantaggio NON dimostrato |
-| Kronos: direzione su ogni previsione | 3701 | 43.8% | -0.053% | -0.353% | [-0.86%, +0.14%] | -1306.8% | -1306.8% | vantaggio NON dimostrato |
-| Momentum | 3701 | 44.0% | +0.203% | -0.097% | [-0.53%, +0.34%] | -357.7% | -357.7% | vantaggio NON dimostrato |
-| Sempre long | 3701 | 42.7% | -0.086% | -0.386% | [-1.04%, +0.26%] | -1429.7% | -1429.7% | vantaggio NON dimostrato |
+| Kronos: segnali operativi (stop e target) | 279 | 45.9% | +0.255% | -0.045% | [-1.20%, +1.24%] | -12.6% | -12.6% | vantaggio NON dimostrato |
+| Kronos: piano solo se valore atteso netto > 0 | 2970 | 53.1% | +0.079% | -0.221% | [-0.61%, +0.16%] | -656.5% | -656.5% | vantaggio NON dimostrato |
+| Kronos: piano su ogni previsione | 4736 | 47.7% | +0.026% | -0.274% | [-0.52%, -0.03%] | -1296.4% | -1296.4% | svantaggio dimostrato |
+| Kronos: segnali tenuti a fine orizzonte | 2210 | 45.3% | -0.054% | -0.354% | [-1.07%, +0.38%] | -782.2% | -782.2% | vantaggio NON dimostrato |
+| Kronos: direzione su ogni previsione | 4736 | 43.2% | -0.072% | -0.372% | [-0.79%, +0.04%] | -1762.4% | -1762.4% | vantaggio NON dimostrato |
+| Momentum | 4736 | 43.9% | +0.215% | -0.085% | [-0.45%, +0.29%] | -403.0% | -403.0% | vantaggio NON dimostrato |
+| Sempre long | 4736 | 42.6% | -0.078% | -0.378% | [-0.93%, +0.17%] | -1791.0% | -1791.0% | vantaggio NON dimostrato |
 
-Kronos meno momentum, stessi punti, per trade: IC 95% [-1.05%, +0.51%]. Buy & hold nello stesso periodo: -29.5% lordo, -29.8% netto.
+Kronos meno momentum, stessi punti, per trade: IC 95% [-0.96%, +0.36%]. Buy & hold nello stesso periodo: -30.6% lordo, -30.9% netto.
 
 ### Timeframe 1d
 
@@ -107,99 +107,99 @@ Kronos meno momentum, stessi punti, per trade: IC 95% [-2.50%, +1.18%]. Buy & ho
 
 ### Timeframe 4h
 
-1083 previsioni dal 01/07/2025 al 09/11/2026. **Segnali operativi: campione insufficiente.**
+1592 previsioni dal 01/07/2025 al 09/11/2026. **Segnali operativi: vantaggio NON dimostrato.**
 
 | Direzione e probabilità | Valore |
 |---|---|
-| Direzioni giuste di Kronos | 50.8% (IC 95% [47.0, 54.7]) |
-| Momentum sugli stessi punti | 47.7% (differenza IC [-3.6, 9.5]) |
-| Quante volte il prezzo è salito | 51.1% |
-| Brier Kronos / frequenza storica / moneta | 0.33 / 0.2524 / 0.25 |
+| Direzioni giuste di Kronos | 51.1% (IC 95% [47.6, 54.4]) |
+| Momentum sugli stessi punti | 48.5% (differenza IC [-3.4, 8.4]) |
+| Quante volte il prezzo è salito | 51.5% |
+| Brier Kronos / frequenza storica / moneta | 0.3275 / 0.2518 / 0.25 |
 | Vantaggio sul Brier (sopra 0 = meglio) | [-0.10, -0.05] → svantaggio dimostrato |
-| Prezzo finale dentro la fascia P10-P90 | 48.0% (atteso 80%) |
-| Calibrazione walk-forward (982 casi) | Brier 0.3232 → 0.258 (frequenza storica 0.2527); dopo la calibrazione: svantaggio dimostrato |
+| Prezzo finale dentro la fascia P10-P90 | 49.7% (atteso 80%) |
+| Calibrazione walk-forward (1490 casi) | Brier 0.323 → 0.2569 (frequenza storica 0.2516); dopo la calibrazione: svantaggio dimostrato |
 
 | Fascia prob. rialzo | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-10% | 122 | 4.5% | 52.5% |
-| 10-20% | 125 | 14.0% | 50.4% |
-| 20-30% | 126 | 24.0% | 47.6% |
-| 30-40% | 133 | 33.7% | 51.1% |
-| 40-50% | 126 | 43.7% | 49.2% |
-| 50-60% | 111 | 53.7% | 54.1% |
-| 60-70% | 94 | 63.4% | 54.3% |
-| 70-80% | 97 | 74.4% | 53.6% |
-| 80-90% | 72 | 83.4% | 50.0% |
-| 90-100% | 77 | 94.7% | 48.1% |
+| 0-10% | 182 | 4.1% | 52.2% |
+| 10-20% | 179 | 13.9% | 48.6% |
+| 20-30% | 193 | 23.9% | 49.2% |
+| 30-40% | 199 | 33.8% | 49.7% |
+| 40-50% | 199 | 43.6% | 51.3% |
+| 50-60% | 151 | 53.7% | 55.0% |
+| 60-70% | 141 | 63.7% | 55.3% |
+| 70-80% | 136 | 74.1% | 56.6% |
+| 80-90% | 109 | 83.8% | 51.4% |
+| 90-100% | 103 | 94.6% | 46.6% |
 
-Probabilità di chiudere in utile calcolata dalle traiettorie (1083 casi): prevista 72.4%, reale 53.8%; Brier 0.2774 contro 0.2497 della frequenza storica → svantaggio dimostrato. Valore atteso netto positivo secondo il modello nel 63.9% dei casi.
+Probabilità di chiudere in utile calcolata dalle traiettorie (1592 casi): prevista 72.1%, reale 53.8%; Brier 0.2746 contro 0.2497 della frequenza storica → svantaggio dimostrato. Valore atteso netto positivo secondo il modello nel 63.7% dei casi.
 
 | Prob. di utile prevista | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-20% | 103 | 0.0% | 0.0% |
-| 40-60% | 5 | 55.2% | 60.0% |
-| 60-80% | 471 | 72.6% | 66.5% |
-| 80-100% | 504 | 87.1% | 53.0% |
+| 0-20% | 158 | 0.0% | 0.0% |
+| 40-60% | 8 | 55.8% | 75.0% |
+| 60-80% | 685 | 72.7% | 65.8% |
+| 80-100% | 741 | 87.1% | 54.0% |
 
 | Strategia | Trade | Vincenti | Lordo medio | Netto medio | IC 95% netto | Somma netta | Somma dopo le tasse | Giudizio |
 |---|---|---|---|---|---|---|---|---|
-| Kronos: segnali operativi (stop e target) | 17 | 41.2% | +0.382% | +0.082% | [-1.04%, +1.36%] | +1.4% | +0.9% | campione insufficiente |
-| Kronos: piano solo se valore atteso netto > 0 | 692 | 54.2% | -0.065% | -0.365% | [-0.60%, -0.16%] | -252.5% | -252.5% | svantaggio dimostrato |
-| Kronos: piano su ogni previsione | 1083 | 53.8% | -0.068% | -0.368% | [-0.52%, -0.22%] | -399.0% | -399.0% | svantaggio dimostrato |
-| Kronos: segnali tenuti a fine orizzonte | 422 | 43.6% | -0.103% | -0.403% | [-0.84%, +0.01%] | -170.2% | -170.2% | vantaggio NON dimostrato |
-| Kronos: direzione su ogni previsione | 1083 | 45.3% | +0.061% | -0.239% | [-0.49%, +0.01%] | -259.2% | -259.2% | vantaggio NON dimostrato |
-| Momentum | 1083 | 42.5% | -0.155% | -0.455% | [-0.70%, -0.19%] | -492.9% | -492.9% | svantaggio dimostrato |
-| Sempre long | 1083 | 45.9% | -0.049% | -0.349% | [-0.66%, -0.04%] | -377.9% | -377.9% | svantaggio dimostrato |
+| Kronos: segnali operativi (stop e target) | 35 | 37.1% | +0.070% | -0.230% | [-1.27%, +1.10%] | -8.1% | -8.1% | vantaggio NON dimostrato |
+| Kronos: piano solo se valore atteso netto > 0 | 1014 | 54.3% | -0.088% | -0.388% | [-0.61%, -0.20%] | -393.3% | -393.3% | svantaggio dimostrato |
+| Kronos: piano su ogni previsione | 1592 | 53.8% | -0.079% | -0.379% | [-0.51%, -0.24%] | -603.0% | -603.0% | svantaggio dimostrato |
+| Kronos: segnali tenuti a fine orizzonte | 613 | 45.2% | -0.178% | -0.478% | [-0.93%, -0.06%] | -293.0% | -293.0% | svantaggio dimostrato |
+| Kronos: direzione su ogni previsione | 1592 | 46.3% | +0.019% | -0.281% | [-0.53%, -0.02%] | -447.1% | -447.1% | svantaggio dimostrato |
+| Momentum | 1592 | 43.3% | -0.027% | -0.327% | [-0.56%, -0.08%] | -520.3% | -520.3% | svantaggio dimostrato |
+| Sempre long | 1592 | 46.4% | -0.036% | -0.336% | [-0.63%, -0.04%] | -534.4% | -534.4% | svantaggio dimostrato |
 
-Kronos meno momentum, stessi punti, per trade: IC 95% [-0.27%, +0.65%]. Buy & hold nello stesso periodo: -29.1% lordo, -29.4% netto.
+Kronos meno momentum, stessi punti, per trade: IC 95% [-0.39%, +0.50%]. Buy & hold nello stesso periodo: -30.1% lordo, -30.4% netto.
 
 ### Timeframe 1h
 
-1148 previsioni dal 01/07/2025 al 09/11/2026. **Segnali operativi: svantaggio dimostrato.**
+1674 previsioni dal 01/07/2025 al 10/11/2026. **Segnali operativi: svantaggio dimostrato.**
 
 | Direzione e probabilità | Valore |
 |---|---|
-| Direzioni giuste di Kronos | 48.5% (IC 95% [44.8, 52.1]) |
-| Momentum sugli stessi punti | 50.6% (differenza IC [-8.2, 3.9]) |
-| Quante volte il prezzo è salito | 51.3% |
-| Brier Kronos / frequenza storica / moneta | 0.3304 / 0.2517 / 0.25 |
+| Direzioni giuste di Kronos | 48.3% (IC 95% [45.4, 51.4]) |
+| Momentum sugli stessi punti | 50.9% (differenza IC [-7.6, 2.7]) |
+| Quante volte il prezzo è salito | 50.4% |
+| Brier Kronos / frequenza storica / moneta | 0.3318 / 0.2515 / 0.25 |
 | Vantaggio sul Brier (sopra 0 = meglio) | [-0.10, -0.06] → svantaggio dimostrato |
-| Prezzo finale dentro la fascia P10-P90 | 53.1% (atteso 80%) |
-| Calibrazione walk-forward (1047 casi) | Brier 0.3264 → 0.2547 (frequenza storica 0.2514); dopo la calibrazione: vantaggio NON dimostrato |
+| Prezzo finale dentro la fascia P10-P90 | 51.6% (atteso 80%) |
+| Calibrazione walk-forward (1572 casi) | Brier 0.3292 → 0.2523 (frequenza storica 0.2511); dopo la calibrazione: vantaggio NON dimostrato |
 
 | Fascia prob. rialzo | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-10% | 107 | 3.4% | 56.1% |
-| 10-20% | 103 | 13.4% | 47.6% |
-| 20-30% | 131 | 24.5% | 48.9% |
-| 30-40% | 149 | 33.7% | 54.4% |
-| 40-50% | 154 | 44.3% | 53.9% |
-| 50-60% | 140 | 54.1% | 49.3% |
-| 60-70% | 120 | 63.9% | 57.5% |
-| 70-80% | 100 | 73.9% | 48.0% |
-| 80-90% | 68 | 84.2% | 52.9% |
-| 90-100% | 76 | 95.1% | 39.5% |
+| 0-10% | 146 | 3.5% | 52.7% |
+| 10-20% | 151 | 13.6% | 48.3% |
+| 20-30% | 195 | 24.5% | 48.2% |
+| 30-40% | 207 | 33.8% | 54.1% |
+| 40-50% | 226 | 44.4% | 54.4% |
+| 50-60% | 195 | 54.0% | 49.2% |
+| 60-70% | 167 | 63.9% | 54.5% |
+| 70-80% | 148 | 73.8% | 46.6% |
+| 80-90% | 107 | 84.2% | 52.3% |
+| 90-100% | 132 | 95.2% | 39.4% |
 
-Probabilità di chiudere in utile calcolata dalle traiettorie (1148 casi): prevista 48.0%, reale 33.7%; Brier 0.204 contro 0.2252 della frequenza storica → vantaggio NON dimostrato. Valore atteso netto positivo secondo il modello nel 35.6% dei casi.
+Probabilità di chiudere in utile calcolata dalle traiettorie (1674 casi): prevista 48.8%, reale 33.8%; Brier 0.21 contro 0.2254 della frequenza storica → vantaggio NON dimostrato. Valore atteso netto positivo secondo il modello nel 36.7% dei casi.
 
 | Prob. di utile prevista | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-20% | 438 | 0.0% | 0.0% |
-| 40-60% | 7 | 56.0% | 71.4% |
-| 60-80% | 426 | 71.1% | 59.9% |
-| 80-100% | 277 | 88.2% | 45.8% |
+| 0-20% | 625 | 0.0% | 0.0% |
+| 40-60% | 11 | 56.7% | 72.7% |
+| 60-80% | 619 | 71.2% | 59.8% |
+| 80-100% | 419 | 88.2% | 44.6% |
 
 | Strategia | Trade | Vincenti | Lordo medio | Netto medio | IC 95% netto | Somma netta | Somma dopo le tasse | Giudizio |
 |---|---|---|---|---|---|---|---|---|
-| Kronos: segnali operativi (stop e target) | 34 | 23.5% | -0.477% | -0.777% | [-1.27%, -0.26%] | -26.4% | -26.4% | svantaggio dimostrato |
-| Kronos: piano solo se valore atteso netto > 0 | 409 | 45.2% | -0.110% | -0.410% | [-0.56%, -0.25%] | -167.5% | -167.5% | svantaggio dimostrato |
-| Kronos: piano su ogni previsione | 1148 | 33.7% | -0.052% | -0.352% | [-0.41%, -0.29%] | -403.8% | -403.8% | svantaggio dimostrato |
-| Kronos: segnali tenuti a fine orizzonte | 372 | 34.1% | -0.120% | -0.420% | [-0.62%, -0.20%] | -156.2% | -156.2% | svantaggio dimostrato |
-| Kronos: direzione su ogni previsione | 1148 | 34.8% | -0.099% | -0.399% | [-0.51%, -0.29%] | -457.7% | -457.7% | svantaggio dimostrato |
-| Momentum | 1148 | 36.9% | +0.079% | -0.221% | [-0.34%, -0.11%] | -253.4% | -253.4% | svantaggio dimostrato |
-| Sempre long | 1148 | 37.4% | -0.022% | -0.322% | [-0.45%, -0.20%] | -369.3% | -369.3% | svantaggio dimostrato |
+| Kronos: segnali operativi (stop e target) | 49 | 28.6% | -0.345% | -0.645% | [-1.12%, -0.12%] | -31.6% | -31.6% | svantaggio dimostrato |
+| Kronos: piano solo se valore atteso netto > 0 | 615 | 44.6% | -0.153% | -0.453% | [-0.58%, -0.32%] | -278.4% | -278.4% | svantaggio dimostrato |
+| Kronos: piano su ogni previsione | 1674 | 33.8% | -0.065% | -0.365% | [-0.42%, -0.31%] | -611.6% | -611.6% | svantaggio dimostrato |
+| Kronos: segnali tenuti a fine orizzonte | 563 | 34.5% | -0.200% | -0.500% | [-0.68%, -0.33%] | -281.4% | -281.4% | svantaggio dimostrato |
+| Kronos: direzione su ogni previsione | 1674 | 34.5% | -0.133% | -0.433% | [-0.52%, -0.34%] | -725.4% | -725.4% | svantaggio dimostrato |
+| Momentum | 1674 | 38.4% | +0.138% | -0.162% | [-0.27%, -0.06%] | -271.3% | -271.3% | svantaggio dimostrato |
+| Sempre long | 1674 | 37.3% | -0.043% | -0.343% | [-0.45%, -0.23%] | -574.1% | -574.1% | svantaggio dimostrato |
 
-Kronos meno momentum, stessi punti, per trade: IC 95% [-0.36%, +0.00%]. Buy & hold nello stesso periodo: -27.1% lordo, -27.4% netto.
+Kronos meno momentum, stessi punti, per trade: IC 95% [-0.44%, -0.11%]. Buy & hold nello stesso periodo: -29.4% lordo, -29.6% netto.
 
 ### BTCUSDT 1d
 
@@ -251,99 +251,99 @@ Kronos meno momentum, stessi punti, per trade: IC 95% [-1.74%, +1.45%]. Buy & ho
 
 ### BTCUSDT 1h
 
-373 previsioni dal 01/07/2025 al 09/11/2026. **Segnali operativi: campione insufficiente.**
+569 previsioni dal 01/07/2025 al 10/11/2026. **Segnali operativi: campione insufficiente.**
 
 | Direzione e probabilità | Valore |
 |---|---|
-| Direzioni giuste di Kronos | 49.6% (IC 95% [44.7, 54.5]) |
-| Momentum sugli stessi punti | 48.5% (differenza IC [-7.1, 9.0]) |
-| Quante volte il prezzo è salito | 51.5% |
-| Brier Kronos / frequenza storica / moneta | 0.3148 / 0.2518 / 0.25 |
-| Vantaggio sul Brier (sopra 0 = meglio) | [-0.09, -0.04] → svantaggio dimostrato |
-| Prezzo finale dentro la fascia P10-P90 | 57.4% (atteso 80%) |
-| Calibrazione walk-forward (273 casi) | Brier 0.3218 → 0.2617 (frequenza storica 0.2509); dopo la calibrazione: vantaggio NON dimostrato |
+| Direzioni giuste di Kronos | 48.6% (IC 95% [44.4, 52.5]) |
+| Momentum sugli stessi punti | 48.6% (differenza IC [-6.6, 7.0]) |
+| Quante volte il prezzo è salito | 50.8% |
+| Brier Kronos / frequenza storica / moneta | 0.3244 / 0.2522 / 0.25 |
+| Vantaggio sul Brier (sopra 0 = meglio) | [-0.10, -0.05] → svantaggio dimostrato |
+| Prezzo finale dentro la fascia P10-P90 | 54.1% (atteso 80%) |
+| Calibrazione walk-forward (469 casi) | Brier 0.3238 → 0.2539 (frequenza storica 0.2509); dopo la calibrazione: vantaggio NON dimostrato |
 
 | Fascia prob. rialzo | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-10% | 23 | 4.1% | 52.2% |
-| 10-20% | 37 | 13.5% | 40.5% |
-| 20-30% | 51 | 24.7% | 43.1% |
-| 30-40% | 51 | 33.8% | 60.8% |
-| 40-50% | 51 | 45.1% | 56.9% |
-| 50-60% | 39 | 54.7% | 56.4% |
-| 60-70% | 39 | 63.7% | 56.4% |
-| 70-80% | 37 | 73.9% | 48.6% |
-| 80-90% | 20 | 84.9% | 50.0% |
-| 90-100% | 25 | 94.3% | 44.0% |
+| 0-10% | 36 | 3.6% | 52.8% |
+| 10-20% | 57 | 13.5% | 40.4% |
+| 20-30% | 75 | 24.8% | 48.0% |
+| 30-40% | 70 | 33.9% | 60.0% |
+| 40-50% | 76 | 45.1% | 55.3% |
+| 50-60% | 57 | 54.1% | 52.6% |
+| 60-70% | 55 | 63.7% | 56.4% |
+| 70-80% | 61 | 73.9% | 45.9% |
+| 80-90% | 34 | 83.9% | 52.9% |
+| 90-100% | 48 | 94.7% | 41.7% |
 
-Probabilità di chiudere in utile calcolata dalle traiettorie (373 casi): prevista 36.6%, reale 26.8%; Brier 0.1522 contro 0.2049 della frequenza storica → vantaggio dimostrato. Valore atteso netto positivo secondo il modello nel 24.4% dei casi.
+Probabilità di chiudere in utile calcolata dalle traiettorie (569 casi): prevista 37.5%, reale 25.1%; Brier 0.1671 contro 0.1929 della frequenza storica → vantaggio NON dimostrato. Valore atteso netto positivo secondo il modello nel 26.4% dei casi.
 
 | Prob. di utile prevista | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-20% | 193 | 0.0% | 0.0% |
-| 40-60% | 4 | 56.5% | 75.0% |
-| 60-80% | 120 | 70.6% | 60.0% |
-| 80-100% | 56 | 88.3% | 44.6% |
+| 0-20% | 289 | 0.0% | 0.0% |
+| 40-60% | 8 | 57.2% | 75.0% |
+| 60-80% | 181 | 70.5% | 54.1% |
+| 80-100% | 91 | 88.9% | 42.9% |
 
 | Strategia | Trade | Vincenti | Lordo medio | Netto medio | IC 95% netto | Somma netta | Somma dopo le tasse | Giudizio |
 |---|---|---|---|---|---|---|---|---|
-| Kronos: segnali operativi (stop e target) | 7 | 28.6% | -0.402% | -0.702% | [-1.41%, +0.19%] | -4.9% | -4.9% | campione insufficiente |
-| Kronos: piano solo se valore atteso netto > 0 | 91 | 42.9% | -0.085% | -0.385% | [-0.57%, -0.18%] | -35.0% | -35.0% | svantaggio dimostrato |
-| Kronos: piano su ogni previsione | 373 | 26.8% | -0.006% | -0.306% | [-0.36%, -0.25%] | -114.2% | -114.2% | svantaggio dimostrato |
-| Kronos: segnali tenuti a fine orizzonte | 109 | 33.0% | -0.069% | -0.369% | [-0.57%, -0.17%] | -40.2% | -40.2% | svantaggio dimostrato |
-| Kronos: direzione su ogni previsione | 373 | 32.7% | -0.054% | -0.354% | [-0.45%, -0.26%] | -132.2% | -132.2% | svantaggio dimostrato |
-| Momentum | 373 | 31.1% | +0.027% | -0.273% | [-0.37%, -0.17%] | -101.7% | -101.7% | svantaggio dimostrato |
-| Sempre long | 373 | 31.1% | -0.051% | -0.351% | [-0.45%, -0.26%] | -131.1% | -131.1% | svantaggio dimostrato |
+| Kronos: segnali operativi (stop e target) | 15 | 40.0% | -0.297% | -0.597% | [-1.21%, +0.09%] | -8.9% | -8.9% | campione insufficiente |
+| Kronos: piano solo se valore atteso netto > 0 | 150 | 40.7% | -0.161% | -0.461% | [-0.61%, -0.31%] | -69.1% | -69.1% | svantaggio dimostrato |
+| Kronos: piano su ogni previsione | 569 | 25.1% | -0.050% | -0.350% | [-0.40%, -0.30%] | -199.0% | -199.0% | svantaggio dimostrato |
+| Kronos: segnali tenuti a fine orizzonte | 181 | 33.7% | -0.153% | -0.453% | [-0.64%, -0.27%] | -82.0% | -82.0% | svantaggio dimostrato |
+| Kronos: direzione su ogni previsione | 569 | 31.5% | -0.090% | -0.390% | [-0.47%, -0.30%] | -221.9% | -221.9% | svantaggio dimostrato |
+| Momentum | 569 | 33.0% | +0.070% | -0.230% | [-0.32%, -0.14%] | -130.6% | -130.6% | svantaggio dimostrato |
+| Sempre long | 569 | 32.3% | -0.044% | -0.344% | [-0.43%, -0.26%] | -195.8% | -195.8% | svantaggio dimostrato |
 
-Kronos meno momentum, stessi punti, per trade: IC 95% [-0.23%, +0.07%]. Buy & hold nello stesso periodo: -28.9% lordo, -29.1% netto.
+Kronos meno momentum, stessi punti, per trade: IC 95% [-0.30%, -0.01%]. Buy & hold nello stesso periodo: -30.3% lordo, -30.6% netto.
 
 ### BTCUSDT 4h
 
-352 previsioni dal 01/07/2025 al 09/11/2026. **Segnali operativi: campione insufficiente.**
+518 previsioni dal 01/07/2025 al 09/11/2026. **Segnali operativi: campione insufficiente.**
 
 | Direzione e probabilità | Valore |
 |---|---|
-| Direzioni giuste di Kronos | 49.6% (IC 95% [44.3, 54.5]) |
-| Momentum sugli stessi punti | 48.7% (differenza IC [-7.6, 9.6]) |
-| Quante volte il prezzo è salito | 51.7% |
-| Brier Kronos / frequenza storica / moneta | 0.335 / 0.253 / 0.25 |
-| Vantaggio sul Brier (sopra 0 = meglio) | [-0.11, -0.05] → svantaggio dimostrato |
-| Prezzo finale dentro la fascia P10-P90 | 46.6% (atteso 80%) |
-| Calibrazione walk-forward (252 casi) | Brier 0.3155 → 0.2537 (frequenza storica 0.2509); dopo la calibrazione: vantaggio NON dimostrato |
+| Direzioni giuste di Kronos | 50.9% (IC 95% [46.4, 55.4]) |
+| Momentum sugli stessi punti | 47.9% (differenza IC [-3.8, 10.3]) |
+| Quante volte il prezzo è salito | 52.1% |
+| Brier Kronos / frequenza storica / moneta | 0.3275 / 0.2515 / 0.25 |
+| Vantaggio sul Brier (sopra 0 = meglio) | [-0.10, -0.05] → svantaggio dimostrato |
+| Prezzo finale dentro la fascia P10-P90 | 49.6% (atteso 80%) |
+| Calibrazione walk-forward (417 casi) | Brier 0.3263 → 0.2625 (frequenza storica 0.2516); dopo la calibrazione: svantaggio dimostrato |
 
 | Fascia prob. rialzo | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-10% | 33 | 4.3% | 57.6% |
-| 10-20% | 36 | 14.3% | 58.3% |
-| 20-30% | 43 | 24.0% | 51.2% |
-| 30-40% | 54 | 33.0% | 59.3% |
-| 40-50% | 44 | 43.9% | 34.1% |
-| 50-60% | 45 | 53.5% | 53.3% |
-| 60-70% | 31 | 62.6% | 48.4% |
-| 70-80% | 21 | 74.1% | 47.6% |
-| 80-90% | 24 | 83.7% | 50.0% |
-| 90-100% | 21 | 94.3% | 57.1% |
+| 0-10% | 51 | 3.7% | 52.9% |
+| 10-20% | 51 | 14.1% | 54.9% |
+| 20-30% | 67 | 23.7% | 50.7% |
+| 30-40% | 76 | 33.4% | 53.9% |
+| 40-50% | 69 | 43.6% | 43.5% |
+| 50-60% | 59 | 53.7% | 57.6% |
+| 60-70% | 49 | 62.9% | 53.1% |
+| 70-80% | 29 | 74.0% | 51.7% |
+| 80-90% | 40 | 84.2% | 52.5% |
+| 90-100% | 27 | 94.4% | 51.9% |
 
-Probabilità di chiudere in utile calcolata dalle traiettorie (352 casi): prevista 64.4%, reale 44.0%; Brier 0.271 contro 0.2482 della frequenza storica → vantaggio NON dimostrato. Valore atteso netto positivo secondo il modello nel 53.1% dei casi.
+Probabilità di chiudere in utile calcolata dalle traiettorie (518 casi): prevista 65.3%, reale 46.7%; Brier 0.2637 contro 0.2504 della frequenza storica → vantaggio NON dimostrato. Valore atteso netto positivo secondo il modello nel 52.7% dei casi.
 
 | Prob. di utile prevista | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-20% | 64 | 0.0% | 0.0% |
-| 40-60% | 2 | 55.0% | 0.0% |
-| 60-80% | 150 | 72.1% | 61.3% |
-| 80-100% | 136 | 86.3% | 46.3% |
+| 0-20% | 89 | 0.0% | 0.0% |
+| 40-60% | 4 | 55.5% | 50.0% |
+| 60-80% | 221 | 72.3% | 61.5% |
+| 80-100% | 204 | 86.5% | 51.0% |
 
 | Strategia | Trade | Vincenti | Lordo medio | Netto medio | IC 95% netto | Somma netta | Somma dopo le tasse | Giudizio |
 |---|---|---|---|---|---|---|---|---|
-| Kronos: segnali operativi (stop e target) | 5 | 20.0% | -0.259% | -0.559% | [-1.53%, +0.67%] | -2.8% | -2.8% | campione insufficiente |
-| Kronos: piano solo se valore atteso netto > 0 | 187 | 48.1% | -0.178% | -0.478% | [-0.69%, -0.28%] | -89.4% | -89.4% | svantaggio dimostrato |
-| Kronos: piano su ogni previsione | 352 | 44.0% | -0.143% | -0.443% | [-0.58%, -0.32%] | -156.0% | -156.0% | svantaggio dimostrato |
-| Kronos: segnali tenuti a fine orizzonte | 125 | 40.8% | -0.101% | -0.401% | [-0.76%, -0.04%] | -50.1% | -50.1% | svantaggio dimostrato |
-| Kronos: direzione su ogni previsione | 352 | 41.8% | -0.060% | -0.360% | [-0.59%, -0.14%] | -126.6% | -126.6% | svantaggio dimostrato |
-| Momentum | 352 | 43.2% | +0.010% | -0.290% | [-0.52%, -0.07%] | -102.2% | -102.2% | svantaggio dimostrato |
-| Sempre long | 352 | 43.2% | -0.072% | -0.372% | [-0.59%, -0.15%] | -131.0% | -131.0% | svantaggio dimostrato |
+| Kronos: segnali operativi (stop e target) | 12 | 16.7% | -0.774% | -1.074% | [-2.01%, +0.07%] | -12.9% | -12.9% | campione insufficiente |
+| Kronos: piano solo se valore atteso netto > 0 | 273 | 49.1% | -0.170% | -0.470% | [-0.66%, -0.26%] | -128.2% | -128.2% | svantaggio dimostrato |
+| Kronos: piano su ogni previsione | 518 | 46.7% | -0.110% | -0.410% | [-0.53%, -0.29%] | -212.5% | -212.5% | svantaggio dimostrato |
+| Kronos: segnali tenuti a fine orizzonte | 187 | 43.3% | -0.202% | -0.502% | [-0.93%, -0.11%] | -93.9% | -93.9% | svantaggio dimostrato |
+| Kronos: direzione su ogni previsione | 518 | 44.6% | -0.091% | -0.391% | [-0.63%, -0.16%] | -202.4% | -202.4% | svantaggio dimostrato |
+| Momentum | 518 | 42.7% | +0.053% | -0.247% | [-0.47%, -0.03%] | -128.1% | -128.1% | svantaggio dimostrato |
+| Sempre long | 518 | 44.8% | -0.069% | -0.369% | [-0.61%, -0.13%] | -191.0% | -191.0% | svantaggio dimostrato |
 
-Kronos meno momentum, stessi punti, per trade: IC 95% [-0.45%, +0.33%]. Buy & hold nello stesso periodo: -30.0% lordo, -30.3% netto.
+Kronos meno momentum, stessi punti, per trade: IC 95% [-0.54%, +0.24%]. Buy & hold nello stesso periodo: -30.0% lordo, -30.3% netto.
 
 ### ETHUSDT 1d
 
@@ -395,99 +395,99 @@ Kronos meno momentum, stessi punti, per trade: IC 95% [-3.11%, +1.36%]. Buy & ho
 
 ### ETHUSDT 1h
 
-381 previsioni dal 01/07/2025 al 09/11/2026. **Segnali operativi: campione insufficiente.**
+546 previsioni dal 01/07/2025 al 10/11/2026. **Segnali operativi: campione insufficiente.**
 
 | Direzione e probabilità | Valore |
 |---|---|
-| Direzioni giuste di Kronos | 49.6% (IC 95% [44.5, 55.0]) |
-| Momentum sugli stessi punti | 53.4% (differenza IC [-12.1, 4.9]) |
-| Quante volte il prezzo è salito | 52.2% |
-| Brier Kronos / frequenza storica / moneta | 0.3303 / 0.252 / 0.25 |
-| Vantaggio sul Brier (sopra 0 = meglio) | [-0.11, -0.05] → svantaggio dimostrato |
-| Prezzo finale dentro la fascia P10-P90 | 51.4% (atteso 80%) |
-| Calibrazione walk-forward (281 casi) | Brier 0.3362 → 0.259 (frequenza storica 0.2506); dopo la calibrazione: svantaggio dimostrato |
+| Direzioni giuste di Kronos | 50.5% (IC 95% [46.1, 54.4]) |
+| Momentum sugli stessi punti | 52.5% (differenza IC [-9.0, 4.7]) |
+| Quante volte il prezzo è salito | 51.5% |
+| Brier Kronos / frequenza storica / moneta | 0.325 / 0.2517 / 0.25 |
+| Vantaggio sul Brier (sopra 0 = meglio) | [-0.10, -0.05] → svantaggio dimostrato |
+| Prezzo finale dentro la fascia P10-P90 | 51.8% (atteso 80%) |
+| Calibrazione walk-forward (446 casi) | Brier 0.3205 → 0.2542 (frequenza storica 0.2507); dopo la calibrazione: vantaggio NON dimostrato |
 
 | Fascia prob. rialzo | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-10% | 34 | 2.9% | 58.8% |
-| 10-20% | 38 | 13.4% | 47.4% |
-| 20-30% | 47 | 24.3% | 51.1% |
-| 30-40% | 49 | 33.8% | 51.0% |
-| 40-50% | 53 | 44.0% | 54.7% |
-| 50-60% | 50 | 53.6% | 54.0% |
-| 60-70% | 36 | 64.4% | 58.3% |
-| 70-80% | 26 | 74.2% | 42.3% |
-| 80-90% | 23 | 84.5% | 56.5% |
-| 90-100% | 25 | 95.3% | 44.0% |
+| 0-10% | 46 | 3.3% | 52.2% |
+| 10-20% | 51 | 13.6% | 51.0% |
+| 20-30% | 63 | 24.3% | 49.2% |
+| 30-40% | 71 | 33.7% | 50.7% |
+| 40-50% | 79 | 44.2% | 53.2% |
+| 50-60% | 72 | 53.6% | 54.2% |
+| 60-70% | 54 | 64.0% | 55.6% |
+| 70-80% | 35 | 73.8% | 45.7% |
+| 80-90% | 34 | 84.9% | 55.9% |
+| 90-100% | 41 | 95.4% | 43.9% |
 
-Probabilità di chiudere in utile calcolata dalle traiettorie (381 casi): prevista 50.4%, reale 33.9%; Brier 0.2245 contro 0.2269 della frequenza storica → vantaggio NON dimostrato. Valore atteso netto positivo secondo il modello nel 37.0% dei casi.
+Probabilità di chiudere in utile calcolata dalle traiettorie (546 casi): prevista 51.1%, reale 36.1%; Brier 0.218 contro 0.2334 della frequenza storica → vantaggio NON dimostrato. Valore atteso netto positivo secondo il modello nel 38.1% dei casi.
 
 | Prob. di utile prevista | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-20% | 134 | 0.0% | 0.0% |
+| 0-20% | 188 | 0.0% | 0.0% |
 | 40-60% | 2 | 56.0% | 100.0% |
-| 60-80% | 148 | 71.3% | 57.4% |
-| 80-100% | 97 | 88.2% | 43.3% |
+| 60-80% | 212 | 71.2% | 61.3% |
+| 80-100% | 144 | 88.1% | 45.1% |
 
 | Strategia | Trade | Vincenti | Lordo medio | Netto medio | IC 95% netto | Somma netta | Somma dopo le tasse | Giudizio |
 |---|---|---|---|---|---|---|---|---|
-| Kronos: segnali operativi (stop e target) | 15 | 6.7% | -0.961% | -1.261% | [-1.82%, -0.79%] | -18.9% | -18.9% | campione insufficiente |
-| Kronos: piano solo se valore atteso netto > 0 | 141 | 42.6% | -0.108% | -0.408% | [-0.61%, -0.22%] | -57.5% | -57.5% | svantaggio dimostrato |
-| Kronos: piano su ogni previsione | 381 | 33.9% | -0.063% | -0.363% | [-0.45%, -0.28%] | -138.3% | -138.3% | svantaggio dimostrato |
-| Kronos: segnali tenuti a fine orizzonte | 129 | 30.2% | -0.120% | -0.420% | [-0.68%, -0.17%] | -54.2% | -54.2% | svantaggio dimostrato |
-| Kronos: direzione su ogni previsione | 381 | 33.6% | -0.087% | -0.387% | [-0.53%, -0.24%] | -147.5% | -147.5% | svantaggio dimostrato |
-| Momentum | 381 | 37.3% | +0.151% | -0.149% | [-0.29%, -0.01%] | -56.7% | -56.7% | svantaggio dimostrato |
-| Sempre long | 381 | 38.8% | -0.001% | -0.301% | [-0.45%, -0.16%] | -114.8% | -114.8% | svantaggio dimostrato |
+| Kronos: segnali operativi (stop e target) | 18 | 5.6% | -0.990% | -1.290% | [-1.73%, -0.89%] | -23.2% | -23.2% | campione insufficiente |
+| Kronos: piano solo se valore atteso netto > 0 | 208 | 44.7% | -0.122% | -0.422% | [-0.58%, -0.27%] | -87.7% | -87.7% | svantaggio dimostrato |
+| Kronos: piano su ogni previsione | 546 | 36.1% | -0.048% | -0.348% | [-0.42%, -0.28%] | -189.9% | -189.9% | svantaggio dimostrato |
+| Kronos: segnali tenuti a fine orizzonte | 184 | 32.6% | -0.207% | -0.507% | [-0.74%, -0.27%] | -93.3% | -93.3% | svantaggio dimostrato |
+| Kronos: direzione su ogni previsione | 546 | 35.5% | -0.131% | -0.431% | [-0.56%, -0.31%] | -235.4% | -235.4% | svantaggio dimostrato |
+| Momentum | 546 | 38.3% | +0.168% | -0.132% | [-0.26%, +0.00%] | -72.1% | -72.1% | vantaggio NON dimostrato |
+| Sempre long | 546 | 38.6% | -0.028% | -0.328% | [-0.46%, -0.20%] | -178.9% | -178.9% | svantaggio dimostrato |
 
-Kronos meno momentum, stessi punti, per trade: IC 95% [-0.47%, -0.01%]. Buy & hold nello stesso periodo: -11.6% lordo, -11.9% netto.
+Kronos meno momentum, stessi punti, per trade: IC 95% [-0.52%, -0.10%]. Buy & hold nello stesso periodo: -14.6% lordo, -14.9% netto.
 
 ### ETHUSDT 4h
 
-332 previsioni dal 01/07/2025 al 09/11/2026. **Segnali operativi: campione insufficiente.**
+510 previsioni dal 01/07/2025 al 09/11/2026. **Segnali operativi: campione insufficiente.**
 
 | Direzione e probabilità | Valore |
 |---|---|
-| Direzioni giuste di Kronos | 50.9% (IC 95% [45.1, 56.5]) |
-| Momentum sugli stessi punti | 48.1% (differenza IC [-6.5, 12.3]) |
-| Quante volte il prezzo è salito | 50.9% |
-| Brier Kronos / frequenza storica / moneta | 0.3214 / 0.2543 / 0.25 |
-| Vantaggio sul Brier (sopra 0 = meglio) | [-0.10, -0.03] → svantaggio dimostrato |
-| Prezzo finale dentro la fascia P10-P90 | 51.2% (atteso 80%) |
-| Calibrazione walk-forward (232 casi) | Brier 0.3139 → 0.2568 (frequenza storica 0.2512); dopo la calibrazione: vantaggio NON dimostrato |
+| Direzioni giuste di Kronos | 51.2% (IC 95% [46.4, 55.9]) |
+| Momentum sugli stessi punti | 48.8% (differenza IC [-5.3, 10.0]) |
+| Quante volte il prezzo è salito | 51.4% |
+| Brier Kronos / frequenza storica / moneta | 0.3212 / 0.2524 / 0.25 |
+| Vantaggio sul Brier (sopra 0 = meglio) | [-0.10, -0.04] → svantaggio dimostrato |
+| Prezzo finale dentro la fascia P10-P90 | 52.2% (atteso 80%) |
+| Calibrazione walk-forward (410 casi) | Brier 0.3137 → 0.2624 (frequenza storica 0.2512); dopo la calibrazione: svantaggio dimostrato |
 
 | Fascia prob. rialzo | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-10% | 41 | 5.0% | 48.8% |
-| 10-20% | 44 | 13.5% | 45.5% |
-| 20-30% | 37 | 24.2% | 48.6% |
-| 30-40% | 33 | 34.7% | 42.4% |
-| 40-50% | 38 | 43.9% | 63.2% |
-| 50-60% | 28 | 53.6% | 53.6% |
-| 60-70% | 34 | 64.0% | 55.9% |
-| 70-80% | 32 | 74.4% | 53.1% |
-| 80-90% | 22 | 82.7% | 50.0% |
-| 90-100% | 23 | 95.0% | 47.8% |
+| 0-10% | 65 | 4.6% | 47.7% |
+| 10-20% | 65 | 13.7% | 43.1% |
+| 20-30% | 63 | 23.9% | 54.0% |
+| 30-40% | 51 | 34.2% | 45.1% |
+| 40-50% | 57 | 44.0% | 59.6% |
+| 50-60% | 41 | 53.2% | 51.2% |
+| 60-70% | 56 | 64.5% | 57.1% |
+| 70-80% | 45 | 73.8% | 60.0% |
+| 80-90% | 31 | 82.8% | 45.2% |
+| 90-100% | 36 | 94.7% | 50.0% |
 
-Probabilità di chiudere in utile calcolata dalle traiettorie (332 casi): prevista 75.8%, reale 56.0%; Brier 0.2902 contro 0.2491 della frequenza storica → svantaggio dimostrato. Valore atteso netto positivo secondo il modello nel 68.4% dei casi.
+Probabilità di chiudere in utile calcolata dalle traiettorie (510 casi): prevista 75.6%, reale 55.3%; Brier 0.29 contro 0.2502 della frequenza storica → svantaggio dimostrato. Valore atteso netto positivo secondo il modello nel 69.6% dei casi.
 
 | Prob. di utile prevista | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-20% | 16 | 0.0% | 0.0% |
+| 0-20% | 28 | 0.0% | 0.0% |
 | 40-60% | 1 | 58.0% | 100.0% |
-| 60-80% | 155 | 72.2% | 63.9% |
-| 80-100% | 160 | 87.1% | 53.8% |
+| 60-80% | 233 | 72.4% | 63.1% |
+| 80-100% | 248 | 87.2% | 54.0% |
 
 | Strategia | Trade | Vincenti | Lordo medio | Netto medio | IC 95% netto | Somma netta | Somma dopo le tasse | Giudizio |
 |---|---|---|---|---|---|---|---|---|
-| Kronos: segnali operativi (stop e target) | 6 | 50.0% | +0.601% | +0.301% | [-1.30%, +1.91%] | +1.8% | +1.2% | campione insufficiente |
-| Kronos: piano solo se valore atteso netto > 0 | 227 | 54.2% | -0.032% | -0.332% | [-0.64%, -0.04%] | -75.3% | -75.3% | svantaggio dimostrato |
-| Kronos: piano su ogni previsione | 332 | 56.0% | -0.067% | -0.367% | [-0.57%, -0.16%] | -121.9% | -121.9% | svantaggio dimostrato |
-| Kronos: segnali tenuti a fine orizzonte | 137 | 43.1% | -0.168% | -0.468% | [-1.02%, +0.08%] | -64.2% | -64.2% | vantaggio NON dimostrato |
-| Kronos: direzione su ogni previsione | 332 | 45.5% | -0.030% | -0.330% | [-0.71%, +0.03%] | -109.5% | -109.5% | vantaggio NON dimostrato |
-| Momentum | 332 | 41.6% | -0.101% | -0.401% | [-0.74%, -0.03%] | -133.0% | -133.0% | svantaggio dimostrato |
-| Sempre long | 332 | 46.1% | -0.006% | -0.306% | [-0.66%, +0.07%] | -101.7% | -101.7% | vantaggio NON dimostrato |
+| Kronos: segnali operativi (stop e target) | 14 | 50.0% | +0.194% | -0.106% | [-1.41%, +1.23%] | -1.5% | -1.5% | campione insufficiente |
+| Kronos: piano solo se valore atteso netto > 0 | 355 | 54.1% | -0.099% | -0.399% | [-0.66%, -0.15%] | -141.6% | -141.6% | svantaggio dimostrato |
+| Kronos: piano su ogni previsione | 510 | 55.3% | -0.108% | -0.408% | [-0.60%, -0.22%] | -207.9% | -207.9% | svantaggio dimostrato |
+| Kronos: segnali tenuti a fine orizzonte | 209 | 46.9% | -0.193% | -0.493% | [-1.06%, +0.06%] | -103.0% | -103.0% | vantaggio NON dimostrato |
+| Kronos: direzione su ogni previsione | 510 | 46.5% | -0.063% | -0.363% | [-0.69%, -0.03%] | -185.3% | -185.3% | svantaggio dimostrato |
+| Momentum | 510 | 43.1% | +0.053% | -0.247% | [-0.55%, +0.05%] | -126.1% | -126.1% | vantaggio NON dimostrato |
+| Sempre long | 510 | 46.3% | +0.005% | -0.295% | [-0.67%, +0.08%] | -150.6% | -150.6% | vantaggio NON dimostrato |
 
-Kronos meno momentum, stessi punti, per trade: IC 95% [-0.55%, +0.66%]. Buy & hold nello stesso periodo: -14.6% lordo, -14.8% netto.
+Kronos meno momentum, stessi punti, per trade: IC 95% [-0.64%, +0.40%]. Buy & hold nello stesso periodo: -14.6% lordo, -14.8% netto.
 
 ### SOLUSDT 1d
 
@@ -540,97 +540,97 @@ Kronos meno momentum, stessi punti, per trade: IC 95% [-3.61%, +1.28%]. Buy & ho
 
 ### SOLUSDT 1h
 
-394 previsioni dal 01/07/2025 al 09/11/2026. **Segnali operativi: campione insufficiente.**
+559 previsioni dal 01/07/2025 al 10/11/2026. **Segnali operativi: campione insufficiente.**
 
 | Direzione e probabilità | Valore |
 |---|---|
-| Direzioni giuste di Kronos | 46.5% (IC 95% [41.3, 51.4]) |
-| Momentum sugli stessi punti | 49.9% (differenza IC [-11.7, 4.9]) |
-| Quante volte il prezzo è salito | 50.3% |
-| Brier Kronos / frequenza storica / moneta | 0.3452 / 0.2517 / 0.25 |
+| Direzioni giuste di Kronos | 46.0% (IC 95% [41.9, 50.2]) |
+| Momentum sugli stessi punti | 51.8% (differenza IC [-12.6, 0.5]) |
+| Quante volte il prezzo è salito | 48.8% |
+| Brier Kronos / frequenza storica / moneta | 0.346 / 0.2517 / 0.25 |
 | Vantaggio sul Brier (sopra 0 = meglio) | [-0.12, -0.07] → svantaggio dimostrato |
-| Prezzo finale dentro la fascia P10-P90 | 50.8% (atteso 80%) |
-| Calibrazione walk-forward (294 casi) | Brier 0.3537 → 0.2586 (frequenza storica 0.2517); dopo la calibrazione: svantaggio dimostrato |
+| Prezzo finale dentro la fascia P10-P90 | 48.7% (atteso 80%) |
+| Calibrazione walk-forward (459 casi) | Brier 0.344 → 0.2537 (frequenza storica 0.2508); dopo la calibrazione: svantaggio dimostrato |
 
 | Fascia prob. rialzo | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-10% | 50 | 3.5% | 56.0% |
-| 10-20% | 28 | 13.4% | 57.1% |
-| 20-30% | 33 | 24.4% | 54.5% |
-| 30-40% | 49 | 33.5% | 51.0% |
-| 40-50% | 50 | 43.8% | 50.0% |
-| 50-60% | 51 | 54.2% | 39.2% |
-| 60-70% | 45 | 63.8% | 57.8% |
-| 70-80% | 37 | 73.6% | 51.4% |
-| 80-90% | 25 | 83.3% | 52.0% |
-| 90-100% | 26 | 95.5% | 30.8% |
+| 0-10% | 64 | 3.5% | 53.1% |
+| 10-20% | 43 | 13.8% | 55.8% |
+| 20-30% | 57 | 24.4% | 47.4% |
+| 30-40% | 66 | 33.8% | 51.5% |
+| 40-50% | 71 | 44.0% | 54.9% |
+| 50-60% | 66 | 54.2% | 40.9% |
+| 60-70% | 58 | 63.9% | 51.7% |
+| 70-80% | 52 | 73.8% | 48.1% |
+| 80-90% | 39 | 83.8% | 48.7% |
+| 90-100% | 43 | 95.5% | 32.6% |
 
-Probabilità di chiudere in utile calcolata dalle traiettorie (394 casi): prevista 56.5%, reale 40.1%; Brier 0.2332 contro 0.2419 della frequenza storica → vantaggio NON dimostrato. Valore atteso netto positivo secondo il modello nel 44.9% dei casi.
+Probabilità di chiudere in utile calcolata dalle traiettorie (559 casi): prevista 58.0%, reale 40.3%; Brier 0.2457 contro 0.242 della frequenza storica → vantaggio NON dimostrato. Valore atteso netto positivo secondo il modello nel 46.0% dei casi.
 
 | Prob. di utile prevista | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-20% | 111 | 0.0% | 0.0% |
+| 0-20% | 148 | 0.0% | 0.0% |
 | 40-60% | 1 | 54.0% | 0.0% |
-| 60-80% | 158 | 71.3% | 62.0% |
-| 80-100% | 124 | 88.2% | 48.4% |
+| 60-80% | 226 | 71.6% | 62.8% |
+| 80-100% | 184 | 88.0% | 45.1% |
 
 | Strategia | Trade | Vincenti | Lordo medio | Netto medio | IC 95% netto | Somma netta | Somma dopo le tasse | Giudizio |
 |---|---|---|---|---|---|---|---|---|
-| Kronos: segnali operativi (stop e target) | 12 | 41.7% | +0.084% | -0.216% | [-1.12%, +0.65%] | -2.6% | -2.6% | campione insufficiente |
-| Kronos: piano solo se valore atteso netto > 0 | 177 | 48.6% | -0.124% | -0.424% | [-0.61%, -0.24%] | -75.0% | -75.0% | svantaggio dimostrato |
-| Kronos: piano su ogni previsione | 394 | 40.1% | -0.084% | -0.384% | [-0.48%, -0.28%] | -151.3% | -151.3% | svantaggio dimostrato |
-| Kronos: segnali tenuti a fine orizzonte | 134 | 38.8% | -0.162% | -0.462% | [-0.77%, -0.14%] | -61.9% | -61.9% | svantaggio dimostrato |
-| Kronos: direzione su ogni previsione | 394 | 37.8% | -0.152% | -0.452% | [-0.61%, -0.29%] | -178.0% | -178.0% | svantaggio dimostrato |
-| Momentum | 394 | 42.1% | +0.059% | -0.241% | [-0.40%, -0.08%] | -95.0% | -95.0% | svantaggio dimostrato |
-| Sempre long | 394 | 41.9% | -0.013% | -0.313% | [-0.48%, -0.16%] | -123.5% | -123.5% | svantaggio dimostrato |
+| Kronos: segnali operativi (stop e target) | 16 | 43.8% | +0.334% | +0.034% | [-0.88%, +0.93%] | +0.5% | +0.4% | campione insufficiente |
+| Kronos: piano solo se valore atteso netto > 0 | 257 | 46.7% | -0.173% | -0.473% | [-0.64%, -0.31%] | -121.6% | -121.6% | svantaggio dimostrato |
+| Kronos: piano su ogni previsione | 559 | 40.3% | -0.098% | -0.398% | [-0.49%, -0.31%] | -222.7% | -222.7% | svantaggio dimostrato |
+| Kronos: segnali tenuti a fine orizzonte | 198 | 36.9% | -0.235% | -0.535% | [-0.79%, -0.28%] | -106.0% | -106.0% | svantaggio dimostrato |
+| Kronos: direzione su ogni previsione | 559 | 36.5% | -0.180% | -0.480% | [-0.62%, -0.33%] | -268.1% | -268.1% | svantaggio dimostrato |
+| Momentum | 559 | 44.0% | +0.177% | -0.123% | [-0.26%, +0.02%] | -68.6% | -68.6% | vantaggio NON dimostrato |
+| Sempre long | 559 | 41.1% | -0.057% | -0.357% | [-0.50%, -0.21%] | -199.4% | -199.4% | svantaggio dimostrato |
 
-Kronos meno momentum, stessi punti, per trade: IC 95% [-0.48%, +0.04%]. Buy & hold nello stesso periodo: -40.8% lordo, -41.1% netto.
+Kronos meno momentum, stessi punti, per trade: IC 95% [-0.59%, -0.11%]. Buy & hold nello stesso periodo: -43.1% lordo, -43.4% netto.
 
 ### SOLUSDT 4h
 
-399 previsioni dal 01/07/2025 al 09/11/2026. **Segnali operativi: campione insufficiente.**
+564 previsioni dal 01/07/2025 al 09/11/2026. **Segnali operativi: campione insufficiente.**
 
 | Direzione e probabilità | Valore |
 |---|---|
-| Direzioni giuste di Kronos | 51.9% (IC 95% [46.9, 57.1]) |
-| Momentum sugli stessi punti | 46.6% (differenza IC [-3.1, 13.6]) |
-| Quante volte il prezzo è salito | 50.6% |
-| Brier Kronos / frequenza storica / moneta | 0.3328 / 0.2517 / 0.25 |
+| Direzioni giuste di Kronos | 51.1% (IC 95% [46.6, 55.5]) |
+| Momentum sugli stessi punti | 48.7% (differenza IC [-5.1, 9.5]) |
+| Quante volte il prezzo è salito | 51.1% |
+| Brier Kronos / frequenza storica / moneta | 0.333 / 0.2528 / 0.25 |
 | Vantaggio sul Brier (sopra 0 = meglio) | [-0.11, -0.05] → svantaggio dimostrato |
-| Prezzo finale dentro la fascia P10-P90 | 46.6% (atteso 80%) |
-| Calibrazione walk-forward (299 casi) | Brier 0.3398 → 0.2564 (frequenza storica 0.2512); dopo la calibrazione: vantaggio NON dimostrato |
+| Prezzo finale dentro la fascia P10-P90 | 47.5% (atteso 80%) |
+| Calibrazione walk-forward (463 casi) | Brier 0.3356 → 0.2623 (frequenza storica 0.2518); dopo la calibrazione: svantaggio dimostrato |
 
 | Fascia prob. rialzo | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-10% | 48 | 4.1% | 52.1% |
-| 10-20% | 45 | 14.2% | 48.9% |
-| 20-30% | 46 | 23.9% | 43.5% |
-| 30-40% | 46 | 33.7% | 47.8% |
-| 40-50% | 44 | 43.4% | 52.3% |
-| 50-60% | 38 | 54.1% | 55.3% |
-| 60-70% | 29 | 63.7% | 58.6% |
-| 70-80% | 44 | 74.5% | 56.8% |
-| 80-90% | 26 | 83.8% | 50.0% |
-| 90-100% | 33 | 94.8% | 42.4% |
+| 0-10% | 66 | 3.8% | 56.1% |
+| 10-20% | 63 | 13.9% | 49.2% |
+| 20-30% | 63 | 23.9% | 42.9% |
+| 30-40% | 72 | 34.0% | 48.6% |
+| 40-50% | 73 | 43.3% | 52.1% |
+| 50-60% | 51 | 54.0% | 54.9% |
+| 60-70% | 36 | 63.7% | 55.6% |
+| 70-80% | 62 | 74.3% | 56.5% |
+| 80-90% | 38 | 84.2% | 55.3% |
+| 90-100% | 40 | 94.6% | 40.0% |
 
-Probabilità di chiudere in utile calcolata dalle traiettorie (399 casi): prevista 76.6%, reale 60.7%; Brier 0.2724 contro 0.2433 della frequenza storica → svantaggio dimostrato. Valore atteso netto positivo secondo il modello nel 69.7% dei casi.
+Probabilità di chiudere in utile calcolata dalle traiettorie (564 casi): prevista 75.2%, reale 59.0%; Brier 0.2705 contro 0.2442 della frequenza storica → svantaggio dimostrato. Valore atteso netto positivo secondo il modello nel 68.4% dei casi.
 
 | Prob. di utile prevista | Casi | Prevista | Reale |
 |---|---|---|---|
-| 0-20% | 23 | 0.0% | 0.0% |
-| 40-60% | 2 | 54.0% | 100.0% |
-| 60-80% | 166 | 73.5% | 73.5% |
-| 80-100% | 208 | 87.7% | 56.7% |
+| 0-20% | 41 | 0.0% | 0.0% |
+| 40-60% | 3 | 55.3% | 100.0% |
+| 60-80% | 231 | 73.4% | 72.7% |
+| 80-100% | 289 | 87.5% | 56.1% |
 
 | Strategia | Trade | Vincenti | Lordo medio | Netto medio | IC 95% netto | Somma netta | Somma dopo le tasse | Giudizio |
 |---|---|---|---|---|---|---|---|---|
-| Kronos: segnali operativi (stop e target) | 6 | 50.0% | +0.696% | +0.396% | [-2.21%, +3.14%] | +2.4% | +1.6% | campione insufficiente |
-| Kronos: piano solo se valore atteso netto > 0 | 278 | 58.3% | -0.015% | -0.315% | [-0.61%, -0.02%] | -87.7% | -87.7% | svantaggio dimostrato |
-| Kronos: piano su ogni previsione | 399 | 60.7% | -0.003% | -0.303% | [-0.51%, -0.10%] | -121.1% | -121.1% | svantaggio dimostrato |
-| Kronos: segnali tenuti a fine orizzonte | 160 | 46.2% | -0.049% | -0.349% | [-0.91%, +0.22%] | -55.9% | -55.9% | vantaggio NON dimostrato |
-| Kronos: direzione su ogni previsione | 399 | 48.4% | +0.242% | -0.058% | [-0.43%, +0.31%] | -23.0% | -23.0% | vantaggio NON dimostrato |
-| Momentum | 399 | 42.6% | -0.346% | -0.646% | [-1.01%, -0.28%] | -257.7% | -257.7% | svantaggio dimostrato |
-| Sempre long | 399 | 48.1% | -0.064% | -0.364% | [-0.75%, +0.02%] | -145.2% | -145.2% | vantaggio NON dimostrato |
+| Kronos: segnali operativi (stop e target) | 9 | 44.4% | +1.002% | +0.702% | [-1.77%, +3.32%] | +6.3% | +4.2% | campione insufficiente |
+| Kronos: piano solo se valore atteso netto > 0 | 386 | 58.3% | -0.020% | -0.320% | [-0.57%, -0.06%] | -123.4% | -123.4% | svantaggio dimostrato |
+| Kronos: piano su ogni previsione | 564 | 59.0% | -0.024% | -0.324% | [-0.51%, -0.13%] | -182.6% | -182.6% | svantaggio dimostrato |
+| Kronos: segnali tenuti a fine orizzonte | 217 | 45.2% | -0.143% | -0.443% | [-1.03%, +0.14%] | -96.0% | -96.0% | vantaggio NON dimostrato |
+| Kronos: direzione su ogni previsione | 564 | 47.7% | +0.195% | -0.105% | [-0.45%, +0.24%] | -59.3% | -59.3% | vantaggio NON dimostrato |
+| Momentum | 564 | 44.1% | -0.172% | -0.472% | [-0.78%, -0.15%] | -266.1% | -266.1% | svantaggio dimostrato |
+| Sempre long | 564 | 47.9% | -0.042% | -0.342% | [-0.69%, +0.02%] | -192.8% | -192.8% | vantaggio NON dimostrato |
 
-Kronos meno momentum, stessi punti, per trade: IC 95% [-0.08%, +1.21%]. Buy & hold nello stesso periodo: -42.7% lordo, -43.0% netto.
+Kronos meno momentum, stessi punti, per trade: IC 95% [-0.21%, +0.95%]. Buy & hold nello stesso periodo: -45.8% lordo, -46.1% netto.
 
