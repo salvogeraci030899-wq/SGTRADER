@@ -23,10 +23,12 @@ import tempfile
 from datetime import datetime, timezone
 
 import executor
+import price_alerts
 import lab_strategies
 
 CONFIG_PATH = "automation.json"
 SUMMARY_PATH = "lab_summary.json"
+ALERTS_STATE_PATH = "alerts_state.json"
 MODES = ("off", "paper", "live")
 HISTORY_MAX = 200
 MAX_ACTIVE = 6          # strategie accese insieme (su carta o reali): più prove = più risultati "buoni" per caso
@@ -161,9 +163,31 @@ def set_trading(cfg, value):
             if value == "on" else "Ordini veri disabilitati: l'esecutore resta in simulazione.")
 
 
-def run(argv, path=CONFIG_PATH, summary_path=SUMMARY_PATH, state_path=executor.STATE_PATH):
+def alert(cfg, op, arg, alerts_state_path=ALERTS_STATE_PATH):
+    """Avvisi di prezzo (price_alerts.py): add BTCUSDT:above:75000 | del <id> | clear"""
+    try:
+        with open(alerts_state_path) as f:
+            fired_state = json.load(f)
+    except (OSError, ValueError):
+        fired_state = {}
+    try:
+        if op == "add":
+            msg = price_alerts.add(cfg, arg, fired_state)
+        elif op == "del":
+            msg = price_alerts.remove(cfg, arg, fired_state)
+        elif op == "clear":
+            msg = price_alerts.clear(cfg)
+        else:
+            raise CommandError(f"Operazione sugli avvisi non valida: {op}")
+    except price_alerts.AlertError as e:
+        raise CommandError(str(e))
+    cfg["history"].append({"at": _now(), "cmd": "alert", "op": op, "arg": arg})
+    return msg
+
+
+def run(argv, path=CONFIG_PATH, summary_path=SUMMARY_PATH, state_path=executor.STATE_PATH, alerts_state_path=ALERTS_STATE_PATH):
     if not argv:
-        raise CommandError("Comando mancante: set, emergency, resume, risk o trading.")
+        raise CommandError("Comando mancante: set, emergency, resume, risk, trading o alert.")
     cfg = load(path)
     cmd = argv[0]
     if cmd == "set" and len(argv) == 3:
@@ -176,6 +200,8 @@ def run(argv, path=CONFIG_PATH, summary_path=SUMMARY_PATH, state_path=executor.S
         msg = set_risk(cfg, argv[1], argv[2])
     elif cmd == "trading" and len(argv) == 2:
         msg = set_trading(cfg, argv[1])
+    elif cmd == "alert" and len(argv) >= 2:
+        msg = alert(cfg, argv[1], argv[2] if len(argv) > 2 else "", alerts_state_path)
     else:
         raise CommandError(f"Comando non valido: {' '.join(argv)}")
     save(cfg, path)

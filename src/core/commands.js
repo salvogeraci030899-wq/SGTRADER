@@ -93,6 +93,22 @@ export async function command(body, env, fetchFn) {
         case 'trading':
             if (!['on', 'off'].includes(b.value)) return json(400, { error: 'Valore non valido' });
             return dispatch(env, fetchFn, 'automation.yml', { action: 'trading', key: '', mode: b.value });
+        case 'alert': {
+            // avvisi di prezzo su Telegram (price_alerts.py): aggiungi, togli, togli tutti
+            if (b.op === 'add') {
+                const price = String(b.price == null ? '' : b.price);
+                if (!ANALYZE_SYMBOLS.includes(b.symbol) || !['above', 'below'].includes(b.side) || !/^\d{1,9}(\.\d{1,8})?$/.test(price) || !(Number(price) > 0)) {
+                    return json(400, { error: 'Avviso non valido' });
+                }
+                return dispatch(env, fetchFn, 'automation.yml', { action: 'alert', key: `${b.symbol}:${b.side}:${price}`, mode: 'add' });
+            }
+            if (b.op === 'del') {
+                if (!/^[0-9a-f]{8}$/.test(String(b.id || ''))) return json(400, { error: 'Avviso non valido' });
+                return dispatch(env, fetchFn, 'automation.yml', { action: 'alert', key: b.id, mode: 'del' });
+            }
+            if (b.op === 'clear') return dispatch(env, fetchFn, 'automation.yml', { action: 'alert', key: '', mode: 'clear' });
+            return json(400, { error: 'Avviso non valido' });
+        }
         case 'emergency':
             return dispatch(env, fetchFn, 'automation.yml', { action: 'emergency', key: '', mode: '' });
         case 'resume':
@@ -327,6 +343,8 @@ Azioni possibili (usa SOLO queste, con questi campi):
 - {"type":"resume"}: sblocca dopo l'emergenza
 - {"type":"run_lab"}: rilancia il laboratorio delle strategie
 - {"type":"analyze","symbol":"BTCUSDT"|"ETHUSDT"|"SOLUSDT","timeframe":"1d"|"4h"|"1h"}: apri l'analisi AI live
+- {"type":"price_alert","symbol":"BTCUSDT"|"ETHUSDT"|"SOLUSDT","price":numero}: avviso su Telegram quando il prezzo tocca quel livello (solo un messaggio, nessun ordine)
+- {"type":"clear_alerts"}: togli tutti gli avvisi di prezzo
 - {"type":"open_page","page":"home"|"terminal"|"signals"|"trade"|"calculator"|"journal"|"test"|"settings"|"account"}: apri una pagina
 Per le domande rispondi con i dati forniti e action null. Non inventare numeri. Se la richiesta non è chiara, chiedi di precisare.
 Quando proponi un'azione NON dire mai che è già fatta: scrivi cosa farai e chiudi con «Confermi?» (es. «Metto donchian55 1d su carta. Confermi?»). Nessuna strategia è confermata dalla prova finale finché l'elenco "confermate" è vuoto: dillo se l'utente chiede di andare in reale.`;
@@ -345,6 +363,12 @@ export function sanitizeGeneralAction(a) {
             return ANALYZE_SYMBOLS.includes(a.symbol) && ANALYZE_TFS.includes(a.timeframe) ? { type: a.type, symbol: a.symbol, timeframe: a.timeframe } : null;
         case 'open_page':
             return PAGES_OK.includes(a.page) ? { type: a.type, page: a.page } : null;
+        case 'price_alert': {
+            const price = Number(a.price);
+            return ANALYZE_SYMBOLS.includes(a.symbol) && Number.isFinite(price) && price > 0 && price < 1e9 ? { type: a.type, symbol: a.symbol, price } : null;
+        }
+        case 'clear_alerts':
+            return { type: a.type };
     }
     return null;
 }
@@ -356,6 +380,9 @@ function generalFacts(c) {
         .filter(a => a && STRATEGY_KEY.test(a.key || ''))
         .map(a => `${a.key} (${a.mode === 'live' ? 'reale' : 'carta'}, ${n(a.closed)} chiusi, medio ${n(a.avg_net_pct)}%, ${n(a.open)} aperti)`);
     const prices = ANALYZE_SYMBOLS.map(s => `${s} ${n(c.prices && c.prices[s])}`).join(', ');
+    const alerts = (Array.isArray(c.alerts) ? c.alerts : []).slice(0, 10)
+        .filter(a => a && ANALYZE_SYMBOLS.includes(a.symbol) && ['above', 'below'].includes(a.side) && Number.isFinite(Number(a.price)))
+        .map(a => `${a.symbol} ${a.side === 'above' ? '≥' : '≤'} ${Number(a.price)}`);
     return `Stato del tool:
 Prezzi: ${prices}.
 Modalità ordini: ${c.trading === 'on' ? 'reale' : 'simulato'}. Emergenza: ${c.emergency ? 'sì' : 'no'}.
@@ -364,6 +391,7 @@ Conto simulato dell'app: capitale libero ${n(c.sim_free)} USDT, posizioni aperte
 Ultimo giro del bot: ${n(c.bot_minutes)} minuti fa (parte ogni 15 minuti).
 Strategie accese (massimo 6): ${active.length ? active.join('; ') : 'nessuna'}.
 Confermate dalla prova finale: ${list(c.confirmed, 10).join(', ') || 'nessuna'}.
+Avvisi di prezzo attivi: ${alerts.length ? alerts.join(', ') : 'nessuno'}.
 Strategie che si possono mettere su carta (migliori nello storico per prime): ${list(c.available, 30).join(', ') || 'N/D'}.`;
 }
 

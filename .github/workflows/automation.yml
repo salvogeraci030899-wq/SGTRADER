@@ -10,13 +10,13 @@ on:
         description: 'set = cambia lo stato di una strategia, emergency = spegni tutto, resume = sblocca'
         required: true
         type: choice
-        options: [set, emergency, resume, risk, trading]
+        options: [set, emergency, resume, risk, trading, alert]
       key:
         description: 'Strategia (set, es. big_candle_trail:1d) oppure limite di rischio (risk)'
         required: false
         default: ''
       mode:
-        description: 'off/paper/live (set), valore (risk), on/off (trading)'
+        description: 'off/paper/live (set), valore (risk), on/off (trading), add/del/clear (alert)'
         required: false
         default: ''
 
@@ -49,6 +49,8 @@ jobs:
           set -o pipefail
           if [ "$ACTION" = "set" ] || [ "$ACTION" = "risk" ]; then
             python automation.py "$ACTION" "$KEY" "$MODE" | tee -a "$GITHUB_STEP_SUMMARY"
+          elif [ "$ACTION" = "alert" ]; then
+            python automation.py alert "$MODE" "$KEY" | tee -a "$GITHUB_STEP_SUMMARY"
           elif [ "$ACTION" = "trading" ]; then
             python automation.py trading "$MODE" | tee -a "$GITHUB_STEP_SUMMARY"
           else

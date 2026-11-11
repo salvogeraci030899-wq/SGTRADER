@@ -1,5 +1,5 @@
 import { State } from '../core/state.js';
-import { $, SYM, fetchT, calcPnl, escapeHtml, fmtIt } from '../utils/helpers.js';
+import { $, SYM, fetchT, calcPnl, escapeHtml, fmtIt, fmtPrice } from '../utils/helpers.js';
 import { aggregateCellSignals } from './signals.js';
 import { bitgetAccountText } from './automation.js';
 import { updateModePills, tradingMode } from './account.js';
@@ -136,8 +136,8 @@ async function refreshBotFiles() {
     if (botInFlight) return;
     botInFlight = true;
     try {
-        const [cfg, ledger, live] = await Promise.all([getJson('automation.json'), getJson('paper_trades.json'), getJson('live_trades.json')]);
-        bot = { cfg, ledger, live };
+        const [cfg, ledger, live, alerts] = await Promise.all([getJson('automation.json'), getJson('paper_trades.json'), getJson('live_trades.json'), getJson('alerts_state.json')]);
+        bot = { cfg, ledger, live, fired: (alerts && alerts._price_alerts_fired) || [] };
     } finally { botInFlight = false; }
     renderAutomationCard();
     renderAccount();
@@ -166,6 +166,9 @@ function renderAutomationCard() {
         if (paper) parts.push(`${paper} su carta`);
         setLine('homeAutoStrategies', `${parts.join(' · ')} · ${opened} aperti, ${closed} chiusi`, 'text-ui');
     }
+    const al = ((cfg && cfg.price_alerts) || []).filter(a => a && !bot.fired.includes(a.id));
+    const fmtA = a => `${a.symbol.replace('USDT', '')} ${a.side === 'above' ? '≥' : '≤'} ${fmtPrice(a.price >= 1000 ? Math.round(a.price) : a.price)}`;
+    setLine('homeAlerts', al.length ? (al.length <= 2 ? al.map(fmtA).join(' · ') : `${al.length} attivi · ${fmtA(al[0])}…`) : 'nessuno', al.length ? 'text-ui' : '');
     const trading = !!(cfg && cfg.risk && cfg.risk.trading_enabled);
     setLine('homeAutoOrders', trading ? 'abilitati' : 'spenti', trading ? 'text-warning' : '');
     const acc = bitgetAccountText(live && live.account);
