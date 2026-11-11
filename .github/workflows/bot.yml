@@ -101,12 +101,6 @@ jobs:
           git add paper_trades.json 2>/dev/null || true
           git add live_trades.json 2>/dev/null || true
           git commit -m "chore: auto-update $(date -u +%Y-%m-%d_%H:%M)" || { echo "Nessuna modifica da salvare"; exit 0; }
-          # Lo stato degli alert deve arrivare sul repo: se il push viene rifiutato
-          # (qualcuno ha fatto push nel frattempo) riallineo e riprovo.
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
-            echo "Push fallito (tentativo $i), riprovo..."
-            sleep $((i * 5))
-          done
-          echo "Impossibile fare push dello stato aggiornato."
-          exit 1
+          # Lo stato deve arrivare sul repo anche se un altro workflow ha salvato nel frattempo:
+          # riallineamento sicuro (conflitti risolti, JSON controllati) in tools/push_state.sh
+          bash tools/push_state.sh

@@ -65,9 +65,4 @@ jobs:
           git add automation.json
           git add live_trades.json 2>/dev/null || true
           git commit -m "Automazione: $ACTION $(date -u +%Y-%m-%d_%H:%M)" || { echo "Nessuna modifica"; exit 0; }
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
-            echo "Push fallito (tentativo $i), riprovo..."
-            sleep $((i * 5))
-          done
-          exit 1
+          bash tools/push_state.sh

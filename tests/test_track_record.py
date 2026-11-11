@@ -138,6 +138,17 @@ def test_salvataggio_e_rilettura():
             pass
 
 
+def test_doppioni_da_unione_tolti():
+    import json
+    d = tempfile.mkdtemp()
+    p = os.path.join(d, "l.jsonl")
+    rows = [{"id": "a", "status": "open"}, {"id": "b", "status": "open"}, {"id": "a", "status": "hit_tp"}, {"id": "b", "status": "open"}, {"id": "c", "status": "open"}]
+    with open(p, "w") as f:
+        f.write("\n".join(json.dumps(r) for r in rows) + "\n")
+    got = tr.load_ledger(p)
+    assert [e["id"] for e in got] == ["a", "b", "c"] and got[0]["status"] == "hit_tp"
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in tests:
