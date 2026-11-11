@@ -3,7 +3,8 @@
  "paper_start": "2026-11-11",
  "strategies": {
   "big_candle_trail:1d": "paper",
-  "app_breakout_trail:1d": "paper"
+  "app_breakout_trail:1d": "paper",
+  "rsi2_pullback:1d": "paper"
  },
  "emergency": false,
  "history": [
@@ -25,6 +26,13 @@
    "at": "2026-11-11T14:43:09+00:00",
    "cmd": "set",
    "key": "app_breakout_trail:1d",
+   "from": "off",
+   "to": "paper"
+  },
+  {
+   "at": "2026-11-11T14:43:29+00:00",
+   "cmd": "set",
+   "key": "rsi2_pullback:1d",
    "from": "off",
    "to": "paper"
   }
