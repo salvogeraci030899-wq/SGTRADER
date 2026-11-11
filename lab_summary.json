@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-11T05:42:00+00:00",
+ "generated_at": "2026-11-11T05:56:41+00:00",
  "holdout_start": "2025-11-11",
  "trials_registered": 44,
  "fdr": 0.1,
@@ -1045,7 +1045,39 @@
    "family": "volatilit\u00e0",
    "block_seconds": 1728000,
    "significant": true,
-   "candidate": true
+   "candidate": true,
+   "holdout": {
+    "n": 33,
+    "win_rate": 36.4,
+    "avg_gross_pct": 1.299,
+    "avg_net_pct": 0.979,
+    "avg_net_ci": [
+     -4.5083,
+     7.6486
+    ],
+    "p_value": 0.37937966990331595,
+    "avg_bars": 10.0,
+    "net_per_year_per_coin_pct": 11.1,
+    "after_tax_per_year_per_coin_pct": 7.4,
+    "by_coin": {
+     "BTCUSDT": -0.239,
+     "ETHUSDT": -0.614,
+     "SOLUSDT": 5.442
+    },
+    "excess_avg_pct": 0.973,
+    "excess_ci": [
+     -4.3084,
+     7.3365
+    ],
+    "excess_p": 0.37731149079342746,
+    "excess_by_coin": {
+     "BTCUSDT": -0.188,
+     "ETHUSDT": -0.547,
+     "SOLUSDT": 5.229
+    },
+    "confirmed": false,
+    "unsealed_on": "2026-11-11"
+   }
   },
   "tsmom_combo:1d": {
    "n": 669,

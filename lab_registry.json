@@ -178,5 +178,7 @@
    "first_tested": "2026-11-11"
   }
  },
- "unsealed": {}
+ "unsealed": {
+  "big_candle_trail:1d": "2026-11-11"
+ }
 }

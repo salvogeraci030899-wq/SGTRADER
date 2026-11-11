@@ -1,6 +1,6 @@
 # Laboratorio strategie
 
-Generato il 2026-11-11T05:42:00+00:00 · 44 prove in questa esecuzione, 44 registrate in tutto.
+Generato il 2026-11-11T05:56:41+00:00 · 44 prove in questa esecuzione, 44 registrate in tutto.
 
 - **Ricerca** solo sullo storico prima del 2025-11-11; da lì in poi è **sigillato** per la prova finale.
 - **Costi** (scenario principale: futures, ordini a mercato): 0.11% per lato più funding. "Netto" = dopo questi costi, tasse escluse.
@@ -71,6 +71,12 @@ Generato il 2026-11-11T05:42:00+00:00 · 44 prove in questa esecuzione, 44 regis
 | tsmom30_long | momentum | 10499 | 40.7% | 6.7 candele | -0.142% | -68.9% | -0.194% | [-0.25%, -0.14%] | 1.0000 | -0.15% / -0.23% | -0.21% / -0.21% / -0.14% | no |
 | tsmom30 | momentum | 24515 | 39.6% | 6.7 candele | -0.202% | -226.8% | -0.203% | [-0.24%, -0.17%] | 1.0000 | -0.20% / -0.20% | -0.21% / -0.20% / -0.18% | no |
 | bollinger_revert | ritorno alla media | 2783 | 46.5% | 4.7 candele | -0.209% | -26.7% | -0.212% | [-0.29%, -0.13%] | 1.0000 | -0.23% / -0.20% | -0.26% / -0.24% / -0.09% | no |
+
+### Prove finali sui mesi sigillati
+
+| Prova | Aperta il | Trade | Netto medio | Oltre il mercato | IC 95% | p | Esito |
+|---|---|---|---|---|---|---|---|
+| big_candle_trail:1d | 2026-11-11 | 33 | +0.979% | +0.973% | [-4.31%, +7.34%] | 0.3773 | non confermata |
 
 ### Le strategie
 
