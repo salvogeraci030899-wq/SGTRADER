@@ -1,6 +1,6 @@
 # Laboratorio strategie
 
-Generato il 2026-11-11T08:44:35+00:00 · 50 prove in questa esecuzione, 50 registrate in tutto.
+Generato il 2026-11-11T08:56:09+00:00 · 50 prove in questa esecuzione, 50 registrate in tutto.
 
 - **Ricerca** solo sullo storico prima del 2025-11-11; da lì in poi è **sigillato** per la prova finale.
 - **Costi** (scenario principale: futures, ordini a mercato): 0.11% per lato più funding. "Netto" = dopo questi costi, tasse escluse.
@@ -19,7 +19,7 @@ Generato il 2026-11-11T08:44:35+00:00 · 50 prove in questa esecuzione, 50 regis
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | app_breakout_trail | trend | 42 | 40.5% | 31.7 candele | +3.183% | +1.0% / -3.1% | +5.477% | [-4.68%, +17.25%] | 0.1771 | +24.31% / +0.34% | +1.30% / +7.05% / +10.46% | no |
 | donchian20_turtle | trend | 179 | 36.3% | 22.2 candele | +5.262% | +11.0% / -10.9% | +4.535% | [-1.05%, +13.74%] | 0.1117 | +14.43% / -0.09% | +2.70% / +7.46% / +3.25% | no |
-| big_candle_trail | volatilità | 187 | 45.5% | 12.0 candele | +3.819% | +9.1% / -4.5% | +3.686% | [+1.48%, +6.21%] | 0.0014 | +6.40% / +1.78% | +1.85% / +5.31% / +4.57% | **CANDIDATA** |
+| big_candle_trail | volatilità | 187 | 45.5% | 12.0 candele | +3.819% | +9.1% / -4.5% | +3.686% | [+1.48%, +6.21%] | 0.0014 | +6.40% / +1.78% | +1.85% / +5.31% / +4.57% | bocciata alla prova finale |
 | donchian20_calm | trend | 119 | 42.0% | 17.5 candele | +4.027% | +5.2% / -7.5% | +3.140% | [-0.41%, +7.72%] | 0.0658 | +9.51% / -0.60% | +2.14% / +5.12% / +1.25% | no |
 | donchian55 | trend | 111 | 39.6% | 22.0 candele | +3.218% | +3.8% / -4.8% | +2.960% | [-1.06%, +8.06%] | 0.1094 | +6.56% / +0.51% | +1.48% / +3.61% / +4.55% | no |
 | donchian20_regime | trend | 147 | 38.1% | 19.1 candele | +2.364% | +4.0% / -9.2% | +2.152% | [-1.74%, +6.50%] | 0.1600 | +6.12% / -0.29% | +0.56% / +2.76% / +3.91% | no |
