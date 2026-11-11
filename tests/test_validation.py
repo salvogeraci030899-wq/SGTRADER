@@ -30,10 +30,9 @@ def row(k=0, prob_up=90.0, move=2.0, symbol="BTCUSDT", past=99.0, forecast_move=
 
 
 def test_costi():
-    pre, post = vs.after_costs(2.0)
-    assert abs(pre - (2.0 - COSTS)) < 1e-12 and abs(post - (2.0 - COSTS) * (1 - TAX_RATE)) < 1e-12
-    pre, post = vs.after_costs(-1.0)
-    assert pre == post == -1.0 - COSTS  # sulle perdite niente tasse
+    assert abs(vs.net_of_costs(2.0) - (2.0 - COSTS)) < 1e-12 and abs(vs.net_of_costs(-1.0) - (-1.0 - COSTS)) < 1e-12
+    # tasse solo sul risultato complessivo
+    assert abs(vs.tr.after_tax_total(10.0) - 10.0 * (1 - TAX_RATE)) < 1e-12 and vs.tr.after_tax_total(-4.0) == -4.0
 
 
 def test_esiti_di_una_previsione():
@@ -68,7 +67,7 @@ def test_traiettorie_e_valore_atteso():
     r["paths"] = [up] * 6 + [down] * 3 + [flat]
     plan = vs.build_trade_plan(100.0, 1.0, 90.0, [{"close": 103.0}] * PRED_LEN)
     net = vs.path_plan_net(plan, r["paths"], 100.0)
-    win, loss = (3.0 - COSTS) * (1 - TAX_RATE), -1.5 - COSTS
+    win, loss = 3.0 - COSTS, -1.5 - COSTS
     assert np.allclose(sorted(net), sorted([win] * 6 + [loss] * 3 + [-COSTS]))
     e = vs.enrich(r)
     assert abs(e["p_profit"] - 0.6) < 1e-12 and abs(e["ev_net"] - (6 * win + 3 * loss - COSTS) / 10) < 1e-9

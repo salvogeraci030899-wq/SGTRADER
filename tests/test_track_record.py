@@ -29,8 +29,7 @@ AFTER = T0 + (PRED_LEN + 1) * H + 1  # istante dopo la fine dell'orizzonte
 
 
 def net(gross):
-    n = gross - (FEE_PCT + SLIPPAGE_PCT) * 2
-    return n * (1 - TAX_RATE) if n > 0 else n
+    return gross - (FEE_PCT + SLIPPAGE_PCT) * 2   # tasse escluse dal singolo trade
 
 
 def test_prima_previsione_vince():
@@ -111,6 +110,16 @@ def test_riepilogo_calibrazione_e_statistiche():
     assert s["overall"]["tradeable_signals"] == {"n": 0}
     stats = tr._trade_stats([2.0, -1.0, -1.0, 3.0])
     assert stats["win_rate"] == 50.0 and stats["profit_factor"] == 2.5 and stats["max_drawdown_pct"] == -2.0
+    # tasse sul totale: le perdite compensano i guadagni; se il totale è negativo non si paga nulla
+    assert stats["total_net_pct"] == 3.0 and stats["total_after_tax_pct"] == round(3.0 * (1 - TAX_RATE), 2)
+    assert tr._trade_stats([2.0, -3.0])["total_after_tax_pct"] == -1.0
+    # il riepilogo riparte dal lordo: un esito salvato con la vecchia regola (netto già tassato) non falsa il conto
+    led = []
+    tr.record_prediction(led, "BTCUSDT", "1h", payload())
+    led[0]["status"] = "resolved"
+    led[0]["outcome"] = {"up": True, "close_at_horizon": 104, "trade": {"exit_reason": "TP", "exit_price": 104, "gross_pct": 4.0, "net_pct": 2.479}}
+    t = tr.build_summary(led)["overall"]["tradeable_signals"]
+    assert t["avg_net_pct"] == round(net(4.0), 3) and tr.build_summary(led)["costs"]["tax_basis"] == "totale"
 
 
 def test_salvataggio_e_rilettura():

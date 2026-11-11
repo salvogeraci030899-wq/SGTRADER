@@ -30,7 +30,7 @@ MIN_N = 30            # sotto questo numero di casi non si dà nessun giudizio
 MIN_TRAIN_CAL = 100   # previsioni concluse necessarie prima di calibrare
 REFIT_EVERY = 20      # la calibrazione walk-forward si ristima ogni N previsioni
 MOMENTUM_LOOKBACK = PRED_LEN
-COST_ROUND_TRIP = (FEE_PCT + SLIPPAGE_PCT) * 2
+COST_ROUND_TRIP = tr.COST_ROUND_TRIP
 WEEK = 7 * 86400
 
 
@@ -38,10 +38,10 @@ def tf_seconds(tf):
     return int(TF_DELTA[tf].total_seconds())
 
 
-def after_costs(gross_pct):
-    """Rendimento lordo % -> (netto di commissioni e slippage, netto anche delle tasse)."""
-    pre_tax = gross_pct - COST_ROUND_TRIP
-    return pre_tax, pre_tax * (1 - TAX_RATE) if pre_tax > 0 else pre_tax
+def net_of_costs(gross_pct):
+    """Rendimento lordo % -> netto di commissioni e slippage. Le tasse non si applicano al singolo
+    trade ma al risultato complessivo (tr.after_tax_total): le perdite compensano i guadagni."""
+    return gross_pct - COST_ROUND_TRIP
 
 
 # =========================
@@ -77,7 +77,7 @@ def enrich(row):
         model_net = path_plan_net(plan, row["paths"], ref)
         p_profit, ev_net = float((model_net > 0).mean()), float(model_net.mean())
         real_gross = tr.simulate_plan(plan, horizon)["gross_pct"]
-        plan_win = 1.0 if after_costs(real_gross)[1] > 0 else 0.0
+        plan_win = 1.0 if net_of_costs(real_gross) > 0 else 0.0
         strategies["plan_all"] = real_gross                      # il piano su ogni previsione, senza filtri
         if ev_net > 0:
             strategies["kronos_ev"] = real_gross                 # solo se il valore atteso netto del modello è positivo
@@ -95,7 +95,7 @@ def enrich(row):
 
 
 def path_plan_net(plan, paths_bps, ref):
-    """Netto % (costi e tasse) del piano su ogni traiettoria simulata. Le traiettorie hanno solo le
+    """Netto % (dei costi) del piano su ogni traiettoria simulata. Le traiettorie hanno solo le
     chiusure: stop e target si considerano toccati quando una chiusura li supera."""
     prices = ref * (1 + np.asarray(paths_bps, dtype=float) / 10000)
     entry, sl, tp = plan["entry"], plan["stop_loss"], plan["take_profit"]
@@ -108,8 +108,7 @@ def path_plan_net(plan, paths_bps, ref):
     exit_price = np.where(first_sl <= first_tp, sl, tp)          # a pari candela conta lo stop
     exit_price = np.where((first_sl == n) & (first_tp == n), prices[:, -1], exit_price)
     gross = (exit_price - entry) / entry * 100 * (1 if long else -1)
-    pre_tax = gross - COST_ROUND_TRIP
-    return np.where(pre_tax > 0, pre_tax * (1 - TAX_RATE), pre_tax)
+    return gross - COST_ROUND_TRIP
 
 
 # =========================
@@ -312,8 +311,7 @@ def _strategy_stats(points, clusters, name):
         return {"n": 0, "verdict": "campione_insufficiente"}
     sel.sort(key=lambda i: points[i]["t"])
     gross = np.array([points[i]["gross"][name] for i in sel])
-    pre_tax = gross - COST_ROUND_TRIP
-    net = np.where(pre_tax > 0, pre_tax * (1 - TAX_RATE), pre_tax)
+    net = gross - COST_ROUND_TRIP          # netto dei costi; le tasse solo sul totale
     cl = clusters[sel]
     net_ci = cluster_ci(net, cl)
     stats = tr._trade_stats([float(v) for v in net])
@@ -321,11 +319,10 @@ def _strategy_stats(points, clusters, name):
         "n": n,
         "win_rate": stats["win_rate"],
         "avg_gross_pct": round(float(gross.mean()), 3),
-        "avg_net_costs_pct": round(float(pre_tax.mean()), 3),
-        "avg_net_costs_ci": cluster_ci(pre_tax, cl),
         "avg_net_pct": stats["avg_net_pct"],
         "avg_net_ci": net_ci,
         "total_net_pct": stats["total_net_pct"],
+        "total_after_tax_pct": stats["total_after_tax_pct"],
         "profit_factor": stats["profit_factor"],
         "max_drawdown_pct": stats["max_drawdown_pct"],
         "verdict": verdict(net_ci, n),
@@ -342,7 +339,7 @@ def _buy_hold(points):
         xs.sort(key=lambda x: x["t"])
         g = (xs[-1]["close_h"] / xs[0]["ref"] - 1) * 100
         gross.append(g)
-        net.append(after_costs(g)[1])
+        net.append(tr.after_tax_total(net_of_costs(g)))
     return {"gross_pct": round(float(np.mean(gross)), 2), "net_pct": round(float(np.mean(net)), 2)}
 
 
@@ -399,7 +396,7 @@ def build_summary(rows):
         "oos_start": oos_start,
         "oos_rule": "solo previsioni successive alla data di pubblicazione dei pesi del modello su Hugging Face",
         "horizon_candles": PRED_LEN,
-        "costs": {"fee_pct_per_side": FEE_PCT, "slippage_pct_per_side": SLIPPAGE_PCT, "tax_rate": TAX_RATE},
+        "costs": {"fee_pct_per_side": FEE_PCT, "slippage_pct_per_side": SLIPPAGE_PCT, "tax_rate": TAX_RATE, "tax_basis": "totale"},
         "params": {"long_threshold": LONG_THRESHOLD, "short_threshold": SHORT_THRESHOLD, "atr_mult": ATR_MULT,
                    "min_rr": MIN_RR, "rr_max": RR_MAX, "momentum_lookback": MOMENTUM_LOOKBACK},
         "confidence": {"level": 95, "method": "bootstrap a blocchi di tempo", "n_boot": N_BOOT, "min_n": MIN_N},
@@ -460,15 +457,15 @@ def _block_md(title, b):
     names = {"kronos_ev": "Kronos: piano solo se valore atteso netto > 0", "plan_all": "Kronos: piano su ogni previsione",
              "kronos_plan": "Kronos: segnali operativi (stop e target)", "kronos_signal": "Kronos: segnali tenuti a fine orizzonte",
              "kronos_all": "Kronos: direzione su ogni previsione", "momentum": "Momentum", "always_long": "Sempre long"}
-    out += ["", "| Strategia | Trade | Vincenti | Lordo medio | Netto costi | Netto costi+tasse | IC 95% netto | Giudizio |",
-            "|---|---|---|---|---|---|---|---|"]
+    out += ["", "| Strategia | Trade | Vincenti | Lordo medio | Netto medio | IC 95% netto | Somma netta | Somma dopo le tasse | Giudizio |",
+            "|---|---|---|---|---|---|---|---|---|"]
     for k in STRATEGIES:
         x = s[k]
         if not x["n"]:
-            out.append(f"| {names[k]} | 0 | — | — | — | — | — | {VERDICT_TEXT[x['verdict']]} |")
+            out.append(f"| {names[k]} | 0 | — | — | — | — | — | — | {VERDICT_TEXT[x['verdict']]} |")
             continue
-        out.append(f"| {names[k]} | {x['n']} | {x['win_rate']}% | {x['avg_gross_pct']:+.3f}% | {x['avg_net_costs_pct']:+.3f}% | "
-                   f"{x['avg_net_pct']:+.3f}% | {_ci(x['avg_net_ci'])} | {VERDICT_TEXT[x['verdict']]} |")
+        out.append(f"| {names[k]} | {x['n']} | {x['win_rate']}% | {x['avg_gross_pct']:+.3f}% | {x['avg_net_pct']:+.3f}% | "
+                   f"{_ci(x['avg_net_ci'])} | {x['total_net_pct']:+.1f}% | {x['total_after_tax_pct']:+.1f}% | {VERDICT_TEXT[x['verdict']]} |")
     out += ["", f"Kronos meno momentum, stessi punti, per trade: IC 95% {_ci(b['kronos_minus_momentum_ci'])}. "
                 f"Buy & hold nello stesso periodo: {b['buy_hold']['gross_pct']:+.1f}% lordo, {b['buy_hold']['net_pct']:+.1f}% netto.", ""]
     return out
@@ -479,7 +476,7 @@ def to_markdown(s):
     out = ["# Validazione storica di Kronos", "",
            f"Generato il {s['generated_at']} · modello {', '.join(s['model'])} · orizzonte {s['horizon_candles']} candele.", "",
            f"- **Fuori campione**: {s['oos_rule']} ({_day(s['oos_start'])}).",
-           f"- **Costi**: commissione {c['fee_pct_per_side']}% e slippage {c['slippage_pct_per_side']}% per lato, tasse {round(c['tax_rate'] * 100)}% sui trade in utile.",
+           f"- **Costi**: commissione {c['fee_pct_per_side']}% e slippage {c['slippage_pct_per_side']}% per lato. \"Netto\" = dopo questi costi. Tasse {round(c['tax_rate'] * 100)}% applicate una volta al guadagno complessivo (le perdite compensano i guadagni).",
            f"- **Intervalli di confidenza** al {s['confidence']['level']}% con {s['confidence']['method']}: un vantaggio è dimostrato solo se l'intero intervallo è sopra zero.",
            "- I risultati passati non garantiscono quelli futuri. Non è consulenza finanziaria.", ""]
     out += _block_md("Tutte le coppie", s["overall"])

@@ -1,7 +1,7 @@
 """Validazione storica delle strategie tecniche della pagina Segnali (nessun modello).
 
 Misura Breakout, Mean Reversion, MA Crossover e il loro consenso (almeno 2 su 3) con lo stesso
-metro usato per Kronos: stesso orizzonte (7 candele), stessi costi e tasse, stesso piano
+metro usato per Kronos: stesso orizzonte (7 candele), stessi costi, stesso piano
 (stop 1,5 x ATR), intervalli di confidenza con bootstrap a blocchi di tempo, confronto con
 momentum e "sempre long". Le regole sono quelle dell'app (src/ui/signals.js): alla chiusura di
 una candela gli indicatori usano le 299 candele chiuse precedenti e il prezzo è la chiusura.
@@ -192,7 +192,7 @@ def build_summary(per_pair, spans):
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "horizon_candles": PRED_LEN,
         "plan": {"atr_mult": ATR_MULT, "target_rr": MIN_RR},
-        "costs": {"fee_pct_per_side": FEE_PCT, "slippage_pct_per_side": SLIPPAGE_PCT, "tax_rate": TAX_RATE},
+        "costs": {"fee_pct_per_side": FEE_PCT, "slippage_pct_per_side": SLIPPAGE_PCT, "tax_rate": TAX_RATE, "tax_basis": "totale"},
         "confidence": {"level": 95, "method": "bootstrap a blocchi di tempo", "n_boot": vs.N_BOOT, "min_n": vs.MIN_N},
         "by_tf": by_tf,
         "by_pair": by_pair,
@@ -221,7 +221,7 @@ def to_markdown(s):
     out = ["# Validazione storica delle strategie tecniche", "",
            f"Generato il {s['generated_at']} · orizzonte {s['horizon_candles']} candele · piano: stop {s['plan']['atr_mult']:g} x ATR, "
            f"target {s['plan']['target_rr']:g} x il rischio.", "",
-           f"- **Costi**: commissione {c['fee_pct_per_side']}% e slippage {c['slippage_pct_per_side']}% per lato, tasse {round(c['tax_rate'] * 100)}% sui trade in utile.",
+           f"- **Costi**: commissione {c['fee_pct_per_side']}% e slippage {c['slippage_pct_per_side']}% per lato. \"Netto\" = dopo questi costi. Tasse {round(c['tax_rate'] * 100)}% applicate una volta al guadagno complessivo (le perdite compensano i guadagni).",
            "- **Giudizio**: un vantaggio è dimostrato solo se l'intero intervallo di confidenza al 95% del netto medio è sopra zero.",
            "- **Prima/seconda metà**: netto medio (e numero di trade) nelle due metà del periodo; un risultato che cambia segno non è stabile.",
            "- Regole fisse, non adattate ai dati; i parametri sono però valori noti scelti conoscendo il passato.",

@@ -6,7 +6,8 @@ confronta con i prezzi reali:
 - direzione: la chiusura dell'ultima candela prevista è sopra o sotto il prezzo di partenza?
   (serve a misurare la calibrazione: quando il modello dice 80%, sale davvero 8 volte su 10?)
 - piano operativo (solo segnali LONG/SHORT): entry, stop e target simulati candela per candela,
-  con commissioni, slippage e tasse.
+  con commissioni e slippage. Le tasse si applicano una volta sola al guadagno complessivo
+  (le perdite compensano i guadagni), non trade per trade.
 Il riepilogo va in track_record_summary.json, letto dall'app.
 
 Regole che rendono il registro affidabile:
@@ -21,6 +22,14 @@ import tempfile
 from datetime import datetime, timezone
 
 from kronos_core import PRED_LEN, TF_DELTA, FEE_PCT, SLIPPAGE_PCT, TAX_RATE
+
+COST_ROUND_TRIP = (FEE_PCT + SLIPPAGE_PCT) * 2   # commissione e slippage, ingresso più uscita (in %)
+
+
+def after_tax_total(total_net_pct):
+    """Tasse sul risultato complessivo: si pagano solo se la somma di guadagni e perdite è positiva."""
+    return total_net_pct * (1 - TAX_RATE) if total_net_pct > 0 else total_net_pct
+
 
 LEDGER_PATH = "track_record.jsonl"
 SUMMARY_PATH = "track_record_summary.json"
@@ -124,9 +133,7 @@ def simulate_plan(plan, candles):
     if exit_price is None:
         exit_price = candles[-1]["close"]
     gross = (exit_price - entry) / entry * 100 * (1 if long else -1)
-    net = gross - (FEE_PCT + SLIPPAGE_PCT) * 2
-    if net > 0:
-        net *= (1 - TAX_RATE)
+    net = gross - COST_ROUND_TRIP   # tasse escluse: si calcolano sul totale, vedi after_tax_total
     return {"exit_reason": reason, "exit_price": round(exit_price, 6), "gross_pct": round(gross, 4), "net_pct": round(net, 4)}
 
 
@@ -186,6 +193,7 @@ def _trade_stats(rets):
         "win_rate": round(len(wins) / n * 100, 1),
         "avg_net_pct": round(sum(rets) / n, 3),
         "total_net_pct": round(sum(rets), 2),
+        "total_after_tax_pct": round(after_tax_total(sum(rets)), 2),
         "profit_factor": round(sum(wins) / gl, 2) if gl > 0 else None,
         "max_drawdown_pct": round(max_dd, 2),
     }
@@ -228,8 +236,8 @@ def build_summary(entries):
     def block(sel_pred, sel_dir, sel_trd):
         return {
             "predictions": _prediction_stats(sel_pred),
-            "directional_signals": _trade_stats([e["outcome"]["trade"]["net_pct"] for e in sel_dir]),
-            "tradeable_signals": _trade_stats([e["outcome"]["trade"]["net_pct"] for e in sel_trd]),
+            "directional_signals": _trade_stats([e["outcome"]["trade"]["gross_pct"] - COST_ROUND_TRIP for e in sel_dir]),
+            "tradeable_signals": _trade_stats([e["outcome"]["trade"]["gross_pct"] - COST_ROUND_TRIP for e in sel_trd]),
         }
 
     pairs = sorted({f"{e['symbol']}_{e['tf']}" for e in entries})
@@ -249,7 +257,7 @@ def build_summary(entries):
             "resolved": len(resolved),
             "expired": sum(1 for e in entries if e["status"] == "expired"),
         },
-        "costs": {"fee_pct_per_side": FEE_PCT, "slippage_pct_per_side": SLIPPAGE_PCT, "tax_rate": TAX_RATE},
+        "costs": {"fee_pct_per_side": FEE_PCT, "slippage_pct_per_side": SLIPPAGE_PCT, "tax_rate": TAX_RATE, "tax_basis": "totale"},
         "horizon_candles": PRED_LEN,
         "overall": block(resolved, directional, tradeable),
         "by_pair": by_pair,
