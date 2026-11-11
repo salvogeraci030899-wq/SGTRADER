@@ -51,6 +51,9 @@ async function dispatch(env, fetchFn, workflow, inputs) {
             body: JSON.stringify({ ref, inputs })
         });
         if (r.ok) return json(200, { status: 'started', workflow });
+        if ([401, 403, 404].includes(r.status)) {
+            return json(502, { error: 'GitHub ha rifiutato il token: deve essere valido, sul repository SGTRADER, con permesso "Actions: Read and write".', status: r.status });
+        }
         return json(502, { error: 'Errore GitHub', status: r.status });
     } catch (e) {
         return json(500, { error: 'Errore di rete verso GitHub' });

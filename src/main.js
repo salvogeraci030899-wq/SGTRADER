@@ -166,6 +166,8 @@ window.closeAutoConfirm = AutoUI.closeAutoConfirm;
 window.okAutoConfirm = AutoUI.okAutoConfirm;
 window.saveServerSettings = AutoUI.saveServerSettings;
 window.resetAppKey = AutoUI.resetAppKey;
+window.saveGhToken = AutoUI.saveGhToken;
+window.removeGhToken = AutoUI.removeGhToken;
 
 // Home
 window.updateHome = HomeUI.updateHome;

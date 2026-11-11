@@ -1,4 +1,4 @@
-import { $, escapeHtml, apiPost, getApiBase, setApiBase, clearAppKey } from '../utils/helpers.js';
+import { $, escapeHtml, apiPost, getApiBase, setApiBase, clearAppKey, getGhToken, setGhToken, commandMode } from '../utils/helpers.js';
 
 // --- AUTOMAZIONE (pagina Segnali, vista "Auto") ---
 // Mostra e comanda le strategie automatiche: spenta, su carta (segnali seguiti senza ordini) o reale.
@@ -53,10 +53,11 @@ export function renderAutomation() {
     if (!loaded) { status.innerHTML = 'Caricamento…'; loadAutomation(); return; }
 
     const emergency = !!(cfg && cfg.emergency);
-    const server = getApiBase();
+    const mode = commandMode();
+    const serverText = { server: 'server impostato', github: 'token GitHub', site: 'questo sito', none: 'non impostati' }[mode];
     const onPaper = Object.values(cfg ? cfg.strategies : {}).filter(m => m !== 'off').length;
     status.innerHTML = `
-        <div class="auto-row"><span>Server comandi</span><b class="${server || sameSiteServer() ? 'text-accent' : 'text-warning'}">${server ? 'impostato' : (sameSiteServer() ? 'questo sito' : 'non impostato')}</b></div>
+        <div class="auto-row"><span>Comandi</span><b class="${mode === 'none' ? 'text-warning' : 'text-accent'}">${serverText}</b></div>
         <div class="auto-row"><span>Stato</span><b class="${emergency ? 'text-danger' : 'text-accent'}">${emergency ? 'EMERGENZA: tutto bloccato' : `${onPaper} ${onPaper === 1 ? 'strategia attiva' : 'strategie attive'}`}</b></div>
         <div class="auto-row"><span>Ordini reali</span><b>${(lab && lab.confirmed && lab.confirmed.length) ? 'consentiti solo per le confermate' : 'nessuna strategia confermata'}</b></div>`;
 
@@ -85,12 +86,11 @@ export function renderAutomation() {
     if (note) note.textContent = `Su carta dal ${day(cfg && cfg.paper_start)}. I comandi passano da GitHub: l'effetto si vede qui dopo qualche minuto. Ordini reali su Bitget: non ancora collegati.`;
 }
 
-const NO_SERVER = 'Questo sito non ha un server comandi. Imposta l\'indirizzo del server in Impostazioni → Server comandi.';
-const sameSiteServer = () => location.hostname.endsWith('vercel.app');
+const NO_SERVER = 'Per inviare comandi serve un token GitHub (Impostazioni → Comandi) oppure l\'indirizzo di un server.';
 
 async function send(body, okText) {
     // Su GitHub Pages (o in locale) senza indirizzo impostato non c'è nessun server: lo si dice subito
-    if (!getApiBase() && !sameSiteServer()) {
+    if (commandMode() === 'none') {
         window.showAlert('Comando non inviato', NO_SERVER);
         return false;
     }
@@ -98,7 +98,7 @@ async function send(body, okText) {
     try {
         r = await apiPost('/api/command', body);
     } catch (e) {
-        window.showAlert('Comando non inviato', 'Server comandi non raggiungibile. Controlla l\'indirizzo in Impostazioni → Server comandi.');
+        window.showAlert('Comando non inviato', commandMode() === 'github' ? 'GitHub non raggiungibile: controlla la connessione e riprova.' : 'Server comandi non raggiungibile. Controlla l\'indirizzo in Impostazioni → Comandi.');
         return false;
     }
     if ([404, 405, 501].includes(r.status)) {
@@ -189,17 +189,38 @@ export function setSignalsView(view) {
 
 // --- Impostazioni: indirizzo del server comandi ---
 export function fillServerSettings() {
-    const input = $('apiBaseInput');
+    const input = $('apiBaseInput'), tok = $('ghTokenInput');
     if (input) input.value = getApiBase();
+    if (tok) tok.value = '';
+    const st = $('ghTokenState');
+    if (st) st.textContent = getGhToken() ? 'Token salvato su questo dispositivo.' : 'Nessun token salvato.';
+}
+export function saveGhToken() {
+    const value = ($('ghTokenInput').value || '').trim();
+    if (!value) { window.showAlert('Token GitHub', 'Incolla il token nel campo, poi premi Salva.'); return; }
+    if (!/^(github_pat_|ghp_)[A-Za-z0-9_]{20,}$/.test(value)) {
+        window.showAlert('Token non valido', 'Un token GitHub inizia con "github_pat_" (consigliato) o "ghp_".');
+        return;
+    }
+    setGhToken(value);
+    fillServerSettings();
+    window.showAlert('Token GitHub', 'Salvato su questo dispositivo. Ora i comandi partono direttamente da GitHub.');
+    renderAutomation();
+}
+export function removeGhToken() {
+    setGhToken('');
+    fillServerSettings();
+    window.showAlert('Token GitHub', 'Token rimosso da questo dispositivo.');
+    renderAutomation();
 }
 export function saveServerSettings() {
     const value = ($('apiBaseInput').value || '').trim();
     if (value && !/^https:\/\/[^\s/]+(\/[^\s]*)?$/.test(value)) {
-        window.showAlert('Indirizzo non valido', 'Serve un indirizzo https://..., per esempio quello del server su Cloudflare (…workers.dev).');
+        window.showAlert('Indirizzo non valido', 'Serve un indirizzo https://..., per esempio quello di un server su Cloudflare (…workers.dev).');
         return;
     }
     setApiBase(value);
-    window.showAlert('Server comandi', value ? 'Indirizzo salvato su questo dispositivo.' : 'Indirizzo rimosso: si usa il sito stesso.');
+    window.showAlert('Server comandi', value ? 'Indirizzo salvato: i comandi passano dal server (ha la precedenza sul token).' : 'Indirizzo rimosso.');
     renderAutomation();
 }
 export function resetAppKey() {
