@@ -960,3 +960,10 @@ html.pwa-mode .nav-item svg { width: 22px; height: 22px; }
     #page-journal .lg-header { padding: 6px 10px; }
     #page-journal .lg-footer { padding: 6px 10px; }
 }
+
+/* Trade su carta di una strategia */
+.auto-open-trades { color: var(--text); }
+.paper-list { max-height: 55vh; overflow-y: auto; }
+.paper-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.paper-row small { color: var(--text-secondary); font-size: 11px; }
+.paper-reason { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; }

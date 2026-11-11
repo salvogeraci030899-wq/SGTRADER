@@ -136,7 +136,7 @@ export function renderAutomation() {
             : (res ? `Storico: ${res.n} trade, oltre il mercato ${pct(res.excess_avg_pct)}${res.holdout ? (res.holdout.confirmed ? ' · confermata' : ' · bocciata alla prova finale') : ''}` : 'Nessun dato');
         const btn = (m, text, disabled, title) => `<button type="button" class="pill-btn${mode === m ? ' active' : ''}" ${disabled ? 'disabled' : ''} title="${title || ''}" onclick="setAutoMode('${escapeHtml(key)}','${m}')">${text}</button>`;
         return `<div class="auto-item">
-            <div class="auto-item-head"><b>${escapeHtml(label(key))}</b>${pending[key] ? '<span class="text-warning">in corso…</span>' : ''}</div>
+            <div class="auto-item-head"><b class="clickable auto-open-trades" onclick="openPaperTrades('${escapeHtml(key)}')">${escapeHtml(label(key))} ›</b>${pending[key] ? '<span class="text-warning">in corso…</span>' : ''}</div>
             <div class="auto-item-info">${escapeHtml(info)}</div>
             <div class="option-toggle compact">${btn('off', 'Spenta')}${btn('paper', 'Su carta', emergency)}${btn('live', 'Reale', emergency || !isConfirmed(key), isConfirmed(key) ? '' : 'Solo per strategie confermate dalla prova finale')}</div>
         </div>`;
@@ -252,6 +252,30 @@ export function updateAutoDots(force) {
     const idx = typeof force === 'number' ? force : Math.round(el.scrollLeft / el.clientWidth);
     document.querySelectorAll('#autoList .auto-dots .info-dot').forEach((d, j) => d.classList.toggle('active', j === idx));
 }
+
+// --- Trade su carta di una strategia (tocco sul nome) ---
+const dt = ts => (ts ? new Date(ts * 1000).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' }) : '—');
+const px = v => (v == null ? '—' : fmtIt(v, v >= 1000 ? 0 : 2));
+export function openPaperTrades(key) {
+    const e = ledger && ledger.strategies && ledger.strategies[key];
+    const trades = ((e && e.trades) || []).slice().sort((a, b) => b.t - a.t);
+    const st = (e && e.stats) || {};
+    $('autoTradesTitle').textContent = label(key);
+    const head = st.n
+        ? `${st.n} ${st.n === 1 ? 'chiuso' : 'chiusi'} · vinti ${fmtIt(st.win_rate, 1)}% · medio ${pct(st.avg_net_pct)} · totale ${pct(st.total_net_pct)} · ${st.open} ${st.open === 1 ? 'aperto' : 'aperti'}`
+        : `${st.open || 0} ${st.open === 1 ? 'aperto' : 'aperti'}, nessuno chiuso finora`;
+    $('autoTradesBody').innerHTML = `<div class="settings-hint">${escapeHtml(head)}. Rendimenti per trade, netti di costi futures e funding.</div>` + (trades.length
+        ? trades.map(t => {
+            const side = t.dir > 0 ? 'LONG' : 'SHORT';
+            const res = t.open ? '<span class="text-ui">aperto</span>'
+                : (t.net != null ? `<b class="${t.net >= 0 ? 'text-accent' : 'text-danger'}">${pct(t.net)}</b>` : `${pct(t.gross)} lordo`);
+            return `<div class="paper-row"><div><b>${escapeHtml(t.symbol.replace('USDT', ''))} ${side}</b> <span class="paper-reason">${t.open ? '' : escapeHtml(t.reason || '')}${t.revised ? ' · rivisto' : ''}</span><br>
+                <small>${dt(t.t_entry)} → ${t.open ? 'oggi' : dt(t.t_exit)} · ${px(t.entry)} → ${t.open ? 'stop ' + px(t.stop) : px(t.exit)}</small></div><div>${res}</div></div>`;
+        }).join('')
+        : '<div class="empty-hint">Ancora nessun trade: la strategia apre solo quando arriva un segnale.</div>');
+    $('autoTradesModal').classList.add('active');
+}
+export function closePaperTrades() { $('autoTradesModal').classList.remove('active'); }
 
 export function closeAutoAdd() { $('autoAddModal').classList.remove('active'); }
 
