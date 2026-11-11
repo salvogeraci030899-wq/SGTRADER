@@ -18,9 +18,9 @@
    "mode": "paper",
    "trades": [],
    "last_candle": {
-    "BTCUSDT": 1794240000,
-    "ETHUSDT": 1794240000,
-    "SOLUSDT": 1794240000
+    "BTCUSDT": 1794326400,
+    "ETHUSDT": 1794326400,
+    "SOLUSDT": 1794326400
    },
    "stats": {
     "n": 0,
@@ -28,5 +28,5 @@
    }
   }
  },
- "updated_at": "2026-11-11T15:24:57+00:00"
+ "updated_at": "2026-11-11T16:30:04+00:00"
 }
