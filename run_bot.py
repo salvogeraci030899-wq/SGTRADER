@@ -226,6 +226,28 @@ def process_alerts(processed, dashboard_data, alerts_state):
 
 
 # =========================
+# PROVA SU CARTA ED ESECUTORE
+# =========================
+def automation_step(frames, notify=None):
+    """Prova su carta (automation.json) ed esecutore, in una funzione a parte: le sue variabili non
+    possono sovrascrivere quelle di main (nella v64 'ledger' sovrascriveva il registro delle previsioni).
+    Un errore qui non ferma mai il bot."""
+    notify = notify or send_telegram_alert
+    try:
+        paper.update({k: int(df['time'].iloc[-1].timestamp()) for k, df in frames.items()}, notify=notify)
+    except Exception as e:
+        print(f"Prova su carta non aggiornata: {e}")
+    try:
+        cfg = paper.load_config()
+        paper_ledger = load_json(paper.LEDGER_PATH) if os.path.exists(paper.LEDGER_PATH) else {}
+        client, mode = executor.make_client(cfg)
+        executor.run(cfg, paper_ledger, client, mode, notify=notify)
+    except Exception as e:
+        print(f"Esecutore non eseguito: {e}")
+        notify(f"⚠️ Esecutore: errore inatteso ({e}). Controlla le posizioni su Bitget.")
+
+
+# =========================
 # MAIN
 # =========================
 def load_json(path):
@@ -334,23 +356,7 @@ def main():
     except Exception as e:
         print(f"Dati futures non aggiornati: {e}")
 
-    # Prova su carta delle strategie attivate in automation.json: nessun ordine, solo registro.
-    # Si ricalcola quando arriva una candela nuova. Anche qui un errore non deve fermare il bot.
-    try:
-        paper.update({k: int(df['time'].iloc[-1].timestamp()) for k, df in frames.items()}, notify=send_telegram_alert)
-    except Exception as e:
-        print(f"Prova su carta non aggiornata: {e}")
-
-    # Esecutore: porta su Bitget i trade delle strategie "live" (simulato finché non ci sono interruttore
-    # generale, chiavi Bitget e una strategia confermata). Un errore qui non deve fermare il bot.
-    try:
-        cfg = paper.load_config()
-        ledger = load_json(paper.LEDGER_PATH) if os.path.exists(paper.LEDGER_PATH) else {}
-        client, mode = executor.make_client(cfg)
-        executor.run(cfg, ledger, client, mode, notify=send_telegram_alert)
-    except Exception as e:
-        print(f"Esecutore non eseguito: {e}")
-        send_telegram_alert(f"⚠️ Esecutore: errore inatteso ({e}). Controlla le posizioni su Bitget.")
+    automation_step(frames)
 
     # Salvo (e quindi il workflow fa commit) solo se c'è qualcosa di nuovo: una candela ricalcolata,
     # uno stato alert cambiato o il track record aggiornato. Il solo aggiornamento del prezzo live
