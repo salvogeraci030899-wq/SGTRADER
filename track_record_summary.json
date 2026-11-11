@@ -1,9 +1,9 @@
 {
- "generated_at": "2026-11-11T16:30:12+00:00",
+ "generated_at": "2026-11-11T17:09:26+00:00",
  "since": "2026-11-10T15:36:54+00:00",
  "counts": {
-  "total": 54,
-  "open": 39,
+  "total": 57,
+  "open": 42,
   "resolved": 15,
   "expired": 0
  },
@@ -108,7 +108,7 @@
     "profit_factor": null,
     "max_drawdown_pct": 0.0
    },
-   "open": 6
+   "open": 7
   },
   "BTCUSDT_4h": {
    "predictions": {
@@ -192,7 +192,7 @@
     "profit_factor": null,
     "max_drawdown_pct": 0.0
    },
-   "open": 6
+   "open": 7
   },
   "ETHUSDT_4h": {
    "predictions": {
@@ -282,7 +282,7 @@
     "profit_factor": null,
     "max_drawdown_pct": 0.0
    },
-   "open": 6
+   "open": 7
   },
   "SOLUSDT_4h": {
    "predictions": {
