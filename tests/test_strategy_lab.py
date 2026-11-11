@@ -150,6 +150,26 @@ def test_forza_relativa():
     assert lab.simulate(dfs["ETHUSDT"], "1d", "ETHUSDT", spec, peers=peers) == []
 
 
+def test_portafoglio():
+    def tr(sym, t, net, stop_dist=0.02, days=5):
+        return {"symbol": sym, "t": t, "t_entry": t + D, "t_exit": t + (days + 1) * D, "entry": 100.0, "stop0": 100.0 * (1 - stop_dist), "dir": 1}
+    # un trade alla volta, +2% netto, stop al 2%: rischio 0,5% -> nominale 25 su patrimonio 100 -> +0,5 a trade
+    trades = [tr("BTCUSDT", T0 + k * 10 * D, 2.0) for k in range(10)]
+    pf = lab.portfolio(trades, [2.0] * 10)
+    assert pf["n"] == 10 and pf["skipped"] == 0 and abs(pf["final_equity"] - 100 * 1.005 ** 10) < 0.01 and pf["max_drawdown_pct"] == 0.0
+    assert abs(pf["curve"][-1][1] - pf["final_equity"]) < 0.01 and pf["annual_return_pct"] > 0
+    # perdite: il drawdown si misura sul patrimonio
+    pf = lab.portfolio(trades[:4], [2.0, -2.0, -2.0, 2.0])
+    assert abs(pf["max_drawdown_pct"] - round(((1.005 * 0.995 * 0.995) / 1.005 - 1) * 100, 1)) < 1e-9
+    # stessa coin già aperta: il secondo trade viene saltato; coin diverse: esposizione 1,5x tagliata
+    overlap = [tr("BTCUSDT", T0, 1.0, days=10), tr("BTCUSDT", T0 + D, 1.0)]
+    assert lab.portfolio(overlap, [1.0, 1.0])["skipped"] == 1
+    tight = [tr("BTCUSDT", T0, 1.0, stop_dist=0.001), tr("ETHUSDT", T0, 1.0, stop_dist=0.001), tr("SOLUSDT", T0, 1.0, stop_dist=0.001)]
+    pf = lab.portfolio(tight, [1.0, 1.0, 1.0])
+    assert pf["n"] == 1 and pf["skipped"] == 2 and abs(pf["final_equity"] - 101.5) < 1e-9   # leva 3x -> 300, poi esposizione 1,5x -> 150 tutta al primo
+    assert lab.portfolio([], []) == {"n": 0}
+
+
 def test_prove_multiple():
     # con 1 prova p=0.04 passa (soglia 0.10); con 40 prove registrate no; i p molto piccoli passano comunque
     assert lab.benjamini_hochberg({"a": 0.04}, 1) == {"a"}
@@ -170,7 +190,8 @@ def fake_trades(name_seed, edge, n=600, start="2020-01-01", days=3):
         for k in range(n):
             t = t0 + k * days * D + sym_i * 3600
             out.append({"symbol": sym, "tf": "1d", "t": t, "t_exit": t + days * D, "dir": 1 if k % 2 else -1,
-                        "gross": float(rng.normal(edge, 3.0)), "bars": days, "reason": "TEMPO"})
+                        "gross": float(rng.normal(edge, 3.0)), "bars": days, "reason": "TEMPO",
+                        "entry": 100.0, "stop0": 98.0 if k % 2 else 102.0})
     return out
 
 
@@ -196,7 +217,8 @@ def test_candidate_sigillo_e_registro():
     s = lab.build_summary(per_trial, {}, registry, today="2026-12-01")
     assert s["results"][f"{names[0]}:1d"]["holdout"]["unsealed_on"] == "2026-11-12"
     md = lab.to_markdown(s)
-    assert "CANDIDATA" in md and "CONFERMATA" in md and "sigillat" in md
+    assert "CANDIDATA" in md and "CONFERMATA" in md and "sigillat" in md and "Portafoglio" in md
+    assert s["results"][f"{names[0]}:1d"]["holdout"]["portfolio"]["n"] > 0
     assert "Candidate in attesa della prova finale: nessuna" in md and f"Confermate: {names[0]}:1d" in md   # già provata: non è più in attesa
     # una strategia instabile (positiva solo su una coin) non è candidata anche se significativa
     skew = [dict(t, gross=t["gross"] + (6.0 if t["symbol"] == "BTCUSDT" else -1.5)) for t in fake_trades(5, 0.0, n=900)]
