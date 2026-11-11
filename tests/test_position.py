@@ -114,6 +114,23 @@ def test_esito_salvato_anche_se_fallito():
         assert st["events"][-1]["ok"] is True and "req" not in st["events"][-1] and st["positions"]["x"]["status"] == "closed"
 
 
+def test_rilettura_salvata_solo_se_cambia():
+    with tempfile.TemporaryDirectory() as d:
+        path = os.path.join(d, "live.json")
+        json.dump({"positions": {}, "day": {}, "halted": False, "events": []}, open(path, "w"))
+        c = Fake(dict(POS))
+        assert "riletto" in pc.run(["refresh", "BTCUSDT", "long"], client=c, state_path=path)
+        st = json.load(open(path))
+        assert st["account"]["positions"] == 1 and c.calls == [] and st["events"] == []      # nessun ordine, nessun evento
+        text = open(path).read()
+        # stessa posizione, PnL diverso: file intatto (niente commit e niente pubblicazione)
+        c._pos["BTCUSDT"]["upl"] = 25.0
+        assert not pc.refresh_if_changed(path, c) and open(path).read() == text
+        # posizione chiusa a mano su Bitget: salvato
+        c._pos = {}
+        assert pc.refresh_if_changed(path, c) and json.load(open(path))["account"]["positions"] == 0
+
+
 def test_client_tpsl_richieste():
     import bitget_client as bg
 

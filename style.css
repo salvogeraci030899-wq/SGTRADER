@@ -519,6 +519,7 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { v
 .auto-add-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; text-align: left; }
 .auto-add-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--field); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; border-radius: 10px; font-size: 13px; text-align: left; cursor: pointer; }
 .auto-add-item small { color: var(--text-secondary); font-size: 11px; }
+.alert-del { flex: none; background: transparent; border: 1px solid var(--danger); color: var(--danger); border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
 .auto-add-item:disabled { opacity: 0.4; cursor: not-allowed; }
 #autoRiskModal .option-toggle.compact { margin-bottom: 16px; }
 .auto-risk-fields { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; text-align: left; }

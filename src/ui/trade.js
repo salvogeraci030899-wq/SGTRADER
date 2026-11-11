@@ -6,7 +6,7 @@ import * as Terminal from './terminal.js';
 import * as Calculator from './calculator.js';
 import * as AI from './ai.js';
 import { tradingMode } from './account.js';
-import { getAutoState } from './automation.js';
+import { getAutoState, maybeRefreshAccount } from './automation.js';
 import { planAction, ruleHitPrice, ruleHitCandle } from '../core/rules.js';
 
 export function initTrade() {
@@ -22,6 +22,7 @@ const realList = () => { const acc = bitgetAccount(); return (acc && acc.connect
 
 async function pollMarks() {
     if (marksInFlight || !isReal()) return;
+    maybeRefreshAccount();
     const symbols = [...new Set(realList().map(p => p.symbol))];
     if (!symbols.length) return;
     marksInFlight = true;

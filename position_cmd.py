@@ -23,6 +23,8 @@ import executor
 from bitget_client import BitgetClient, BitgetError
 
 ACTIONS = ("close", "tp", "sl", "clear")
+# "refresh": nessun ordine, solo il conto riletto (chiesto dall'app aperta in modalità Reale)
+REFRESH = "refresh"
 # esito del comando, letto dal passo che salva lo stato (anche se il comando è fallito) e mostrato nell'app
 RESULT_PATH = os.environ.get("POSITION_RESULT", "position_result.json")
 SYMBOLS = ("BTCUSDT", "ETHUSDT", "SOLUSDT")
@@ -91,6 +93,12 @@ def run(argv, client=None, notify=None, state_path=executor.STATE_PATH):
     if len(argv) < 3:
         raise CommandError("Uso: azione coin direzione [prezzo]")
     action, symbol, side = argv[0], argv[1], argv[2]
+    if action == REFRESH:
+        if client is None:
+            if not all(os.environ.get(k) for k in ("BITGET_API_KEY", "BITGET_API_SECRET", "BITGET_API_PASSPHRASE")):
+                raise CommandError("Chiavi Bitget non impostate nei segreti di GitHub.")
+            client = BitgetClient.from_env()
+        return "Conto Bitget riletto." + ("" if refresh_if_changed(state_path, client) else " Nessun cambiamento.")
     try:
         price = float(argv[3]) if len(argv) > 3 and argv[3] not in ("", "0") else None
     except ValueError:
@@ -135,11 +143,42 @@ def read_result(path=None):
         return False, "Esito sconosciuto: controlla la posizione su Bitget e i messaggi su Telegram."
 
 
+def _account_key(state):
+    """Cosa conta per la rilettura chiesta dall'app: collegamento e posizioni (aperte, chiuse, TP/SL).
+    Saldo e PnL cambiano a ogni secondo: li aggiorna il bot a ogni giro."""
+    a = (state or {}).get("account") or {}
+    pos = sorted((p.get("symbol"), p.get("side"), p.get("size"), p.get("entry"), p.get("tp"), p.get("sl"))
+                 for p in a.get("positions_detail") or [])
+    return json.dumps([a.get("connected"), a.get("positions"), pos], default=str)
+
+
+def refresh_if_changed(state_path=executor.STATE_PATH, client=None):
+    """Rilegge il conto e lo salva solo se è cambiato qualcosa oltre all'ora del controllo: ogni
+    salvataggio è un commit e una pubblicazione del sito (Vercel ne ammette 100 al giorno)."""
+    with open(state_path) as f:
+        before_text = f.read()
+    before = json.loads(before_text)
+    executor.account_snapshot(state_path, client=client)
+    with open(state_path) as f:
+        after = json.load(f)
+    if _account_key(before) == _account_key(after):
+        with open(state_path, "w") as f:
+            f.write(before_text)
+        print("Conto invariato: niente da salvare.")
+        return False
+    print("Conto cambiato: salvato.")
+    return True
+
+
 def sync_only(argv, state_path=executor.STATE_PATH, result_path=None):
     """Solo l'aggiornamento dello stato (nessun ordine): usato dal workflow per riapplicarlo sulla
     versione più recente del repository se il salvataggio incontra un giro del bot. Gira anche se il
     comando è fallito, così l'app vede il motivo."""
     action, symbol, side = argv[0], argv[1], argv[2]
+    if action == REFRESH:      # nessun evento: solo il conto riletto sulla versione più recente
+        if all(os.environ.get(k) for k in ("BITGET_API_KEY", "BITGET_API_SECRET", "BITGET_API_PASSPHRASE")):
+            refresh_if_changed(state_path)
+        return
     ok, msg = read_result(result_path)
     sync_executor(symbol, side, action, state_path, req=os.environ.get("REQ", ""), ok=ok, msg=msg)
     if ok and all(os.environ.get(k) for k in ("BITGET_API_KEY", "BITGET_API_SECRET", "BITGET_API_PASSPHRASE")):
@@ -155,7 +194,7 @@ if __name__ == "__main__":
         sync_only(sys.argv[2:])
         sys.exit(0)
     try:
-        msg = run(sys.argv[1:], notify=watchdog.send)
+        msg = run(sys.argv[1:], notify=None if sys.argv[1:2] == [REFRESH] else watchdog.send)
         write_result(True, msg)
         print(msg)
     except (CommandError, BitgetError) as e:

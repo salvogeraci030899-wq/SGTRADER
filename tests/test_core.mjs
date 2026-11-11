@@ -203,9 +203,15 @@ test('avvisi di prezzo: comando e azione dell\'assistente validati', async () =>
         assert.equal((await handle('POST', '/api/command', { type: 'alert', ...bad }, ok, env, fakeFetch)).status, 400, JSON.stringify(bad));
     }
     assert.equal(calls.length, 2);
+    r = await handle('POST', '/api/command', { type: 'account_refresh', action: 'close', price: '5' }, ok, env, fakeFetch);
+    assert.equal(r.status, 200);
+    assert.deepEqual(calls[2].body.inputs, { action: 'refresh', symbol: 'BTCUSDT', side: 'long', price: '' });   // parametri fissi
     assert.deepEqual(sanitizeGeneralAction({ type: 'price_alert', symbol: 'ETHUSDT', price: '3000', extra: 1 }), { type: 'price_alert', symbol: 'ETHUSDT', price: 3000 });
     assert.equal(sanitizeGeneralAction({ type: 'price_alert', symbol: 'ETHUSDT', price: -1 }), null);
     assert.deepEqual(sanitizeGeneralAction({ type: 'clear_alerts' }), { type: 'clear_alerts' });
+    assert.deepEqual(sanitizeGeneralAction({ type: 'remove_alert', symbol: 'BTCUSDT', price: '75000' }), { type: 'remove_alert', symbol: 'BTCUSDT', price: 75000 });
+    assert.deepEqual(sanitizeGeneralAction({ type: 'remove_alert', symbol: 'BTCUSDT', price: null }), { type: 'remove_alert', symbol: 'BTCUSDT', price: null });
+    assert.equal(sanitizeGeneralAction({ type: 'remove_alert', symbol: 'BTCUSDT', price: 'x' }), null);
 });
 
 test('comando sulla posizione reale: solo azioni e prezzi validi', async () => {

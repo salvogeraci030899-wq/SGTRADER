@@ -1,7 +1,7 @@
 import { State } from '../core/state.js';
 import { $, SYM, fetchT, calcPnl, escapeHtml, fmtIt, fmtPrice } from '../utils/helpers.js';
 import { aggregateCellSignals } from './signals.js';
-import { bitgetAccountText } from './automation.js';
+import { bitgetAccountText, isRemovingAlert } from './automation.js';
 import { updateModePills, tradingMode } from './account.js';
 import { liveUpl, hasLiveMarks } from './trade.js';
 
@@ -166,7 +166,7 @@ function renderAutomationCard() {
         if (paper) parts.push(`${paper} su carta`);
         setLine('homeAutoStrategies', `${parts.join(' · ')} · ${opened} aperti, ${closed} chiusi`, 'text-ui');
     }
-    const al = ((cfg && cfg.price_alerts) || []).filter(a => a && !bot.fired.includes(a.id));
+    const al = ((cfg && cfg.price_alerts) || []).filter(a => a && !bot.fired.includes(a.id) && !isRemovingAlert(a.id));
     const fmtA = a => `${a.symbol.replace('USDT', '')} ${a.side === 'above' ? '≥' : '≤'} ${fmtPrice(a.price >= 1000 ? Math.round(a.price) : a.price)}`;
     setLine('homeAlerts', al.length ? (al.length <= 2 ? al.map(fmtA).join(' · ') : `${al.length} attivi · ${fmtA(al[0])}…`) : 'nessuno', al.length ? 'text-ui' : '');
     const trading = !!(cfg && cfg.risk && cfg.risk.trading_enabled);

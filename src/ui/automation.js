@@ -1,4 +1,4 @@
-import { $, escapeHtml, apiPost, getApiBase, setApiBase, clearAppKey, getGhToken, setGhToken, commandMode, fmtIt } from '../utils/helpers.js';
+import { $, escapeHtml, apiPost, getApiBase, setApiBase, clearAppKey, getGhToken, setGhToken, commandMode, fmtIt, fmtPrice } from '../utils/helpers.js';
 
 // --- AUTOMAZIONE (pagina Segnali, vista "Auto") ---
 // Mostra e comanda le strategie automatiche: spenta, su carta (segnali seguiti senza ordini) o reale.
@@ -31,7 +31,58 @@ function onModeData() {
 export const getAutoState = () => ({ cfg, ledger, lab, live, loaded, pendingTrading });
 // Avvisi di prezzo (price_alerts.py): attivi = in automation.json e non ancora scattati (alerts_state.json)
 let firedAlerts = [];
-export const priceAlerts = () => ((cfg && cfg.price_alerts) || []).filter(a => a && !firedAlerts.includes(a.id));
+const removingAlerts = new Set();   // tolti dall'app, finché automation.json non si aggiorna
+export const isRemovingAlert = id => removingAlerts.has(id);
+export const priceAlerts = () => ((cfg && cfg.price_alerts) || []).filter(a => a && !firedAlerts.includes(a.id) && !removingAlerts.has(a.id));
+
+// Rilettura del conto Bitget con l'app aperta in modalità Reale: chi apre una posizione a mano su Bitget
+// la vede comparire in 1-2 minuti invece di aspettare il giro del bot (15 minuti). Nessun ordine.
+// Al massimo una richiesta ogni 10 minuti per dispositivo, e solo se l'ultima lettura ha più di 10 minuti:
+// il bot salva solo se le posizioni sono cambiate (ogni salvataggio è una pubblicazione del sito).
+const REFRESH_EVERY_MS = 10 * 60_000, REFRESH_KEY = 'sg_account_refresh_at';
+let refreshInFlight = false;
+export async function maybeRefreshAccount() {
+    const acc = live && live.account;
+    if (refreshInFlight || !acc || !acc.connected || document.visibilityState !== 'visible' || commandMode() === 'none') return;
+    const checked = Date.parse(acc.checked_at || '') || 0;
+    let last = 0;
+    try { last = Number(localStorage.getItem(REFRESH_KEY)) || 0; } catch (e) {}
+    const now = Date.now();
+    if (now - checked < REFRESH_EVERY_MS || now - last < REFRESH_EVERY_MS) return;
+    refreshInFlight = true;
+    try { localStorage.setItem(REFRESH_KEY, String(now)); } catch (e) {}
+    try {
+        const r = await apiPost('/api/command', { type: 'account_refresh' });
+        if (r.ok) setTimeout(() => loadAutomation(), 120_000);
+    } catch (e) { /* rete: riprova al prossimo intervallo */ }
+    refreshInFlight = false;
+}
+
+// Elenco degli avvisi (tocco sulla riga "Avvisi prezzo" della Home): togliere un avviso alla volta
+const fmtAlert = a => `${a.symbol.replace('USDT', '')} ${a.side === 'above' ? '≥' : '≤'} ${fmtPrice(a.price)}`;
+function renderAlerts() {
+    const box = $('alertsList');
+    if (!box) return;
+    const list = priceAlerts();
+    box.innerHTML = !loaded ? '<div class="empty-hint">Caricamento…</div>'
+        : list.length ? list.map(a => `<div class="auto-add-item"><span><b>${escapeHtml(fmtAlert(a))}</b><br><small>${a.side === 'above' ? 'in salita' : 'in discesa'} · dal ${escapeHtml(day(a.created_at))}</small></span><button type="button" class="alert-del" onclick="removePriceAlert('${escapeHtml(a.id)}')">Togli</button></div>`).join('')
+        : '<div class="empty-hint">Nessun avviso attivo. Chiedilo all\'assistente: «avvisami se BTC arriva a 75.000».</div>';
+}
+export async function openAlerts() {
+    $('alertsModal').classList.add('active');
+    renderAlerts();
+    if (!loaded) { await loadAutomation(); renderAlerts(); }
+}
+export function closeAlerts() { $('alertsModal').classList.remove('active'); }
+export async function removePriceAlert(id) {
+    if (!/^[0-9a-f]{8}$/.test(id)) return;
+    removingAlerts.add(id);
+    renderAlerts();
+    const ok = await send({ type: 'alert', op: 'del', id }, '');
+    if (ok === false) removingAlerts.delete(id);
+    renderAlerts();
+    if (window.updateHome) window.updateHome();
+}
 export const sendAlertCommand = (body, okText) => send({ type: 'alert', ...body }, okText);
 let pendingTrading = null;   // 'on' / 'off' inviato ma non ancora visibile in automation.json
 const pending = {};   // comandi inviati ma non ancora visibili nei file pubblicati

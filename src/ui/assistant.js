@@ -299,6 +299,14 @@ function planGeneral(a) {
             return { ok: true, summary: `Ti avviso su Telegram quando ${SYM(a.symbol)} ${side === 'above' ? 'sale a' : 'scende a'} ${fmtPx(a.price)} (ora ${fmtPx(px)}). Controllo ogni 15 minuti sulle candele da 1 minuto: un tocco non si perde. Solo un messaggio, nessun ordine.`,
                 run: () => Auto.sendAlertCommand({ op: 'add', symbol: a.symbol, side, price: String(a.price) }, 'Avviso inviato: attivo entro 1-2 minuti (Home → Stato).') };
         }
+        case 'remove_alert': {
+            const mine = Auto.priceAlerts().filter(x => x.symbol === a.symbol);
+            const match = a.price == null ? (mine.length === 1 ? mine[0] : null)
+                : mine.filter(x => Math.abs(x.price / a.price - 1) <= 0.005).sort((x, y) => Math.abs(x.price - a.price) - Math.abs(y.price - a.price))[0];
+            if (!mine.length) return { ok: false, error: `Su ${SYM(a.symbol)} non ci sono avvisi attivi.` };
+            if (!match) return { ok: false, error: `Su ${SYM(a.symbol)} ci sono ${mine.length > 1 ? 'più avvisi' : 'avvisi diversi'}: ${mine.map(x => fmtPx(x.price)).join(', ')}. Dimmi quale togliere.` };
+            return { ok: true, summary: `Tolgo l'avviso ${SYM(a.symbol)} ${match.side === 'above' ? '≥' : '≤'} ${fmtPx(match.price)}.`, run: () => Auto.removePriceAlert(match.id) };
+        }
         case 'clear_alerts': {
             const n = Auto.priceAlerts().length;
             return n ? { ok: true, summary: `Tolgo ${n === 1 ? 'l\'avviso di prezzo attivo' : `tutti i ${n} avvisi di prezzo`}.`, run: () => Auto.sendAlertCommand({ op: 'clear' }, 'Avvisi tolti (entro 1-2 minuti).') }
