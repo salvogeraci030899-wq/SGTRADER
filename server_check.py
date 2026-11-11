@@ -65,6 +65,15 @@ def main():
     print("   " + ("OK: ha capito la regola" if good else "ATTENZIONE: azione diversa da quella attesa"))
     ok &= status == 200
 
+    # 2b) Assistente generale: comando sul tool
+    ctx = {"prices": {"BTCUSDT": price}, "trading": "off", "emergency": False, "active": [{"key": "donchian20_turtle:1d", "mode": "paper", "closed": 0, "open": 0}],
+           "available": ["donchian20_turtle:1d", "donchian55:1d", "big_candle_trail:1d"], "confirmed": [], "bot_minutes": 5}
+    status, body = post("/api/assistant", {"scope": "general", "text": "metti donchian55 1d su carta", "context": ctx})
+    action = body.get("action") if isinstance(body, dict) else None
+    good = status == 200 and isinstance(action, dict) and action.get("type") == "set_strategy" and action.get("key") == "donchian55:1d" and action.get("mode") == "paper"
+    print(f"2b) Assistente generale: HTTP {status} → «{str(body.get('reply') or body.get('error'))[:150]}» azione {json.dumps(action)} {'OK' if good else '(ATTESO set_strategy donchian55:1d paper)'}")
+    ok &= status == 200
+
     t0 = time.time()
     status, body = post("/api/analyze", {"symbol": "BTCUSDT", "timeframe": "4h", "type": "NONE", "currentPrice": price, "candles": cs})
     text = (body.get("analysis") or body.get("error") or "") if isinstance(body, dict) else ""
