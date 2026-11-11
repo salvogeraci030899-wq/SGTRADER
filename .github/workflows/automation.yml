@@ -1,0 +1,67 @@
+name: Automazione
+
+# Comandi della dashboard sulle strategie: accendere/spegnere (su carta o reale) ed emergenza.
+# Lo avvia il server comandi (api/_core.js) quando premi un tasto nell'app; si può avviare anche a mano.
+# Il controllo vero è in automation.py: il reale solo per strategie confermate, niente durante l'emergenza.
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'set = cambia lo stato di una strategia, emergency = spegni tutto, resume = sblocca'
+        required: true
+        type: choice
+        options: [set, emergency, resume]
+      key:
+        description: 'Strategia, es. big_candle_trail:1d (solo per set)'
+        required: false
+        default: ''
+      mode:
+        description: 'off, paper o live (solo per set)'
+        required: false
+        default: ''
+
+# Un comando alla volta, nell'ordine in cui arrivano: due comandi insieme non devono sovrascriversi
+concurrency:
+  group: automation
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installa dipendenze minime
+        run: pip install "pandas>=2.2.2" numpy requests
+      # Gli input passano da variabili d'ambiente, mai incollati direttamente nel comando
+      - name: Applica il comando
+        env:
+          ACTION: ${{ github.event.inputs.action }}
+          KEY: ${{ github.event.inputs.key }}
+          MODE: ${{ github.event.inputs.mode }}
+        run: |
+          if [ "$ACTION" = "set" ]; then
+            python automation.py set "$KEY" "$MODE" | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            python automation.py "$ACTION" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Salva
+        env:
+          ACTION: ${{ github.event.inputs.action }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add automation.json
+          git commit -m "Automazione: $ACTION $(date -u +%Y-%m-%d_%H:%M)" || { echo "Nessuna modifica"; exit 0; }
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            echo "Push fallito (tentativo $i), riprovo..."
+            sleep $((i * 5))
+          done
+          exit 1

@@ -1,0 +1,5 @@
+# Server comandi di SGTRADER su Cloudflare Workers. Pubblicato dal workflow "Pubblica server comandi".
+name = "sgtrader-server"
+main = "index.js"
+compatibility_date = "2025-06-01"
+workers_dev = true

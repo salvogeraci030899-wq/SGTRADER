@@ -12,6 +12,7 @@ import * as HomeUI from './ui/home.js';
 import * as HomeCharts from './ui/home-charts.js';
 import * as Backup from './core/backup.js';
 import * as LabUI from './ui/lab.js';
+import * as AutoUI from './ui/automation.js';
 import { initManual } from './ui/manual.js';
 import { initPageFit } from './ui/page-fit.js';
 
@@ -26,6 +27,7 @@ window.KState = State;
 // ==========================================
 window.openSettings = () => {
     const modal = document.getElementById('settingsModal');
+    AutoUI.fillServerSettings();
     if (modal) modal.classList.add('active');
 };
 window.closeSettings = () => {
@@ -152,6 +154,19 @@ window.renderLab = LabUI.renderLab;
 window.goToLabPage = LabUI.goToLabPage;
 window.openLabDetail = LabUI.openLabDetail;
 
+// Automazione (pagina Segnali, vista Auto) e server comandi (Impostazioni)
+window.setSignalsView = AutoUI.setSignalsView;
+window.setAutoMode = AutoUI.setAutoMode;
+window.toggleEmergency = AutoUI.toggleEmergency;
+window.runAutoJob = AutoUI.runAutoJob;
+window.openAutoAdd = AutoUI.openAutoAdd;
+window.closeAutoAdd = AutoUI.closeAutoAdd;
+window.addAutoPaper = AutoUI.addAutoPaper;
+window.closeAutoConfirm = AutoUI.closeAutoConfirm;
+window.okAutoConfirm = AutoUI.okAutoConfirm;
+window.saveServerSettings = AutoUI.saveServerSettings;
+window.resetAppKey = AutoUI.resetAppKey;
+
 // Home
 window.updateHome = HomeUI.updateHome;
 
@@ -235,6 +250,7 @@ window.switchTab = (tabId) => {
         SignalsUI.renderSignalHistory();
         SignalsUI.updateSignalNotifStatus();
         setTimeout(SignalsUI.updateSignalHistoryDots, 50);
+        AutoUI.renderAutomation();
     }
 };
 

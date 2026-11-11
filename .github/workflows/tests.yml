@@ -4,9 +4,9 @@ name: Test
 on:
   push:
     branches: [main]
-    paths: ['**.py', 'tests/**', '.github/workflows/tests.yml']
+    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', '.github/workflows/tests.yml']
   pull_request:
-    paths: ['**.py', 'tests/**', '.github/workflows/tests.yml']
+    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', '.github/workflows/tests.yml']
 
 permissions:
   contents: read
@@ -31,6 +31,8 @@ jobs:
           python tests/test_strategy_lab.py
           python tests/test_run_bot.py
           python tests/test_paper.py
+          python tests/test_automation.py
+          node tests/test_core.mjs
       # Chiamate vere a Bitget futures: fallisce se mancano prezzo mark, funding o open interest
       - name: Dati futures veri
         run: python futures_data.py --check
