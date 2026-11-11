@@ -9,20 +9,36 @@ export const fetchT = (url, ms = 8000) => {
     return fetch(url, { signal: ac.signal }).finally(() => clearTimeout(t));
 };
 
-// Chiamata agli endpoint /api protetti da APP_SECRET (variabile d'ambiente su Vercel).
+// Chiamata agli endpoint /api del server comandi, protetti da APP_SECRET.
+// Il server è il sito stesso (Vercel) oppure quello indicato in Impostazioni → Server comandi
+// (es. Cloudflare Workers): su GitHub Pages /api non esiste.
 // La chiave viene chiesta una sola volta, al primo 401, e resta in localStorage su questo dispositivo.
 const APP_KEY_STORAGE = 'kronos_app_key';
+const API_BASE_STORAGE = 'kronos_api_base';
+export function getApiBase() {
+    try { return localStorage.getItem(API_BASE_STORAGE) || ''; } catch (e) { return ''; }
+}
+export function setApiBase(url) {
+    try {
+        if (url) localStorage.setItem(API_BASE_STORAGE, url.replace(/\/+$/, ''));
+        else localStorage.removeItem(API_BASE_STORAGE);
+    } catch (e) {}
+}
+export function clearAppKey() {
+    try { localStorage.removeItem(APP_KEY_STORAGE); } catch (e) {}
+}
 export async function apiPost(path, body) {
+    const url = getApiBase() + path;
     const send = () => {
         let key = '';
         try { key = localStorage.getItem(APP_KEY_STORAGE) || ''; } catch (e) {}
         const headers = { 'Content-Type': 'application/json' };
         if (key) headers['x-app-key'] = key;
-        return fetch(path, { method: 'POST', headers, body: JSON.stringify(body) });
+        return fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
     };
     let res = await send();
     if (res.status === 401) {
-        const key = (window.prompt('Inserisci la chiave app (APP_SECRET impostata su Vercel):') || '').trim();
+        const key = (window.prompt('Inserisci la chiave app (APP_SECRET del server comandi):') || '').trim();
         if (!key) return res;
         try { localStorage.setItem(APP_KEY_STORAGE, key); } catch (e) {}
         res = await send();

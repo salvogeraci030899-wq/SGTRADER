@@ -1,0 +1,71 @@
+name: Pubblica server comandi
+
+# Pubblica il server comandi (worker/index.js + api/_core.js) su Cloudflare Workers, gratis.
+# Parte da solo quando cambiano quei file su main, oppure a mano.
+#
+# Da fare una volta sola (Settings -> Secrets and variables -> Actions -> New repository secret):
+#   CLOUDFLARE_API_TOKEN   token Cloudflare con permesso "Edit Cloudflare Workers"
+#   CLOUDFLARE_ACCOUNT_ID  ID dell'account Cloudflare
+#   APP_SECRET             chiave che l'app userà per i comandi (inventala lunga)
+#   SERVER_GH_TOKEN        token GitHub (fine-grained) solo su questo repository, permesso "Actions: Read and write"
+#   GROQ_API_KEY           facoltativo, per l'analisi AI
+# Senza questi segreti il workflow si ferma subito e spiega cosa manca, senza errori rossi.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['worker/**', 'api/_core.js', '.github/workflows/deploy-server.yml']
+
+concurrency:
+  group: deploy-server
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Controlla i segreti
+        id: check
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          APP_SECRET: ${{ secrets.APP_SECRET }}
+          GH_TOKEN_S: ${{ secrets.SERVER_GH_TOKEN }}
+        run: |
+          missing=""
+          [ -n "$CF_TOKEN" ] || missing="$missing CLOUDFLARE_API_TOKEN"
+          [ -n "$CF_ACCOUNT" ] || missing="$missing CLOUDFLARE_ACCOUNT_ID"
+          [ -n "$APP_SECRET" ] || missing="$missing APP_SECRET"
+          [ -n "$GH_TOKEN_S" ] || missing="$missing SERVER_GH_TOKEN"
+          if [ -n "$missing" ]; then
+            echo "Segreti mancanti:$missing. Server non pubblicato." | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.ready == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.ready == 'true'
+        with:
+          node-version: '22'
+      - name: Pubblica su Cloudflare
+        if: steps.check.outputs.ready == 'true'
+        working-directory: worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          APP_SECRET: ${{ secrets.APP_SECRET }}
+          GH_TOKEN_S: ${{ secrets.SERVER_GH_TOKEN }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          npx --yes wrangler@3.114.0 deploy 2>&1 | tee deploy.log
+          printf '%s' "$APP_SECRET" | npx --yes wrangler@3.114.0 secret put APP_SECRET
+          printf '%s' "$GH_TOKEN_S" | npx --yes wrangler@3.114.0 secret put GH_TOKEN
+          if [ -n "$GROQ_API_KEY" ]; then printf '%s' "$GROQ_API_KEY" | npx --yes wrangler@3.114.0 secret put GROQ_API_KEY; fi
+          url=$(grep -o 'https://[a-z0-9.-]*workers.dev' deploy.log | head -n 1)
+          echo "Server comandi pubblicato: ${url:-vedi il log}. Inseriscilo nell'app: Home -> Impostazioni -> Server comandi." | tee -a "$GITHUB_STEP_SUMMARY"
