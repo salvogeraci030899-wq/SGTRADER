@@ -1,6 +1,6 @@
 // Test del server comandi (api/_core.js e worker/index.js). Eseguibile con: node tests/test_core.mjs
 import assert from 'node:assert/strict';
-import { handle, safeEqual, pickModel, summarizeCandles, buildAnalysisPrompt, modelOptions } from '../api/_core.js';
+import { handle, safeEqual, pickModel, summarizeCandles, buildAnalysisPrompt, modelOptions, sanitizeGeneralAction } from '../api/_core.js';
 import worker, { scheduled } from '../worker/index.js';
 
 const env = { APP_SECRET: 'segreto-lungo', GH_TOKEN: 'tok', GH_REPO: 'io/repo', GH_REF: 'main', GROQ_API_KEY: 'g' };
@@ -168,6 +168,27 @@ test('modelli che ragionano: ragionamento breve e più spazio per la risposta', 
     assert.deepEqual(modelOptions('openai/gpt-oss-120b', 1000), { max_tokens: 3000, reasoning_effort: 'low' });
     assert.deepEqual(modelOptions('qwen/qwen3-32b', 500), { max_tokens: 1500 });
     assert.deepEqual(modelOptions('llama-3.3-70b-versatile', 1000), { max_tokens: 1000 });
+});
+
+test('assistente generale: comanda il tool con azioni da un elenco chiuso', async () => {
+    assert.deepEqual(sanitizeGeneralAction({ type: 'set_strategy', key: 'donchian20_turtle:1d', mode: 'paper', x: 1 }), { type: 'set_strategy', key: 'donchian20_turtle:1d', mode: 'paper' });
+    assert.equal(sanitizeGeneralAction({ type: 'set_strategy', key: 'donchian20_turtle:1d', mode: 'live' }), null);   // il reale non si accende da qui
+    assert.equal(sanitizeGeneralAction({ type: 'set_strategy', key: '../../etc', mode: 'paper' }), null);
+    assert.deepEqual(sanitizeGeneralAction({ type: 'analyze', symbol: 'ETHUSDT', timeframe: '4h' }), { type: 'analyze', symbol: 'ETHUSDT', timeframe: '4h' });
+    assert.equal(sanitizeGeneralAction({ type: 'open_page', page: 'evil' }), null);
+    assert.equal(sanitizeGeneralAction({ type: 'withdraw', amount: 100 }), null);
+    let last = null;
+    const groq = async (url, opts) => {
+        if (url.endsWith('/models')) return { ok: true, status: 200, json: async () => ({ data: [{ id: 'qwen/qwen3-32b' }] }) };
+        last = JSON.parse(opts.body);
+        return { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: '{"reply":"Metto donchian20 turtle 1d su carta. Confermi?","action":{"type":"set_strategy","key":"donchian20_turtle:1d","mode":"paper"}}' } }] }) };
+    };
+    const context = { prices: { BTCUSDT: 71000 }, trading: 'off', active: [{ key: 'donchian20_turtle:1d', mode: 'paper', closed: 0, open: 0 }], available: ['donchian20_turtle:1d', 'x;rm -rf'], confirmed: [] };
+    const r = await handle('POST', '/api/assistant', { scope: 'general', text: 'metti donchian su carta', context }, ok, env, groq);
+    assert.equal(r.status, 200, JSON.stringify(r.body));
+    assert.deepEqual(r.body.action, { type: 'set_strategy', key: 'donchian20_turtle:1d', mode: 'paper' });
+    assert.match(last.messages[1].content, /Strategie che si possono mettere su carta.*donchian20_turtle:1d/);
+    assert.doesNotMatch(last.messages[1].content, /rm -rf/);                       // voci non valide scartate
 });
 
 test('worker: CORS solo per le origini ammesse', async () => {
