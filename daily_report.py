@@ -4,7 +4,8 @@ Una volta al giorno (al primo giro del bot dopo REPORT_HOUR_UTC) riassume:
 - prezzi e variazione delle ultime 24 ore (candela giornaliera);
 - futures: funding e variazione dell'open interest;
 - prova su carta: trade aperti e chiusi per strategia;
-- esecutore: modalità, posizioni aperte, blocchi;
+- conto Bitget (sola lettura): saldo, variazione del giorno, posizioni;
+- modalità ordini (Simulato/Reale), esecutore: posizioni aperte, blocchi;
 - automazione: emergenza, strategie attive, strategie confermate.
 I dati sono quelli già scritti dal bot: niente chiamate esterne in più.
 Il testo evita i caratteri speciali del Markdown di Telegram (trattino basso, asterisco).
@@ -30,8 +31,14 @@ def _clean(text):
     return text.replace("_", " ").replace("*", "")
 
 
+def _it(v, d=2, sign=False):
+    """Numero in formato italiano: 1.523,40 (punto per le migliaia, virgola per i decimali)."""
+    txt = f"{v:+,.{d}f}" if sign else f"{v:,.{d}f}"
+    return txt.replace(",", "§").replace(".", ",").replace("§", ".")
+
+
 def _pct(v, d=2):
-    return "n/d" if v is None else f"{v:+.{d}f}%"
+    return "n/d" if v is None else _it(v, d, sign=True) + "%"
 
 
 def build(frames, now, paths=None):
@@ -46,7 +53,7 @@ def build(frames, now, paths=None):
         if df is None or len(df) < 2:
             continue
         last, prev = float(df["close"].iloc[-1]), float(df["close"].iloc[-2])
-        prices.append(f"{s.replace('USDT', '')} {last:,.2f} ({_pct((last / prev - 1) * 100)})")
+        prices.append(f"{s.replace('USDT', '')} {_it(last)} ({_pct((last / prev - 1) * 100)})")
     if prices:
         lines.append("Prezzi (chiusura di ieri): " + " · ".join(prices))
 
@@ -66,8 +73,13 @@ def build(frames, now, paths=None):
         lines.append("⛔ EMERGENZA ATTIVA: automazione bloccata.")
     lines.append("Strategie attive: " + (", ".join(f"{k} ({'carta' if v == 'paper' else 'reale'})" for k, v in active.items()) or "nessuna"))
 
+    real = bool((auto.get("risk") or {}).get("trading_enabled"))
+    lines.append("Modalità ordini: " + ("REALE (ordini veri solo per strategie confermate)" if real else "simulato, nessun ordine vero"))
+
     paper = (_read(p["paper"]) or {}).get("strategies") or {}
     for key, e in paper.items():
+        if e.get("mode") == "off" or key not in active:       # spenta: non fa più parte della prova
+            continue
         st = e.get("stats") or {}
         n, op = st.get("n", 0), st.get("open", 0)
         txt = f"Su carta {key}: {n} chiusi"
@@ -77,6 +89,18 @@ def build(frames, now, paths=None):
         lines.append(txt)
 
     live = _read(p["live"])
+    acc = (live or {}).get("account") or {}
+    if acc.get("connected"):
+        total = acc.get("total_usdt", acc.get("equity"))
+        txt = f"Bitget ({'demo' if acc.get('demo') else 'reale'}): saldo {_it(total)} USDT"
+        if acc.get("day_change") is not None:
+            txt += f", variazione oggi {_it(acc['day_change'], sign=True)}"
+        txt += f", {acc.get('positions', 0)} posizioni"
+        if acc.get("positions"):
+            txt += f" (PnL aperto {_it(acc.get('upl', 0), sign=True)})"
+        lines.append(txt)
+    elif acc.get("reason") and acc.get("reason") != "chiavi non impostate":
+        lines.append(f"⚠️ Bitget: lettura del conto non riuscita ({acc['reason'][:80]}).")
     if live:
         open_pos = [x for x in (live.get("positions") or {}).values() if x.get("status") == "open"]
         txt = f"Esecutore: modalità {live.get('mode', 'simulata')}, {len(open_pos)} posizioni aperte"
