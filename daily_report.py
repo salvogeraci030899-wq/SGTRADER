@@ -86,6 +86,10 @@ def build(frames, now, paths=None):
         if n:
             txt += f" (vincenti {st.get('win_rate', 0):.0f}%, netto medio {_pct(st.get('avg_net_pct'))})"
         txt += f", {op} aperti"
+        v = st.get("vs_backtest") or {}
+        if v.get("verdict") in ("in_linea", "sotto", "sopra"):
+            txt += {"in_linea": " · in linea con lo storico", "sotto": " · ⚠️ SOTTO LO STORICO: la strategia potrebbe non funzionare più",
+                    "sopra": " · sopra lo storico (in parte fortuna)"}[v["verdict"]]
         lines.append(txt)
 
     live = _read(p["live"])

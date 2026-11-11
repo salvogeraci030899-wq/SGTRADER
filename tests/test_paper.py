@@ -118,6 +118,16 @@ def test_ripetibile_e_storico_corto():
     assert paper.replay(frame(1), "1d", "BTCUSDT", spec, T_START) == []
 
 
+def test_confronto_con_lo_storico():
+    ref = {"n": 100, "avg_net_pct": 2.0, "avg_net_ci": [0.04, 3.96]}             # variabilità per trade = 1/3.92*3.92*10 = 10
+    assert paper.vs_backtest([1.0] * 5, ref)["verdict"] == "pochi_trade"
+    assert paper.vs_backtest([2.5, -1.0, 4.0, 0.5, 3.0, 1.5, 2.0, -0.5, 5.0, 3.0], ref)["verdict"] == "in_linea"
+    bad = paper.vs_backtest([-6.0] * 16, ref)                                      # z = (-6 - 2) / (10 / 4) = -3.2
+    assert bad["verdict"] == "sotto" and bad["z"] == -3.2
+    assert paper.vs_backtest([9.0] * 16, ref)["verdict"] == "sopra"
+    assert paper.vs_backtest([1.0] * 20, None) is None and paper.vs_backtest([1.0] * 20, {"n": 5}) is None
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in tests:
