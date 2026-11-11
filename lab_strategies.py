@@ -160,3 +160,29 @@ def big_candle_trail(x):
 def tsmom_combo(x):
     r30, r90 = x["ret"](30), x["ret"](90)
     return np.where((r30 > 0) & (r90 > 0), 1, np.where((r30 < 0) & (r90 < 0), -1, 0))
+
+
+# =====================================================================
+# TERZA SERIE (dichiarata l'11/11/2026, prima di vederne i risultati): forza relativa.
+# Confronta le tre coin nello stesso istante: long la più forte, short la più debole.
+# È informazione nuova rispetto alle serie precedenti, che guardavano ogni coin da sola, e in buona
+# parte neutrale rispetto al mercato (un long e uno short insieme). Solo 1d e 4h.
+# =====================================================================
+REL_EXIT = {"stop_atr": 3.0, "max_hold": 7}
+
+
+@strategy("relstrength30", "forza relativa", "Long la coin con il rendimento a 30 candele più alto delle tre, short quella con il più "
+          "basso. Tenuta 7 candele, stop 3 ATR.", REL_EXIT, tfs=SLOW)
+def relstrength30(x):
+    return x["rank_ret"](30)
+
+
+@strategy("relstrength90", "forza relativa", "Come relstrength30 ma sul rendimento a 90 candele.", REL_EXIT, tfs=SLOW)
+def relstrength90(x):
+    return x["rank_ret"](90)
+
+
+@strategy("relstrength30_long", "forza relativa", "Solo la parte long di relstrength30: compra la coin più forte delle tre.",
+          REL_EXIT, tfs=SLOW)
+def relstrength30_long(x):
+    return np.where(x["rank_ret"](30) > 0, 1, 0)
