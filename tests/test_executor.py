@@ -275,6 +275,11 @@ def test_lettura_conto_sola_lettura():
             s = ex.account_snapshot(path, WithSpot(), NOW, msgs.append)
             assert s["spot_usdt"] == 1200.0 and s["total_usdt"] == 1323.46, s                     # 500 + 0,01*70000; XYZ senza prezzo
             assert [c["coin"] for c in s["spot_coins"]] == ["BTC", "USDT", "XYZ"] and s["spot_coins"][2]["usdt"] is None
+            class WithAll(WithSpot):
+                def all_balances_usdt(self):
+                    return {"spot": 1200.0, "futures": 123.456, "earn": 500.0}
+            a2 = ex.account_snapshot(path, WithAll(), NOW, msgs.append)
+            assert a2["total_usdt"] == 1823.46 and a2["accounts_usdt"]["earn"] == 500.0, a2
             b = ex.account_snapshot(path, Fake(fail=True), NOW, msgs.append)
             assert not b["connected"] and "scaduta" in b["reason"] and len(msgs) == 1        # avviso al passaggio ok -> errore
             ex.account_snapshot(path, Fake(fail=True), NOW, msgs.append)

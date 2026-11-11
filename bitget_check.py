@@ -39,6 +39,12 @@ def main():
     except BitgetError as e:
         print(f"Lettura del conto spot non riuscita: {e} (serve il permesso di lettura dello spot)")
     try:
+        acc = client.all_balances_usdt()
+        print("Tutti i conti (USDT): " + (", ".join(f"{k} {v:,.2f}" for k, v in sorted(acc.items())) or "nessuno")
+              + f" · totale {sum(acc.values()):,.2f}")
+    except BitgetError as e:
+        print(f"Saldo di tutti i conti non leggibile: {e}")
+    try:
         pos = client.positions()
         print("Posizioni aperte: " + (", ".join(f"{s} {p['side']} {p['size']}" for s, p in pos.items()) or "nessuna"))
     except BitgetError as e:

@@ -41,9 +41,15 @@ export function bitgetAccountText(acc) {
         const total = acc.total_usdt != null ? acc.total_usdt : acc.equity;
         const kind = acc.demo ? 'demo' : 'reale';
         const pos = `${acc.positions} ${acc.positions === 1 ? 'posizione' : 'posizioni'}`;
-        const detail = acc.spot_usdt != null
-            ? `spot ${usdt(acc.spot_usdt)} · futures ${usdt(acc.equity)} · ${pos}`
-            : `futures ${usdt(acc.equity)} · ${pos}${acc.spot_error ? ' · spot non leggibile' : ''}`;
+        const NAMES = { spot: 'spot', futures: 'futures', usdt_futures: 'futures', funding: 'funding', earn: 'earn', bots: 'bot', margin: 'margin' };
+        const parts = acc.accounts_usdt
+            ? Object.entries(acc.accounts_usdt).filter(([, v]) => v >= 0.01).map(([k, v]) => `${NAMES[k] || k} ${usdt(v)}`)
+            : null;
+        const detail = parts && parts.length
+            ? `${parts.join(' · ')} · ${pos}`
+            : acc.spot_usdt != null
+                ? `spot ${usdt(acc.spot_usdt)} · futures ${usdt(acc.equity)} · ${pos}`
+                : `futures ${usdt(acc.equity)} · ${pos}${acc.spot_error ? ' · spot non leggibile' : ''}`;
         return { text: `${usdt(total)} USDT · ${kind}`, cls: 'text-accent', detail };
     }
     if (acc.reason === 'chiavi non impostate') return { text: 'chiavi non impostate', cls: '', detail: '' };
