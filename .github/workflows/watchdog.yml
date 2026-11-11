@@ -1,11 +1,11 @@
 name: Controllo di salute
 
-# Controllo indipendente dal bot, due volte al giorno: se il bot non parte, fallisce, l'esecutore è
+# Controllo indipendente dal bot, ogni 3 ore: se il bot non parte, fallisce, l'esecutore è
 # bloccato o l'archivio futures è vecchio, arriva un avviso su Telegram. Senza problemi non scrive nulla.
 on:
   workflow_dispatch:
   schedule:
-    - cron: '35 6,18 * * *'
+    - cron: '35 */3 * * *'
 
 permissions:
   contents: read
