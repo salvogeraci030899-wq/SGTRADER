@@ -26,3 +26,4 @@ daily_report.py
 futures_archive.py
 futures_archive
 watchdog.py
+bitget_check.py

@@ -1,0 +1,30 @@
+name: Verifica Bitget
+
+# Verifica in SOLA LETTURA del collegamento a Bitget: patrimonio, posizioni e regole dei contratti.
+# Non manda ordini. Da avviare a mano dopo aver inserito o cambiato le chiavi Bitget.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installa dipendenze minime
+        run: pip install "pandas>=2.2.2" numpy requests
+      - name: Verifica in sola lettura
+        env:
+          BITGET_API_KEY: ${{ secrets.BITGET_API_KEY }}
+          BITGET_API_SECRET: ${{ secrets.BITGET_API_SECRET }}
+          BITGET_API_PASSPHRASE: ${{ secrets.BITGET_API_PASSPHRASE }}
+          BITGET_DEMO: ${{ vars.BITGET_DEMO || '1' }}
+        run: |
+          set -o pipefail
+          python bitget_check.py | tee -a "$GITHUB_STEP_SUMMARY"
