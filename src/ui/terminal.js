@@ -152,7 +152,7 @@ export function renderTrackRecord() {
         trItem('Netto medio', trd.n ? fmtSigned(trd.avg_net_pct) : '—', !trd.n ? 'neutral' : (trd.avg_net_pct > 0 ? 'pass' : 'fail'));
     const since = trSummary.since ? new Date(trSummary.since).toLocaleDateString('it-IT') : '—';
     const small = pred.n < MIN_SAMPLE ? `Campione ancora piccolo (${pred.n}/${MIN_SAMPLE}): numeri non affidabili. ` : '';
-    foot.textContent = `${small}Dal ${since} · ${open} in attesa · netto di commissioni, slippage e tasse · Brier ${pred.brier.toFixed(3)} (caso ${pred.brier_baseline.toFixed(3)})`;
+    foot.textContent = `${small}Dal ${since} · ${open} in attesa · netto di commissioni e slippage, tasse escluse · Brier ${pred.brier.toFixed(3)} (caso ${pred.brier_baseline.toFixed(3)})`;
     foot.classList.toggle('text-warning', !!small);
 }
 
@@ -196,7 +196,7 @@ export function renderValidation() {
         trItem('Netto medio', plan.n ? fmtSigned(plan.avg_net_pct) : '—', VERDICT_CLASS[plan.verdict]);
     const from = new Date(pair.from * 1000).toLocaleDateString('it-IT');
     const mom = d.momentum_hit_rate == null ? '' : ` · momentum ${d.momentum_hit_rate.toFixed(0)}%`;
-    foot.textContent = `${VERDICT_LABEL[pair.verdict]} · dal ${from}${mom} · netto costi e tasse, intervallo 95%: ${plan.n ? range(plan.avg_net_ci) : 'n/d'}`;
+    foot.textContent = `${VERDICT_LABEL[pair.verdict]} · dal ${from}${mom} · netto dei costi, intervallo 95%: ${plan.n ? range(plan.avg_net_ci) : 'n/d'}`;
     foot.classList.toggle('text-warning', pair.verdict !== 'positivo');
 }
 

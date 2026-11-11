@@ -1,0 +1,85 @@
+name: Laboratorio strategie
+
+# Prova tutte le strategie di lab_strategies.py sullo storico Bitget (nessun modello: pochi minuti).
+# - Avvio manuale: tutto lo storico, poi commit di lab_summary.json, lab_registry.json e validation/LABORATORIO.md.
+#   Il campo "unseal" apre la prova finale sui mesi sigillati per le prove indicate (registrato, una volta sola).
+# - Sulle PR che toccano questi file: prova veloce con Bitget vero, senza commit e senza toccare il registro.
+on:
+  workflow_dispatch:
+    inputs:
+      unseal:
+        description: 'Prova finale sui mesi sigillati: prove separate da spazio, es. "donchian20:1d". Vuoto = nessuna'
+        required: false
+        default: ''
+  pull_request:
+    paths:
+      - 'strategy_lab.py'
+      - 'lab_strategies.py'
+      - 'strategies_validation.py'
+      - 'validation.py'
+      - 'validation_stats.py'
+      - 'kronos_core.py'
+      - '.github/workflows/lab.yml'
+
+concurrency:
+  group: lab-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Prova veloce (dati veri)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installa dipendenze minime
+        run: pip install "pandas>=2.2.2" numpy requests
+      # Periodo breve, tutto prima dei mesi sigillati: qui si prova solo che il percorso funzioni
+      - name: Laboratorio su un periodo breve
+        run: |
+          python strategy_lab.py --start 2023-06-01 --symbols BTCUSDT SOLUSDT --tfs 1d 4h --no-registry | head -n 60
+          python -c "import json; s=json.load(open('lab_summary.json')); r=s['results']; assert len(r) >= 24 and all('holdout' not in x for x in r.values()), len(r); print(len(r), 'prove,', sum(x['n'] for x in r.values()), 'trade, funding reale:', sorted({x.get('funding_real_share_pct') for x in r.values()}))"
+          test ! -f lab_registry.json || git diff --exit-code lab_registry.json
+
+  run:
+    name: Tutto lo storico
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installa dipendenze minime
+        run: pip install "pandas>=2.2.2" numpy requests
+      # L'input passa da una variabile d'ambiente, mai incollato direttamente nel comando
+      - name: Calcola
+        env:
+          UNSEAL: ${{ github.event.inputs.unseal }}
+        run: |
+          # shellcheck disable=SC2086
+          python strategy_lab.py --unseal $UNSEAL > /dev/null
+          cat validation/LABORATORIO.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Salva i risultati
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add lab_summary.json lab_registry.json validation/LABORATORIO.md
+          git commit -m "Laboratorio strategie: risultati aggiornati $(date -u +%Y-%m-%d_%H:%M)" || { echo "Nessuna modifica da salvare"; exit 0; }
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            echo "Push fallito (tentativo $i), riprovo..."
+            sleep $((i * 5))
+          done
+          echo "Impossibile fare push dei risultati."
+          exit 1
