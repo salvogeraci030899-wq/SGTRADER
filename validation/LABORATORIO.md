@@ -1,6 +1,6 @@
 # Laboratorio strategie
 
-Generato il 2026-11-11T05:56:41+00:00 · 44 prove in questa esecuzione, 44 registrate in tutto.
+Generato il 2026-11-11T06:23:27+00:00 · 44 prove in questa esecuzione, 44 registrate in tutto.
 
 - **Ricerca** solo sullo storico prima del 2025-11-11; da lì in poi è **sigillato** per la prova finale.
 - **Costi** (scenario principale: futures, ordini a mercato): 0.11% per lato più funding. "Netto" = dopo questi costi, tasse escluse.
@@ -11,7 +11,7 @@ Generato il 2026-11-11T05:56:41+00:00 · 44 prove in questa esecuzione, 44 regis
 - Una candidata non è un segnale valido: deve ancora superare la prova finale e poi la prova dal vivo senza soldi.
 - I risultati passati non garantiscono quelli futuri. Non è consulenza finanziaria.
 
-**Candidate: big_candle_trail:1d.** **Confermate dalla prova finale: nessuna.**
+**Candidate in attesa della prova finale: nessuna.** **Confermate: nessuna.** **Non confermate: big_candle_trail:1d.**
 
 ### Timeframe 1d
 

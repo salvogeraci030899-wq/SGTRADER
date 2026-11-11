@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-11T05:56:41+00:00",
+ "generated_at": "2026-11-11T06:23:27+00:00",
  "holdout_start": "2025-11-11",
  "trials_registered": 44,
  "fdr": 0.1,
@@ -22,6 +22,24 @@
   }
  },
  "tax_rate": 0.33,
+ "descriptions": {
+  "donchian20": "Long se la chiusura supera il massimo delle 20 candele precedenti, short sotto il minimo. Stop 2 ATR, poi stop che segue a 3 ATR, massimo 60 candele.",
+  "donchian55": "Come donchian20 ma su 55 candele (rotture pi\u00f9 rare e pi\u00f9 importanti), massimo 120 candele.",
+  "donchian20_long": "Solo la parte long di donchian20 (utilizzabile anche in spot).",
+  "donchian20_calm": "donchian20 solo quando la volatilit\u00e0 (ATR in % del prezzo) \u00e8 sotto la sua mediana delle ultime 100 candele: rotture che partono da una fase calma.",
+  "ema_pullback": "Con EMA50 sopra EMA200, long quando la chiusura torna sopra l'EMA20 dopo esserne scesa sotto (speculare per lo short). Stop 2 ATR, stop che segue a 3 ATR, massimo 60 candele.",
+  "tsmom30": "Direzione del rendimento delle ultime 30 candele, tenuta 7 candele, stop 3 ATR.",
+  "tsmom90": "Come tsmom30 ma sul rendimento delle ultime 90 candele.",
+  "tsmom30_long": "Solo long quando il rendimento a 30 candele \u00e8 positivo e il prezzo \u00e8 sopra la media a 200.",
+  "rsi2_pullback": "Sopra la media a 200: long se RSI(2) < 10. Sotto: short se RSI(2) > 90. Tenuta 5 candele, stop 3 ATR.",
+  "bollinger_revert": "Long se la chiusura \u00e8 sotto la banda inferiore di Bollinger (20, 2) ma sopra la media a 200; short speculare. Tenuta 5 candele, stop 3 ATR.",
+  "big_candle": "Segue la direzione di una candela il cui corpo supera 1,5 volte l'ATR precedente. Tenuta 5 candele, stop 1,5 ATR, target 3 ATR.",
+  "app_breakout_trail": "La regola Breakout della pagina Segnali (rottura a 20 candele con volume, RSI e EMA200), ma lasciata correre: stop 2 ATR, stop che segue a 3 ATR, massimo 60 candele.",
+  "donchian20_regime": "donchian20 con filtro di regime: long solo sopra la media a 200, short solo sotto. Stesse uscite di donchian20.",
+  "donchian20_turtle": "Ingressi di donchian20, uscita classica 'a canale': si esce quando la chiusura rompe il minimo (long) o il massimo (short) delle 10 candele precedenti. Stop 2 ATR, massimo 120 candele.",
+  "big_candle_trail": "Ingressi di big_candle ma lasciati correre: stop 1,5 ATR, stop che segue a 3 ATR, massimo 20 candele.",
+  "tsmom_combo": "Long se i rendimenti a 30 e a 90 candele sono entrambi positivi, short se entrambi negativi. Tenuta 7 candele, stop 3 ATR."
+ },
  "candidates": [
   "big_candle_trail:1d"
  ],
