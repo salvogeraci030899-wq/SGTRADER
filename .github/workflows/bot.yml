@@ -72,7 +72,8 @@ jobs:
           key: hf-kronos-v1
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        # torch solo CPU: i server di GitHub non hanno GPU; evita di scaricare le librerie CUDA (vari GB)
+        run: pip install torch --index-url https://download.pytorch.org/whl/cpu && pip install -r requirements.txt
 
       - name: Run Bot
         env:
