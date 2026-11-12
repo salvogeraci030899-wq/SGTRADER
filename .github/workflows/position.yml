@@ -9,7 +9,7 @@ on:
         description: 'close, tp, sl, clear, untp/unsl (toglie solo TP o SL) o refresh (solo rilettura del conto)'
         required: true
         type: choice
-        options: [close, tp, sl, clear, untp, unsl, refresh]
+        options: [open, close, tp, sl, clear, untp, unsl, refresh]
       symbol:
         required: true
         type: choice
@@ -19,7 +19,19 @@ on:
         type: choice
         options: [long, short]
       price:
-        description: 'livello per tp/sl (vuoto per close/clear)'
+        description: 'livello per tp/sl; per open: lo stop loss (vuoto per close/clear)'
+        required: false
+        default: ''
+      size:
+        description: 'open: quantità in coin'
+        required: false
+        default: ''
+      leverage:
+        description: 'open: leva'
+        required: false
+        default: ''
+      tp:
+        description: 'open: take profit (facoltativo)'
         required: false
         default: ''
       req:
@@ -63,10 +75,13 @@ jobs:
           SYMBOL: ${{ inputs.symbol }}
           SIDE: ${{ inputs.side }}
           PRICE: ${{ inputs.price }}
+          SIZE: ${{ inputs.size }}
+          LEVERAGE: ${{ inputs.leverage }}
+          TP: ${{ inputs.tp }}
           POSITION_RESULT: ${{ runner.temp }}/position_result.json
         run: |
           set -o pipefail
-          python position_cmd.py "$ACTION" "$SYMBOL" "$SIDE" "$PRICE" | tee -a "$GITHUB_STEP_SUMMARY"
+          python position_cmd.py "$ACTION" "$SYMBOL" "$SIDE" "$PRICE" "$SIZE" "$LEVERAGE" "$TP" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Salva lo stato
         # anche se il comando è fallito: l'app legge l'esito (e il motivo) da live_trades.json
         if: always()

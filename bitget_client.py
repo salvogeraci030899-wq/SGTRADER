@@ -259,7 +259,7 @@ class DryRunClient:
     def equity(self):
         return self._equity
 
-    def setup_symbol(self, symbol, leverage):
+    def setup_symbol(self, symbol, leverage, side=None):
         self.calls.append(("setup", symbol, leverage))
 
     def positions(self):

@@ -173,9 +173,14 @@ def run(cfg, ledger, client=None, mode="simulata", state_path=STATE_PATH, now=No
         log("error", error=f"lettura conto: {e}")
         say(f"Impossibile leggere il conto Bitget ({e}): nessuna operazione in questo giro.")
         return _finish(state, before, state_path, client, mode)
+    # Le posizioni dell'esecutore devono esserci, con la direzione giusta. Le altre posizioni su Bitget sono
+    # manuali (aperte da te nell'app o su Bitget): non bloccano nulla, ma su quella coin l'esecutore non entra.
     expected = {p["symbol"]: p["side"] for p in ours.values()}
     actual = {s: p["side"] for s, p in exchange.items()}
-    if expected != actual:
+    missing = {s: v for s, v in expected.items() if actual.get(s) != v}
+    manual = {s: p for s, p in exchange.items() if s not in expected}
+    state["manual"] = sorted(manual)
+    if missing:
         if not state["halted"]:
             say(f"Posizioni diverse dal previsto (attese {expected or 'nessuna'}, su Bitget {actual or 'nessuna'}). "
                 "Esecutore bloccato: controlla su Bitget, poi usa Sblocca nell'app.")
@@ -218,7 +223,8 @@ def run(cfg, ledger, client=None, mode="simulata", state_path=STATE_PATH, now=No
     # ingressi: trade su carta appena aperti, entro una candela dal segnale
     open_now = {tid: p for tid, p in state["positions"].items() if p["status"] == "open"}
     open_notional = sum(p["size"] * p["entry"] for p in open_now.values())
-    busy = {p["symbol"] for p in open_now.values()}
+    open_notional += sum((p.get("size") or 0) * (p.get("entry") or p.get("mark") or 0) for p in manual.values())   # anche le manuali pesano
+    busy = {p["symbol"] for p in open_now.values()} | set(manual)
     for tid, t in sorted(wanted.items(), key=lambda kv: kv[1]["t"]):
         if tid in state["positions"]:
             continue
@@ -229,7 +235,7 @@ def run(cfg, ledger, client=None, mode="simulata", state_path=STATE_PATH, now=No
         elif state["day"].get("blocked"):
             skip = "limite di perdita giornaliera"
         elif t["symbol"] in busy:
-            skip = "già una posizione su questa coin"
+            skip = "già una posizione su questa coin" + (" (aperta a mano)" if t["symbol"] in manual else "")
         elif len(open_now) >= risk["max_open_positions"]:
             skip = "numero massimo di posizioni"
         size, why = (0.0, "")

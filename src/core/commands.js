@@ -131,15 +131,23 @@ export async function command(body, env, fetchFn) {
         case 'position': {
             // posizione REALE su Bitget (assistente): chiusura, TP, SL, rimozione TP/SL. position_cmd.py ricontrolla tutto.
             const price = b.price == null || b.price === '' ? '' : String(b.price);
-            if (!['close', 'tp', 'sl', 'clear', 'untp', 'unsl'].includes(b.action) || !['BTCUSDT', 'ETHUSDT', 'SOLUSDT'].includes(b.symbol) || !['long', 'short'].includes(b.side)) {
+            if (!['open', 'close', 'tp', 'sl', 'clear', 'untp', 'unsl'].includes(b.action) || !['BTCUSDT', 'ETHUSDT', 'SOLUSDT'].includes(b.symbol) || !['long', 'short'].includes(b.side)) {
                 return json(400, { error: 'Comando sulla posizione non valido' });
             }
-            if (['tp', 'sl'].includes(b.action) ? !/^\d{1,9}(\.\d{1,8})?$/.test(price) || !(Number(price) > 0) : price !== '') {
+            const num = v => /^\d{1,9}(\.\d{1,8})?$/.test(v) && Number(v) > 0;
+            if (['tp', 'sl', 'open'].includes(b.action) ? !num(price) : price !== '') {
                 return json(400, { error: 'Prezzo non valido' });
+            }
+            // ordine manuale dalla pagina Trade: quantità, leva (1-5) e target facoltativo; stop = price
+            let extra = {};
+            if (b.action === 'open') {
+                const size = String(b.size ?? ''), lev = String(b.leverage ?? ''), tp = b.tp == null || b.tp === '' ? '' : String(b.tp);
+                if (!num(size) || !/^[1-5]$/.test(lev) || (tp !== '' && !num(tp))) return json(400, { error: 'Ordine non valido' });
+                extra = { size, leverage: lev, tp };
             }
             // codice della richiesta (facoltativo): l'app lo ritrova in live_trades.json per mostrare l'esito
             const req = typeof b.req === 'string' && /^[a-z0-9]{6,20}$/.test(b.req) ? b.req : '';
-            return dispatch(env, fetchFn, 'position.yml', { action: b.action, symbol: b.symbol, side: b.side, price, ...(req ? { req } : {}) });
+            return dispatch(env, fetchFn, 'position.yml', { action: b.action, symbol: b.symbol, side: b.side, price, ...extra, ...(req ? { req } : {}) });
         }
         default:
             return json(400, { error: 'Comando sconosciuto' });

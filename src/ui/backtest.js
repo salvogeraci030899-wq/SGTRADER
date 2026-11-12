@@ -197,7 +197,7 @@ export async function runBacktestSingle() {
             <div class="section-title">
                 <span>Risultati</span>
                 <span class="section-actions">
-                    <button class="btn-link-secondary" onclick="applyBtParams()">Applica a Rischio</button>
+                    <button class="btn-link-secondary" onclick="applyBtParams()">Applica a Trade</button>
                     <button class="btn-link-secondary" onclick="exportBacktestCSV()">CSV</button>
                 </span>
             </div>

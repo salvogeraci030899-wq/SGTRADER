@@ -1,10 +1,11 @@
 import { State } from '../core/state.js';
 import { tradingMode } from './account.js';
-import { getAutoState } from './automation.js';
+import { getAutoState, openAutoConfirm, riskCfg, loadAutomation } from './automation.js';
 import { journalTrades } from './history.js';
 import { CONFIG } from '../core/config.js';
 import { Logger } from '../core/logger.js';
-import { $, SYM, fetchT, fmtUsd, fmtUsdt } from '../utils/helpers.js';
+import { $, SYM, fetchT, fmtUsd, fmtUsdt, apiPost, fetchData } from '../utils/helpers.js';
+import { findOutcome } from './assistant.js';
 import * as Terminal from './terminal.js';
 
 export function initCalculator() {
@@ -79,10 +80,10 @@ export function syncCapital() {
     if (State.capitalTouched) return;
     const capInput = $('calcCapital');
     if (!capInput) return;
-    // in Reale il capitale di partenza è il saldo Bitget letto dal bot
+    // in Reale il capitale di partenza è il conto futures di Bitget (gli ordini usano solo quello)
     const st = getAutoState(), acc = st.live && st.live.account;
     const real = tradingMode().mode === 'on' && acc && acc.connected;
-    const cap = real ? (acc.total_usdt != null ? acc.total_usdt : acc.equity) : State.simState.freeBalance;
+    const cap = real ? ((acc.accounts_usdt && acc.accounts_usdt.futures != null) ? acc.accounts_usdt.futures : acc.equity) : State.simState.freeBalance;
     capInput.value = Math.round(cap * 100) / 100;
     calc();
 }
@@ -201,17 +202,20 @@ export function calc() {
     
     if (notes.length) { calcWarning.innerHTML = notes.join('<br><br>'); calcWarning.style.display = 'block'; }
 
+    // importi piccoli (conti di poche decine di USDT) con i centesimi, quelli grandi arrotondati
+    const usd = v => (Math.abs(v) < 100 ? v.toFixed(2).replace('.', ',') : String(Math.round(v)));
+    State.lastCalc = { entry, stop, target, direction, leverage, sizeNominal, marginRequired, realRisk, rr };
     resRR.textContent = rr.toFixed(2);
-    resRiskEur.textContent = `${Math.round(realRisk)} USDT (${realRiskPct.toFixed(2)}%)`;
-    resMargin.textContent = `${Math.round(marginRequired)} USDT`;
-    resSize.textContent = `${Math.round(sizeNominal)} USDT`;
-    resGross.textContent = `+${Math.round(grossProfit)} USDT`;
-    resCosts.textContent = `-${Math.round(totalFees)} USDT`;
-    resTax.textContent = `-${Math.round(taxes)} USDT`;
+    resRiskEur.textContent = `${usd(realRisk)} USDT (${realRiskPct.toFixed(2)}%)`;
+    resMargin.textContent = `${usd(marginRequired)} USDT`;
+    resSize.textContent = `${usd(sizeNominal)} USDT`;
+    resGross.textContent = `+${usd(grossProfit)} USDT`;
+    resCosts.textContent = `-${usd(totalFees)} USDT`;
+    resTax.textContent = `-${usd(taxes)} USDT`;
     // Il netto in USDT non dipende dalla leva (la size viene dal rischio); dipende dalla leva il
     // margine bloccato, quindi il rendimento sul margine: lo mostro accanto in futures
     const onMargin = State.currentMarket === 'FUTURES' && marginRequired > 0 ? ` (${netProfit > 0 ? '+' : ''}${Math.round(netProfit / marginRequired * 100)}% sul margine)` : '';
-    resNet.textContent = `${netProfit > 0 ? '+' : ''}${Math.round(netProfit)} USDT${onMargin}`;
+    resNet.textContent = `${netProfit > 0 ? '+' : ''}${usd(netProfit)} USDT${onMargin}`;
     if (levMin !== null && resLevMin) {
         const x = v => `${(Math.ceil(v * 10) / 10).toLocaleString('it-IT')}x`;
         resLevMin.textContent = levMin <= 1 ? '1x (basta il capitale)' : x(levMin);
@@ -289,7 +293,7 @@ export function renderBreakEven() {
         const avgL = Math.abs(losses.reduce((s, t) => s + t.pnl, 0) / losses.length);
         bePct = avgL / (avgW + avgL) * 100; source = 'dai tuoi trade';
     } else {
-        bePct = setupBreakEven(); source = bePct != null ? 'dal setup Rischio' : '';
+        bePct = setupBreakEven(); source = bePct != null ? 'dal setup Trade' : '';
     }
     el('beValue').textContent = bePct != null ? bePct.toFixed(1) + '%' : '—';
     el('beSource').textContent = bePct != null ? `win rate min · ${source}` : 'win rate min';
@@ -341,7 +345,95 @@ export function sendToCalculator() {
     calc();
 }
 
+// --- Modalità della pagina Trade: Simulato (trade dell'app) o Reale (ordini veri sui futures di Bitget) ---
+const isRealMode = () => tradingMode().mode === 'on';
+export function syncTradeMode() {
+    const real = isRealMode();
+    const lbl = $('calcModeLbl');
+    if (lbl) { lbl.textContent = real ? 'Reale · Bitget' : 'Simulato'; lbl.className = real ? 'text-warning' : ''; }
+    const spot = $('btn-market-spot');
+    if (spot) spot.style.display = real ? 'none' : '';          // in Reale solo futures (gli ordini vanno lì)
+    if (real && State.currentMarket !== 'FUTURES') setMarket('FUTURES');
+    const btn = $('calcOpenBtn');
+    if (btn && !btn.disabled) {
+        btn.classList.toggle('btn-real', real);
+        $('calcOpenLbl').textContent = real ? 'Invia ordine su Bitget' : 'Apri Trade Simulato';
+    }
+    // cambiando modalità il capitale riparte dal conto giusto (app o futures di Bitget)
+    if (real !== lastReal) { lastReal = real; State.capitalTouched = false; }
+    syncCapital();
+}
+let lastReal = null;
+
+// Quantità, passo e minimo dei contratti futures (API pubblica), una volta per coin
+const specsCache = {};
+async function futuresSpecs(symbol) {
+    if (specsCache[symbol]) return specsCache[symbol];
+    const r = await fetchT(`https://api.bitget.com/api/v2/mix/market/contracts?productType=USDT-FUTURES&symbol=${symbol}`);
+    const c = (await r.json()).data[0];
+    return (specsCache[symbol] = { step: Number(c.volumePlace), min: Number(c.minTradeNum), pricePlace: Number(c.pricePlace) });
+}
+async function futuresMark(symbol) {
+    const r = await fetchT(`https://api.bitget.com/api/v2/mix/market/ticker?symbol=${symbol}&productType=USDT-FUTURES`);
+    const d = (await r.json()).data[0];
+    return parseFloat(d.markPrice || d.lastPr);
+}
+const it = (v, d = 2) => Number(v).toLocaleString('it-IT', { minimumFractionDigits: d, maximumFractionDigits: d });
+
+// Ordine VERO: a mercato sui futures di Bitget, margine isolato, stop obbligatorio e target facoltativo già
+// sull'exchange. Riepilogo e conferma prima; il server e position_cmd.py ricontrollano tutto.
+async function openRealOrder() {
+    const status = $('orderStatus');
+    const say = (t, cls = '') => { if (status) { status.textContent = t; status.className = 'order-status ' + cls; } };
+    const L = State.lastCalc, c = calcCtx(), symbol = c.asset;
+    const long = $('calcDirection').value !== 'SHORT', side = long ? 'long' : 'short';
+    const stop = getVal('calcStop'), target = getVal('calcTarget'), lev = Math.round(getVal('calcLev') || 1);
+    const risk = riskCfg();
+    if (!L || !(L.sizeNominal > 0)) { say('Compila entry, stop e rischio: la size non è calcolata.', 'text-danger'); return; }
+    if (!(stop > 0)) { say('Lo stop loss è obbligatorio per un ordine vero.', 'text-danger'); return; }
+    if (lev < 1 || lev > risk.max_leverage) { say(`Leva tra 1 e ${risk.max_leverage}x (Impostazioni → Limiti di rischio).`, 'text-danger'); return; }
+    say('Leggo prezzo e regole del contratto…');
+    let mark, specs;
+    try { [mark, specs] = await Promise.all([futuresMark(symbol), futuresSpecs(symbol)]); }
+    catch (e) { say('Bitget non risponde: riprova fra poco.', 'text-danger'); return; }
+    if (long ? stop >= mark : stop <= mark) { say(`Lo stop di un ${long ? 'LONG va sotto' : 'SHORT va sopra'} il prezzo attuale (${it(mark, specs.pricePlace)}).`, 'text-danger'); return; }
+    if (target > 0 && (long ? target <= mark : target >= mark)) { say(`Il target di un ${long ? 'LONG va sopra' : 'SHORT va sotto'} il prezzo attuale (${it(mark, specs.pricePlace)}).`, 'text-danger'); return; }
+    const f = 10 ** specs.step;
+    const qty = Math.floor(L.sizeNominal / mark * f + 1e-9) / f;
+    if (qty < specs.min) {
+        say(`Quantità ${qty} sotto il minimo di Bitget per ${SYM(symbol)} (${specs.min}, circa ${it(specs.min * mark)} USDT): aumenta il rischio o allarga lo stop.`, 'text-danger');
+        return;
+    }
+    const margin = qty * mark / lev, loss = qty * Math.abs(mark - stop) + qty * mark * 0.0012;
+    say('');
+    const msg = `ORDINE VERO su Bitget: ${side.toUpperCase()} ${SYM(symbol)} ${qty} a mercato (circa ${it(mark, specs.pricePlace)}), leva ${lev}x, margine isolato circa ${it(margin)} USDT. `
+        + `Stop ${it(stop, specs.pricePlace)}: allo stop perdi circa ${it(loss)} USDT. ` + (target > 0 ? `Target ${it(target, specs.pricePlace)}.` : 'Nessun target.');
+    openAutoConfirm('Conferma ordine vero', msg, 'Invia ordine', async () => {
+        const req = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        say('Invio a Bitget…');
+        let res;
+        try {
+            res = await apiPost('/api/command', { type: 'position', action: 'open', symbol, side, price: String(stop), size: String(qty), leverage: String(lev), tp: target > 0 ? String(target) : '', req });
+        } catch (e) { say('Server non raggiungibile: ordine NON inviato.', 'text-danger'); return; }
+        let out = {};
+        try { out = await res.json(); } catch (e) {}
+        if (!res.ok) { say(`Ordine NON inviato: ${out.error || 'errore ' + res.status}`, 'text-danger'); return; }
+        say('Inviato ✓ Attendo la conferma di Bitget (1-3 minuti)…', 'text-ui');
+        const started = Date.now();
+        const tick = async () => {
+            let live = null;
+            try { const r = await fetchData('live_trades.json'); live = r.ok ? await r.json() : null; } catch (e) {}
+            const o = findOutcome(live, req);
+            if (o) { say(`${o.ok ? '✓' : '✗'} ${o.msg}`, o.ok ? 'text-accent' : 'text-danger'); loadAutomation(); return; }
+            if (Date.now() - started > 5 * 60_000) { say('Inviato, ma la conferma non è arrivata: controlla Telegram o la pagina Posizioni.'); return; }
+            setTimeout(tick, 15_000);
+        };
+        setTimeout(tick, 15_000);
+    });
+}
+
 export async function openTradeFromCalculator() {
+    if (isRealMode()) return openRealOrder();
     const entry = getVal('calcEntry');
     const stop = getVal('calcStop');
     const target = getVal('calcTarget');
@@ -357,7 +449,7 @@ export async function openTradeFromCalculator() {
     State.pendingTradePayload = { entry, stop, target, direction, size, margin };
 
     // FIX: Cerca il bottone giusto (btn-cta-primary) e previene crash se non esiste
-    const btn = document.querySelector('#page-calculator .btn-cta-primary');
+    const btn = document.getElementById('calcOpenBtn');
     let originalText = '';
     if (btn) {
         originalText = btn.innerHTML;

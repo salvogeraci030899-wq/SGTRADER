@@ -241,6 +241,15 @@ test('comando sulla posizione reale: solo azioni e prezzi validi', async () => {
         assert.equal((await handle('POST', '/api/command', { type: 'position', ...bad }, ok, env, fakeFetch)).status, 400, JSON.stringify(bad));
     }
     assert.equal(calls.length, 3);
+    // ordine manuale (pagina Trade): stop obbligatorio, quantità, leva 1-5, target facoltativo
+    r = await handle('POST', '/api/command', { type: 'position', action: 'open', symbol: 'SOLUSDT', side: 'long', price: '82', size: '0.1', leverage: 3, tp: '88' }, ok, env, fakeFetch);
+    assert.equal(r.status, 200);
+    assert.deepEqual(calls[3].body.inputs, { action: 'open', symbol: 'SOLUSDT', side: 'long', price: '82', size: '0.1', leverage: '3', tp: '88' });
+    for (const bad of [{ price: '', size: '0.1', leverage: 3 }, { price: '82', size: '0', leverage: 3 }, { price: '82', size: '0.1', leverage: 9 },
+                       { price: '82', size: '0.1', leverage: 3, tp: '1;rm' }, { price: '82', size: '1e3', leverage: 3 }]) {
+        assert.equal((await handle('POST', '/api/command', { type: 'position', action: 'open', symbol: 'SOLUSDT', side: 'long', ...bad }, ok, env, fakeFetch)).status, 400, JSON.stringify(bad));
+    }
+    assert.equal(calls.length, 4);
 });
 
 test('worker: CORS solo per le origini ammesse', async () => {
