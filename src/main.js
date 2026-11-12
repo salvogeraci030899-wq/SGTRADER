@@ -18,6 +18,7 @@ import * as AutoUI from './ui/automation.js';
 import * as AccountUI from './ui/account.js';
 import { initTheme } from './core/theme.js';
 import { initManual } from './ui/manual.js';
+import * as Lock from './ui/lock.js';
 import { initPageFit } from './ui/page-fit.js';
 
 State.loadState();
@@ -169,6 +170,10 @@ window.closeAutoAdd = AutoUI.closeAutoAdd;
 window.openAlerts = AutoUI.openAlerts;
 window.closeAlerts = AutoUI.closeAlerts;
 window.removePriceAlert = AutoUI.removePriceAlert;
+Object.assign(window, { lockKey: Lock.lockKey, lockFaceId: Lock.lockFaceId, lockForgot: Lock.lockForgot, lockCancel: Lock.lockCancel,
+    openLockSettings: Lock.openLockSettings, closeLockSettings: Lock.closeLockSettings, lockSetup: Lock.lockSetup, lockChange: Lock.lockChange,
+    lockDisable: Lock.lockDisable, lockSetAfter: Lock.lockSetAfter, lockSetFace: Lock.lockSetFace });
+Lock.initLock();
 window.removeRealOrder = AutoUI.removeRealOrder;
 window.requestAIAnalysisReal = TradeUI.requestAIAnalysisReal;
 window.addAutoPaper = AutoUI.addAutoPaper;
