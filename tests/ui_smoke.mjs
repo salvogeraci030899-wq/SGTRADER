@@ -69,6 +69,10 @@ try {
         await page.goto(`http://127.0.0.1:${PORT}/index.html`);
         await page.waitForTimeout(3500);
         const pages = await page.evaluate(() => [...document.querySelectorAll('section.page')].map(s => s.id.replace('page-', '')));
+        // barra in basso: centrata, staccata dal fondo, stesso margine interno sopra (puntini) e sotto (voci)
+        const nav = await page.evaluate(() => { const n = document.querySelector('.nav-bar').getBoundingClientRect(), d = document.querySelector('.nav-dots').getBoundingClientRect(), it = document.querySelector('.nav-item').getBoundingClientRect();
+            return { l: Math.round(n.left), r: Math.round(innerWidth - n.right), b: Math.round(innerHeight - n.bottom), sopra: Math.round(d.top - n.top), sotto: Math.round(n.bottom - it.bottom) }; });
+        if (nav.l !== nav.r || nav.l < 4 || nav.b < 4 || nav.b > 60 || nav.sopra !== nav.sotto) problems.push(`${dev.n}, ${mode}: barra in basso fuori posto ${JSON.stringify(nav)}`);
         // identificativi doppi: il codice troverebbe l'elemento sbagliato
         const dup = await page.evaluate(() => { const c = {}; document.querySelectorAll('[id]').forEach(e => { c[e.id] = (c[e.id] || 0) + 1; }); return Object.keys(c).filter(k => c[k] > 1); });
         if (dup.length) problems.push(`${dev.n}, ${mode}: identificativi doppi: ${dup.join(', ')}`);

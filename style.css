@@ -1282,16 +1282,18 @@ html.app-locked .lock-screen, .lock-screen.active { display: flex; }
 .log-ev-h { display: flex; justify-content: space-between; gap: 6px; }
 
 /* ===== Barra in basso staccata dallo schermo (capsula). Niente sfocatura né trasformazioni: in PWA iOS
-   creerebbero livelli separati che iOS può ritagliare (icone che spariscono, vedi sopra). ===== */
-.nav-bar { left: 12px; right: 12px; bottom: calc(var(--nav-safe-bottom) + 8px); padding: 2px 6px 0; border: 1px solid var(--border);
-    border-radius: 28px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); }
-html.pwa-mode .nav-bar { margin: 0 12px calc(var(--nav-safe-bottom) + 8px); }
-.nav-item { border-radius: 22px; margin: 3px 2px; height: auto; }
+   creerebbero livelli separati che iOS può ritagliare (icone che spariscono, vedi sopra).
+   Margine interno uguale sopra (fino ai puntini) e sotto (dalle voci): NAV_PAD. ===== */
+:root { --nav-pad: 6px; }
+.nav-bar { left: 12px; right: 12px; bottom: calc(var(--nav-safe-bottom) + 8px); padding: var(--nav-pad) 6px var(--nav-pad);
+    border: 1px solid var(--border); border-radius: 28px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); gap: 4px; }
+/* in PWA la barra sta nel flusso della pagina: niente spostamenti (left/right/bottom la sposterebbero), solo margini */
+html.pwa-mode .nav-bar { left: auto; right: auto; bottom: auto; margin: 0 12px calc(var(--nav-safe-bottom) + 8px); }
+.nav-dots { height: 5px; margin: 0; }
+.nav-item { border-radius: 22px; margin: 0 2px; height: auto; }
 .nav-item.active { background: var(--surface-hover); }
 html.pwa-mode .nav-item { height: auto; }
-.nav-dots { height: 7px; margin-top: 3px; }
 
 /* ===== Tasto Account colorato in modalità Reale (al posto della scritta REALE/SIMULATO) ===== */
-.header-icon-btn.acc-real { color: var(--warning); border-color: var(--warning); background: rgba(255, 159, 10, 0.15); position: relative; }
-.header-icon-btn.acc-real::after { content: ''; position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; background: var(--warning); }
+.header-icon-btn.acc-real { color: var(--warning); border-color: var(--warning); background: rgba(255, 159, 10, 0.15); }
 .mode-pill { display: none !important; }
