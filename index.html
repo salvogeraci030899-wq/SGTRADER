@@ -51,42 +51,43 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=146">
-    <meta name="app-version" content="146">
+    <link rel="stylesheet" href="./style.css?v=147">
+    <meta name="app-version" content="147">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=146",
-            "./src/core/commands.js": "./src/core/commands.js?v=146",
-            "./src/core/config.js": "./src/core/config.js?v=146",
-            "./src/core/labEngine.js": "./src/core/labEngine.js?v=146",
-            "./src/core/logger.js": "./src/core/logger.js?v=146",
-            "./src/core/rules.js": "./src/core/rules.js?v=146",
-            "./src/core/state.js": "./src/core/state.js?v=146",
-            "./src/core/telegram.js": "./src/core/telegram.js?v=146",
-            "./src/core/theme.js": "./src/core/theme.js?v=146",
-            "./src/main.js": "./src/main.js?v=146",
-            "./src/ui/account.js": "./src/ui/account.js?v=146",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=146",
-            "./src/ui/assistant.js": "./src/ui/assistant.js?v=146",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=146",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=146",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=146",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=146",
-            "./src/ui/history.js": "./src/ui/history.js?v=146",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=146",
-            "./src/ui/home.js": "./src/ui/home.js?v=146",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=146",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=146",
-            "./src/ui/lock.js": "./src/ui/lock.js?v=146",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=146",
-            "./src/ui/orders.js": "./src/ui/orders.js?v=146",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=146",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=146",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=146",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=146",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=146"
+            "./src/core/backup.js": "./src/core/backup.js?v=147",
+            "./src/core/commands.js": "./src/core/commands.js?v=147",
+            "./src/core/config.js": "./src/core/config.js?v=147",
+            "./src/core/labEngine.js": "./src/core/labEngine.js?v=147",
+            "./src/core/logger.js": "./src/core/logger.js?v=147",
+            "./src/core/rules.js": "./src/core/rules.js?v=147",
+            "./src/core/state.js": "./src/core/state.js?v=147",
+            "./src/core/telegram.js": "./src/core/telegram.js?v=147",
+            "./src/core/theme.js": "./src/core/theme.js?v=147",
+            "./src/main.js": "./src/main.js?v=147",
+            "./src/ui/account.js": "./src/ui/account.js?v=147",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=147",
+            "./src/ui/assistant.js": "./src/ui/assistant.js?v=147",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=147",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=147",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=147",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=147",
+            "./src/ui/history.js": "./src/ui/history.js?v=147",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=147",
+            "./src/ui/home.js": "./src/ui/home.js?v=147",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=147",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=147",
+            "./src/ui/lock.js": "./src/ui/lock.js?v=147",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=147",
+            "./src/ui/orders.js": "./src/ui/orders.js?v=147",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=147",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=147",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=147",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=147",
+            "./src/ui/windows.js": "./src/ui/windows.js?v=147",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=147"
         }
     }
     </script>
@@ -1153,18 +1154,17 @@
 </div>
 
 <!-- ==================== MODALI ==================== -->
-<div class="modal-overlay" id="deleteModal"><div class="modal-box"><h3 id="modalTitle">Elimina Trade?</h3><p id="modalText">Sei sicuro?</p><div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Annulla</button><button class="btn-confirm" id="modalConfirmBtn" onclick="confirmDelete()">Elimina</button></div></div></div>
-<div class="modal-overlay" id="closeTradeModal"><div class="modal-box"><h3>Chiudi Posizione?</h3><p>Sei sicuro di voler chiudere questo trade al prezzo attuale di mercato?</p><div class="modal-actions"><button class="btn-cancel" onclick="closeCloseTradeModal()">Annulla</button><button class="btn-confirm" onclick="executeCloseTrade()">Conferma Chiusura</button></div></div></div>
-<div class="modal-overlay" id="capitalModal"><div class="modal-box"><h3>Capitale simulato</h3><p style="margin-bottom:12px;">Scegli + per depositare o − per prelevare, poi l'importo.</p><input type="hidden" id="capitalSign" value="+"><div class="cap-sign" id="capitalSignToggle"><button type="button" data-sign="+" class="active" onclick="setCapitalSign('+')">+ Deposita</button><button type="button" data-sign="-" onclick="setCapitalSign('-')">− Preleva</button></div><div style="margin-bottom:14px; text-align:left;"><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; margin-bottom:4px; display:block;">Importo (USDT)</label><input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" id="capitalChangeInput" placeholder="es. 500" style="width:100%; background:var(--field); border:1px solid var(--border); color:var(--text); padding:12px; border-radius:10px; font-size:16px; font-family:var(--mono);"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeCapitalModal()">Annulla</button><button class="btn-confirm" onclick="applyCapitalChange()">Applica</button></div></div></div>
-<div class="modal-overlay" id="alertModal"><div class="modal-box"><h3 id="alertTitle">Attenzione</h3><p id="alertMessage">Messaggio</p><div class="modal-actions"><button class="btn-confirm" style="background:var(--surface-hover); color:var(--text);" onclick="closeAlert()">OK</button></div></div></div>
-<div class="modal-overlay" id="forceTradeModal"><div class="modal-box"><h3 style="color: var(--warning);">Trade Bloccato</h3><p id="forceTradeReason" style="margin-bottom: 20px;">Motivo del blocco</p><div class="modal-actions"><button class="btn-cancel" onclick="closeForceTradeModal()">Annulla</button><button class="btn-confirm" style="background: var(--warning); color: var(--on-accent);" onclick="confirmForceTrade()">Esegui comunque</button></div></div></div>
-<div class="modal-overlay" id="resetModal"><div class="modal-box"><h3 style="color: var(--danger);">Reset Diario</h3><p>Sei sicuro di voler resettare il diario? Tutti i trade attivi e lo storico verranno eliminati definitivamente.</p><div class="modal-actions"><button class="btn-cancel" onclick="closeResetModal()">Annulla</button><button class="btn-confirm" style="background: var(--danger); color: #fff;" onclick="executeReset()">Reset</button></div></div></div>
-<div class="modal-overlay" id="aiAnalysisModal"><div class="modal-box" style="text-align: left; max-width: 380px;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;"><h3 id="aiAnalysisTitle" style="margin-bottom: 0; font-size: 16px; color: var(--text);">Analisi</h3><span class="be-badge neutral" id="aiAnalysisBadge">...</span></div><div id="aiAnalysisBody" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 24px; max-height: 50vh; overflow-y: auto;"></div><div class="modal-actions"><button class="btn-confirm" onclick="closeAIAnalysisModal()">Chiudi</button></div></div></div>
+<div class="modal-overlay" id="deleteModal" data-sub="Diario"><div class="modal-box"><h3 id="modalTitle">Elimina Trade?</h3><p id="modalText">Sei sicuro?</p><div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Annulla</button><button class="btn-confirm" id="modalConfirmBtn" onclick="confirmDelete()">Elimina</button></div></div></div>
+<div class="modal-overlay" id="closeTradeModal" data-sub="Posizione simulata"><div class="modal-box"><h3>Chiudi Posizione?</h3><p>Sei sicuro di voler chiudere questo trade al prezzo attuale di mercato?</p><div class="modal-actions"><button class="btn-cancel" onclick="closeCloseTradeModal()">Annulla</button><button class="btn-confirm" onclick="executeCloseTrade()">Conferma Chiusura</button></div></div></div>
+<div class="modal-overlay" id="capitalModal" data-sub="Conto simulato"><div class="modal-box"><h3>Capitale simulato</h3><p style="margin-bottom:12px;">Scegli + per depositare o − per prelevare, poi l'importo.</p><input type="hidden" id="capitalSign" value="+"><div class="cap-sign" id="capitalSignToggle"><button type="button" data-sign="+" class="active" onclick="setCapitalSign('+')">+ Deposita</button><button type="button" data-sign="-" onclick="setCapitalSign('-')">− Preleva</button></div><div style="margin-bottom:14px; text-align:left;"><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; margin-bottom:4px; display:block;">Importo (USDT)</label><input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" id="capitalChangeInput" placeholder="es. 500" style="width:100%; background:var(--field); border:1px solid var(--border); color:var(--text); padding:12px; border-radius:10px; font-size:16px; font-family:var(--mono);"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeCapitalModal()">Annulla</button><button class="btn-confirm" onclick="applyCapitalChange()">Applica</button></div></div></div>
+<div class="modal-overlay" id="alertModal" data-sub="SGTRADER"><div class="modal-box"><h3 id="alertTitle">Attenzione</h3><p id="alertMessage">Messaggio</p><div class="modal-actions"><button class="btn-confirm" style="background:var(--surface-hover); color:var(--text);" onclick="closeAlert()">OK</button></div></div></div>
+<div class="modal-overlay" id="forceTradeModal" data-sub="Trade"><div class="modal-box"><h3 style="color: var(--warning);">Trade Bloccato</h3><p id="forceTradeReason" style="margin-bottom: 20px;">Motivo del blocco</p><div class="modal-actions"><button class="btn-cancel" onclick="closeForceTradeModal()">Annulla</button><button class="btn-confirm" style="background: var(--warning); color: var(--on-accent);" onclick="confirmForceTrade()">Esegui comunque</button></div></div></div>
+<div class="modal-overlay" id="resetModal" data-sub="Diario"><div class="modal-box"><h3 style="color: var(--danger);">Reset Diario</h3><p>Sei sicuro di voler resettare il diario? Tutti i trade attivi e lo storico verranno eliminati definitivamente.</p><div class="modal-actions"><button class="btn-cancel" onclick="closeResetModal()">Annulla</button><button class="btn-confirm" style="background: var(--danger); color: #fff;" onclick="executeReset()">Reset</button></div></div></div>
+<div class="modal-overlay" id="aiAnalysisModal" data-sub="Analisi AI"><div class="modal-box" style="text-align: left; max-width: 380px;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;"><h3 id="aiAnalysisTitle" style="margin-bottom: 0; font-size: 16px; color: var(--text);">Analisi</h3><span class="be-badge neutral" id="aiAnalysisBadge">...</span></div><div id="aiAnalysisBody" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 24px; max-height: 50vh; overflow-y: auto;"></div><div class="modal-actions"><button class="btn-confirm" onclick="closeAIAnalysisModal()">Chiudi</button></div></div></div>
 <div class="modal-overlay assist-overlay" id="assistModal"><div class="assist-box">
-    <div class="assist-head">
-        <div class="assist-titles"><h3 id="assistTitle">Assistente</h3><p id="assistSub">SGTRADER</p></div>
-        <button type="button" class="assist-icon assist-speak" id="assistSpeak" onclick="toggleAssistSpeak()" title="Leggi le risposte ad alta voce" aria-label="Audio"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
-        <button type="button" class="assist-icon" onclick="closeAssistant()" title="Chiudi" aria-label="Chiudi"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="header-row assist-head">
+        <div class="header-title"><h1 id="assistTitle">Assistente</h1><p id="assistSub">SGTRADER</p></div>
+        <div class="header-actions"><button type="button" class="header-icon-btn assist-speak" id="assistSpeak" onclick="toggleAssistSpeak()" title="Leggi le risposte ad alta voce" aria-label="Audio"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button><button type="button" class="header-icon-btn" onclick="closeAssistant()" title="Chiudi" aria-label="Chiudi"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     </div>
     <div class="assist-ctx" id="assistCtx"></div>
     <div class="assist-log" id="assistLog"></div>
@@ -1177,24 +1177,24 @@
     </form>
     <div class="assist-foot" id="assistFoot">Ogni azione parte solo dopo «Conferma».</div>
 </div></div>
-<div class="modal-overlay" id="signalSettingsModal"><div class="modal-box" style="text-align: left; max-width: 380px;"><h3 style="text-align:center;">Impostazioni Segnali</h3><div style="display:flex; flex-direction:column; gap:14px; margin-top:16px;"><div><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:6px;">Notifiche Browser</label><button id="btnToggleNotif" class="btn-generic" style="margin-top:0;" onclick="toggleBrowserNotifications()">Abilita</button></div><div><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:6px;">Strategie d'accordo (minimo su 4)</label><input type="hidden" id="signalMinAgreement" value="2"><div class="option-toggle compact" data-target="signalMinAgreement"><button type="button" class="pill-btn" data-value="1" onclick="selectOption(this)">1</button><button type="button" class="pill-btn active" data-value="2" onclick="selectOption(this)">2</button><button type="button" class="pill-btn" data-value="3" onclick="selectOption(this)">3</button><button type="button" class="pill-btn" data-value="4" onclick="selectOption(this)">4</button></div></div><div style="border-top:1px solid var(--border); padding-top:12px;"><div style="font-size:11px; font-weight:700; color:var(--text); margin-bottom:8px;">Telegram Bot</div><label style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:4px;">Bot Token</label><input type="text" id="signalTelegramToken" placeholder="es. 123456:ABC-DEF..." style="width:100%; background:var(--field); border:1px solid var(--border); color:var(--text); padding:10px; border-radius:10px; font-family:var(--mono); font-size:12px; margin-bottom:8px;"><label style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:4px;">Chat ID</label><input type="text" id="signalTelegramChat" placeholder="es. 987654321" style="width:100%; background:var(--field); border:1px solid var(--border); color:var(--text); padding:10px; border-radius:10px; font-family:var(--mono); font-size:12px;"><div style="font-size:10px; color:var(--text-secondary); margin-top:6px; line-height:1.4;">Bot via <b>@BotFather</b> · Chat ID via <b>@userinfobot</b>. Leggi il Manuale per la guida completa.</div><button class="btn-generic" style="margin-top:10px; padding:10px; font-size:12px; background:var(--blue); color:#fff;" onclick="testTelegramNotification()">Invia Test Telegram</button></div><div style="border-top:1px solid var(--border); padding-top:12px;"><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:6px;">Webhook Custom (opzionale)</label><input type="url" id="signalWebhookUrl" placeholder="https://..." style="width:100%; background:var(--field); border:1px solid var(--border); color:var(--text); padding:10px; border-radius:10px; font-family:var(--mono); font-size:12px;"></div></div><div class="modal-actions" style="margin-top:20px;"><button class="btn-cancel" onclick="closeSignalSettings()">Chiudi</button><button class="btn-confirm" onclick="saveSignalSettingsFromUI()">Salva</button></div></div></div>
-<div class="modal-overlay" id="signalDetailModal"><div class="modal-box" style="text-align: left; max-width: 380px;"><h3 id="signalDetailTitle" style="text-align:center;">Dettaglio Segnale</h3><div id="signalDetailBody" style="font-size:13px; line-height:1.6; color:var(--text-secondary); margin-top:16px;"></div><div class="modal-actions" style="margin-top:20px;"><button class="btn-confirm" onclick="closeSignalDetailModal()">Chiudi</button></div></div></div>
+<div class="modal-overlay" id="signalSettingsModal" data-sub="Segnali"><div class="modal-box" style="text-align: left; max-width: 380px;"><h3 style="text-align:center;">Impostazioni Segnali</h3><div style="display:flex; flex-direction:column; gap:14px; margin-top:16px;"><div><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:6px;">Notifiche Browser</label><button id="btnToggleNotif" class="btn-generic" style="margin-top:0;" onclick="toggleBrowserNotifications()">Abilita</button></div><div><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:6px;">Strategie d'accordo (minimo su 4)</label><input type="hidden" id="signalMinAgreement" value="2"><div class="option-toggle compact" data-target="signalMinAgreement"><button type="button" class="pill-btn" data-value="1" onclick="selectOption(this)">1</button><button type="button" class="pill-btn active" data-value="2" onclick="selectOption(this)">2</button><button type="button" class="pill-btn" data-value="3" onclick="selectOption(this)">3</button><button type="button" class="pill-btn" data-value="4" onclick="selectOption(this)">4</button></div></div><div style="border-top:1px solid var(--border); padding-top:12px;"><div style="font-size:11px; font-weight:700; color:var(--text); margin-bottom:8px;">Telegram Bot</div><label style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:4px;">Bot Token</label><input type="text" id="signalTelegramToken" placeholder="es. 123456:ABC-DEF..." style="width:100%; background:var(--field); border:1px solid var(--border); color:var(--text); padding:10px; border-radius:10px; font-family:var(--mono); font-size:12px; margin-bottom:8px;"><label style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:4px;">Chat ID</label><input type="text" id="signalTelegramChat" placeholder="es. 987654321" style="width:100%; background:var(--field); border:1px solid var(--border); color:var(--text); padding:10px; border-radius:10px; font-family:var(--mono); font-size:12px;"><div style="font-size:10px; color:var(--text-secondary); margin-top:6px; line-height:1.4;">Bot via <b>@BotFather</b> · Chat ID via <b>@userinfobot</b>. Leggi il Manuale per la guida completa.</div><button class="btn-generic" style="margin-top:10px; padding:10px; font-size:12px; background:var(--blue); color:#fff;" onclick="testTelegramNotification()">Invia Test Telegram</button></div><div style="border-top:1px solid var(--border); padding-top:12px;"><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:6px;">Webhook Custom (opzionale)</label><input type="url" id="signalWebhookUrl" placeholder="https://..." style="width:100%; background:var(--field); border:1px solid var(--border); color:var(--text); padding:10px; border-radius:10px; font-family:var(--mono); font-size:12px;"></div></div><div class="modal-actions" style="margin-top:20px;"><button class="btn-cancel" onclick="closeSignalSettings()">Chiudi</button><button class="btn-confirm" onclick="saveSignalSettingsFromUI()">Salva</button></div></div></div>
+<div class="modal-overlay" id="signalDetailModal" data-sub="Segnali"><div class="modal-box" style="text-align: left; max-width: 380px;"><h3 id="signalDetailTitle" style="text-align:center;">Dettaglio Segnale</h3><div id="signalDetailBody" style="font-size:13px; line-height:1.6; color:var(--text-secondary); margin-top:16px;"></div><div class="modal-actions" style="margin-top:20px;"><button class="btn-confirm" onclick="closeSignalDetailModal()">Chiudi</button></div></div></div>
 
-<div class="modal-overlay" id="autoAddModal"><div class="modal-box auto-add-box"><h3>Metti una strategia su carta</h3><p>Su carta il bot segue i segnali senza ordini. Ordinate per risultato oltre il mercato.</p><div id="autoAddFull" class="settings-hint"></div><div id="autoAddList" class="auto-add-list"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeAutoAdd()">Chiudi</button></div></div></div>
-<div class="modal-overlay" id="autoTradesModal"><div class="modal-box auto-add-box"><h3 id="autoTradesTitle">Trade su carta</h3><div id="autoTradesBody" class="auto-add-list paper-list"></div><div class="modal-actions"><button class="btn-cancel" onclick="closePaperTrades()">Chiudi</button></div></div></div>
-<div class="modal-overlay" id="autoRiskModal"><div class="modal-box auto-add-box"><h3>Limiti di rischio</h3><p>Controllati dall'esecutore prima di ogni ordine. Valgono anche in simulazione.</p><div id="autoRiskFields" class="auto-risk-fields"></div><div class="settings-hint">Simulato o reale si sceglie in Account.</div><div class="modal-actions"><button class="btn-cancel" onclick="closeAutoRisk()">Annulla</button><button class="btn-confirm" onclick="saveAutoRisk()">Salva</button></div></div></div>
-<div class="modal-overlay" id="btStratModal"><div class="modal-box auto-add-box"><h3>Strategia da provare</h3><div id="btStratList" class="auto-add-list bt-strat-list"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeBtStrategies()">Chiudi</button></div></div></div>
-<div class="modal-overlay" id="lockModal"><div class="modal-box auto-add-box"><h3>Blocco app</h3><div id="lockSettingsBody"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeLockSettings()">Chiudi</button></div></div></div>
-<div class="modal-overlay" id="alertsModal"><div class="modal-box auto-add-box"><h3>Avvisi di prezzo</h3><p>Un messaggio su Telegram quando il prezzo tocca il livello, una volta sola. Nessun ordine.</p><div id="alertsList" class="auto-add-list"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeAlerts()">Chiudi</button></div></div></div>
-<div class="modal-overlay" id="chartAlertModal"><div class="modal-box"><h3 id="caTitle">Avviso</h3><p id="caNow"></p>
+<div class="modal-overlay" id="autoAddModal" data-sub="Strategie"><div class="modal-box auto-add-box"><h3>Metti una strategia su carta</h3><p>Su carta il bot segue i segnali senza ordini. Ordinate per risultato oltre il mercato.</p><div id="autoAddFull" class="settings-hint"></div><div id="autoAddList" class="auto-add-list"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeAutoAdd()">Chiudi</button></div></div></div>
+<div class="modal-overlay" id="autoTradesModal" data-sub="Prova su carta"><div class="modal-box auto-add-box"><h3 id="autoTradesTitle">Trade su carta</h3><div id="autoTradesBody" class="auto-add-list paper-list"></div><div class="modal-actions"><button class="btn-cancel" onclick="closePaperTrades()">Chiudi</button></div></div></div>
+<div class="modal-overlay" id="autoRiskModal" data-sub="Rischio"><div class="modal-box auto-add-box"><h3>Limiti di rischio</h3><p>Controllati dall'esecutore prima di ogni ordine. Valgono anche in simulazione.</p><div id="autoRiskFields" class="auto-risk-fields"></div><div class="settings-hint">Simulato o reale si sceglie in Account.</div><div class="modal-actions"><button class="btn-cancel" onclick="closeAutoRisk()">Annulla</button><button class="btn-confirm" onclick="saveAutoRisk()">Salva</button></div></div></div>
+<div class="modal-overlay" id="btStratModal" data-sub="Laboratorio"><div class="modal-box auto-add-box"><h3>Strategia da provare</h3><div id="btStratList" class="auto-add-list bt-strat-list"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeBtStrategies()">Chiudi</button></div></div></div>
+<div class="modal-overlay" id="lockModal" data-sub="Sicurezza"><div class="modal-box auto-add-box"><h3>Blocco app</h3><div id="lockSettingsBody"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeLockSettings()">Chiudi</button></div></div></div>
+<div class="modal-overlay" id="alertsModal" data-sub="Mercato"><div class="modal-box auto-add-box"><h3>Avvisi di prezzo</h3><p>Un messaggio su Telegram quando il prezzo tocca il livello, una volta sola. Nessun ordine.</p><div id="alertsList" class="auto-add-list"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeAlerts()">Chiudi</button></div></div></div>
+<div class="modal-overlay" id="chartAlertModal" data-sub="Avviso di prezzo"><div class="modal-box"><h3 id="caTitle">Avviso</h3><p id="caNow"></p>
     <input type="text" inputmode="decimal" id="caPrice" class="ca-input" oninput="caHint()" aria-label="Prezzo dell'avviso">
     <div class="ca-steps" id="caSteps"></div><div id="caList" class="ca-list"></div><div id="caHint" class="ca-hint"></div>
     <div class="modal-actions"><button class="btn-cancel" onclick="closeChartAlert()">Annulla</button><button class="btn-confirm" onclick="confirmChartAlert()">Crea avviso</button></div></div></div>
-<div class="modal-overlay" id="agentModal"><div class="modal-box auto-add-box agent-box"><h3>Agente</h3><div id="agentBody" class="agent-body"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeAgent()">Chiudi</button><button class="btn-confirm" onclick="closeAgent(); runAgent()">Avvia ora</button></div></div></div>
-<div class="modal-overlay" id="autoConfirmModal"><div class="modal-box"><h3 id="autoConfirmTitle">Conferma</h3><p id="autoConfirmMsg"></p><div class="modal-actions"><button class="btn-cancel" onclick="closeAutoConfirm()">Annulla</button><button class="btn-confirm" id="autoConfirmOk" style="background: var(--danger); color: #fff;" onclick="okAutoConfirm()">Conferma</button></div></div></div>
+<div class="modal-overlay" id="agentModal" data-sub="Rapporto"><div class="modal-box auto-add-box agent-box"><h3>Agente</h3><div id="agentBody" class="agent-body"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeAgent()">Chiudi</button><button class="btn-confirm" onclick="closeAgent(); runAgent()">Avvia ora</button></div></div></div>
+<div class="modal-overlay" id="autoConfirmModal" data-sub="Conferma"><div class="modal-box"><h3 id="autoConfirmTitle">Conferma</h3><p id="autoConfirmMsg"></p><div class="modal-actions"><button class="btn-cancel" onclick="closeAutoConfirm()">Annulla</button><button class="btn-confirm" id="autoConfirmOk" style="background: var(--danger); color: #fff;" onclick="okAutoConfirm()">Conferma</button></div></div></div>
 
 <!-- ==================== CONNESSIONI (Impostazioni → Altro) ==================== -->
-<div class="modal-overlay" id="connModal">
+<div class="modal-overlay" id="connModal" data-sub="Impostazioni">
     <div class="modal-box settings-box">
         <div class="settings-header">
             <h3>Connessioni</h3>
@@ -1233,6 +1233,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=146"></script>
+<script type="module" src="./src/main.js?v=147"></script>
 </body>
 </html>

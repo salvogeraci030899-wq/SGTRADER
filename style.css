@@ -943,12 +943,8 @@ html.pwa-mode .nav-item svg { width: 22px; height: 22px; }
 /* ===== Assistente a schermo intero ===== */
 .assist-overlay { padding: 0 !important; align-items: stretch !important; justify-content: stretch !important; }
 .assist-box { position: fixed; inset: 0; display: flex; flex-direction: column; background: var(--bg); color: var(--text); text-align: left;
-    padding: calc(env(safe-area-inset-top, 0px) + 8px) 14px calc(env(safe-area-inset-bottom, 0px) + 8px); }
-.assist-head { display: flex; align-items: center; gap: 10px; padding-bottom: 8px; flex-shrink: 0; }
-.assist-titles { flex: 1; min-width: 0; }
-.assist-titles h3 { margin: 0 !important; font-size: 18px; font-weight: 800; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.assist-titles p { margin: 0; font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.assist-titles p.real { color: var(--warning); font-weight: 700; }
+    padding: calc(env(safe-area-inset-top, 0px) + 14px) 16px calc(env(safe-area-inset-bottom, 0px) + 8px); }
+.assist-head .header-title p.real { color: var(--warning); }
 .assist-icon { width: 38px; height: 38px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
 .assist-speak.active { background: var(--ui-soft); color: var(--ui); border-color: var(--ui); }
 .assist-ctx { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; flex-shrink: 0; margin-bottom: 8px; }
@@ -1180,3 +1176,36 @@ html.app-locked .lock-screen, .lock-screen.active { display: flex; }
 .auto-tag { font-size: 10px; font-weight: 700; color: var(--ui); background: var(--ui-soft); border-radius: 999px; padding: 1px 7px; }
 .agent-hint { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font-size: 10px; color: var(--text-secondary); line-height: 1.3; padding-left: 82px; }
 .agent-hint b { color: var(--text); font-weight: 700; }
+
+/* ===== Finestre a schermo intero, intestazione delle pagine (regole fisse; struttura da src/ui/windows.js) ===== */
+.modal-overlay { padding: 0; align-items: stretch; justify-content: stretch; background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.modal-overlay .modal-box, .modal-overlay .modal-box.settings-box, .modal-overlay .modal-box.auto-add-box {
+    position: fixed; inset: 0; width: auto; max-width: none !important; max-height: none; border: none; border-radius: 0;
+    background: var(--bg); text-align: left !important; overflow: hidden; display: flex; flex-direction: column;
+    padding: calc(env(safe-area-inset-top, 0px) + 14px) 16px calc(env(safe-area-inset-bottom, 0px) + 16px) !important; }
+.modal-box .win-head { flex-shrink: 0; }
+/* corpo: colonne larghe quanto lo schermo; un contenuto lungo continua nella colonna a destra */
+.win-body { flex: 1 1 0; min-height: 0; overflow-x: auto; overflow-y: hidden; column-width: calc(100vw - 32px); column-gap: 32px; column-fill: auto;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none; font-size: 14px; }
+.win-body::-webkit-scrollbar { display: none; }
+/* si spezzano tra le colonne gli elenchi, non le singole voci */
+.win-body > p, .win-body > h4, .win-body .auto-add-item, .win-body .rule-step, .win-body .set-row, .win-body .settings-hint, .win-body .lock-actions { break-inside: avoid; }
+.win-body .auto-add-list { display: block; }
+.win-body .auto-add-list > * { margin-bottom: 8px; width: 100%; }
+.win-body .btn-confirm, .win-body .btn-cancel { min-height: 46px; border-radius: 12px; border: none; font: 600 15px var(--font); padding: 0 16px; cursor: pointer; }
+.win-body .btn-confirm { background: var(--ui); color: #fff; }
+.win-body .btn-cancel { background: var(--surface-hover); color: var(--text); }
+.win-body .lock-wide { width: 100%; }
+.win-body p { text-align: left; font-size: 14px; }
+.win-body #aiAnalysisBody, .win-body .agent-body, .win-body .auto-add-list, .win-body #signalDetailBody, .win-body #autoTradesBody {
+    max-height: none !important; overflow: visible !important; margin-bottom: 0 !important; }
+.modal-box .modal-actions { flex-shrink: 0; margin-top: 12px; }
+.modal-box .modal-actions button { min-height: 50px; font-size: 15px; border-radius: 12px; }
+/* l'intestazione nelle finestre non eredita lo stile dei paragrafi delle finestre */
+.modal-box .header-title p { margin: 0; line-height: inherit; font-size: 11px; text-align: left; text-wrap: nowrap; }
+.modal-box .header-title h1 { margin: 0; text-align: left; }
+.win-dots { display: flex; justify-content: center; gap: 6px; flex-shrink: 0; min-height: 6px; margin-top: 8px; }
+.win-dots:empty { display: none; }
+.win-dots span { width: 6px; height: 6px; border-radius: 3px; background: var(--border); transition: width .2s; }
+.win-dots span.on { width: 16px; background: var(--ui); }
+

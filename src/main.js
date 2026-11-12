@@ -21,6 +21,7 @@ import { initManual } from './ui/manual.js';
 import * as Lock from './ui/lock.js';
 import * as Orders from './ui/orders.js';
 import { initPageFit } from './ui/page-fit.js';
+import { normalizeWindows } from './ui/windows.js';
 
 State.loadState();
 State.loadSignalState();
@@ -190,6 +191,7 @@ window.removePriceAlert = AutoUI.removePriceAlert;
 Object.assign(window, { lockKey: Lock.lockKey, lockFaceId: Lock.lockFaceId, lockForgot: Lock.lockForgot, lockCancel: Lock.lockCancel,
     openLockSettings: Lock.openLockSettings, closeLockSettings: Lock.closeLockSettings, lockSetup: Lock.lockSetup, lockChange: Lock.lockChange,
     lockDisable: Lock.lockDisable, lockSetAfter: Lock.lockSetAfter, lockSetFace: Lock.lockSetFace });
+normalizeWindows();          // finestre a schermo intero con l'intestazione delle pagine
 Lock.initLock();
 window.setPosView = Orders.setPosView;
 window.renderOrders = Orders.renderOrders;
