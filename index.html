@@ -51,41 +51,41 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=129">
-    <meta name="app-version" content="129">
+    <link rel="stylesheet" href="./style.css?v=130">
+    <meta name="app-version" content="130">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=129",
-            "./src/core/commands.js": "./src/core/commands.js?v=129",
-            "./src/core/config.js": "./src/core/config.js?v=129",
-            "./src/core/labEngine.js": "./src/core/labEngine.js?v=129",
-            "./src/core/logger.js": "./src/core/logger.js?v=129",
-            "./src/core/rules.js": "./src/core/rules.js?v=129",
-            "./src/core/state.js": "./src/core/state.js?v=129",
-            "./src/core/theme.js": "./src/core/theme.js?v=129",
-            "./src/main.js": "./src/main.js?v=129",
-            "./src/ui/account.js": "./src/ui/account.js?v=129",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=129",
-            "./src/ui/assistant.js": "./src/ui/assistant.js?v=129",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=129",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=129",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=129",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=129",
-            "./src/ui/history.js": "./src/ui/history.js?v=129",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=129",
-            "./src/ui/home.js": "./src/ui/home.js?v=129",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=129",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=129",
-            "./src/ui/lock.js": "./src/ui/lock.js?v=129",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=129",
-            "./src/ui/orders.js": "./src/ui/orders.js?v=129",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=129",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=129",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=129",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=129",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=129"
+            "./src/core/backup.js": "./src/core/backup.js?v=130",
+            "./src/core/commands.js": "./src/core/commands.js?v=130",
+            "./src/core/config.js": "./src/core/config.js?v=130",
+            "./src/core/labEngine.js": "./src/core/labEngine.js?v=130",
+            "./src/core/logger.js": "./src/core/logger.js?v=130",
+            "./src/core/rules.js": "./src/core/rules.js?v=130",
+            "./src/core/state.js": "./src/core/state.js?v=130",
+            "./src/core/theme.js": "./src/core/theme.js?v=130",
+            "./src/main.js": "./src/main.js?v=130",
+            "./src/ui/account.js": "./src/ui/account.js?v=130",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=130",
+            "./src/ui/assistant.js": "./src/ui/assistant.js?v=130",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=130",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=130",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=130",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=130",
+            "./src/ui/history.js": "./src/ui/history.js?v=130",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=130",
+            "./src/ui/home.js": "./src/ui/home.js?v=130",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=130",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=130",
+            "./src/ui/lock.js": "./src/ui/lock.js?v=130",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=130",
+            "./src/ui/orders.js": "./src/ui/orders.js?v=130",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=130",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=130",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=130",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=130",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=130"
         }
     }
     </script>
@@ -323,7 +323,7 @@
                     <div class="dashboard-slide">
                         <div id="ai-panel">
                             <div class="ai-header">
-                                <span class="ai-title">Piano Operativo IA</span>
+                                <span class="ai-title">Piano IA</span>
                                 <button type="button" class="ai-live-btn" onclick="requestMarketAnalysis()">Analisi AI live</button>
                                 <span class="ai-bias" id="ai-bias">---</span>
                             </div>
@@ -1095,9 +1095,9 @@
 <div class="modal-overlay" id="aiAnalysisModal"><div class="modal-box" style="text-align: left; max-width: 380px;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;"><h3 id="aiAnalysisTitle" style="margin-bottom: 0; font-size: 16px; color: var(--text);">Analisi</h3><span class="be-badge neutral" id="aiAnalysisBadge">...</span></div><div id="aiAnalysisBody" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 24px; max-height: 50vh; overflow-y: auto;"></div><div class="modal-actions"><button class="btn-confirm" onclick="closeAIAnalysisModal()">Chiudi</button></div></div></div>
 <div class="modal-overlay assist-overlay" id="assistModal"><div class="assist-box">
     <div class="assist-head">
-        <button type="button" class="assist-icon" onclick="closeAssistant()" title="Chiudi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
         <div class="assist-titles"><h3 id="assistTitle">Assistente</h3><p id="assistSub">SGTRADER</p></div>
-        <button type="button" class="assist-icon assist-speak" id="assistSpeak" onclick="toggleAssistSpeak()" title="Leggi le risposte ad alta voce"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+        <button type="button" class="assist-icon assist-speak" id="assistSpeak" onclick="toggleAssistSpeak()" title="Leggi le risposte ad alta voce" aria-label="Audio"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+        <button type="button" class="assist-icon" onclick="closeAssistant()" title="Chiudi" aria-label="Chiudi"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="assist-ctx" id="assistCtx"></div>
     <div class="assist-log" id="assistLog"></div>
@@ -1165,6 +1165,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=129"></script>
+<script type="module" src="./src/main.js?v=130"></script>
 </body>
 </html>

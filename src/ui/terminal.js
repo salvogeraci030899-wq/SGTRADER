@@ -194,7 +194,8 @@ export function renderValidation() {
     foot.classList.remove('text-warning');
     // Il piano di Kronos è presentato come valido solo se la validazione storica lo ha dimostrato per questa coppia
     const planTitle = document.querySelector('#ai-panel .ai-title');
-    if (planTitle) planTitle.textContent = pair && pair.verdict === 'positivo' ? 'Piano Operativo IA' : 'Piano IA · non validato';
+    // titolo corto (la riga ha anche il tasto e la direzione): "non validato" resta nel suggerimento e nella nota sotto
+    if (planTitle) { planTitle.textContent = 'Piano IA'; planTitle.title = pair && pair.verdict === 'positivo' ? 'Validato sullo storico' : 'Non validato sullo storico'; }
     if (!pair || !pair.n) {
         badge.textContent = '—';
         grid.innerHTML = '';
@@ -417,7 +418,7 @@ export function setHeaderPrice(px) {
 }
 
 export async function pollPrices() {
-    if (State.pollInFlight) return;
+    if (State.pollInFlight || document.hidden) return;     // app in background: niente richieste
     State.pollInFlight = true;
     try {
         const symbols = new Set([State.currentAsset]);
@@ -453,6 +454,8 @@ export function startPricePoll() {
     if (State.pricePollInterval) { pollPrices(); return; }
     pollPrices();
     State.pricePollInterval = setInterval(pollPrices, 5000);
+    // ritorno nell'app: prezzi subito, senza aspettare il prossimo giro
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) pollPrices(); });
 }
 
 // --- ASSET / TF SWITCH ---

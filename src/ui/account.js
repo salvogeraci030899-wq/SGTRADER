@@ -12,8 +12,8 @@ const usdt = v => { const [i, d] = Math.abs(Number(v)).toFixed(2).split('.'); re
 function set(id, text, cls) {
     const el = $(id);
     if (!el) return;
-    el.textContent = text;
-    if (cls !== undefined) el.className = cls;
+    if (el.textContent !== text) el.textContent = text;
+    if (cls !== undefined && el.className !== cls) el.className = cls;
 }
 
 // Modalità effettiva: quella inviata (in attesa) o quella pubblicata
@@ -85,7 +85,9 @@ export function updateModePills() {
     const m = tradingMode();
     const text = !m.known ? '—' : (m.mode === 'on' ? 'REALE' : 'SIMULATO') + (m.pending ? '…' : '');
     const pill = $('homeModePill');
-    if (pill) { pill.textContent = text; pill.className = 'mode-pill' + (m.known && m.mode === 'on' ? ' real' : ''); }
+    const cls = 'mode-pill' + (m.known && m.mode === 'on' ? ' real' : '');
+    if (pill && pill.textContent !== text) pill.textContent = text;
+    if (pill && pill.className !== cls) pill.className = cls;
     set('setModeVal', !m.known ? '—' : (m.mode === 'on' ? 'Reale' : 'Simulato'));
 }
 

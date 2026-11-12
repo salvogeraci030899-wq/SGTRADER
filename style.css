@@ -504,7 +504,7 @@ body.snapshot-mode .btn-fullscreen, body.snapshot-mode .chart-fs-tools, body.sna
 .signals-view { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; min-width: 0; }
 .auto-status { display: flex; flex-direction: column; gap: 4px; font-size: 12px; margin-bottom: 8px; flex-shrink: 0; }
 .auto-row { display: flex; justify-content: space-between; gap: 8px; }
-.auto-row span { color: var(--text-secondary); }
+.auto-row span { color: var(--text-secondary); white-space: nowrap; }
 .auto-row b { text-align: right; }
 .auto-row.auto-sub { margin-top: -2px; }
 .auto-row.auto-sub b { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
@@ -1090,7 +1090,7 @@ html.app-locked .lock-screen, .lock-screen.active { display: flex; }
 .pos-views { display: grid; grid-template-columns: 1fr 1fr; gap: 0; height: 36px; flex: 0 0 36px; min-height: 36px; background: var(--field); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; flex-shrink: 0; }
 .pos-views button { background: transparent; border: none; color: var(--text-secondary); font-size: 13px; font-weight: 700; min-height: 34px; cursor: pointer; font-family: var(--font); }
 .pos-views button.active { background: var(--surface-hover); color: var(--text); }
-.orders-view { flex: 1; min-height: 0; overflow: hidden; display: grid; grid-auto-rows: minmax(0, 1fr); gap: 8px; padding-bottom: 4px; }
+.orders-view { flex: 1; min-height: 0; overflow: hidden; display: grid; grid-auto-rows: max-content; align-content: start; gap: 10px; padding-bottom: 4px; }
 .ord-sec { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 8px 10px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
 .ord-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-secondary); margin-bottom: 6px; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
 .ord-nav { margin-left: auto; display: flex; align-items: center; gap: 4px; }
@@ -1099,7 +1099,7 @@ html.app-locked .lock-screen, .lock-screen.active { display: flex; }
 .ord-pos { font-size: 11px; color: var(--text-secondary); min-width: 30px; text-align: center; text-transform: none; letter-spacing: 0; }
 .ord-count { background: var(--ui-soft); color: var(--ui); border-radius: 999px; padding: 0 7px; font-size: 10px; line-height: 16px; }
 /* elementi in fila, scorrimento orizzontale (mai verticale) */
-.ord-list { flex: 1; min-height: 0; display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; touch-action: pan-x; position: relative; }
+.ord-list { flex: none; min-height: 0; display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; touch-action: pan-x; position: relative; }
 .ord-list::-webkit-scrollbar { display: none; }
 .ord-row { flex: 0 0 100%; display: flex; align-items: center; gap: 10px; background: var(--field); border: 1px solid var(--border); border-radius: 12px; padding: 8px 10px; scroll-snap-align: start; min-height: 0; overflow: hidden; }
 .ord-list.many .ord-row { flex-basis: 84%; }
@@ -1128,3 +1128,11 @@ html.app-locked .lock-screen, .lock-screen.active { display: flex; }
 @media (max-height: 700px) {
     .at-real .at-last { display: none; }
 }
+
+/* Area di tocco più ampia per i tasti di solo testo (l'aspetto non cambia): almeno ~40px in altezza */
+.btn-refresh-link, .btn-link-secondary, .home-line.clickable, .auto-row.clickable, .auto-open-trades { position: relative; isolation: isolate; }
+.btn-refresh-link::after, .btn-link-secondary::after { content: ''; position: absolute; inset: -10px -6px; z-index: -1; }
+.home-line.clickable::after, .auto-row.clickable::after, .auto-open-trades::after { content: ''; position: absolute; inset: -6px -2px; z-index: -1; }
+/* Una scheda per pagina (poche schede o schermo basso): altezza naturale, niente seconda riga vuota */
+#activeTradesList.one-row { grid-template-rows: minmax(0, 1fr); align-items: start; }
+#activeTradesList.one-row > .active-trade-card { height: auto; max-height: 100%; scroll-snap-align: start; }
