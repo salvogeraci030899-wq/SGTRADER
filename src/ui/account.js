@@ -89,6 +89,14 @@ export function updateModePills() {
     if (pill && pill.textContent !== text) pill.textContent = text;
     if (pill && pill.className !== cls) pill.className = cls;
     set('setModeVal', !m.known ? '—' : (m.mode === 'on' ? 'Reale' : 'Simulato'));
+    // tasto Account: arancione con il puntino in Reale (ordini veri), normale in Simulato
+    const acc = $('homeAccountBtn');
+    if (acc) {
+        const real = m.known && m.mode === 'on';
+        acc.classList.toggle('acc-real', real);
+        const title = real ? 'Account · modalità REALE: ordini veri' : 'Account · modalità simulata';
+        if (acc.title !== title) { acc.title = title; acc.setAttribute('aria-label', title); }
+    }
 }
 
 // Aspetto: Auto segue iOS (anche mentre l'app è aperta), Chiaro e Scuro sono fissi
