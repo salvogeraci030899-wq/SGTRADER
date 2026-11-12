@@ -47,6 +47,7 @@ DEFAULT_RISK = {
     "max_open_positions": 3,
     "max_daily_loss_pct": 3.0,
     "daily_target_pct": 0.0,        # obiettivo del giorno: raggiunto, niente nuovi ingressi fino a domani (0 = nessuno)
+    "max_strategy_dd_pct": 5.0,     # perdita massima di una strategia reale dal suo massimo: oltre, l'agente la riporta su carta
     "dry_run_equity": 1000.0,
 }
 # Valori ammessi per ogni limite (anche dall'app): fuori da qui il comando viene rifiutato
@@ -57,6 +58,7 @@ RISK_BOUNDS = {
     "max_open_positions": (1, 6),
     "max_daily_loss_pct": (1.0, 10.0),
     "daily_target_pct": (0.0, 10.0),
+    "max_strategy_dd_pct": (1.0, 20.0),
     "dry_run_equity": (100.0, 1_000_000.0),
 }
 DEFAULT_SPECS = {"volume_place": 3, "price_place": 1, "min_size": 0.001}

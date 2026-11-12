@@ -582,6 +582,7 @@ export function renderAgentView() {
     status.innerHTML = `
         <div class="auto-row"><span>Autonomia</span><b class="${autoCls}">${AG_LABELS.autonomy[ag.autonomy]}${agentPending.autonomy ? ' (in corso…)' : ''} · reale: ${realState}</b></div>
         <div class="auto-row"><span>Strategie</span><b>${nPaper} su carta · ${nLive} reali</b></div>
+        ${capitalRow()}
         <div class="auto-row"><span>Oggi</span><b class="${dayInfo > 0 ? 'text-accent' : dayInfo < 0 ? 'text-danger' : ''}">${escapeHtml(dayText)}</b></div>
         <div class="auto-row"><span>Ultima decisione</span><b>${agentState && agentState.last_run ? escapeHtml(new Date(agentState.last_run).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })) : 'ogni giorno alle 19:41'}${agentProposals().length ? ` · <span class="text-warning">${agentProposals().length} proposta</span>` : ''}</b></div>`;
     $('agentSettings').innerHTML = Object.keys(AG_LABELS).map(field => `<div class="agent-set"><span>${AG_TITLES[field]}</span><div class="option-toggle compact">${
@@ -595,6 +596,18 @@ export function renderAgentView() {
     $('agentNote').textContent = 'Ogni cambio arriva su Telegram. Il reale dell\'agente richiede autonomia Reale e interruttore degli ordini veri acceso (Account). Emergenza: Auto → Emergenza.';
 }
 
+// Capitale rispetto ai minimi di Bitget (calcolato dall'agente con il profilo attuale)
+function capitalRow() {
+    const c = agentState && agentState.capital;
+    if (!c || !c.symbols || !Object.keys(c.symbols).length) return '';
+    const ok = Object.entries(c.symbols).filter(([, v]) => v.ok).map(([k]) => k.replace('USDT', ''));
+    const least = Object.entries(c.symbols).sort((a, b) => a[1].needed - b[1].needed)[0];
+    const text = ok.length === Object.keys(c.symbols).length ? `${fmtIt(c.equity, 2)} USDT · basta per tutte le coin`
+        : ok.length ? `${fmtIt(c.equity, 2)} USDT · solo ${ok.join(', ')}`
+        : `${fmtIt(c.equity, 2)} USDT · troppo poco: servono ~${fmtIt(least[1].needed, 0)} (${least[0].replace('USDT', '')})`;
+    return `<div class="auto-row"><span>Capitale</span><b class="${ok.length ? '' : 'text-warning'}" title="Rischio ${c.risk_pct}% a trade, stop tipico ${c.stop_pct}%">${escapeHtml(text)}</b></div>`;
+}
+
 export function setAgent(field, value) {
     if (!AG_LABELS[field] || !(value in AG_LABELS[field]) || agentSettings()[field] === value) return;
     const go = async () => {
@@ -605,7 +618,7 @@ export function setAgent(field, value) {
         return openAutoConfirm('Autonomia reale?', 'L\'agente potrà portare da solo al reale le strategie che hanno superato laboratorio, carta e prova finale, e riportarle su carta se peggiorano. Userà soldi veri con i limiti del profilo scelto. I risultati passati non garantiscono quelli futuri. Serve anche l\'interruttore degli ordini veri acceso.', 'Attiva', go);
     }
     if (field === 'profile') {
-        const P = { prudente: '0,25% a trade, leva 2x, max 2 posizioni, obiettivo +1% e limite −2% al giorno', bilanciato: '0,5% a trade, leva 3x, max 3 posizioni, obiettivo +2% e limite −3% al giorno', aggressivo: '1% a trade, leva 5x, max 4 posizioni, obiettivo +3% e limite −5% al giorno' };
+        const P = { prudente: '0,25% a trade, leva 2x, max 2 posizioni, obiettivo +1% e limite −2% al giorno, ogni strategia reale torna su carta oltre −3% dal suo massimo', bilanciato: '0,5% a trade, leva 3x, max 3 posizioni, obiettivo +2% e limite −3% al giorno, ogni strategia reale torna su carta oltre −5% dal suo massimo', aggressivo: '1% a trade, leva 5x, max 4 posizioni, obiettivo +3% e limite −5% al giorno, ogni strategia reale torna su carta oltre −8% dal suo massimo' };
         return openAutoConfirm(`Profilo ${AG_LABELS.profile[value].toLowerCase()}?`, `Imposta tutti i limiti di rischio: ${P[value]}.`, 'Imposta', go);
     }
     go();

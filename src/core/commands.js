@@ -99,7 +99,7 @@ export async function command(body, env, fetchFn) {
             if (!STRATEGY_KEY.test(String(b.key || '')) || !MODES.includes(b.mode)) return json(400, { error: 'Strategia o stato non validi' });
             return dispatch(env, fetchFn, 'automation.yml', { action: 'set', key: b.key, mode: b.mode });
         case 'set_risk': {
-            const fields = ['risk_per_trade_pct', 'max_leverage', 'max_exposure_x', 'max_open_positions', 'max_daily_loss_pct', 'daily_target_pct', 'dry_run_equity'];
+            const fields = ['risk_per_trade_pct', 'max_leverage', 'max_exposure_x', 'max_open_positions', 'max_daily_loss_pct', 'daily_target_pct', 'max_strategy_dd_pct', 'dry_run_equity'];
             const value = String(b.value == null ? '' : b.value);
             if (!fields.includes(b.field) || !/^\d{1,7}(\.\d{1,3})?$/.test(value)) return json(400, { error: 'Limite o valore non validi' });
             return dispatch(env, fetchFn, 'automation.yml', { action: 'risk', key: b.field, mode: value });
