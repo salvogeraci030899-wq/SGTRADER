@@ -6,13 +6,16 @@ import * as Terminal from './terminal.js';
 import * as Calculator from './calculator.js';
 import * as AI from './ai.js';
 import { tradingMode } from './account.js';
-import { getAutoState, maybeRefreshAccount, isRealOrderRemoving } from './automation.js';
+import { getAutoState, maybeRefreshAccount, isRealOrderRemoving, isRefreshingAccount } from './automation.js';
 import { planAction, ruleHitPrice, ruleHitCandle } from '../core/rules.js';
 
 export function initTrade() {
     // posizioni reali: prezzo mark dei futures ogni 5 secondi (solo in modalità Reale e con posizioni aperte)
     setInterval(pollMarks, 5000);
+    // ritorno nell'app (per esempio dopo aver aperto una posizione nell'app Bitget): conto riletto subito
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && isReal()) maybeRefreshAccount(true); });
 }
+export function onOpenTrade() { if (isReal()) maybeRefreshAccount(true); }
 
 // --- Posizioni reali "vive": il bot legge Bitget ogni 15 minuti; tra un giro e l'altro l'app stima
 // PnL e prezzo con il mark price pubblico dei futures (stessa base che usa Bitget per il PnL aperto).
@@ -112,11 +115,12 @@ function renderRealPositions(el) {
     const list = (acc && acc.positions_detail) || [];
     const events = ((getAutoState().live || {}).events || []).filter(e => e && e.kind === 'manual');
     const lastEv = events[events.length - 1];
-    const sig = `real|${acc && acc.checked_at}|${list.map(p => `${p.symbol}${p.tp}/${p.sl}/${isRealOrderRemoving(p.symbol, 'tp')}${isRealOrderRemoving(p.symbol, 'sl')}`).join()}|${lastEv && lastEv.at}|${State.simState.activeTrades.length}`;
+    const sig = `real|${acc && acc.checked_at}|${list.map(p => `${p.symbol}${p.tp}/${p.sl}/${isRealOrderRemoving(p.symbol, 'tp')}${isRealOrderRemoving(p.symbol, 'sl')}`).join()}|${lastEv && lastEv.at}|${isRefreshingAccount()}|${State.simState.activeTrades.length}`;
     if (sig === State.atSig) return;
     State.atSig = sig;
     const hidden = State.simState.activeTrades.length;
-    const note = `<div class="at-real-note">Da Bitget${acc && acc.checked_at ? `, letto alle ${new Date(acc.checked_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}` : ''}. Ordini veri solo dopo la tua conferma.${hidden ? ` ${hidden} trade simulati nascosti: tornano in Simulato.` : ''}</div>`;
+    const when = acc && acc.checked_at ? `, letto alle ${new Date(acc.checked_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}` : '';
+    const note = `<div class="at-real-note">${isRefreshingAccount() ? '<span class="text-ui">Aggiorno da Bitget…</span> ' : ''}Da Bitget${when}. Ordini veri solo dopo la tua conferma.${hidden ? ` ${hidden} trade simulati nascosti: tornano in Simulato.` : ''}</div>`;
     if (!acc || !acc.connected) {
         el.classList.add('empty');
         el.innerHTML = `<div class="at-empty">Conto Bitget non letto.${note}</div>`;

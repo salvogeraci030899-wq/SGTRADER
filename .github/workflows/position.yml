@@ -51,6 +51,9 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
+          # pacchetti già scaricati: la rilettura del conto (chiesta dall'app) parte qualche secondo prima
+          cache: 'pip'
+          cache-dependency-path: requirements.txt
       - name: Installa dipendenze minime
         run: pip install "pandas>=2.2.2" numpy requests
       - name: Esegui il comando su Bitget
