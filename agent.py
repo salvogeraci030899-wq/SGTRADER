@@ -160,7 +160,19 @@ def capital_check(cfg, live, paper, price_fn=None, specs_fn=None):
             continue
         min_usdt = specs["min_size"] * px
         need = max(min_usdt * stop_pct / risk["risk_per_trade_pct"], min_usdt / risk["max_leverage"])
-        out["symbols"][sym] = {"min_usdt": round(min_usdt, 2), "needed": round(need, 2), "ok": equity >= need}
+        out["symbols"][sym] = {"min_usdt": round(min_usdt, 2), "needed": round(need, 2), "ok": equity >= need, "min_size": specs["min_size"]}
+    # Realismo: degli ultimi trade su carta, quanti il conto vero avrebbe potuto aprire con capitale e profilo di
+    # oggi (stessa regola di size_position dell'esecutore: rischio / distanza dello stop, entro la leva)
+    recent = sorted((t for e in (paper.get("strategies") or {}).values() for t in (e.get("trades") or [])
+                     if t.get("entry") and t.get("stop") and t.get("symbol") in out["symbols"]), key=lambda t: t.get("t") or 0)[-50:]
+    ok = 0
+    for t in recent:
+        dist = abs(t["entry"] - t["stop"]) / t["entry"]
+        if dist <= 0:
+            continue
+        notional = min(equity * risk["risk_per_trade_pct"] / 100 / dist, equity * risk["max_leverage"])
+        ok += notional / t["entry"] >= out["symbols"][t["symbol"]]["min_size"]
+    out["paper_feasible"] = [ok, len(recent)]
     return out
 
 
@@ -175,15 +187,17 @@ def _price(symbol):
 def capital_facts(cap):
     if not cap or not cap["symbols"]:
         return []
+    feas = cap.get("paper_feasible") or [0, 0]
+    extra = (f" Degli ultimi {feas[1]} trade su carta, il conto vero ne avrebbe aperti {feas[0]}." if feas[1] else "")
     ok = [s.replace("USDT", "") for s, v in cap["symbols"].items() if v["ok"]]
     least = min(cap["symbols"].items(), key=lambda kv: kv[1]["needed"])
     head = f"Capitale {cap['equity']} USDT, rischio {cap['risk_pct']}% a trade, stop tipico {cap['stop_pct']}%"
     if not ok:
         return [f"{head}: troppo poco per i minimi di Bitget, ogni trade reale verrebbe saltato. "
-                f"Servono almeno ~{least[1]['needed']:.0f} USDT ({least[0].replace('USDT', '')}), oppure un profilo con più rischio."]
+                f"Servono almeno ~{least[1]['needed']:.0f} USDT ({least[0].replace('USDT', '')}), oppure un profilo con più rischio." + extra]
     if len(ok) < len(cap["symbols"]):
-        return [f"{head}: si può operare solo su {', '.join(ok)}; le altre coin sono sotto i minimi di Bitget."]
-    return []
+        return [f"{head}: si può operare solo su {', '.join(ok)}; le altre coin sono sotto i minimi di Bitget." + extra]
+    return [f"Capitale sufficiente per tutte le coin.{extra}"] if feas[1] and feas[0] < feas[1] else []
 
 
 def observable(key, r, tfs):

@@ -75,6 +75,7 @@ function agente(d) {
         const least = Object.entries(cap.symbols).sort((a, b) => a[1].needed - b[1].needed)[0];
         lines.push(`Capitale ${n(cap.equity)} USDT: troppo poco per i minimi di Bitget (servono ~${n(least[1].needed, 0)} per ${coin(least[0])}).`);
     }
+    if (cap && cap.paper_feasible && cap.paper_feasible[1]) lines.push(`Della carta, il conto vero avrebbe aperto ${cap.paper_feasible[0]} trade su ${cap.paper_feasible[1]}.`);
     const log = (st.log || []).slice(-5).reverse();
     if (log.length) lines.push('Ultime decisioni:\n' + log.map(e => `• ${KIND[e.kind] || e.kind}: ${lab(e.key)}`).join('\n'));
     else lines.push('Nessuna decisione ancora.');
