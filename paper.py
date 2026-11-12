@@ -195,7 +195,20 @@ def update(last_candles, config_path=CONFIG_PATH, ledger_path=LEDGER_PATH, downl
     for key, mode in active.items():
         mode = effective_mode(key, mode, confirmed)
         name, tf = key.split(":")
-        entry = ledger["strategies"].setdefault(key, {"mode": mode, "trades": [], "last_candle": {}, "stats": {"n": 0, "open": 0}})
+        if key not in ledger["strategies"]:
+            # Strategia nuova: la carta parte dall'ultima candela chiusa, non dall'inizio della prova su carta.
+            # Ricostruire i giorni prima vorrebbe dire contare trade che nessuno ha seguito dal vivo, su dati
+            # che il laboratorio aveva già usato per sceglierla.
+            known = [v for k, v in last_candles.items() if k.endswith(f"_{tf}") and v]
+            ledger["strategies"][key] = {"mode": mode, "trades": [], "last_candle": {}, "stats": {"n": 0, "open": 0},
+                                         "since": max([start_ts] + known)}
+            changed = changed or mode != "off"
+        entry = ledger["strategies"][key]
+        if entry.get("mode") == "off" and mode != "off" and not entry["trades"]:
+            # riaccesa senza trade registrati: anche lei parte da adesso
+            known = [v for k, v in last_candles.items() if k.endswith(f"_{tf}") and v]
+            entry["since"], entry["last_candle"] = max([start_ts] + known), {}
+        since = max(start_ts, int(entry.get("since") or start_ts))
         if entry.get("mode") != mode:
             entry["mode"], changed = mode, True
         if mode == "off" or name not in lab_strategies.STRATEGIES:
@@ -208,8 +221,8 @@ def update(last_candles, config_path=CONFIG_PATH, ledger_path=LEDGER_PATH, downl
         fresh = [t for t in entry["trades"] if t["symbol"] not in symbols]     # coin senza candela nuova: restano come sono
         recomputed, done = [], []
         for symbol in symbols:
-            df = download(symbol, tf, start_ts * 1000 - (lab.WARMUP + 60) * step_ms)
-            trades = None if df is None else replay(df, tf, symbol, spec, start_ts)
+            df = download(symbol, tf, since * 1000 - (lab.WARMUP + 60) * step_ms)
+            trades = None if df is None else replay(df, tf, symbol, spec, since)
             if trades is None:
                 print(f"Prova su carta {key} {symbol}: storico non disponibile, riprovo al prossimo giro.")
                 fresh += [t for t in entry["trades"] if t["symbol"] == symbol]
