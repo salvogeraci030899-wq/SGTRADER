@@ -17,7 +17,8 @@ Limiti di rischio (automation.json -> risk), controllati prima di ogni ingresso:
   perché BTC, ETH e SOL si muovono insieme: tre posizioni sono quasi una sola scommessa;
 - max_open_positions: posizioni aperte contemporaneamente;
 - max_daily_loss_pct: se la perdita del giorno (UTC) supera questa soglia, niente nuovi ingressi fino a domani;
-- daily_target_pct: se il guadagno del giorno raggiunge l'obiettivo, niente nuovi ingressi fino a domani (0 = nessuno).
+- daily_target_pct: se il guadagno del giorno raggiunge l'obiettivo, niente nuovi ingressi fino a domani (0 = nessuno);
+- agente eventi (event_guard.py): con una pausa in corso per una notizia di rischio, niente nuovi ingressi.
 
 Sicurezza:
 - ogni posizione nasce con lo stop loss già sull'exchange: protetta anche se il bot si ferma;
@@ -130,7 +131,8 @@ def make_client(cfg):
     return None, "simulata"
 
 
-def run(cfg, ledger, client=None, mode="simulata", state_path=STATE_PATH, now=None, notify=None, specs_fn=contract_specs):
+def run(cfg, ledger, client=None, mode="simulata", state_path=STATE_PATH, now=None, notify=None, specs_fn=contract_specs,
+        guard_path=None):
     """Un giro dell'esecutore. Ritorna True se lo stato è cambiato."""
     now = now or datetime.now(timezone.utc)
     now_ts, today = int(now.timestamp()), now.strftime("%Y-%m-%d")
@@ -261,6 +263,9 @@ def run(cfg, ledger, client=None, mode="simulata", state_path=STATE_PATH, now=No
             say(f"Chiusura di {p['symbol']} FALLITA ({e}). Controlla su Bitget.")
 
     # ingressi: trade su carta appena aperti, entro una candela dal segnale
+    # (agente eventi: con una pausa in corso niente nuovi ingressi; le uscite qui sopra continuano)
+    import event_guard
+    guard = event_guard.active_pause(now, guard_path or os.path.join(os.path.dirname(os.path.abspath(state_path)), event_guard.STATE_PATH))
     open_now = {tid: p for tid, p in state["positions"].items() if p["status"] == "open"}
     open_notional = sum(p["size"] * p["entry"] for p in open_now.values())
     open_notional += sum((p.get("size") or 0) * (p.get("entry") or p.get("mark") or 0) for p in manual.values())   # anche le manuali pesano
@@ -276,6 +281,8 @@ def run(cfg, ledger, client=None, mode="simulata", state_path=STATE_PATH, now=No
             skip = "limite di perdita giornaliera"
         elif state["day"].get("target_hit"):
             skip = "obiettivo del giorno già raggiunto"
+        elif guard:
+            skip = f"pausa dell'agente eventi ({guard.get('reason') or 'evento di rischio'})"
         elif t["symbol"] in busy:
             skip = "già una posizione su questa coin" + (" (aperta a mano)" if t["symbol"] in manual else "")
         elif len(open_now) >= risk["max_open_positions"]:

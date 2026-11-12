@@ -8,6 +8,7 @@ import requests
 
 import futures_data
 import daily_report
+import event_guard
 import executor
 import paper
 import track_record
@@ -245,6 +246,10 @@ def automation_step(frames, notify=None):
         paper.update(last, notify=notify)
     except Exception as e:
         print(f"Prova su carta non aggiornata: {e}")
+    try:
+        event_guard.run(notify=notify)          # agente eventi: al massimo un controllo all'ora, solo difesa
+    except Exception as e:
+        print(f"Agente eventi non eseguito: {e}")
     try:
         cfg = paper.load_config()
         paper_ledger = load_json(paper.LEDGER_PATH) if os.path.exists(paper.LEDGER_PATH) else {}
