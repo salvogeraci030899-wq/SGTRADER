@@ -153,6 +153,9 @@ window.selectOption = (btn) => {
 window.runBacktestSingle = BacktestUI.runBacktestSingle;
 window.exportBacktestCSV = BacktestUI.exportBacktestCSV;
 window.applyBtParams = BacktestUI.applyBtParams;
+window.openBtStrategies = BacktestUI.openBtStrategies;
+window.closeBtStrategies = BacktestUI.closeBtStrategies;
+window.pickBtStrategy = BacktestUI.pickBtStrategy;
 
 // Laboratorio strategie (stessa pagina del Backtest)
 window.setTestView = LabUI.setTestView;
