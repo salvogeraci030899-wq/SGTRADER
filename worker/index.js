@@ -9,7 +9,7 @@
 //   GH_TOKEN         token GitHub che può avviare i workflow del repository
 //   GROQ_API_KEY     facoltativa, per l'analisi AI
 //   ALLOWED_ORIGINS  origini ammesse, separate da virgola
-import { handle, trigger } from '../api/_core.js';
+import { handle, trigger, quickCheck } from '../api/_core.js';
 
 const DEFAULT_ORIGINS = 'https://salvogeraci030899-wq.github.io,https://sgtrader.vercel.app';
 
@@ -27,10 +27,19 @@ function cors(request, env) {
 }
 
 // Avvio programmato del bot (stesso comando di "Aggiorna" nell'app, per tutte le coppie)
-export async function scheduled(env, fetchFn = fetch) {
-    const r = await trigger({ symbol: 'ALL', timeframe: 'ALL', force: 'false' }, env, fetchFn);
-    if (r.status !== 200) console.log('Avvio programmato del bot fallito:', JSON.stringify(r.body));
-    return r;
+// Due orologi (wrangler.toml): ai minuti 2, 17, 32 e 47 il bot completo, ogni 5 minuti il controllo rapido
+// (avvisi di prezzo e chiusure su Bitget). Il bot resta a 15 minuti: i segnali cambiano solo alla chiusura
+// delle candele e il giro dei :02 prende già quella oraria appena chiusa.
+export const BOT_CRON = '2,17,32,47 * * * *';
+export async function scheduled(env, fetchFn = fetch, cron = BOT_CRON) {
+    let r = null;
+    if (cron === BOT_CRON) {
+        r = await trigger({ symbol: 'ALL', timeframe: 'ALL', force: 'false' }, env, fetchFn);
+        if (r.status !== 200) console.log('Avvio programmato del bot fallito:', JSON.stringify(r.body));
+    }
+    const q = await quickCheck(env, fetchFn);
+    if (q.status !== 200) console.log('Controllo rapido non avviato:', JSON.stringify(q.body));
+    return r || q;
 }
 
 // Endpoint dell'IA (Groq gratuito): rispondono solo alla tua app. Un browser manda sempre l'header
@@ -59,7 +68,7 @@ function aiGate(request, env, path) {
 
 export default {
     async scheduled(event, env, ctx) {
-        ctx.waitUntil(scheduled(env));
+        ctx.waitUntil(scheduled(env, fetch, event.cron));
     },
     async fetch(request, env) {
         const headersOut = cors(request, env);

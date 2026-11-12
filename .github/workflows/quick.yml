@@ -1,0 +1,45 @@
+name: Controllo rapido
+
+# Ogni 5 minuti, avviato dal server Cloudflare (worker/index.js): avvisi di prezzo e avvisi delle
+# posizioni reali chiuse su Bitget (sola lettura, nessun ordine). Leggero: niente modello Kronos.
+# Salva quick_state.json solo quando cambia (un avviso partito, una chiusura avvisata).
+on:
+  workflow_dispatch:
+
+# uno alla volta; se uno resta in coda non serve accumularne altri
+concurrency:
+  group: quick
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: requirements.txt
+      - name: Installa dipendenze minime
+        run: pip install "pandas>=2.2.2" numpy requests
+      - name: Avvisi di prezzo e chiusure su Bitget
+        env:
+          BITGET_API_KEY: ${{ secrets.BITGET_API_KEY }}
+          BITGET_API_SECRET: ${{ secrets.BITGET_API_SECRET }}
+          BITGET_API_PASSPHRASE: ${{ secrets.BITGET_API_PASSPHRASE }}
+          BITGET_DEMO: ${{ vars.BITGET_DEMO || '1' }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python quick.py
+      - name: Salva
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add quick_state.json
+          git commit -q -m "Controllo rapido $(date -u +%H:%M)" || { echo "Nessuna modifica"; exit 0; }
+          bash tools/push_state.sh

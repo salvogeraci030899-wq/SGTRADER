@@ -366,8 +366,8 @@ def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
     if notify and keys and previous.get("connected") and not account["connected"]:
         notify(f"⚠️ Bitget non risponde alla lettura del conto: {account.get('reason')}. "
                "Se la chiave è scaduta, creane una nuova e aggiorna i segreti BITGET_*.")
-    changed = _notify_closed(state, account, notify, now or datetime.now(timezone.utc))
-    if account != previous or changed:
+    # gli avvisi delle posizioni chiuse partono dal controllo rapido ogni 5 minuti (quick.py → _notify_closed)
+    if account != previous:
         state["account"] = account
         _save(state, state_path)
     return account
@@ -385,8 +385,8 @@ def _price_it(v):
 
 def _notify_closed(state, account, notify, now):
     """Messaggio su Telegram per ogni posizione reale chiusa su Bitget (stop, target, a mano, liquidazione).
-    Solo dal giro del bot (notify): le riletture chieste dall'app non mandano messaggi, e gli id già
-    avvisati restano in state["closed_notified"], così nessuna chiusura viene avvisata due volte.
+    Lo usa il controllo rapido (quick.py, ogni 5 minuti): gli id già avvisati restano in
+    state["closed_notified"] (quick_state.json), così nessuna chiusura viene avvisata due volte.
     Alla prima lettura dello storico non si avvisa nulla (sarebbero chiusure vecchie)."""
     hist = account.get("history")
     if not notify or not account.get("connected") or hist is None:

@@ -10,7 +10,6 @@ import futures_data
 import daily_report
 import executor
 import paper
-import price_alerts
 import track_record
 from kronos_core import (
     ALL_ASSETS, ALL_TIMEFRAMES, TF_DELTA, LOOKBACK, ATR_PERIOD, ATR_MULT, MIN_RR, MODEL_NAME,
@@ -342,13 +341,7 @@ def main():
                 if f"{s}_{t}" in dashboard_data]
     process_alerts(to_check, dashboard_data, alerts_state)
 
-    # Avvisi di prezzo chiesti dall'app (automation.json); quelli scattati si segnano in alerts_state
-    try:
-        fired = price_alerts.check(paper.load_config(), alerts_state, send_telegram_alert)
-        if fired:
-            print(f"Avvisi di prezzo inviati: {fired}")
-    except Exception as e:
-        print(f"Avvisi di prezzo non controllati: {e}")
+    # Avvisi di prezzo e chiusure delle posizioni reali: nel controllo rapido ogni 5 minuti (quick.py)
 
     # Riepilogo giornaliero su Telegram (senza AI), una volta al giorno. Un errore qui non ferma il bot.
     try:

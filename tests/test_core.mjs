@@ -286,6 +286,12 @@ test('orologio del bot: avvio programmato', async () => {
     assert.equal(r.status, 200);
     assert.equal(calls[0].url, 'https://api.github.com/repos/io/repo/actions/workflows/bot.yml/dispatches');
     assert.deepEqual(calls[0].body, { ref: 'main', inputs: { symbol: 'ALL', timeframe: 'ALL', force: 'false' } });
+    assert.equal(calls[1].url, 'https://api.github.com/repos/io/repo/actions/workflows/quick.yml/dispatches');   // anche il controllo rapido
+    // gli altri minuti: solo il controllo rapido
+    calls.length = 0;
+    const q = await scheduled({ GH_TOKEN: 'tok', GH_REPO: 'io/repo' }, fakeFetch, '7,12,22,27,37,42,52,57 * * * *');
+    assert.equal(q.status, 200);
+    assert.deepEqual(calls.map(c => c.url.split('/').slice(-2)[0]), ['quick.yml']);
     // senza token: nessuna chiamata, errore registrato
     calls.length = 0;
     assert.equal((await scheduled({}, fakeFetch)).status, 500);
