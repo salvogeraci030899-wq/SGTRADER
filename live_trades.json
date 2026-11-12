@@ -5,7 +5,7 @@
   "start_equity": 1000.0,
   "blocked": false
  },
- "halted": false,
+ "halted": true,
  "events": [
   {
    "at": "2026-11-11T15:25:04+00:00",
@@ -45,14 +45,12 @@
    "kind": "unhalt"
   },
   {
-   "at": "2026-11-12T01:33:50+00:00",
-   "kind": "manual",
-   "action": "sl",
-   "symbol": "SOLUSDT",
-   "side": "short",
-   "ok": true,
-   "req": "mwcvjbuttndw1r",
-   "msg": "Stop loss di SOL SHORT impostato su Bitget a 84 (scatta sul prezzo mark, a mercato)."
+   "at": "2026-11-12T01:33:55+00:00",
+   "kind": "halt",
+   "expected": {},
+   "actual": {
+    "SOLUSDT": "short"
+   }
   }
  ],
  "mode": "reale",
@@ -71,8 +69,8 @@
     "side": "short",
     "size": 0.1,
     "entry": 83.026,
-    "mark": 83.211,
-    "upl": -0.0185,
+    "mark": 83.183,
+    "upl": -0.0157,
     "leverage": 3.0,
     "margin": 2.767533,
     "liq": 110.084858,
@@ -98,10 +96,10 @@
    "bots": 0.0,
    "margin": 0.0
   },
-  "checked_at": "2026-11-12T01:33:50+00:00",
+  "checked_at": "2026-11-12T01:33:56+00:00",
   "day": "2026-11-12",
   "day_start_total": 15.98,
   "day_change": 0.03
  },
- "halt_reason": null
+ "halt_reason": "mismatch"
 }
