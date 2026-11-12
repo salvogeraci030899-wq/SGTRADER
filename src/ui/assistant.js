@@ -1,5 +1,6 @@
 import { State } from '../core/state.js';
-import { $, SYM, apiPost, escapeHtml, calcPnl, fmtPrice, fetchData } from '../utils/helpers.js';
+import { $, SYM, apiPost, escapeHtml, calcPnl, fmtPrice, fetchData, fetchT } from '../utils/helpers.js';
+import { TRADE_SYMBOLS } from '../core/commands.js';
 import * as Trade from './trade.js';
 import * as Auto from './automation.js';
 import { tradingMode } from './account.js';
@@ -269,6 +270,7 @@ export async function sendAssist(textArg) {
     addMsg('user', escapeHtml(text));
     busy = true; status('Sto pensando…');
     try {
+        if (general) await loadMissingPrices();
         const res = await apiPost('/api/assistant', general ? { scope: 'general', text, history, context: generalContext() } : { text, history, position: rp ? { ...context(t), real: true, ...(rp.market === 'spot' ? { market: 'SPOT', leverage: 1 } : {}), hours_open: null, pnl: rp.upl } : context(t) });
         let out = {};
         try { out = await res.json(); } catch (e) {}
@@ -382,6 +384,18 @@ function showRealPlan(action) {
 }
 
 // ---------- Assistente generale: stato del tool e azioni ----------
+// Prezzi delle coin delle sole strategie (l'app segue dal vivo solo BTC, ETH e SOL): servono all'assistente
+// per gli avvisi di prezzo. Una richiesta per coin mancante, prezzo dei futures di Bitget.
+async function loadMissingPrices() {
+    await Promise.all(TRADE_SYMBOLS.filter(s => !(State.livePx[s] > 0)).map(async s => {
+        try {
+            const d = ((await (await fetchT(`https://api.bitget.com/api/v2/mix/market/ticker?symbol=${s}&productType=USDT-FUTURES`, 4000)).json()).data || [])[0] || {};
+            const px = parseFloat(d.lastPr || d.markPrice);
+            if (px > 0) State.livePx[s] = px;
+        } catch (e) { /* senza prezzo l'assistente lo dice */ }
+    }));
+}
+
 const BLOCKED = ['forza relativa', 'funding'];   // famiglie che la prova su carta non riceve ancora
 function generalContext() {
     const { cfg, ledger, lab, live } = Auto.getAutoState();
@@ -396,7 +410,7 @@ function generalContext() {
     let last = 0;
     for (const v of Object.values(State.allData || {})) if (v && v.last_update) last = Math.max(last, Date.parse(v.last_update));
     return {
-        prices: Object.fromEntries(['BTCUSDT', 'ETHUSDT', 'SOLUSDT'].map(s => [s, State.livePx[s] ?? (State.allData && State.allData[`${s}_1d`] ? State.allData[`${s}_1d`].current_price : null)])),
+        prices: Object.fromEntries(TRADE_SYMBOLS.map(s => [s, State.livePx[s] ?? (State.allData && State.allData[`${s}_1d`] ? State.allData[`${s}_1d`].current_price : null)])),
         trading: tradingMode().mode, emergency: !!(cfg && cfg.emergency),
         bitget_total: acc && acc.connected ? (acc.total_usdt ?? acc.equity) : null, bitget_positions: acc && acc.connected ? acc.positions : null,
         sim_free: Number(State.simState.freeBalance.toFixed(2)), sim_open: State.simState.activeTrades.length,

@@ -37,7 +37,7 @@ from datetime import datetime, timezone
 import requests
 
 from bitget_client import BitgetClient, DryRunClient, round_down
-from kronos_core import TF_DELTA
+from kronos_core import TF_DELTA, TRADE_ASSETS
 
 STATE_PATH = "live_trades.json"
 EQUITY_PATH = "equity_history.json"     # un record al giorno: apertura, chiusura, versamenti/prelievi, guadagno
@@ -385,7 +385,7 @@ def _spot_history(client, limit=30):
     out = []
     if not hasattr(client, "spot_fills_raw"):
         return out
-    for sym in ("BTCUSDT", "ETHUSDT", "SOLUSDT"):
+    for sym in TRADE_ASSETS:
         try:
             out += spot_round_trips(client.spot_fills_raw(sym, 100), sym)
         except Exception as e:
@@ -399,7 +399,7 @@ def _spot_detail(client, coins):
         return out
     for c in coins:
         sym = f"{c.get('coin')}USDT"
-        if sym not in ("BTCUSDT", "ETHUSDT", "SOLUSDT") or not c.get("usdt") or c["usdt"] < 1:
+        if sym not in TRADE_ASSETS or not c.get("usdt") or c["usdt"] < 1:
             continue
         price = c["usdt"] / c["qty"] if c.get("qty") else None
         d = {"symbol": sym, "qty": c["qty"], "usdt": c["usdt"], "price": price, "tp": None, "sl": None}

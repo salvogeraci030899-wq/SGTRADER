@@ -22,6 +22,7 @@ from datetime import datetime, timezone
 
 import executor
 from bitget_client import BitgetClient, BitgetError
+from kronos_core import TRADE_ASSETS
 
 ACTIONS = ("close", "tp", "sl", "clear", "untp", "unsl")
 # "refresh": nessun ordine, solo il conto riletto (chiesto dall'app aperta in modalità Reale)
@@ -31,7 +32,7 @@ OPEN = "open"
 CONFIG_PATH = "automation.json"
 # esito del comando, letto dal passo che salva lo stato (anche se il comando è fallito) e mostrato nell'app
 RESULT_PATH = os.environ.get("POSITION_RESULT", "position_result.json")
-SYMBOLS = ("BTCUSDT", "ETHUSDT", "SOLUSDT")
+SYMBOLS = tuple(TRADE_ASSETS)
 
 
 class CommandError(ValueError):

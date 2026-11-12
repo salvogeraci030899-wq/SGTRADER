@@ -22,7 +22,7 @@ import events as event_log
 import lab_strategies
 import strategy_lab as lab
 import validation as va
-from kronos_core import ALL_ASSETS, TF_DELTA
+from kronos_core import TRADE_ASSETS, TF_DELTA
 
 CONFIG_PATH = "automation.json"
 LEDGER_PATH = "paper_trades.json"
@@ -215,7 +215,7 @@ def update(last_candles, config_path=CONFIG_PATH, ledger_path=LEDGER_PATH, downl
             entry["mode"], changed = mode, True
         if mode == "off" or name not in lab_strategies.STRATEGIES:
             continue
-        symbols = [s for s in ALL_ASSETS if last_candles.get(f"{s}_{tf}") and entry["last_candle"].get(s) != last_candles[f"{s}_{tf}"]]
+        symbols = [s for s in TRADE_ASSETS if last_candles.get(f"{s}_{tf}") and entry["last_candle"].get(s) != last_candles[f"{s}_{tf}"]]
         if not symbols:
             continue
         spec = lab_strategies.STRATEGIES[name]
@@ -238,7 +238,7 @@ def update(last_candles, config_path=CONFIG_PATH, ledger_path=LEDGER_PATH, downl
         for symbol in done:
             entry["last_candle"][symbol] = last_candles[f"{symbol}_{tf}"]
         if funding is None:
-            funding = {s: (funding_fetch or lab.fetch_funding_history)(s) for s in ALL_ASSETS}
+            funding = {s: (funding_fetch or lab.fetch_funding_history)(s) for s in TRADE_ASSETS}
         entry["stats"] = stats(entry["trades"], funding, lab_result(key))
         changed = True
         for kind, row in events:

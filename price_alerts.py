@@ -13,7 +13,9 @@ from datetime import datetime, timezone
 
 import requests
 
-SYMBOLS = ("BTCUSDT", "ETHUSDT", "SOLUSDT")
+from kronos_core import TRADE_ASSETS
+
+SYMBOLS = tuple(TRADE_ASSETS)
 SIDES = ("above", "below")
 MAX_ALERTS = 10
 FIRED_KEY = "_price_alerts_fired"

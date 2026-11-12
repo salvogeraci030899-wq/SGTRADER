@@ -149,7 +149,7 @@ try {
         await step('mercato: Nuovo avviso non apre la finestra', async () => {
             await page.evaluate(() => window.setMarketView('alerts')); await page.waitForTimeout(300);
             await page.click('.mkt-new-alert'); await page.waitForTimeout(300);
-            const on = await page.evaluate(() => document.getElementById('chartAlertModal').classList.contains('active') && document.querySelectorAll('#caCoins .pill-btn').length === 3);
+            const on = await page.evaluate(() => document.getElementById('chartAlertModal').classList.contains('active') && document.querySelectorAll('#caCoins .pill-btn').length === 8);
             await page.evaluate(() => window.closeChartAlert());
             return on;
         });

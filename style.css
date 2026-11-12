@@ -1136,7 +1136,7 @@ html.app-locked .lock-screen, .lock-screen.active { display: flex; }
 .mkt-view[style*="none"] { display: none !important; }
 .mkt-alerts-body { flex: 1 1 auto; min-height: 0; display: grid; grid-auto-rows: max-content; align-content: start; gap: 10px; overflow: hidden; }
 .mkt-new-alert { flex-shrink: 0; min-height: 48px; border: none; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font: 700 15px var(--font); margin-top: 10px; }
-.ca-coins { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
+.ca-coins { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px; }
 .ca-coins .pill-btn { min-height: 38px; }
 
 /* Pagina Agente */

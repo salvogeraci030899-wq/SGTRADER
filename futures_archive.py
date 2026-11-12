@@ -28,9 +28,11 @@ import numpy as np
 import pandas as pd
 import requests
 
+from kronos_core import TRADE_ASSETS
+
 BASE = "https://data.binance.vision/data/futures/um"
 OUT_DIR = "futures_archive"
-COINS = ("BTCUSDT", "ETHUSDT", "SOLUSDT")
+COINS = tuple(TRADE_ASSETS)
 FIRST_DAY = date(2020, 1, 1)
 COLUMNS = ["date", "funding_pct", "oi_value", "ls_accounts", "taker_ratio"]
 DAY = 86400

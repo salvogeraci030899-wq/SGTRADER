@@ -12,7 +12,7 @@ import executor
 import paper
 import track_record
 from kronos_core import (
-    ALL_ASSETS, ALL_TIMEFRAMES, TF_DELTA, LOOKBACK, ATR_PERIOD, ATR_MULT, MIN_RR, MODEL_NAME,
+    ALL_ASSETS, TRADE_ASSETS, ALL_TIMEFRAMES, TF_DELTA, LOOKBACK, ATR_PERIOD, ATR_MULT, MIN_RR, MODEL_NAME,
     signal_from_prob, get_historical_data, klines_to_df, compute_atr, build_trade_plan,
     load_predictor, generate_monte_carlo_forecast,
 )
@@ -235,7 +235,14 @@ def automation_step(frames, notify=None):
     Un errore qui non ferma mai il bot."""
     notify = notify or send_telegram_alert
     try:
-        paper.update({k: int(df['time'].iloc[-1].timestamp()) for k, df in frames.items()}, notify=notify)
+        last = {k: int(df['time'].iloc[-1].timestamp()) for k, df in frames.items()}
+        # Kronos scarica solo BTC, ETH e SOL; le altre coin delle strategie chiudono le candele agli stessi
+        # orari (UTC), quindi prendono l'ora dell'ultima candela chiusa dello stesso timeframe
+        for k, ts in list(last.items()):
+            tf = k.rsplit("_", 1)[1]
+            for s in TRADE_ASSETS:
+                last.setdefault(f"{s}_{tf}", ts)
+        paper.update(last, notify=notify)
     except Exception as e:
         print(f"Prova su carta non aggiornata: {e}")
     try:
