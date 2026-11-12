@@ -94,6 +94,16 @@
    "actual": {
     "SOLUSDT": "short"
    }
+  },
+  {
+   "at": "2026-11-12T04:29:38+00:00",
+   "kind": "manual",
+   "action": "open",
+   "symbol": "BTCUSDT",
+   "side": "long",
+   "ok": false,
+   "req": "mwd1tfdfwkhfc2",
+   "msg": "Comando NON eseguito: Allo stop perderesti circa 0,8811 USDT, oltre il limite di 0,4805 (3% del conto, perdita massima del giorno)."
   }
  ],
  "mode": "reale",
