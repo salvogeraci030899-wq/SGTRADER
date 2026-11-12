@@ -1,3 +1,4 @@
+import { State } from '../core/state.js';
 import { $, escapeHtml, apiPost, getApiBase, setApiBase, clearAppKey, getGhToken, setGhToken, commandMode, fmtIt, fmtPrice, fetchData } from '../utils/helpers.js';
 
 // --- AUTOMAZIONE (pagina Segnali, vista "Auto") ---
@@ -124,6 +125,52 @@ export async function removePriceAlert(id) {
     if (window.updateHome) window.updateHome();
 }
 export const sendAlertCommand = (body, okText) => send({ type: 'alert', ...body }, okText);
+
+// Avviso dal grafico a schermo intero (Home e Segnali): livello scritto o scelto con +/- %, poi conferma.
+// Stesse regole dell'assistente: entro ±50% dal prezzo, massimo 10 avvisi, la direzione la decide il livello.
+let caSym = null, caPx = null;
+export function openChartAlert(symbol, px) {
+    caSym = symbol;
+    caPx = px > 0 ? px : (State.livePx[symbol] || null);
+    $('caTitle').textContent = `Avviso su ${symbol.replace('USDT', '')}`;
+    $('caNow').textContent = caPx ? `Ora ${fmtPrice(caPx)} USDT` : 'Prezzo attuale non disponibile';
+    $('caPrice').value = caPx ? String(Number(caPx.toPrecision(6))) : '';
+    $('caSteps').innerHTML = [-5, -2, -1, 1, 2, 5].map(p => `<button type="button" onclick="chartAlertStep(${p})">${p > 0 ? '+' : ''}${p}%</button>`).join('');
+    const mine = priceAlerts().filter(a => a.symbol === symbol);
+    $('caList').innerHTML = mine.length ? `<small>Attivi: ${mine.map(a => escapeHtml(fmtAlert(a).replace(/^\S+ /, ''))).join(' · ')}</small>` : '';
+    caHint();
+    $('chartAlertModal').classList.add('active');
+}
+export function closeChartAlert() { $('chartAlertModal').classList.remove('active'); }
+export function chartAlertStep(pct) {
+    if (!caPx) return;
+    const v = caPx * (1 + pct / 100);
+    $('caPrice').value = String(Number(v.toPrecision(6)));
+    caHint();
+}
+function caCheck() {
+    const v = parseFloat(String($('caPrice').value).replace(',', '.'));
+    if (!(v > 0)) return { error: 'Scrivi un prezzo.' };
+    if (!caPx) return { error: 'Prezzo attuale non disponibile: riprova fra poco.' };
+    if (Math.abs(v / caPx - 1) < 0.0005) return { error: 'È il prezzo attuale: scegli un livello sopra o sotto.' };
+    if (Math.abs(v / caPx - 1) > 0.5) return { error: 'Troppo lontano dal prezzo attuale (oltre ±50%).' };
+    if (priceAlerts().length >= 10) return { error: 'Hai già 10 avvisi attivi (il massimo).' };
+    return { price: v, side: v > caPx ? 'above' : 'below' };
+}
+export function caHint() {
+    const c = caCheck(), h = $('caHint');
+    if (c.error) { h.textContent = c.error; h.className = 'ca-hint text-danger'; return; }
+    const pct = (c.price / caPx - 1) * 100;
+    h.textContent = `Messaggio su Telegram quando ${caSym.replace('USDT', '')} ${c.side === 'above' ? 'sale a' : 'scende a'} ${fmtPrice(c.price)} (${pct >= 0 ? '+' : ''}${fmtIt(pct, 2)}%). Nessun ordine.`;
+    h.className = 'ca-hint';
+}
+export async function confirmChartAlert() {
+    const c = caCheck();
+    if (c.error) { caHint(); return; }
+    closeChartAlert();
+    await sendAlertCommand({ op: 'add', symbol: caSym, side: c.side, price: String(c.price) }, 'Avviso inviato: attivo entro 1-2 minuti.');
+    if (window.renderOrders) window.renderOrders();
+}
 let pendingTrading = null;   // 'on' / 'off' inviato ma non ancora visibile in automation.json
 const pending = {};   // comandi inviati ma non ancora visibili nei file pubblicati
 

@@ -65,14 +65,15 @@ export function toggleFullscreenChart() {
     }, ms));
 }
 
-export async function takeSnapshot(btn) {
+// Condividi: immagine del grafico a schermo intero (Segnali) o della pagina; target = elemento da fotografare
+export async function takeSnapshot(btn, target = null, label = null) {
     btn.style.opacity = '0.5';
     btn.disabled = true;
     document.body.classList.add('snapshot-mode');
     try {
         await new Promise(r => setTimeout(r, 300));
         if (document.fonts && document.fonts.ready) await document.fonts.ready;
-        const targetEl = document.getElementById('page-terminal');
+        const targetEl = target || (mainChartContainer.classList.contains('fullscreen') ? mainChartContainer : document.getElementById('page-terminal'));
         const canvas = await html2canvas(targetEl, {
             backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#000000', scale: 3, useCORS: true, allowTaint: true, logging: false,
             onclone: (clonedDoc) => {
@@ -92,7 +93,7 @@ export async function takeSnapshot(btn) {
                 await navigator.share({
                     files: [file],
                     title: 'Kronos Grafici',
-                    text: `${State.currentAsset.replace('USDT','')} · ${getTFLabel(State.currentTF)}`
+                    text: label || `${State.currentAsset.replace('USDT','')} · ${getTFLabel(State.currentTF)}`
                 });
                 return;
             } catch (shareErr) { if (shareErr.name === 'AbortError') return; }
@@ -108,6 +109,11 @@ export async function takeSnapshot(btn) {
         btn.disabled = false;
         document.body.classList.remove('snapshot-mode');
     }
+}
+
+export function chartAlertSignals() {
+    const d = State.allData && State.allData[`${State.currentAsset}_${State.currentTF}`];
+    window.openChartAlert(State.currentAsset, State.livePx[State.currentAsset] || (d && d.current_price));
 }
 
 // --- DATA FETCHING ---

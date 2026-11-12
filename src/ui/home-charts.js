@@ -1,3 +1,4 @@
+import { State } from '../core/state.js';
 import { Logger } from '../core/logger.js';
 import { createChart, setCandles, setVolume } from './chart.js';
 
@@ -10,6 +11,9 @@ const TF_MAP = { '1d': '1day', '4h': '4h', '1h': '1h' };
 
 const ICON_EXPAND = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>`;
 const ICON_COLLAPSE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>`;
+
+const ICON_SHARE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>`;
+const ICON_BELL = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
 
 const charts = {};
 let initialized = false;
@@ -32,6 +36,10 @@ function createChartCard(coin) {
             </div>
         </div>
         <div class="home-chart-canvas" id="homeChart-${coin.symbol}"></div>
+        <div class="chart-fs-tools">
+            <button type="button" class="chart-tool" data-act="alert" title="Avviso di prezzo" aria-label="Avviso di prezzo">${ICON_BELL}</button>
+            <button type="button" class="chart-tool" data-act="share" title="Condividi" aria-label="Condividi">${ICON_SHARE}</button>
+        </div>
     `;
     return card;
 }
@@ -81,6 +89,7 @@ async function loadCandles(symbol) {
             });
         }
         candles.sort((a, b) => a.time - b.time);
+        if (candles.length) s.last = candles[candles.length - 1].close;
 
         setCandles(s.handle, candles.map(c => ({
             time: c.time, open: c.open, high: c.high, low: c.low, close: c.close
@@ -172,6 +181,15 @@ export function initHomeCharts() {
                     loadCandles(symbol);
                 }
             });
+        });
+        card.querySelector('[data-act="alert"]').addEventListener('click', e => {
+            e.stopPropagation();
+            window.openChartAlert(symbol, State.livePx[symbol] || (charts[symbol] && charts[symbol].last));
+        });
+        card.querySelector('[data-act="share"]').addEventListener('click', e => {
+            e.stopPropagation();
+            const tf = (charts[symbol] && charts[symbol].tf) || '1d';
+            window.takeSnapshot(e.currentTarget, card, `${symbol.replace('USDT', '')} · ${tf.toUpperCase()}`);
         });
         const fsBtn = card.querySelector('.home-chart-fullscreen');
         if (fsBtn) {
