@@ -239,7 +239,7 @@ window.sendAssist = Assist.sendAssist;
 window.toggleRecording = Assist.toggleRecording;
 window.toggleAssistSpeak = Assist.toggleAssistSpeak;
 window.removeRule = TradeUI.removeRule;
-// dalla Home: Segnali → Auto in un tocco
+// dalla Home: Agente → Strategie in un tocco
 window.openAutomation = () => { window.switchTab('signals'); AutoUI.setSignalsView('auto'); };   // Home → Automazione: Agente → Strategie
 
 // Home Live Charts

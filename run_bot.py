@@ -50,7 +50,8 @@ def send_telegram_alert(text):
     if not TG_TOKEN or not TG_CHAT_ID:
         return False
     url = f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage"
-    payload = {"chat_id": TG_CHAT_ID, "text": text, "parse_mode": "Markdown"}
+    import watchdog
+    payload = {"chat_id": TG_CHAT_ID, "text": text, "parse_mode": "Markdown", "reply_markup": watchdog.keyboard_for(text)}
     try:
         r = requests.post(url, json=payload, timeout=10)
         r.raise_for_status()

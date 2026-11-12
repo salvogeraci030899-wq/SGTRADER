@@ -30,6 +30,16 @@ def test_controllo_rapido_e_agente():
     assert wd.checks(NOW, NOW - timedelta(hours=1), "success", others={"agent": (None, None)}) == []   # mai partito: niente allarme
 
 
+def test_tasti_sotto_i_messaggi():
+    kb = lambda t: [b["callback_data"] for row in wd.keyboard_for(t)["inline_keyboard"] for b in row]  # noqa: E731
+    assert kb("✅ POSIZIONE CHIUSA · Bitget reale") == ["stato", "posizioni", "agente"]
+    assert kb("🤖 ESECUTORE (REALE)\nPosizioni diverse dal previsto. Esecutore bloccato: controlla su Bitget")[0] == "emg"
+    assert kb("Perdita del giorno -3,20% oltre il limite (3%)")[0] == "emg"
+    assert kb("🩺 SGTRADER, CONTROLLO DI SALUTE\n- Il bot non parte da 3 ore")[0] == "emg"
+    assert kb("Emergenza: chiuse 2 posizioni.") == ["stato", "posizioni", "agente"]          # già in emergenza
+    assert all(b.get("callback_data") and not b.get("url") for row in wd.keyboard_for("⚠️")["inline_keyboard"] for b in row)   # niente link
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in tests:

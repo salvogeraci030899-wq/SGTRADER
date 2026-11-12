@@ -141,13 +141,52 @@ const eq = (a, b) => {
 };
 
 const EMERGENCY_HELP = '⛔ EMERGENZA\nSpegne tutte le strategie, chiude le posizioni aperte dall\'esecutore e blocca l\'automazione '
-    + '(le posizioni aperte a mano restano). Per confermare scrivi:\n/emergenza CONFERMA\nPer ripartire: app, Segnali → Auto → Sblocca.';
+    + '(le posizioni aperte a mano restano). Per confermare scrivi:\n/emergenza CONFERMA\nPer ripartire: app, Agente → Rischio → Sblocca.';
+
+// Tasti sotto i messaggi (inline keyboard): rispondono qui, senza aprire niente fuori da Telegram.
+// Gli stessi tasti li mettono anche i messaggi del bot (watchdog.keyboard_for).
+export const INFO_KEYS = { inline_keyboard: [[{ text: '📊 Stato', callback_data: 'stato' }, { text: '📈 Posizioni', callback_data: 'posizioni' }, { text: '🤖 Agente', callback_data: 'agente' }]] };
+const CONFIRM_SECONDS = 120;        // la conferma dell'emergenza vale 2 minuti: un tasto vecchio non fa nulla
+
+async function tg(env, fetchFn, method, payload) {
+    try {
+        await fetchFn(`https://api.telegram.org/bot${env.TELEGRAM_TOKEN}/${method}`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+        });
+    } catch (e) { /* risposta persa: si può ritoccare il tasto */ }
+}
+
+async function onButton(cb, env, fetchFn, command, now) {
+    await tg(env, fetchFn, 'answerCallbackQuery', { callback_query_id: cb.id });     // toglie la rotellina dal tasto
+    const data = String(cb.data || '');
+    const send = (text, keys = INFO_KEYS) => tg(env, fetchFn, 'sendMessage', { chat_id: env.TELEGRAM_CHAT_ID, text: text.slice(0, 4000), reply_markup: keys, disable_web_page_preview: true });
+    if (['stato', 'posizioni', 'agente', 'carta', 'avvisi'].includes(data)) return send(telegramAnswer('/' + data, await loadData(env, fetchFn)));
+    if (data === 'emg') {
+        return send(EMERGENCY_HELP.split('\nPer confermare')[0] + '\n\nConfermi? (vale 2 minuti)', { inline_keyboard: [[
+            { text: '⛔ Sì, spegni tutto', callback_data: `emg_yes:${Math.floor(now / 1000)}` }, { text: 'No', callback_data: 'emg_no' }]] });
+    }
+    if (data === 'emg_no') return send('Emergenza annullata: non è cambiato nulla.');
+    if (data.startsWith('emg_yes:')) {
+        const t = Number(data.split(':')[1]) || 0;
+        if (Math.floor(now / 1000) - t > CONFIRM_SECONDS || !command) return send('Conferma scaduta: tocca di nuovo ⛔ Emergenza se serve ancora.');
+        const r = await command({ type: 'emergency' });
+        return send(r && r.status === 200
+            ? '⛔ Emergenza inviata. Entro 1-2 minuti strategie spente; al giro successivo del bot (entro 15 minuti) l\'esecutore chiude le sue posizioni e lo scrive qui. Le posizioni aperte a mano restano: controlla su Bitget.'
+            : `Emergenza NON inviata (${(r && r.body && r.body.error) || 'errore'}). Usa l'app o chiudi direttamente su Bitget.`);
+    }
+    return null;
+}
 
 // command: funzione che invia un comando come l'app (commands.js), passata da handle()
-export async function telegramWebhook(body, headers, env, fetchFn, command = null) {
+export async function telegramWebhook(body, headers, env, fetchFn, command = null, now = Date.now()) {
     const ok = { status: 200, body: { ok: true } };
     if (!env.TELEGRAM_TOKEN || !env.TELEGRAM_CHAT_ID || !env.TELEGRAM_WEBHOOK_SECRET) return { status: 503, body: { error: 'Bot Telegram non configurato' } };
     if (!eq(headers['x-telegram-bot-api-secret-token'], env.TELEGRAM_WEBHOOK_SECRET)) return { status: 401, body: { error: 'non autorizzato' } };
+    const cb = body && body.callback_query;
+    if (cb) {
+        if (String(cb.message && cb.message.chat && cb.message.chat.id) === String(env.TELEGRAM_CHAT_ID)) await onButton(cb, env, fetchFn, command, now);
+        return ok;
+    }
     const msg = (body && (body.message || body.edited_message)) || null;
     // altre chat o messaggi senza testo: nessuna risposta (200, così Telegram non riprova)
     if (!msg || !msg.text || String(msg.chat && msg.chat.id) !== String(env.TELEGRAM_CHAT_ID)) return ok;
@@ -165,7 +204,7 @@ export async function telegramWebhook(body, headers, env, fetchFn, command = nul
     try {
         await fetchFn(`https://api.telegram.org/bot${env.TELEGRAM_TOKEN}/sendMessage`, {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text: answer.slice(0, 4000), disable_web_page_preview: true })
+            body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text: answer.slice(0, 4000), disable_web_page_preview: true, reply_markup: INFO_KEYS })
         });
     } catch (e) { /* risposta persa: l'utente può riscrivere */ }
     return ok;

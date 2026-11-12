@@ -1,7 +1,7 @@
 """Agente gestore: lavora per te sul tool, dal laboratorio alla carta al reale (workflow "Agente").
 
 Ogni giorno decide, ogni domenica rilancia anche il laboratorio sui dati nuovi. Tre impostazioni, dall'app
-(Segnali → Agente), salvate in automation.json → "agent":
+(Agente → Panoramica, Strategie e Rischio), salvate in automation.json → "agent":
 
 - autonomia: "off" (solo rapporto, non tocca nulla), "paper" (sceglie e cambia le strategie su carta, propone
   il reale), "live" (porta da solo al reale le strategie che hanno superato tutto, e le riporta su carta se
@@ -453,9 +453,9 @@ def run(notify, cfg_path=automation.CONFIG_PATH, summary_path=automation.SUMMARY
         head = "🤖 AGENTE" + (" · rapporto" if full_report else "") + f" ({ag['autonomy']}, {ag['profile']}, {ag['style']})"
         msg = head + "\n\n" + (text or "\n".join(f"• {x}" for x in facts))
         if d["proposals"]:
-            msg += "\n\n👉 " + "; ".join(f"{_label(p['key'])}: proposta per il reale" for p in d["proposals"]) + ". Conferma in app: Segnali → Agente."
+            msg += "\n\n👉 " + "; ".join(f"{_label(p['key'])}: proposta per il reale" for p in d["proposals"]) + ". Conferma in app: Agente → Panoramica."
         if d["promote"]:
-            msg += "\n\n⚠️ Ordini veri da ora per: " + ", ".join(_label(k) for k, _ in d["promote"]) + ". Per fermare: Segnali → Agente → autonomia Simulato, oppure Emergenza."
+            msg += "\n\n⚠️ Ordini veri da ora per: " + ", ".join(_label(k) for k, _ in d["promote"]) + ". Per fermare: Agente → Panoramica → autonomia Simulato, oppure Emergenza."
         notify(msg)
         print(msg)
     else:
