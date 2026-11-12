@@ -4,6 +4,7 @@ import * as Trade from './trade.js';
 import * as Auto from './automation.js';
 import { tradingMode } from './account.js';
 import { planAction } from '../core/rules.js';
+import * as AI from './ai.js';
 import { findRealPosition, realPositions } from './history.js';
 
 // --- ASSISTENTE SULLA POSIZIONE: chat di testo e chat vocale ---
@@ -125,6 +126,7 @@ function renderCtx(real, t) {
 
 // Comandi rapidi: le azioni più usate senza scrivere. Quelli "ask" fanno una domanda all'IA.
 const QUICK_POSITION = real => [
+    { label: 'Analisi AI', analysis: true, cls: 'ask' },
     { label: 'Stop a pareggio', action: { type: 'stop_breakeven' } },
     { label: 'Chiudi a +10 USDT', action: { type: 'close_at_pnl', value: 10, unit: 'usdt' } },
     { label: real ? 'Togli stop e target' : 'Togli le regole', action: { type: 'clear_rules' } },
@@ -148,8 +150,26 @@ export function assistQuick(i) {
     const q = quickList[i];
     if (!q || busy) return;
     if (q.ask) { sendAssist(q.ask); return; }
+    if (q.analysis) { chatAnalysis(); return; }
     addMsg('user', escapeHtml(q.label));
     (general ? showGeneralPlan : realSymbol ? showRealPlan : showPlan)(q.action);
+}
+
+// Analisi AI in tempo reale della posizione, scritta direttamente in chat
+async function chatAnalysis() {
+    const rp = realSymbol ? realPos() : null;
+    const t = rp ? { ...realTrade(rp), real: true, pnl: Trade.liveUpl(rp) || 0 } : trade();
+    if (!t) { addMsg('bot', 'La posizione non è più aperta.'); return; }
+    addMsg('user', 'Analisi AI');
+    busy = true; status('Raccolgo prezzi, candele 1d/4h/1h e dati futures…');
+    try {
+        const out = await AI.fetchAnalysis({ symbol: t.symbol, tf: t.granularity || '4h', trade: t }, step => status(step));
+        addMsg('bot analysis', AI.renderAnalysis(out));
+        const act = (out.analysis.match(/AZIONE:\s*([^\n]+)/) || [])[1];
+        if (act) say(act);
+    } catch (e) {
+        addMsg('bot error', `Analisi non riuscita: ${escapeHtml(e.message)}`);
+    } finally { busy = false; status(''); }
 }
 
 // Tutte le posizioni aperte della modalità attiva, con il PnL attuale (null se non noto)

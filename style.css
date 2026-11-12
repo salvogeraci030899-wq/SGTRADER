@@ -103,7 +103,7 @@ main {
 #page-terminal.active { padding-bottom: calc(10px + var(--fit-extra-bottom-terminal, 0px)); overflow-y: var(--fit-overflow-terminal, hidden); }
 #page-terminal.active > *:not(.header-row) { zoom: var(--fit-zoom-terminal, 1); }
 #page-trade.active { padding-bottom: calc(10px + var(--fit-extra-bottom-trade, 0px)); overflow-y: var(--fit-overflow-trade, hidden); }
-#page-trade.active > *:not(.header-row) { zoom: var(--fit-zoom-trade, 1); }
+#page-trade.active > *:not(.header-row):not(.pos-views) { zoom: var(--fit-zoom-trade, 1); }
 #page-journal.active { padding-bottom: calc(10px + var(--fit-extra-bottom-journal, 0px)); overflow-y: var(--fit-overflow-journal, hidden); }
 #page-journal.active > *:not(.header-row) { zoom: var(--fit-zoom-journal, 1); }
 #page-signals.active { padding-bottom: calc(10px + var(--fit-extra-bottom-signals, 0px)); overflow-y: var(--fit-overflow-signals, hidden); }
@@ -897,7 +897,7 @@ html.pwa-mode .nav-item svg { width: 22px; height: 22px; }
 /* Posizioni in modalità Reale (sola lettura) */
 .at-real-note { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
 .at-real .at-real-note { padding: 10px 12px; background: var(--shade); border-top: 1px solid var(--border); }
-.at-real .at-body { row-gap: 14px; }
+.at-real .at-body { row-gap: 8px; }
 .at-empty { color: var(--text-secondary); font-size: 12px; text-align: center; }
 /* Capitale simulato: segno + / − */
 .cap-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
@@ -951,6 +951,9 @@ html.pwa-mode .nav-item svg { width: 22px; height: 22px; }
 .assist-msg.bot { align-self: flex-start; background: var(--surface-hover); color: var(--text); border-bottom-left-radius: 6px; }
 .assist-msg.warn { color: var(--warning-text); }
 .assist-msg.error { color: var(--danger); }
+.assist-msg.analysis { max-width: 100%; align-self: stretch; font-size: 13px; }
+.assist-msg.analysis .ai-h { display: block; margin-top: 6px; color: var(--ui); font-size: 12px; letter-spacing: 0.3px; }
+.assist-msg.analysis .ai-foot { margin-top: 8px; font-size: 10px; color: var(--text-secondary); }
 .assist-msg.plan { align-self: stretch; max-width: none; background: var(--surface); border: 1px solid var(--ui); color: var(--text); border-radius: 16px; }
 .assist-plan-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
 .assist-plan-actions button { min-height: 42px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; }
@@ -1073,7 +1076,7 @@ html.app-locked .lock-screen, .lock-screen.active { display: flex; }
 .order-status:empty { display: none; }
 
 /* Posizioni: viste Aperte / Ordini */
-.pos-views { display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: var(--field); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; flex-shrink: 0; }
+.pos-views { display: grid; grid-template-columns: 1fr 1fr; gap: 0; height: 36px; flex: 0 0 36px; min-height: 36px; background: var(--field); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; flex-shrink: 0; }
 .pos-views button { background: transparent; border: none; color: var(--text-secondary); font-size: 13px; font-weight: 700; min-height: 34px; cursor: pointer; font-family: var(--font); }
 .pos-views button.active { background: var(--surface-hover); color: var(--text); }
 .orders-view { flex: 1; min-height: 0; overflow: hidden; display: grid; grid-auto-rows: minmax(0, 1fr); gap: 8px; padding-bottom: 4px; }
@@ -1094,6 +1097,21 @@ html.app-locked .lock-screen, .lock-screen.active { display: flex; }
 .ord-ok { flex: none; font-weight: 800; width: 14px; text-align: center; }
 .ord-empty { flex: 1; font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; }
 @media (max-height: 700px) {
-    .pos-views { margin-bottom: 6px; }
-    .pos-views button { min-height: 28px; font-size: 12px; }
+    .pos-views { margin-bottom: 6px; height: 30px; flex-basis: 30px; min-height: 30px; }
+    .pos-views button { min-height: 0; font-size: 12px; }
+}
+
+/* Posizioni: un solo tasto (Assistente) e importi in USDT sotto stop, target e liquidazione */
+.at-actions-1 { display: grid; grid-template-columns: 1fr; }
+.at-actions-1 .btn-ai-analysis { width: 100%; padding: 9px 4px; font-size: 14px; gap: 8px; }
+.at-usd { display: block; font-size: 10px; font-weight: 600; line-height: 1.1; }
+.at-usd.green { color: var(--accent); }
+.at-usd.red { color: var(--danger); }
+/* Schermi bassi (iPhone SE): una scheda per pagina, a tutta altezza (le altre scorrendo in orizzontale) */
+@media (max-height: 620px) {
+    #activeTradesList { grid-template-rows: minmax(0, 1fr); }
+}
+/* Schermi medi e bassi: l'ultimo comando si legge in Posizioni → Ordini */
+@media (max-height: 700px) {
+    .at-real .at-last { display: none; }
 }

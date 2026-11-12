@@ -8,7 +8,7 @@ import * as AI from './ai.js';
 import { tradingMode } from './account.js';
 import { getAutoState, maybeRefreshAccount, isRealOrderRemoving, isRefreshingAccount } from './automation.js';
 import { realPositions } from './history.js';
-import { planAction, ruleHitPrice, ruleHitCandle } from '../core/rules.js';
+import { planAction, ruleHitPrice, ruleHitCandle, netPnlAt } from '../core/rules.js';
 
 export function initTrade() {
     // posizioni reali: prezzo mark dei futures ogni 5 secondi (solo in modalità Reale e con posizioni aperte)
@@ -89,6 +89,14 @@ export function refreshCapitalUI() {
     Calculator.syncCapital();
 }
 
+// Quanto si vince o si perde (USDT) se il prezzo arriva a un livello: posizioni reali con le commissioni di Bitget
+// (0,06% futures, 0,1% spot, niente tasse); simulate con calcPnl (commissioni e tasse dell'app)
+const usdAt = v => (v == null || !isFinite(v) ? '' : `<small class="at-usd ${v >= 0 ? 'green' : 'red'}">${v >= 0 ? '+' : ''}${v.toFixed(2).replace('.', ',')} USDT</small>`);
+function realAt(p, level) {
+    if (!level || !p.entry) return null;
+    return netPnlAt({ type: p.side === 'short' ? 'SHORT' : 'LONG', entryPrice: p.entry, size: p.size, feeRate: p.market === 'spot' ? 0.001 : 0.0006, noTax: true }, level);
+}
+
 // Comandi attivi (regole, stop e target) in una striscia che scorre in orizzontale: una riga sola, qualunque numero
 const rulesStrip = items => (items.length ? `<div class="at-rules${items.length > 1 ? ' many' : ''}">${items.join('')}</div>` : '');
 
@@ -156,16 +164,12 @@ function renderRealPositions(el) {
                         ? `<div class="at-item"><span class="at-lbl">Valore</span><span class="at-val" data-f="value">${n(p.value)}</span></div>
                     <div class="at-item"><span class="at-lbl">Mercato</span><span class="at-val">spot, 1x</span></div>`
                         : `<div class="at-item"><span class="at-lbl">Margine</span><span class="at-val">${n(p.margin)}</span></div>
-                    <div class="at-item"><span class="at-lbl">Liquidazione</span><span class="at-val red">${n(p.liq)}</span></div>`}
+                    <div class="at-item"><span class="at-lbl">Liquidazione</span><span class="at-val red">${n(p.liq)}${p.liq ? usdAt(-(p.margin || 0)) : ''}</span></div>`}
                     <div class="at-item"><span class="at-lbl" data-f="upl-lbl">PnL aperto</span><span class="at-val" data-f="upl" style="color:${(p.upl || 0) >= 0 ? 'var(--accent)' : 'var(--danger)'}">${p.upl == null ? '—' : (p.upl >= 0 ? '+' : '') + n(p.upl)}</span></div>
-                    <div class="at-item"><span class="at-lbl">Take profit</span><span class="at-val green">${p.tp ? fmtPrice(p.tp) : '—'}</span></div>
-                    <div class="at-item"><span class="at-lbl">Stop loss</span><span class="at-val red">${p.sl ? fmtPrice(p.sl) : '—'}</span></div>
+                    <div class="at-item"><span class="at-lbl">Take profit</span><span class="at-val green">${p.tp ? fmtPrice(p.tp) + usdAt(realAt(p, p.tp)) : '—'}</span></div>
+                    <div class="at-item"><span class="at-lbl">Stop loss</span><span class="at-val red">${p.sl ? fmtPrice(p.sl) + usdAt(realAt(p, p.sl)) : '—'}</span></div>
                 </div>
-                <div class="at-actions at-actions-2">
-                    <button class="btn-ai-analysis" onclick="requestAIAnalysisReal('${p.key}')" title="Analisi AI in tempo reale della posizione">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                        Analisi AI
-                    </button>
+                <div class="at-actions at-actions-1">
                     <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistantReal('${p.key}', false)" title="Assistente: scrivi o parla">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 7v4"/><path d="M10 9.5a2 2 0 0 0 4 0"/></svg>
                         Assistente
@@ -353,8 +357,8 @@ export function renderActiveTrades() {
                     <div class="at-item"><span class="at-lbl">Entry</span><span class="at-val">${t.entryPrice.toFixed(2)}</span></div>
                     <div class="at-item"><span class="at-lbl">Corrente</span><span class="at-val" data-f="px">—</span></div>
                     <div class="at-item"><span class="at-lbl">Size</span><span class="at-val">${fmtUsdt(t.capitalInvested)}</span></div>
-                    <div class="at-item"><span class="at-lbl">Stop Loss</span><span class="at-val red">${t.slPrice.toFixed(2)}</span></div>
-                    <div class="at-item"><span class="at-lbl">Take Profit</span><span class="at-val green">${t.tpPrice.toFixed(2)}</span></div>
+                    <div class="at-item"><span class="at-lbl">Stop Loss</span><span class="at-val red">${t.slPrice.toFixed(2)}${usdAt(calcPnl(t, t.slPrice).net)}</span></div>
+                    <div class="at-item"><span class="at-lbl">Take Profit</span><span class="at-val green">${t.tpPrice.toFixed(2)}${usdAt(calcPnl(t, t.tpPrice).net)}</span></div>
                     <div class="at-item"><span class="at-lbl">Timer</span><span class="at-val" data-f="timer" style="color:var(--warning);">—</span></div>
                 </div>
                 <div class="at-footer">
@@ -362,11 +366,7 @@ export function renderActiveTrades() {
                     <div class="at-item" style="text-align:center; flex: 1;"><span class="at-lbl">Costi</span><span class="at-val" data-f="costs" style="color:var(--warning);">—</span></div>
                     <div class="at-item" style="text-align:right; flex: 1;"><span class="at-lbl">PnL Netto</span><span class="at-val" data-f="net" style="font-size:15px;">—</span></div>
                 </div>
-                <div class="at-actions at-actions-2">
-                    <button class="btn-ai-analysis" onclick="requestAIAnalysis('${t.id}')" title="Analisi AI in tempo reale">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                        Analisi AI
-                    </button>
+                <div class="at-actions at-actions-1">
                     <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistant('${t.id}', false)" title="Assistente: scrivi o parla">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 7v4"/><path d="M10 9.5a2 2 0 0 0 4 0"/></svg>
                         Assistente
@@ -436,10 +436,12 @@ export function renderActiveTradeDots() {
     const dotsContainer = document.getElementById('activeTradeDots');
     const counter = document.getElementById('activeTradeCounter');
     if (!dotsContainer) return;
-    const count = State.simState.activeTrades.length;
-    if (count === 0) { dotsContainer.innerHTML = ''; if (counter) counter.textContent = ''; return; }
-    const totalPages = Math.ceil(count / 2);
+    // schede della modalità attiva; per pagina: due, una sugli schermi bassi (righe della griglia)
     const container = document.getElementById('activeTradesList');
+    const count = isReal() ? realList().length : State.simState.activeTrades.length;
+    if (count === 0) { dotsContainer.innerHTML = ''; if (counter) counter.textContent = ''; return; }
+    const perPage = container ? Math.max(1, getComputedStyle(container).gridTemplateRows.split(' ').filter(Boolean).length) : 2;
+    const totalPages = Math.ceil(count / perPage);
     let activeIdx = 0;
     if (container && container.firstElementChild) { const itemWidth = container.firstElementChild.offsetWidth + 12; if (itemWidth > 0) activeIdx = Math.round(container.scrollLeft / itemWidth); }
     activeIdx = Math.max(0, Math.min(activeIdx, totalPages - 1));
