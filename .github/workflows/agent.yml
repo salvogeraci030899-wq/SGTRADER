@@ -1,0 +1,72 @@
+name: Agente
+
+# Agente selezionatore (agent.py), ogni domenica sera e a richiesta dall'app (Segnali → Auto):
+#   1. laboratorio aggiornato sullo storico Bitget (stesse prove di sempre, nessuna prova finale aperta);
+#   2. regole fisse: candidate su carta, spente quelle messe dall'agente che vanno peggio dello storico,
+#      proposta per il reale quando una strategia confermata va bene anche su carta;
+#   3. rapporto su Telegram (scritto da un modello AI se c'è GROQ_API_KEY, altrimenti l'elenco dei fatti).
+# L'agente non passa mai nulla al reale: la proposta parte solo dal tuo tocco nell'app.
+on:
+  schedule:
+    - cron: '41 18 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  lab:
+    name: Laboratorio aggiornato
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    concurrency:
+      group: lab-agent
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Installa dipendenze minime
+        run: pip install "pandas>=2.2.2" numpy requests
+      - name: Calcola
+        run: python strategy_lab.py > /dev/null
+      - name: Salva i risultati
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add lab_summary.json lab_registry.json validation/LABORATORIO.md
+          git commit -m "Agente: laboratorio aggiornato $(date -u +%Y-%m-%d_%H:%M)" || { echo "Nessuna modifica"; exit 0; }
+          bash tools/push_state.sh
+
+  agent:
+    name: Scelte e rapporto
+    needs: lab
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # stesso gruppo dei comandi dell'app: automation.json cambia un comando alla volta
+    concurrency:
+      group: automation
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Installa dipendenze minime
+        run: pip install "pandas>=2.2.2" numpy requests
+      - name: Agente
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: python agent.py | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Salva
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add automation.json agent_state.json
+          git commit -m "Agente: scelte della settimana $(date -u +%Y-%m-%d_%H:%M)" || { echo "Nessuna modifica"; exit 0; }
+          bash tools/push_state.sh

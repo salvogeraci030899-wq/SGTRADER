@@ -47,6 +47,7 @@ test('comandi ammessi e workflow giusti', async () => {
     calls.length = 0;
     const cases = [
         [{ type: 'run_lab' }, 'lab.yml', { unseal: '' }],
+        [{ type: 'run_agent' }, 'agent.yml', {}],
         [{ type: 'run_lab', unseal: 'donchian55:4h' }, 'lab.yml', { unseal: 'donchian55:4h' }],
         [{ type: 'run_strategies' }, 'strategies.yml', { start: '2018-01-01' }],
         [{ type: 'run_validation' }, 'validation.yml', { n_samples: '50', max_minutes: '320' }],
