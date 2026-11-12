@@ -588,7 +588,7 @@ export function renderAgentView() {
         <div class="auto-row"><span>Ultima decisione</span><b>${agentState && agentState.last_run ? escapeHtml(new Date(agentState.last_run).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })) : 'ogni giorno alle 19:41'}${agentProposals().length ? ` · <span class="text-warning">${agentProposals().length} proposta</span>` : ''}</b></div>`;
     $('agentSettings').innerHTML = Object.keys(AG_LABELS).map(field => `<div class="agent-set"><span>${AG_TITLES[field]}</span><div class="option-toggle compact">${
         Object.entries(AG_LABELS[field]).map(([v, l]) => `<button type="button" class="pill-btn${ag[field] === v ? ' active' : ''}${field === 'autonomy' && v === 'live' ? ' agent-live' : ''}" onclick="setAgent('${field}','${v}')">${l}</button>`).join('')
-    }</div></div>`).join('');
+    }</div></div>`).join('') + styleHint();
     const log = ((agentState && agentState.log) || []).slice().reverse();
     $('agentLogCount').textContent = log.length ? String(log.length) : '';
     $('agentLog').innerHTML = log.length
@@ -663,6 +663,21 @@ function renderAgentPerf() {
         </div>
         ${sparkline(p.points)}
         <small class="agent-perf-note">Su carta dal ${escapeHtml(since)}, tutte le strategie, in % del patrimonio con ${fmtIt(risk.risk_per_trade_pct, 2)}% di rischio a trade. Costi compresi. Simulato: non è denaro vero.</small>`;
+}
+
+// Per ogni stile: candidate del laboratorio e strategie che l'agente metterebbe in osservazione (stesse regole di agent.py)
+const STYLE_TFS = { swing: ['1d'], giornaliero: ['4h', '1h'], misto: ['1d', '4h', '1h'] };
+function styleHint() {
+    const res = (lab && lab.results) || {}, cand = new Set((lab && lab.candidates) || []);
+    const usable = r => r && r.family !== 'forza relativa' && r.family !== 'funding';
+    const count = tfs => {
+        const ok = k => tfs.includes(k.split(':')[1]);
+        const c = [...cand].filter(k => ok(k) && usable(res[k])).length;
+        const o = Object.entries(res).filter(([k, r]) => ok(k) && !cand.has(k) && usable(r) && (r.n || 0) >= 50 && (r.excess_avg_pct || 0) > 0 && r.stable).length;
+        return `${c} candidat${c === 1 ? 'a' : 'e'}${o ? ` + ${o} da osservare` : ''}`;
+    };
+    if (!Object.keys(res).length) return '';
+    return `<div class="agent-hint">${Object.keys(STYLE_TFS).map(st => `<span><b>${AG_LABELS.style[st]}</b> ${count(STYLE_TFS[st])}</span>`).join('')}</div>`;
 }
 
 // Capitale rispetto ai minimi di Bitget (calcolato dall'agente con il profilo attuale)

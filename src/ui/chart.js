@@ -59,6 +59,8 @@ export function createChart(el, opts = {}) {
     cfg.bgColor = theme.bg; cfg.textColor = theme.text; cfg.gridColor = theme.grid;
 
     const chart = LightweightCharts.createChart(el, {
+        // lingua fissa: date in italiano, e niente errori se il sistema ha una lingua che il browser non riconosce
+        localization: { locale: 'it-IT' },
         layout: {
             background: { type: 'solid', color: cfg.bgColor },
             textColor: cfg.textColor,

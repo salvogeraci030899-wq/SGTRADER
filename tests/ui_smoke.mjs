@@ -1,0 +1,83 @@
+// Prova dell'interfaccia in un browser vero (Playwright, Chromium), su iPhone 15 Safari e iPhone 17 Pro installata:
+// ogni pagina e vista, in Simulato e in Reale, deve caricarsi senza errori JavaScript e senza scroll verticale
+// (regola dell'app: si scorre solo di lato). Dati: i file del repository; Bitget e GitHub simulati.
+//   node tests/ui_smoke.mjs                 (serve Playwright: npm i playwright && npx playwright install chromium)
+//   LWC_PATH=...lightweight-charts.js       facoltativo: libreria dei grafici da file invece che da unpkg
+import { spawn } from 'node:child_process';
+import { createRequire } from 'node:module';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const require = createRequire(import.meta.url);
+const { chromium } = require('playwright');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const PORT = 8800 + Math.floor(Math.random() * 100);
+const DEVICES = [{ n: 'iPhone 15 Safari', w: 393, h: 659 }, { n: 'iPhone 17 Pro app', w: 402, h: 874, pwa: true }];
+const VIEWS = { trade: [['setPosView', 'open'], ['setPosView', 'orders']], signals: [['setSignalsView', 'sig'], ['setSignalsView', 'auto'], ['setSignalsView', 'agent']], test: [['setTestView', 'bt'], ['setTestView', 'lab']] };
+
+const now = Date.now();
+const candles = (n = 200) => Array.from({ length: n }, (_, i) => {
+    const p = 70000 + Math.sin(i / 7) * 900 + i * 3;
+    return [String(now - (n - i) * 3600e3), String(p), String(p + 250), String(p - 250), String(p + 40), '12', '0', '0'];
+});
+
+const server = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '127.0.0.1'], { cwd: ROOT, stdio: 'ignore' });
+const problems = [];
+try {
+    for (let i = 0; i < 50; i++) {
+        try { if ((await fetch(`http://127.0.0.1:${PORT}/index.html`)).ok) break; } catch (e) { /* non ancora pronto */ }
+        await new Promise(r => setTimeout(r, 200));
+    }
+    const browser = await chromium.launch();
+    for (const dev of DEVICES) for (const mode of ['sim', 'real']) {
+        const ctx = await browser.newContext({ viewport: { width: dev.w, height: dev.h }, isMobile: true, hasTouch: true, colorScheme: 'dark' });
+        await ctx.addInitScript(pwa => {
+            try { localStorage.setItem('kronos_gh_token', 'github_pat_' + 'x'.repeat(30)); } catch (e) {}
+            if (pwa) Object.defineProperty(navigator, 'standalone', { get: () => true });
+        }, !!dev.pwa);
+        const page = await ctx.newPage();
+        const errors = [];
+        page.on('pageerror', e => errors.push(e.message));
+        if (process.env.LWC_PATH) await page.route('https://unpkg.com/**', r => r.fulfill({ contentType: 'application/javascript', body: fs.readFileSync(process.env.LWC_PATH, 'utf8') }));
+        await page.route('https://cdnjs.cloudflare.com/**', r => r.fulfill({ contentType: 'application/javascript', body: '' }));
+        await page.route('https://api.bitget.com/**', r => {
+            const u = r.request().url();
+            const data = u.includes('candles') ? candles() : u.includes('ticker') ? [{ symbol: 'BTCUSDT', lastPr: '70500', open24h: '69000', change24h: '0.021', high24h: '71000', low24h: '68800', baseVolume: '1000', usdtVolume: '7e7', markPrice: '70500' }] : [];
+            return r.fulfill({ contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ code: '00000', data }) });
+        });
+        await page.route('**/automation.json*', r => {
+            const j = JSON.parse(fs.readFileSync(path.join(ROOT, 'automation.json'), 'utf8'));
+            j.risk = { ...(j.risk || {}), trading_enabled: mode === 'real' };
+            return r.fulfill({ contentType: 'application/json', body: JSON.stringify(j) });
+        });
+        await page.route(/api\.github\.com|workers\.dev|api\.telegram\.org/, r => r.fulfill({ status: 204, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*' } }));
+        await page.goto(`http://127.0.0.1:${PORT}/index.html`);
+        await page.waitForTimeout(3500);
+        const pages = await page.evaluate(() => [...document.querySelectorAll('section.page')].map(s => s.id.replace('page-', '')));
+        for (const p of pages) for (const v of (VIEWS[p] || [[null]])) {
+            await page.evaluate(t => window.switchTab(t), p);
+            await page.waitForTimeout(400);
+            if (v[0]) { await page.evaluate(([f, a]) => window[f] && window[f](a), v); await page.waitForTimeout(400); }
+            const r = await page.evaluate(W => {
+                const pg = document.querySelector('section.page.active');
+                return { over: pg ? pg.scrollHeight - pg.clientHeight : -1, wide: document.documentElement.scrollWidth - W };
+            }, dev.w);
+            const where = `${dev.n}, ${mode === 'real' ? 'Reale' : 'Simulato'}, ${p}${v[1] ? '/' + v[1] : ''}`;
+            if (r.over > 1) problems.push(`${where}: la pagina scorre in verticale di ${r.over}px`);
+            if (r.over < 0) problems.push(`${where}: pagina non trovata`);
+            if (r.wide > 1) problems.push(`${where}: più larga dello schermo di ${r.wide}px`);
+        }
+        for (const e of new Set(errors)) problems.push(`${dev.n}, ${mode}: errore JavaScript: ${e}`);
+        console.log(`ok ${dev.n}, ${mode === 'real' ? 'Reale' : 'Simulato'}: ${pages.length} pagine`);
+        await ctx.close();
+    }
+    await browser.close();
+} finally {
+    server.kill();
+}
+if (problems.length) {
+    console.log(`\n${problems.length} PROBLEMI:\n- ` + problems.join('\n- '));
+    process.exit(1);
+}
+console.log('Interfaccia: tutto in ordine.');
