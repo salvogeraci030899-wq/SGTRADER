@@ -67,7 +67,9 @@ export function setMarket(market) {
     document.querySelectorAll('#page-calculator .fut-only').forEach(el => { el.style.display = market === 'FUTURES' ? '' : 'none'; });
     if (market === 'FUTURES') applyFuturesFee();
     calc();
+    if (marketReady) { State.capitalTouched = false; syncTradeMode(); }
 }
+let marketReady = true;
 
 export function setCtxLabel() {
     const el = document.getElementById('calcCtx');
@@ -83,7 +85,10 @@ export function syncCapital() {
     // in Reale il capitale di partenza è il conto futures di Bitget (gli ordini usano solo quello)
     const st = getAutoState(), acc = st.live && st.live.account;
     const real = tradingMode().mode === 'on' && acc && acc.connected;
-    const cap = real ? ((acc.accounts_usdt && acc.accounts_usdt.futures != null) ? acc.accounts_usdt.futures : acc.equity) : State.simState.freeBalance;
+    const spotUsdt = () => { const u = (acc.spot_coins || []).find(c => c.coin === 'USDT'); return u ? u.qty : 0; };
+    const cap = !real ? State.simState.freeBalance
+        : State.currentMarket === 'SPOT' ? spotUsdt()
+        : ((acc.accounts_usdt && acc.accounts_usdt.futures != null) ? acc.accounts_usdt.futures : acc.equity);
     capInput.value = Math.round(cap * 100) / 100;
     calc();
 }
@@ -351,13 +356,15 @@ export function syncTradeMode() {
     const real = isRealMode();
     const lbl = $('calcModeLbl');
     if (lbl) { lbl.textContent = real ? 'Reale · Bitget' : 'Simulato'; lbl.className = real ? 'text-warning' : ''; }
-    const spot = $('btn-market-spot');
-    if (spot) spot.style.display = real ? 'none' : '';          // in Reale solo futures (gli ordini vanno lì)
-    if (real && State.currentMarket !== 'FUTURES') setMarket('FUTURES');
+    // Spot in Reale: si compra soltanto (niente short né leva)
+    const spotReal = real && State.currentMarket === 'SPOT';
+    const shortBtn = document.querySelector('.option-toggle[data-target="calcDirection"] [data-value="SHORT"]');
+    if (shortBtn) shortBtn.style.display = spotReal ? 'none' : '';
+    if (spotReal && $('calcDirection').value === 'SHORT') { setCalcDirection('LONG'); calc(); }
     const btn = $('calcOpenBtn');
     if (btn && !btn.disabled) {
         btn.classList.toggle('btn-real', real);
-        $('calcOpenLbl').textContent = real ? 'Invia ordine su Bitget' : 'Apri Trade Simulato';
+        $('calcOpenLbl').textContent = !real ? 'Apri Trade Simulato' : spotReal ? 'Compra su Bitget (spot)' : 'Invia ordine su Bitget (futures)';
     }
     // cambiando modalità il capitale riparte dal conto giusto (app o futures di Bitget)
     if (real !== lastReal) { lastReal = real; State.capitalTouched = false; }
@@ -382,7 +389,20 @@ const it = (v, d = 2) => Number(v).toLocaleString('it-IT', { minimumFractionDigi
 
 // Ordine VERO: a mercato sui futures di Bitget, margine isolato, stop obbligatorio e target facoltativo già
 // sull'exchange. Riepilogo e conferma prima; il server e position_cmd.py ricontrollano tutto.
+async function spotRules(symbol) {
+    const key = `spot:${symbol}`;
+    if (specsCache[key]) return specsCache[key];
+    const r = await fetchT(`https://api.bitget.com/api/v2/spot/public/symbols?symbol=${symbol}`);
+    const d = (await r.json()).data[0];
+    return (specsCache[key] = { qtyPlace: Number(d.quantityPrecision), pricePlace: Number(d.pricePrecision), minUsdt: Number(d.minTradeUSDT || 1) });
+}
+async function spotPrice(symbol) {
+    const r = await fetchT(`https://api.bitget.com/api/v2/spot/market/tickers?symbol=${symbol}`);
+    return parseFloat((await r.json()).data[0].lastPr);
+}
+
 async function openRealOrder() {
+    if (State.currentMarket === 'SPOT') return openSpotOrder();
     const status = $('orderStatus');
     const say = (t, cls = '') => { if (status) { status.textContent = t; status.className = 'order-status ' + cls; } };
     const L = State.lastCalc, c = calcCtx(), symbol = c.asset;
@@ -408,12 +428,16 @@ async function openRealOrder() {
     say('');
     const msg = `ORDINE VERO su Bitget: ${side.toUpperCase()} ${SYM(symbol)} ${qty} a mercato (circa ${it(mark, specs.pricePlace)}), leva ${lev}x, margine isolato circa ${it(margin)} USDT. `
         + `Stop ${it(stop, specs.pricePlace)}: allo stop perdi circa ${it(loss)} USDT. ` + (target > 0 ? `Target ${it(target, specs.pricePlace)}.` : 'Nessun target.');
-    openAutoConfirm('Conferma ordine vero', msg, 'Invia ordine', async () => {
+    openAutoConfirm('Conferma ordine vero', msg, 'Invia ordine', () => sendOrder({ type: 'position', action: 'open', symbol, side, price: String(stop), size: String(qty), leverage: String(lev), tp: target > 0 ? String(target) : '' }, say));
+}
+
+// Invio dell'ordine confermato ed esito vero (evento con lo stesso codice in live_trades.json)
+async function sendOrder(payload, say) {
         const req = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
         say('Invio a Bitget…');
         let res;
         try {
-            res = await apiPost('/api/command', { type: 'position', action: 'open', symbol, side, price: String(stop), size: String(qty), leverage: String(lev), tp: target > 0 ? String(target) : '', req });
+            res = await apiPost('/api/command', { ...payload, req });
         } catch (e) { say('Server non raggiungibile: ordine NON inviato.', 'text-danger'); return; }
         let out = {};
         try { out = await res.json(); } catch (e) {}
@@ -429,7 +453,31 @@ async function openRealOrder() {
             setTimeout(tick, 15_000);
         };
         setTimeout(tick, 15_000);
-    });
+}
+
+// Acquisto spot VERO: ordine limite "esegui subito o annulla" con un tetto di prezzo +0,5%, poi stop (obbligatorio)
+// e target come ordini a scatto di vendita sull'exchange. Il server e position_cmd.py ricontrollano tutto.
+async function openSpotOrder() {
+    const status = $('orderStatus');
+    const say = (t, cls = '') => { if (status) { status.textContent = t; status.className = 'order-status ' + cls; } };
+    const L = State.lastCalc, symbol = calcCtx().asset;
+    const stop = getVal('calcStop'), target = getVal('calcTarget');
+    if (!L || !(L.sizeNominal > 0)) { say('Compila entry, stop e rischio: la size non è calcolata.', 'text-danger'); return; }
+    if (!(stop > 0)) { say('Lo stop loss è obbligatorio per un ordine vero.', 'text-danger'); return; }
+    say('Leggo prezzo e regole della coppia…');
+    let px, rules;
+    try { [px, rules] = await Promise.all([spotPrice(symbol), spotRules(symbol)]); }
+    catch (e) { say('Bitget non risponde: riprova fra poco.', 'text-danger'); return; }
+    if (stop >= px) { say(`Lo stop va sotto il prezzo attuale (${it(px, rules.pricePlace)}).`, 'text-danger'); return; }
+    if (target > 0 && target <= px) { say(`Il target va sopra il prezzo attuale (${it(px, rules.pricePlace)}).`, 'text-danger'); return; }
+    const f = 10 ** rules.qtyPlace;
+    const qty = Math.floor(L.sizeNominal / px * f + 1e-9) / f;
+    if (!(qty > 0) || qty * px < rules.minUsdt) { say(`Importo troppo piccolo: su Bitget spot servono almeno ${it(rules.minUsdt)} USDT.`, 'text-danger'); return; }
+    const cost = qty * px, loss = qty * (px - stop) + cost * 0.002;
+    say('');
+    const msg = `ORDINE VERO su Bitget (spot): compro ${qty} ${SYM(symbol)} a circa ${it(px, rules.pricePlace)} (al massimo +0,5%), spesa circa ${it(cost)} USDT dal conto spot. `
+        + `Stop ${it(stop, rules.pricePlace)}: allo stop perdi circa ${it(loss)} USDT. ` + (target > 0 ? `Target ${it(target, rules.pricePlace)}.` : 'Nessun target.');
+    openAutoConfirm('Conferma acquisto vero', msg, 'Compra', () => sendOrder({ type: 'position', action: 'open', market: 'spot', symbol, side: 'long', price: String(stop), size: String(qty), leverage: '1', tp: target > 0 ? String(target) : '' }, say));
 }
 
 export async function openTradeFromCalculator() {

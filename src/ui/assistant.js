@@ -4,6 +4,7 @@ import * as Trade from './trade.js';
 import * as Auto from './automation.js';
 import { tradingMode } from './account.js';
 import { planAction } from '../core/rules.js';
+import { findRealPosition } from './history.js';
 
 // --- ASSISTENTE SULLA POSIZIONE: chat di testo e chat vocale ---
 // Testo o voce → il server (src/core/commands.js, Groq gratuito) risponde e propone al massimo UNA
@@ -53,15 +54,15 @@ function context(t) {
 
 // --- Posizioni REALI su Bitget: stesse regole, ma l'azione confermata diventa un comando a Bitget
 // (workflow "Posizione Bitget": chiusura a mercato, take profit, stop loss, rimozione TP/SL). ---
+// realSymbol contiene la chiave "mercato:simbolo" (futures:SOLUSDT, spot:SOLUSDT): history.realPositions
 function realPos() {
-    const live = Auto.getAutoState().live;
-    const list = (live && live.account && live.account.positions_detail) || [];
-    return list.find(p => p.symbol === realSymbol) || null;
+    return realSymbol ? findRealPosition(realSymbol.includes(':') ? realSymbol : `futures:${realSymbol}`) : null;
 }
 function realTrade(p) {
     const mark = State.livePx[p.symbol] || p.mark || p.entry;   // prezzo live se c'è (più fresco del mark letto dal bot)
     return { symbol: p.symbol, type: p.side === 'short' ? 'SHORT' : 'LONG', entryPrice: p.entry, size: p.size, feeRate: 0.0006, noTax: true,
-        margin: p.margin, capitalInvested: p.size * p.entry, slPrice: p.sl || null, tpPrice: p.tp || null, currentPrice: mark, leverage: p.leverage, rules: [] };
+        margin: p.margin, capitalInvested: p.size * (p.entry || mark), slPrice: p.sl || null, tpPrice: p.tp || null, currentPrice: mark, leverage: p.leverage, rules: [],
+        ...(p.entry ? {} : { entryPrice: mark }) };
 }
 
 export function openAssistantReal(symbol, voice) {
@@ -119,7 +120,7 @@ export async function sendAssist(textArg) {
     addMsg('user', escapeHtml(text));
     busy = true; status('Sto pensando…');
     try {
-        const res = await apiPost('/api/assistant', general ? { scope: 'general', text, history, context: generalContext() } : { text, history, position: rp ? { ...context(t), real: true, hours_open: null, pnl: rp.upl } : context(t) });
+        const res = await apiPost('/api/assistant', general ? { scope: 'general', text, history, context: generalContext() } : { text, history, position: rp ? { ...context(t), real: true, ...(rp.market === 'spot' ? { market: 'SPOT', leverage: 1 } : {}), hours_open: null, pnl: rp.upl } : context(t) });
         let out = {};
         try { out = await res.json(); } catch (e) {}
         if (!res.ok) throw new Error(out.error || `Errore ${res.status}`);
@@ -206,7 +207,8 @@ function showRealPlan(action) {
     if (!plan.ok) { addMsg('bot warn', escapeHtml(plan.error)); say(plan.error); return; }
     const cmd = realCommand(p, plan);
     if (!cmd) { addMsg('bot warn', 'Azione non disponibile sulle posizioni reali.'); return; }
-    const what = { close: 'chiusura a mercato', tp: 'take profit', sl: 'stop loss', clear: 'rimozione di TP e SL' }[cmd.action];
+    const spot = p.market === 'spot';
+    const what = { close: spot ? 'vendita di tutta la coin' : 'chiusura a mercato', tp: 'take profit', sl: 'stop loss', clear: 'rimozione di TP e SL' }[cmd.action] + (spot ? ' (spot)' : '');
     const replaces = (cmd.action === 'tp' && p.tp) || (cmd.action === 'sl' && p.sl) ? ` Sostituisce quello attuale (${cmd.action === 'tp' ? p.tp : p.sl}).` : '';
     const box = addMsg('plan', `<div><b class="text-warning">ORDINE VERO su Bitget · ${what}</b><br>${escapeHtml(plan.summary.replace(/PnL netto/g, 'PnL'))}${escapeHtml(replaces)}</div><div class="assist-plan-actions"><button type="button" class="btn-cancel">Annulla</button><button type="button" class="btn-confirm">Conferma</button></div>`);
     const [no, yes] = box.querySelectorAll('button');
@@ -216,7 +218,7 @@ function showRealPlan(action) {
         done('Invio a Bitget…');
         const req = newReq();
         try {
-            const res = await apiPost('/api/command', { type: 'position', symbol: p.symbol, side: p.side, action: cmd.action, price: cmd.price != null ? String(cmd.price) : '', req });
+            const res = await apiPost('/api/command', { type: 'position', symbol: p.symbol, side: p.side, action: cmd.action, price: cmd.price != null ? String(cmd.price) : '', market: p.market || 'futures', req });
             let out = {};
             try { out = await res.json(); } catch (e) {}
             if (!res.ok) throw new Error(out.error || `Errore ${res.status}`);

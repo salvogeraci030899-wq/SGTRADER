@@ -301,6 +301,26 @@ def _spot_value(client):
     return {"spot_usdt": round(total, 2), "spot_coins": coins[:10]}
 
 
+def _spot_detail(client, coins):
+    out = []
+    if not hasattr(client, "spot_plan_orders"):
+        return out
+    for c in coins:
+        sym = f"{c.get('coin')}USDT"
+        if sym not in ("BTCUSDT", "ETHUSDT", "SOLUSDT") or not c.get("usdt") or c["usdt"] < 1:
+            continue
+        price = c["usdt"] / c["qty"] if c.get("qty") else None
+        d = {"symbol": sym, "qty": c["qty"], "usdt": c["usdt"], "price": price, "tp": None, "sl": None}
+        try:
+            for o in client.spot_plan_orders(sym):
+                if o.get("side") == "sell" and price:
+                    d["tp" if o["price"] > price else "sl"] = o["price"]
+        except Exception as e:
+            d["orders_error"] = str(e)[:80]
+        out.append(d)
+    return out
+
+
 def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
     """Lettura del conto Bitget in SOLA LETTURA (patrimonio futures e numero di posizioni), a ogni giro,
     anche con gli ordini veri spenti: l'app mostra se le chiavi funzionano. Nessun ordine.
@@ -339,6 +359,9 @@ def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
                         account["total_usdt"] = round(sum(acc_all.values()), 2)
                 except Exception as e:
                     account["accounts_error"] = str(e)[:120]
+            # Coin spot di BTC, ETH e SOL (valore almeno 1 USDT) come "posizioni spot": stop e target sono gli
+            # ordini a scatto di vendita in attesa; il prezzo d'acquisto lo aggiunge sotto chi ha lo stato
+            account["spot_detail"] = _spot_detail(client, account.get("spot_coins") or [])
             # Posizioni chiuse (Diario dell'app in modalità Reale): un errore qui tiene lo storico precedente
             if hasattr(client, "closed_positions"):
                 try:
@@ -350,6 +373,10 @@ def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
         account["checked_at"] = now.isoformat(timespec="seconds")
     state = _load(state_path)
     previous = state.get("account") or {}
+    for d in account.get("spot_detail") or []:      # prezzo d'acquisto, se la coin è stata comprata dall'app
+        e = (state.get("spot_entries") or {}).get(d["symbol"])
+        if e:
+            d["entry"] = e.get("entry")
     if account.get("connected") and "history" not in account and previous.get("history"):
         account["history"] = previous["history"]
     # Variazione di oggi: patrimonio totale rispetto alla prima lettura del giorno (UTC). Comprende

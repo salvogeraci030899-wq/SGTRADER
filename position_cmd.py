@@ -152,6 +152,8 @@ def run(argv, client=None, notify=None, state_path=executor.STATE_PATH):
     if len(argv) < 3:
         raise CommandError("Uso: azione coin direzione [prezzo]")
     action, symbol, side = argv[0], argv[1], argv[2]
+    if len(argv) > 7 and argv[7] == "spot" and action != REFRESH:
+        return run_spot(argv, client, notify, state_path)
     if action == REFRESH:
         if client is None:
             if not all(os.environ.get(k) for k in ("BITGET_API_KEY", "BITGET_API_SECRET", "BITGET_API_PASSPHRASE")):
@@ -195,9 +197,14 @@ def run(argv, client=None, notify=None, state_path=executor.STATE_PATH):
     return msg
 
 
-def write_result(ok, msg, path=None):
+# Modifiche allo stato che il passo di salvataggio del workflow deve riapplicare sulla versione più recente
+# (es. il prezzo d'acquisto di una coin spot): {"spot_entry": {"symbol": ..., "entry": {...} oppure None}}
+LAST_EXTRA = {}
+
+
+def write_result(ok, msg, path=None, extra=None):
     with open(path or RESULT_PATH, "w") as f:
-        json.dump({"ok": bool(ok), "msg": str(msg)}, f)
+        json.dump({"ok": bool(ok), "msg": str(msg), "extra": extra or {}}, f)
 
 
 def read_result(path=None):
@@ -209,6 +216,27 @@ def read_result(path=None):
         return False, "Esito sconosciuto: controlla la posizione su Bitget e i messaggi su Telegram."
 
 
+def read_extra(path=None):
+    try:
+        with open(path or RESULT_PATH) as f:
+            return json.load(f).get("extra") or {}
+    except (OSError, ValueError, AttributeError):
+        return {}
+
+
+def apply_spot_entry(state_path, extra):
+    se = (extra or {}).get("spot_entry")
+    if not se or se.get("symbol") not in SYMBOLS:
+        return
+    state = executor._load(state_path)
+    entries = state.setdefault("spot_entries", {})
+    if se.get("entry"):
+        entries[se["symbol"]] = se["entry"]
+    else:
+        entries.pop(se["symbol"], None)
+    executor._save(state, state_path)
+
+
 def _account_key(state):
     """Cosa conta per la rilettura chiesta dall'app: collegamento e posizioni (aperte, chiuse, TP/SL).
     Saldo e PnL cambiano a ogni secondo: li aggiorna il bot a ogni giro."""
@@ -216,7 +244,8 @@ def _account_key(state):
     pos = sorted((p.get("symbol"), p.get("side"), p.get("size"), p.get("entry"), p.get("tp"), p.get("sl"))
                  for p in a.get("positions_detail") or [])
     closed = [h.get("id") for h in a.get("history") or []]
-    return json.dumps([a.get("connected"), a.get("positions"), pos, closed], default=str)
+    spot = sorted((d.get("symbol"), d.get("qty"), d.get("tp"), d.get("sl")) for d in a.get("spot_detail") or [])
+    return json.dumps([a.get("connected"), a.get("positions"), pos, closed, spot], default=str)
 
 
 def refresh_if_changed(state_path=executor.STATE_PATH, client=None):
@@ -235,6 +264,30 @@ def refresh_if_changed(state_path=executor.STATE_PATH, client=None):
         return False
     print("Conto cambiato: salvato.")
     return True
+
+
+def run_spot(argv, client=None, notify=None, state_path=executor.STATE_PATH, config_path=CONFIG_PATH):
+    action, symbol = argv[0], argv[1]
+    if action not in ACTIONS + (OPEN,) or symbol not in SYMBOLS:
+        raise CommandError("Comando spot non valido.")
+    if client is None:
+        if not all(os.environ.get(k) for k in ("BITGET_API_KEY", "BITGET_API_SECRET", "BITGET_API_PASSPHRASE")):
+            raise CommandError("Chiavi Bitget non impostate nei segreti di GitHub.")
+        client = BitgetClient.from_env()
+    try:
+        with open(config_path) as f:
+            cfg = json.load(f)
+    except (OSError, ValueError):
+        cfg = {}
+    msg = spot_command(action, symbol, argv, client, cfg, state_path)
+    sync_executor(symbol, "spot", action, state_path, msg=msg)
+    try:
+        executor.account_snapshot(state_path, client=client)
+    except Exception as e:
+        print(f"Conto non riletto: {e}")
+    if notify:
+        notify(f"🟢 SPOT · {'DEMO' if getattr(client, 'demo', False) else 'REALE'}\n{msg}")
+    return msg
 
 
 def open_position(argv, client=None, notify=None, state_path=executor.STATE_PATH, config_path=CONFIG_PATH, mark_fn=None, specs_fn=None):
@@ -277,6 +330,123 @@ def open_position(argv, client=None, notify=None, state_path=executor.STATE_PATH
     return msg
 
 
+# =====================================================================
+# SPOT: le coin si comprano e si vendono (niente short né leva). Stop e target sono ordini a scatto di
+# vendita sull'exchange. Acquisti e vendite con ordini limite IOC vicini al prezzo: la quantità è sempre in
+# coin e il prezzo ha un tetto (acquisto) o un minimo (vendita).
+# =====================================================================
+SPOT_SLIP = 0.005          # tetto/minimo di prezzo degli ordini IOC: 0,5% dal prezzo attuale
+
+
+def _spot_kind(order, price):
+    """Un ordine a scatto di vendita sopra il prezzo è un target, sotto è uno stop."""
+    return "tp" if order["price"] > price else "sl"
+
+
+def validate_spot_buy(symbol, qty, sl, tp, price, rules, cfg, usdt_available, equity_total):
+    if symbol not in SYMBOLS:
+        raise CommandError("Coin non valida.")
+    if cfg.get("emergency"):
+        raise CommandError("Emergenza attiva: niente nuovi ordini finché non la sblocchi.")
+    risk = executor.risk_config(cfg)
+    if not risk.get("trading_enabled"):
+        raise CommandError("La modalità Reale è spenta: accendila dall'app (Account) per mandare ordini veri.")
+    if not (price and price > 0):
+        raise CommandError("Prezzo attuale non disponibile: riprova.")
+    if sl is None or not sl > 0:
+        raise CommandError("Lo stop loss è obbligatorio.")
+    if sl >= price:
+        raise CommandError(f"Lo stop va sotto il prezzo attuale ({_fmt(price)}).")
+    if tp is not None and tp <= price:
+        raise CommandError(f"Il target va sopra il prezzo attuale ({_fmt(price)}).")
+    from bitget_client import round_down
+    qty = round_down(float(qty or 0), rules["qty_place"])
+    cost = qty * price
+    if qty <= 0 or qty < rules["min_qty"] or cost < rules["min_usdt"]:
+        raise CommandError(f"Importo troppo piccolo: su Bitget spot servono almeno {_fmt(max(rules['min_usdt'], rules['min_qty'] * price))} USDT.")
+    if cost * (1 + SPOT_SLIP) > usdt_available:
+        raise CommandError(f"Nel conto spot ci sono {_fmt(usdt_available)} USDT disponibili: ne servono circa {_fmt(cost * (1 + SPOT_SLIP))}. "
+                           "Trasferisci USDT dai futures allo spot nell'app Bitget.")
+    loss = qty * (price - sl) + cost * 0.002
+    cap = equity_total * risk["max_daily_loss_pct"] / 100
+    if loss > cap:
+        raise CommandError(f"Allo stop perderesti circa {_fmt(loss)} USDT, oltre il limite di {_fmt(cap)} "
+                           f"({_fmt(risk['max_daily_loss_pct'])}% del patrimonio, perdita massima del giorno).")
+    places = rules["price_place"]
+    return qty, round(sl, places), (round(tp, places) if tp else None)
+
+
+def _spot_place_exits(client, symbol, qty, sl, tp):
+    """Stop e target come ordini a scatto. Ritorna le note da aggiungere al messaggio (anche se uno fallisce)."""
+    notes = []
+    for kind, level in (("stop", sl), ("target", tp)):
+        if not level:
+            continue
+        try:
+            client.spot_plan_sell(symbol, level, qty)
+            notes.append(f"{kind} {_fmt(level)}")
+        except Exception as e:
+            notes.append(f"{kind.upper()} NON impostato ({str(e)[:80]}): rimettilo dalla chat")
+    return notes
+
+
+def spot_command(action, symbol, argv, client, cfg, state_path, now=None):
+    coin = symbol.replace("USDT", "")
+    rules = client.spot_symbol(symbol)
+    price = client.spot_price_usdt(coin)
+    from bitget_client import round_down
+    def num(i):
+        try:
+            return float(argv[i]) if len(argv) > i and argv[i] not in ("", "0") else None
+        except ValueError:
+            raise CommandError(f"Valore non valido: {argv[i]}")
+    if action == OPEN:
+        sl, qty, tp = num(3), num(4), num(6)
+        totals = client.all_balances_usdt() if hasattr(client, "all_balances_usdt") else {}
+        qty, sl, tp = validate_spot_buy(symbol, qty, sl, tp, price, rules, cfg, client.spot_available("USDT"), sum(totals.values()) or 0)
+        client.spot_order(symbol, "buy", qty, round(price * (1 + SPOT_SLIP), rules["price_place"]))
+        held = round_down(client.spot_available(coin), rules["qty_place"])
+        if held <= 0:
+            return f"Acquisto di {coin} NON eseguito: il prezzo si è mosso oltre lo 0,5%. Nessuna spesa."
+        notes = _spot_place_exits(client, symbol, held, sl, tp)
+        LAST_EXTRA["spot_entry"] = {"symbol": symbol, "entry": {"entry": price, "qty": held, "at": (now or datetime.now(timezone.utc)).isoformat(timespec="seconds")}}
+        apply_spot_entry(state_path, LAST_EXTRA)
+        return f"Comprati {_fmt(held)} {coin} spot a circa {_fmt(price)} su Bitget" + (": " + ", ".join(notes) if notes else "") + "."
+    held = round_down(client.spot_available(coin), rules["qty_place"])
+    plans = [o for o in client.spot_plan_orders(symbol) if o.get("side") == "sell"]
+    if action == "close":
+        for o in plans:
+            client.spot_cancel_plan(o["orderId"])
+        if held <= 0:
+            raise CommandError(f"Nello spot non c'è {coin} da vendere.")
+        client.spot_order(symbol, "sell", held, round(price * (1 - SPOT_SLIP), rules["price_place"]))
+        left = client.spot_available(coin)
+        LAST_EXTRA["spot_entry"] = {"symbol": symbol, "entry": None}
+        apply_spot_entry(state_path, LAST_EXTRA)
+        return f"Venduti {_fmt(held - min(left, held))} {coin} spot a circa {_fmt(price)} su Bitget." + (f" Restano {_fmt(left)} {coin} (prezzo mosso oltre lo 0,5%)." if left > 10 ** -rules["qty_place"] else "")
+    if action in ("clear", "untp", "unsl"):
+        kinds = {"clear": ("tp", "sl"), "untp": ("tp",), "unsl": ("sl",)}[action]
+        gone = [o for o in plans if _spot_kind(o, price) in kinds]
+        for o in gone:
+            client.spot_cancel_plan(o["orderId"])
+        return f"Tolti {len(gone)} ordini a scatto di {coin} spot su Bitget."
+    if action in ("tp", "sl"):
+        level = num(3)
+        if not level:
+            raise CommandError("Prezzo mancante o non valido.")
+        if held <= 0:
+            raise CommandError(f"Nello spot non c'è {coin}: niente da proteggere.")
+        if (action == "tp" and level <= price) or (action == "sl" and level >= price):
+            raise CommandError(f"{'Il target va sopra' if action == 'tp' else 'Lo stop va sotto'} il prezzo attuale ({_fmt(price)}).")
+        for o in plans:
+            if _spot_kind(o, price) == action:
+                client.spot_cancel_plan(o["orderId"])
+        level = round(level, rules["price_place"])
+        client.spot_plan_sell(symbol, level, held)
+        return f"{'Target' if action == 'tp' else 'Stop'} di {coin} spot impostato su Bitget a {_fmt(level)} (vende {_fmt(held)} {coin} a mercato)."
+    raise CommandError(f"Azione sconosciuta: {action}.")
+
+
 def sync_only(argv, state_path=executor.STATE_PATH, result_path=None):
     """Solo l'aggiornamento dello stato (nessun ordine): usato dal workflow per riapplicarlo sulla
     versione più recente del repository se il salvataggio incontra un giro del bot. Gira anche se il
@@ -287,6 +457,10 @@ def sync_only(argv, state_path=executor.STATE_PATH, result_path=None):
             refresh_if_changed(state_path)
         return
     ok, msg = read_result(result_path)
+    if os.environ.get("MARKET") == "spot":
+        side = "spot"                     # niente da chiudere nell'esecutore (lavora solo sui futures)
+        if ok:
+            apply_spot_entry(state_path, read_extra(result_path))
     sync_executor(symbol, side, action, state_path, req=os.environ.get("REQ", ""), ok=ok, msg=msg)
     if ok and all(os.environ.get(k) for k in ("BITGET_API_KEY", "BITGET_API_SECRET", "BITGET_API_PASSPHRASE")):
         try:
@@ -302,7 +476,7 @@ if __name__ == "__main__":
         sys.exit(0)
     try:
         msg = run(sys.argv[1:], notify=None if sys.argv[1:2] == [REFRESH] else watchdog.send)
-        write_result(True, msg)
+        write_result(True, msg, extra=LAST_EXTRA)
         print(msg)
     except (CommandError, BitgetError) as e:
         write_result(False, f"Comando NON eseguito: {e}")

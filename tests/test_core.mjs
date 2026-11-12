@@ -250,6 +250,16 @@ test('comando sulla posizione reale: solo azioni e prezzi validi', async () => {
         assert.equal((await handle('POST', '/api/command', { type: 'position', action: 'open', symbol: 'SOLUSDT', side: 'long', ...bad }, ok, env, fakeFetch)).status, 400, JSON.stringify(bad));
     }
     assert.equal(calls.length, 4);
+    // spot: solo acquisti/vendite (side long), il mercato arriva al workflow
+    r = await handle('POST', '/api/command', { type: 'position', action: 'open', market: 'spot', symbol: 'SOLUSDT', side: 'long', price: '82', size: '0.1', leverage: 1, tp: '' }, ok, env, fakeFetch);
+    assert.equal(r.status, 200);
+    assert.deepEqual(calls[4].body.inputs, { action: 'open', symbol: 'SOLUSDT', side: 'long', price: '82', market: 'spot', size: '0.1', leverage: '1', tp: '' });
+    r = await handle('POST', '/api/command', { type: 'position', action: 'close', market: 'spot', symbol: 'SOLUSDT', side: 'long' }, ok, env, fakeFetch);
+    assert.equal(calls[5].body.inputs.market, 'spot');
+    for (const bad of [{ market: 'spot', side: 'short' }, { market: 'margin', side: 'long' }]) {
+        assert.equal((await handle('POST', '/api/command', { type: 'position', action: 'close', symbol: 'SOLUSDT', ...bad }, ok, env, fakeFetch)).status, 400);
+    }
+    assert.equal(calls.length, 6);
 });
 
 test('worker: CORS solo per le origini ammesse', async () => {
