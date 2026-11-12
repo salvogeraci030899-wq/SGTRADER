@@ -47,6 +47,10 @@ concurrency:
 permissions:
   contents: write
 
+# Registro degli eventi (events.py): i giri scrivono in events/AAAA-MM.jsonl
+env:
+  SGT_EVENTS_DIR: events
+
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -100,6 +104,7 @@ jobs:
           git add futures_data.json futures_history.jsonl 2>/dev/null || true
           git add paper_trades.json 2>/dev/null || true
           git add live_trades.json 2>/dev/null || true
+          git add equity_history.json events 2>/dev/null || true
           git commit -m "chore: auto-update $(date -u +%Y-%m-%d_%H:%M)" || { echo "Nessuna modifica da salvare"; exit 0; }
           # Lo stato deve arrivare sul repo anche se un altro workflow ha salvato nel frattempo:
           # riallineamento sicuro (conflitti risolti, JSON controllati) in tools/push_state.sh

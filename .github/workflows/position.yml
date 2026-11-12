@@ -52,6 +52,10 @@ concurrency:
 permissions:
   contents: write
 
+# Registro degli eventi (events.py): i giri scrivono in events/AAAA-MM.jsonl
+env:
+  SGT_EVENTS_DIR: events
+
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -106,6 +110,7 @@ jobs:
             git fetch -q origin "${GITHUB_REF_NAME}" && git reset -q --hard "origin/${GITHUB_REF_NAME}"
             python position_cmd.py sync "$ACTION" "$SYMBOL" "$SIDE"
             git add live_trades.json
+            git add equity_history.json events 2>/dev/null || true
             git commit -q -m "Posizione: $ACTION $SYMBOL $SIDE" || exit 0
             git push -q origin "HEAD:${GITHUB_REF_NAME}" && exit 0
             echo "Salvataggio rifiutato (tentativo $i), riprovo..."; sleep $((i * 5))

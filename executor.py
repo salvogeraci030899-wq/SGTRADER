@@ -39,6 +39,7 @@ from bitget_client import BitgetClient, DryRunClient, round_down
 from kronos_core import TF_DELTA
 
 STATE_PATH = "live_trades.json"
+EQUITY_PATH = "equity_history.json"     # un record al giorno: apertura, chiusura, versamenti/prelievi, guadagno
 DEFAULT_RISK = {
     "trading_enabled": False,
     "risk_per_trade_pct": 0.5,
@@ -140,7 +141,13 @@ def run(cfg, ledger, client=None, mode="simulata", state_path=STATE_PATH, now=No
         sim = state.setdefault("simulated", {"equity": risk["dry_run_equity"], "positions": {}})
         client = DryRunClient(sim["equity"])
         client._positions = {s: dict(p) for s, p in sim["positions"].items()}
-    say = (lambda text: notify(f"{'🤖' if mode != 'simulata' else '🧪'} ESECUTORE ({mode.upper()})\n{text}")) if notify else (lambda text: None)
+    import events
+
+    def say(text):
+        """Avviso su Telegram e riga nel registro degli eventi (con la modalità: simulata, demo o reale)."""
+        events.record("ordini", "esecutore", f"Esecutore ({mode}): {text}", at=now, mode=mode)
+        if notify:
+            notify(f"{'🤖' if mode != 'simulata' else '🧪'} ESECUTORE ({mode.upper()})\n{text}")
 
     def log(kind, **data):
         state["events"].append({"at": now.isoformat(timespec="seconds"), "kind": kind, **data})
@@ -459,6 +466,13 @@ def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
             start = round(start + account["total_usdt"] - previous["total_usdt"], 2)
         account["day_start_total"] = start
         account["day_change"] = round(account["total_usdt"] - start, 2)
+        # prima lettura del giorno così com'era (senza le correzioni per i versamenti): serve allo storico
+        account["day_open_total"] = previous.get("day_open_total", previous["day_start_total"]) if same_day else account["total_usdt"]
+        try:
+            record_equity(account, previous, now or datetime.now(timezone.utc),
+                          os.path.join(os.path.dirname(os.path.abspath(state_path)), EQUITY_PATH))
+        except Exception as e:      # noqa: BLE001 — lo storico non deve mai fermare la lettura del conto
+            print(f"Storico del patrimonio non aggiornato: {e}")
     if notify and keys and previous.get("connected") and not account["connected"]:
         notify(f"⚠️ Bitget non risponde alla lettura del conto: {account.get('reason')}. "
                "Se la chiave è scaduta, creane una nuova e aggiorna i segreti BITGET_*.")
@@ -467,6 +481,38 @@ def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
         state["account"] = account
         _save(state, state_path)
     return account
+
+
+def record_equity(account, previous, now, path=None):
+    """Storico giornaliero del patrimonio Bitget (futures + spot), per la pagina Risultati.
+    open: prima lettura del giorno; close: ultima; flows: versamenti (+) e prelievi (-) riconosciuti,
+    cioè la correzione della base del giorno; pnl: guadagno o perdita del giorno, senza i versamenti.
+    Versamenti fatti con posizioni aperte non si riconoscono dal saldo: finiscono nel pnl (limite noto)."""
+    import events
+    path = path or EQUITY_PATH
+    try:
+        with open(path) as f:
+            hist = json.load(f)
+    except (OSError, ValueError):
+        hist = {"note": "Patrimonio Bitget giorno per giorno (UTC), in USDT. pnl = close - open - flows.", "days": {}}
+    day = account["day"]
+    flows = round(account["day_start_total"] - account["day_open_total"], 2)
+    row = {"open": round(account["day_open_total"], 2), "close": round(account["total_usdt"], 2), "flows": flows,
+           "pnl": round(account["day_change"], 2), "demo": bool(account.get("demo")), "at": now.isoformat(timespec="seconds")}
+    old = hist["days"].get(day) or {}
+    if {k: v for k, v in old.items() if k != "at"} == {k: v for k, v in row.items() if k != "at"}:
+        return False
+    if abs(flows - (old.get("flows") or 0)) >= 0.01:
+        moved = round(flows - (old.get("flows") or 0), 2)
+        events.record("conto", "versamento" if moved > 0 else "prelievo",
+                      f"{'Versamento' if moved > 0 else 'Prelievo'} riconosciuto su Bitget: {_num_it(abs(moved))} USDT (non conta come guadagno).",
+                      at=now, usdt=moved)
+    hist["days"][day] = row
+    fd, tmp = tempfile.mkstemp(dir=os.path.dirname(os.path.abspath(path)), suffix=".tmp")
+    with os.fdopen(fd, "w") as f:
+        json.dump(hist, f, indent=1, sort_keys=True)
+    os.replace(tmp, path)
+    return True
 
 
 def _num_it(v, d=2, sign=False):
@@ -501,6 +547,12 @@ def _notify_closed(state, account, notify, now):
             continue
         net = h.get("net") if h.get("net") is not None else (h.get("pnl") or 0) - (h.get("fees") or 0)
         name = f"{(h.get('symbol') or '').replace('USDT', '')} {(h.get('side') or '').upper()}"
+        import events
+        closed_at = datetime.fromtimestamp((h.get("closed_at") or now.timestamp() * 1000) / 1000, timezone.utc)
+        events.record("posizioni", "chiusa", f"Posizione chiusa su Bitget: {name}{' spot' if h.get('market') == 'spot' else ''}, "
+                      f"entrata {_price_it(h.get('entry') or 0)} → uscita {_price_it(h.get('exit') or 0)}, netto {_num_it(net, sign=True)} USDT.",
+                      at=closed_at, symbol=h.get("symbol"), side=h.get("side"), net=round(net, 4), market=h.get("market") or "futures",
+                      demo=bool(account.get("demo")), ref=h.get("id"))
         try:
             notify(f"{'✅' if net >= 0 else '❌'} POSIZIONE CHIUSA · Bitget {'demo' if account.get('demo') else 'reale'}\n"
                    f"{name} {_num_it(h.get('size') or 0, 4).rstrip('0').rstrip(',')}: entrata {_price_it(h.get('entry') or 0)} → uscita {_price_it(h.get('exit') or 0)}\n"

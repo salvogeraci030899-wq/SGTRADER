@@ -17,6 +17,8 @@ from datetime import datetime, timezone
 
 import numpy as np
 
+import events as event_log
+
 import lab_strategies
 import strategy_lab as lab
 import validation as va
@@ -241,6 +243,8 @@ def update(last_candles, config_path=CONFIG_PATH, ledger_path=LEDGER_PATH, downl
         changed = True
         for kind, row in events:
             print(f"Prova su carta {key}: {kind} {row['symbol']} {row['reason']}")
+            event_log.record("carta", "aperto" if kind == "open" else "chiuso", describe_event(kind, key, row).replace("\n", " · "),
+                             key=key, symbol=row["symbol"], net=row.get("net"))
             if notify:
                 notify(describe_event(kind, key, row))
     if changed:

@@ -146,6 +146,10 @@ def sync_executor(symbol, side, action, state_path=executor.STATE_PATH, now=None
         ev["msg"] = str(msg)[:300]
     state["events"].append(ev)
     executor._save(state, state_path)
+    import events
+    events.record("ordini", action, f"{'✓' if ok else '✗'} Comando dall'app ({action}) su {str(symbol).replace('USDT', '')} {side}: "
+                  f"{msg or ('eseguito' if ok else 'non eseguito')}", at=now, symbol=symbol, side=side, ok=bool(ok),
+                  req=clean_req(req) or None)
 
 
 def run(argv, client=None, notify=None, state_path=executor.STATE_PATH):

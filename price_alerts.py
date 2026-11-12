@@ -125,6 +125,9 @@ def check(cfg, alerts_state, notify, fetch=fetch_minutes):
             continue
         fired.append(a["id"])
         n += 1
+        import events
+        events.record("avvisi", "scattato", f"🔔 Avviso di prezzo: {name} ha toccato {_fmt(a['price'])} ({'in salita' if a['side'] == 'above' else 'in discesa'}).",
+                      symbol=sym, price=a["price"])
     if n:
         alerts_state[FIRED_KEY] = fired[-FIRED_MAX:]
     return n

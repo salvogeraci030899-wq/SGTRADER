@@ -383,6 +383,9 @@ def test_versamenti_non_sono_guadagni():
             assert a["day_change"] == -0.08, a
             a = ex.account_snapshot(path, Acc(25.9), NOW)                                      # altro versamento senza posizioni
             assert a["day_start_total"] == 25.98 and a["day_change"] == -0.08, a
+            # storico del giorno accanto allo stato: apertura 0, chiusura 25,90, versati 25,98, perdita 0,08
+            row = json.load(open(os.path.join(d, ex.EQUITY_PATH)))["days"][NOW.strftime("%Y-%m-%d")]
+            assert (row["open"], row["close"], row["flows"], row["pnl"]) == (0.0, 25.9, 25.98, -0.08), row
     finally:
         for k, v in saved.items():
             os.environ.pop(k, None)
