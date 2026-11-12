@@ -1,5 +1,6 @@
 import { State } from '../core/state.js';
-import { $, SYM, fetchT, calcPnl, escapeHtml, fmtIt, fmtPrice, fetchData } from '../utils/helpers.js';
+import { CONFIG } from '../core/config.js';
+import { $, SYM, fetchT, calcPnl, escapeHtml, fmtIt, fmtPrice, fetchData, getGhToken } from '../utils/helpers.js';
 import { aggregateCellSignals } from './signals.js';
 import { bitgetAccountText, isRemovingAlert, paperPerformance } from './automation.js';
 import { updateModePills, tradingMode } from './account.js';
@@ -12,14 +13,23 @@ import { realPositions } from './history.js';
 //   mercato        ticker spot Bitget (ogni 10 s, solo con la Home aperta); di riserva dashboard.json
 //   conto simulato State.simState (posizioni aperte a mano dall'app)
 //   automazione    automation.json, paper_trades.json, live_trades.json pubblicati dal bot (ogni 30 s)
-//   stato          ora dell'ultimo giro del bot (dashboard.json) e consenso tecnico della pagina Segnali
+//   stato          ultimo e prossimo giro di bot, controllo rapido e agente (API pubblica di GitHub, ogni 2 min;
+//                  di riserva l'ora del dashboard.json per il bot) e consenso tecnico della pagina Segnali
 
 const COINS = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'];
 const MARKET_EVERY_MS = 10_000;
 const BOT_FILES_EVERY_MS = 30_000;
-// Il bot parte ogni 15 minuti (Cloudflare): verde fino a 30 min, giallo fino a 2 h (soglia del
-// controllo di salute), poi rosso.
-const BOT_OK_MIN = 30, BOT_LATE_MIN = 120;
+// Lavori automatici: quando partono (orari del server Cloudflare, worker/wrangler.toml, e dell'agente,
+// .github/workflows/agent.yml, in UTC) e oltre quanti minuti dall'ultimo giro il pallino diventa giallo o rosso.
+// Bot e controllo rapido: rosso oltre le 2 ore, come il controllo di salute che avvisa su Telegram.
+const JOBS = {
+    bot: { file: 'bot.yml', minutes: [2, 17, 32, 47], ok: 30, late: 120 },
+    quick: { file: 'quick.yml', minutes: [2, 7, 12, 17, 22, 27, 32, 37, 42, 47, 52, 57], ok: 15, late: 120 },
+    agent: { file: 'agent.yml', daily: [18, 41], ok: 26 * 60, late: 50 * 60 }
+};
+const RUNS_EVERY_MS = 120_000, AGENT_EVERY_MS = 900_000;
+const runs = {};            // job -> { latest, done } dalle esecuzioni di GitHub
+let lastRunsAt = 0, lastAgentAt = 0, runsInFlight = false;
 
 const market = {};          // symbol -> { px, chg } (chg in %, null se non nota)
 let bot = null;             // { cfg, ledger, live }
@@ -36,6 +46,7 @@ export function updateHome() {
     const now = Date.now();
     if (now - lastMarketAt >= MARKET_EVERY_MS) { lastMarketAt = now; refreshMarket(); }
     if (now - lastBotAt >= BOT_FILES_EVERY_MS) { lastBotAt = now; refreshBotFiles(); }
+    if (now - lastRunsAt >= RUNS_EVERY_MS) { lastRunsAt = now; refreshRuns(); }
     renderMarket();
     renderAccount();
     renderAutomationCard();
@@ -220,17 +231,82 @@ function topSignal() {
     return best;
 }
 
-function renderStatus() {
-    const last = lastBotUpdate();
-    const dot = $('homeBotDot');
-    if (last) {
-        const min = (Date.now() - last) / 60000;
-        setLine('homeLastUpdate', `ultimo giro ${ago(min)}`);
-        putCls(dot, 'home-dot ' + (min <= BOT_OK_MIN ? 'good' : min <= BOT_LATE_MIN ? 'warn' : 'bad'));
-    } else {
-        setLine('homeLastUpdate', State.allData ? 'nessun dato' : 'in caricamento');
-        putCls(dot, 'home-dot');
+// Esecuzioni recenti dei workflow (repository pubblico: l'API non chiede chiavi; con il token del telefono
+// il limite di richieste è più alto). Una richiesta ogni 2 minuti per bot e controllo rapido, una ogni
+// 15 per l'agente, che gira una volta al giorno e non sta tra le ultime esecuzioni.
+async function ghRuns(path) {
+    const headers = { Accept: 'application/vnd.github+json' };
+    const tok = getGhToken();
+    if (tok) headers.Authorization = `Bearer ${tok}`;
+    const ac = new AbortController(), timer = setTimeout(() => ac.abort(), 8000);
+    const r = await fetch(`https://api.github.com/repos/${CONFIG.GH_REPO}/actions/${path}`, { headers, cache: 'no-store', signal: ac.signal }).finally(() => clearTimeout(timer));
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return (await r.json()).workflow_runs || [];
+}
+function pick(list, file) {
+    const mine = list.filter(x => (x.path || '').endsWith('/' + file));
+    return mine.length ? { latest: mine[0], done: mine.find(x => x.status === 'completed') || null } : null;
+}
+async function refreshRuns() {
+    if (runsInFlight) return;
+    runsInFlight = true;
+    try {
+        const list = await ghRuns('runs?per_page=40&exclude_pull_requests=true');
+        for (const job of ['bot', 'quick']) { const p = pick(list, JOBS[job].file); if (p) runs[job] = p; }
+        const a = pick(list, JOBS.agent.file);
+        if (a) runs.agent = a;
+        else if (Date.now() - lastAgentAt >= AGENT_EVERY_MS) {
+            lastAgentAt = Date.now();
+            const p = pick(await ghRuns(`workflows/${JOBS.agent.file}/runs?per_page=5`), JOBS.agent.file);
+            if (p) runs.agent = p;
+        }
+    } catch (e) { /* GitHub non raggiungibile o limite di richieste: restano gli ultimi dati (e l'ora del dashboard per il bot) */ }
+    finally { runsInFlight = false; renderStatus(); }
+}
+
+// Prossimo avvio previsto, in ora locale
+function nextRun(job, now = new Date()) {
+    const j = JOBS[job];
+    if (j.daily) {
+        const t = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), j.daily[0], j.daily[1]));
+        if (t <= now) t.setUTCDate(t.getUTCDate() + 1);
+        return t;
     }
+    for (let k = 1; k <= 60; k++) {
+        const t = new Date(now.getTime() + k * 60000);
+        if (j.minutes.includes(t.getUTCMinutes())) { t.setSeconds(0, 0); return t; }
+    }
+    return null;
+}
+const hhmm = d => d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+function whenText(d, now = new Date()) {
+    const day = x => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+    const diff = Math.round((day(d) - day(now)) / 86400000);
+    return diff === 0 ? hhmm(d) : diff === 1 ? `domani ${hhmm(d)}` : `${d.toLocaleDateString('it-IT', { weekday: 'short' })} ${hhmm(d)}`;
+}
+
+function renderJob(job, fallbackAt) {
+    const j = JOBS[job], r = runs[job];
+    const el = `homeJob${job[0].toUpperCase()}${job.slice(1)}`;
+    const next = nextRun(job);
+    const nextTxt = next ? ` · prossimo ${whenText(next)}` : '';
+    if (r && r.latest && r.latest.status !== 'completed') {
+        setLine(el, 'in corso adesso');
+        putCls($(el + 'Dot'), 'home-dot good');
+        return;
+    }
+    const doneAt = r && r.done ? Date.parse(r.done.updated_at || r.done.created_at) : fallbackAt;
+    if (!doneAt) { setLine(el, `in attesa di dati${nextTxt}`); putCls($(el + 'Dot'), 'home-dot'); return; }
+    const min = (Date.now() - doneAt) / 60000;
+    const failed = r && r.done && r.done.conclusion && !['success', 'skipped', 'neutral'].includes(r.done.conclusion);
+    setLine(el, `${failed ? 'non riuscito ' : ''}${ago(min)}${nextTxt}`);
+    putCls($(el + 'Dot'), 'home-dot ' + (failed || min > j.late ? 'bad' : min > j.ok ? 'warn' : 'good'));
+}
+
+function renderStatus() {
+    renderJob('bot', lastBotUpdate());
+    renderJob('quick', null);
+    renderJob('agent', null);
 
     const sig = topSignal();
     const asset = $('homeTopSignalAsset'), badge = $('homeTopSignalBadge');
