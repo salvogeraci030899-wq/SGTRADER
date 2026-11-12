@@ -32,10 +32,10 @@ def _setup(strategies=None, candidates=(), confirmed=(), paper=None, state=None,
     return p
 
 
-def _run(p, ai=lambda f: (None, None), full=False):
+def _run(p, ai=lambda f: (None, None), full=False, capital=lambda *a: None):
     sent = []
     st = agent.run(sent.append, cfg_path=p("automation.json"), summary_path=p("lab_summary.json"), paper_path=p("paper_trades.json"),
-                   state_path=p("agent_state.json"), ai=ai, full_report=full)
+                   state_path=p("agent_state.json"), ai=ai, full_report=full, live_path=p("live_trades.json"), capital=capital)
     return st, json.load(open(p("automation.json"))), sent
 
 
@@ -184,6 +184,56 @@ def test_rapporto_ai_usato_se_presente():
 def test_scelta_modello():
     assert agent._pick_model(["whisper-large", "llama-3.3-70b-versatile", "openai/gpt-oss-120b"]) == "openai/gpt-oss-120b"
     assert agent._pick_model(["whisper-large"]) is None
+
+# ---------- limite di perdita per strategia ----------
+def ptrade(t_exit, net, entry=100.0, stop=95.0):
+    return {"open": False, "t_exit": t_exit, "net": net, "entry": entry, "stop": stop}
+
+
+def test_drawdown_strategia_in_patrimonio():
+    cfg = {"risk": {"risk_per_trade_pct": 0.5}, "history": [{"cmd": "set", "key": A, "to": "live", "at": "2026-11-01T00:00:00+00:00"}]}
+    since = 1793491200     # 2026-11-01
+    # stop al 5%: un trade a -5% vale -1R = -0,5% del patrimonio. +2R, poi -1R x 4 -> dal massimo -2%
+    trades = [ptrade(since - 10, -50.0)] + [ptrade(since + 10, 10.0)] + [ptrade(since + 20 + i, -5.0) for i in range(4)]
+    dd, n = agent.strategy_drawdown(cfg, {"strategies": {A: {"trades": trades}}}, A)
+    assert n == 5 and dd == 2.0                                                  # il trade di prima del reale non conta
+
+
+def test_reale_torna_su_carta_oltre_il_limite_anche_senza_autonomia():
+    since = "2026-11-01T00:00:00+00:00"
+    hist = [{"cmd": "set", "key": A, "from": "paper", "to": "live", "at": since}]
+    trades = [ptrade(1793491200 + i, -5.0) for i in range(12)]                   # -12R x 0,5% = -6% (limite bilanciato 5%)
+    paper = {A: {"trades": trades, "stats": {"n": 12, "avg_net_pct": -5.0, "vs_backtest": {"verdict": "in_linea"}}}}
+    p = _setup(strategies={A: "live"}, confirmed=[A], paper=paper, agent_cfg={"autonomy": "off"}, trading=True, history=hist)
+    cfg0 = json.load(open(p("automation.json"))); cfg0["risk"].update(risk_per_trade_pct=0.5, max_strategy_dd_pct=5.0)
+    json.dump(cfg0, open(p("automation.json"), "w"))
+    st, cfg, sent = _run(p)
+    assert cfg["strategies"][A] == "paper" and "oltre il limite" in sent[0]
+
+
+# ---------- capitale ----------
+def test_capitale_troppo_piccolo():
+    cfg = {"risk": {"risk_per_trade_pct": 0.5, "max_leverage": 3}}
+    live = {"account": {"connected": True, "equity": 16.0}}
+    specs = {"BTCUSDT": {"min_size": 0.0001}, "ETHUSDT": {"min_size": 0.01}, "SOLUSDT": {"min_size": 0.1}}
+    prices = {"BTCUSDT": 100000.0, "ETHUSDT": 3500.0, "SOLUSDT": 160.0}
+    cap = agent.capital_check(cfg, live, {"strategies": {}}, price_fn=prices.get, specs_fn=specs.get)
+    assert cap["stop_pct"] == 5.0 and cap["symbols"]["SOLUSDT"]["min_usdt"] == 16.0
+    assert cap["symbols"]["SOLUSDT"]["needed"] == 160.0 and not any(v["ok"] for v in cap["symbols"].values())
+    f = agent.capital_facts(cap)
+    assert len(f) == 1 and "troppo poco" in f[0] and "~100 USDT (BTC)" in f[0], f
+    live["account"]["equity"] = 1000.0
+    assert agent.capital_facts(agent.capital_check(cfg, live, {"strategies": {}}, price_fn=prices.get, specs_fn=specs.get)) == []
+    assert agent.capital_check(cfg, {"account": {"connected": False}}, {}) is None
+
+
+def test_avviso_capitale_una_volta():
+    p = _setup(strategies={A: "paper"}, candidates=[A])
+    cap = lambda *a: {"equity": 16, "stop_pct": 5, "risk_pct": 0.5, "symbols": {"SOLUSDT": {"min_usdt": 16, "needed": 160, "ok": False}}}  # noqa: E731
+    st, _, sent = _run(p, capital=cap)
+    assert len(sent) == 1 and "troppo poco" in sent[0] and st["capital"]["equity"] == 16
+    _, _, sent = _run(p, capital=cap)
+    assert sent == []
 
 
 if __name__ == "__main__":

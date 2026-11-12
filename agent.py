@@ -84,6 +84,85 @@ def unseal_plan(cfg, summary, paper):
     return out
 
 
+def _went_live_at(cfg, key):
+    """Momento (timestamp) dell'ultimo passaggio al reale della strategia, dal registro."""
+    t = None
+    for h in cfg.get("history", []):
+        if h.get("cmd") == "set" and h.get("key") == key and h.get("to") == "live" and h.get("at"):
+            try:
+                t = datetime.fromisoformat(h["at"]).timestamp()
+            except ValueError:
+                pass
+    return t
+
+
+def strategy_drawdown(cfg, paper, key):
+    """Perdita della strategia dal suo massimo da quando è reale, in % del patrimonio.
+    La carta segue gli stessi segnali del reale: ogni trade chiuso vale R = netto / distanza dello stop,
+    cioè quante volte il rischio per trade; in patrimonio R x rischio per trade (%). Ritorna (drawdown, trade)."""
+    since = _went_live_at(cfg, key)
+    risk = float((cfg.get("risk") or {}).get("risk_per_trade_pct") or automation.executor.DEFAULT_RISK["risk_per_trade_pct"])
+    trades = ((paper.get("strategies") or {}).get(key) or {}).get("trades") or []
+    closed = sorted((t for t in trades if not t.get("open") and t.get("net") is not None and t.get("entry") and t.get("stop")
+                     and (since is None or (t.get("t_exit") or 0) >= since)), key=lambda t: t.get("t_exit") or 0)
+    eq = peak = dd = 0.0
+    for t in closed:
+        stop_pct = abs(t["entry"] - t["stop"]) / t["entry"] * 100
+        if stop_pct <= 0:
+            continue
+        eq += t["net"] / stop_pct * risk
+        peak = max(peak, eq)
+        dd = max(dd, peak - eq)
+    return round(dd, 2), len(closed)
+
+
+def capital_check(cfg, live, paper, price_fn=None, specs_fn=None):
+    """Il capitale basta per i minimi di Bitget con il profilo attuale? Per ogni coin: capitale minimo perché
+    la posizione calcolata dal rischio (rischio / distanza dello stop, entro la leva) superi la quantità minima.
+    Distanza dello stop: mediana degli ultimi trade su carta (altrimenti 5%). Ritorna None se il conto non è letto."""
+    acc = (live or {}).get("account") or {}
+    equity = acc.get("equity")
+    if not acc.get("connected") or not equity:
+        return None
+    price_fn = price_fn or _price
+    specs_fn = specs_fn or automation.executor.contract_specs
+    risk = automation.executor.risk_config(cfg)
+    stops = sorted(abs(t["entry"] - t["stop"]) / t["entry"] * 100 for e in (paper.get("strategies") or {}).values()
+                   for t in (e.get("trades") or [])[-30:] if t.get("entry") and t.get("stop"))
+    stop_pct = stops[len(stops) // 2] if stops else 5.0
+    out = {"equity": round(float(equity), 2), "stop_pct": round(stop_pct, 2), "risk_pct": risk["risk_per_trade_pct"], "symbols": {}}
+    for sym in ("BTCUSDT", "ETHUSDT", "SOLUSDT"):
+        specs, px = specs_fn(sym), price_fn(sym)
+        if not specs or not px:
+            continue
+        min_usdt = specs["min_size"] * px
+        need = max(min_usdt * stop_pct / risk["risk_per_trade_pct"], min_usdt / risk["max_leverage"])
+        out["symbols"][sym] = {"min_usdt": round(min_usdt, 2), "needed": round(need, 2), "ok": equity >= need}
+    return out
+
+
+def _price(symbol):
+    try:
+        r = requests.get("https://api.bitget.com/api/v2/mix/market/ticker", params={"symbol": symbol, "productType": "USDT-FUTURES"}, timeout=10)
+        return float(r.json()["data"][0]["lastPr"])
+    except Exception:
+        return None
+
+
+def capital_facts(cap):
+    if not cap or not cap["symbols"]:
+        return []
+    ok = [s.replace("USDT", "") for s, v in cap["symbols"].items() if v["ok"]]
+    least = min(cap["symbols"].items(), key=lambda kv: kv[1]["needed"])
+    head = f"Capitale {cap['equity']} USDT, rischio {cap['risk_pct']}% a trade, stop tipico {cap['stop_pct']}%"
+    if not ok:
+        return [f"{head}: troppo poco per i minimi di Bitget, ogni trade reale verrebbe saltato. "
+                f"Servono almeno ~{least[1]['needed']:.0f} USDT ({least[0].replace('USDT', '')}), oppure un profilo con più rischio."]
+    if len(ok) < len(cap["symbols"]):
+        return [f"{head}: si può operare solo su {', '.join(ok)}; le altre coin sono sotto i minimi di Bitget."]
+    return []
+
+
 def decide(cfg, summary, paper, added):
     """Solo regole, nessun effetto. Ritorna un dizionario di liste: off, on, promote, demote, proposals, notes."""
     ag = automation.agent_config(cfg)
@@ -94,14 +173,22 @@ def decide(cfg, summary, paper, added):
     active = {k: m for k, m in (cfg.get("strategies") or {}).items() if m != "off"}
     agent_live = automation.agent_live_keys(cfg)
     out = {"off": [], "on": [], "promote": [], "demote": [], "proposals": [], "notes": []}
+    limit = float(automation.executor.risk_config(cfg)["max_strategy_dd_pct"])
+    for key in sorted(k for k, m in active.items() if m == "live"):
+        dd, n = strategy_drawdown(cfg, paper, key)
+        if dd >= limit:
+            out["demote"].append((key, f"perdita dal massimo {dd}% del patrimonio da quando è reale ({n} trade), oltre il limite di {limit:g}%"))
     if ag["autonomy"] == "off":
         out["notes"].append("Autonomia spenta: l'agente osserva e fa rapporto, senza cambiare nulla.")
         return out
 
     # 1) chi peggiora: dal reale torna su carta, dalla carta si spegne (solo le sue; per le tue una nota)
+    limited = {k for k, _ in out["demote"]}
     for key in sorted(active):
         st = _paper_stats(paper, key)
         verdict = (st.get("vs_backtest") or {}).get("verdict")
+        if key in limited:
+            continue
         if active[key] == "live" and verdict == "sotto":
             if key in agent_live or ag["autonomy"] == "live":
                 out["demote"].append((key, f"su carta va peggio dello storico ({st.get('n')} trade, netto medio {st.get('avg_net_pct')}%)"))
@@ -228,7 +315,7 @@ def ai_report(facts, key=None, post=requests.post, get=requests.get):
 
 
 def run(notify, cfg_path=automation.CONFIG_PATH, summary_path=automation.SUMMARY_PATH, paper_path=PAPER_PATH,
-        state_path=STATE_PATH, ai=ai_report, now=None, full_report=False):
+        state_path=STATE_PATH, ai=ai_report, now=None, full_report=False, live_path="live_trades.json", capital=capital_check):
     """full_report: rapporto completo su Telegram (domenica o avvio a mano); negli altri giorni il messaggio
     parte solo se l'agente ha cambiato qualcosa o ha una proposta nuova."""
     now = now or datetime.now(timezone.utc)
@@ -267,9 +354,17 @@ def run(notify, cfg_path=automation.CONFIG_PATH, summary_path=automation.SUMMARY
         added |= {k for k, _ in d["on"]}
         d["promote"] = apply(d["promote"], "live")
 
-    facts = facts_text(cfg, paper, d, errors)
+    cap = None
+    try:
+        cap = capital(cfg, _load(live_path, {}), paper)
+    except Exception as e:
+        print(f"Controllo del capitale non riuscito: {e}")
+    facts = facts_text(cfg, paper, d, errors) + capital_facts(cap)
     acted = any(d[k] for k in ("off", "on", "promote", "demote")) or errors
     new_props = sorted(p["key"] for p in d["proposals"]) != sorted(p["key"] for p in state.get("proposals", []))
+    cap_warn = bool(capital_facts(cap))
+    if cap_warn and not state.get("capital_warned"):
+        acted = True                    # la prima volta l'avviso parte subito, poi solo nel rapporto della domenica
     text, model = ai(facts) if (full_report or acted) else (None, None)
     if changed:
         automation.save(cfg, cfg_path)
@@ -277,7 +372,7 @@ def run(notify, cfg_path=automation.CONFIG_PATH, summary_path=automation.SUMMARY
     at = now.isoformat(timespec="seconds")
     events = [{"at": at, "kind": kind, "key": k, "why": why} for kind in ("demote", "off", "on", "promote") for k, why in d[kind]]
     events += [{"at": at, "kind": "proposal", "key": p["key"], "why": f"{p['n']} trade su carta, netto medio {p['avg_net_pct']}%"} for p in d["proposals"]] if new_props else []
-    state.update(last_run=at, settings=ag, added=sorted(added), proposals=d["proposals"], facts=facts,
+    state.update(last_run=at, settings=ag, added=sorted(added), proposals=d["proposals"], facts=facts, capital=cap, capital_warned=cap_warn,
                  log=(state.get("log", []) + events)[-LOG_MAX:])
     if text or full_report:
         state.update(report=text, report_model=model, report_at=at)
