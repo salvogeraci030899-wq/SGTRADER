@@ -55,6 +55,7 @@ export function getGlassPref() {
 export function setGlassPref(pref) {
     try { localStorage.setItem(GLASS_KEY, pref === 'on' ? 'on' : 'off'); } catch (e) {}
     document.documentElement.classList.toggle('glass', pref === 'on');
+    applyTheme();      // i grafici si ridipingono (sfondo trasparente col vetro)
 }
 
 export function getStatusBarPref() {

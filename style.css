@@ -1301,8 +1301,8 @@ html.pwa-mode .nav-item { height: auto; }
 .ev-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor; margin-right: 6px; vertical-align: middle; position: relative; top: -1px; }
 .text-secondary { color: var(--text-secondary); }
 
-/* ===== Vetro (Impostazioni → Aspetto → Vetro), stile Liquid Glass. Solo su elementi piccoli sopra il contenuto:
-   barra in basso, tasti tondi, barre delle schede, tasti dei grafici. Le schede con numeri restano piene (leggibilità).
+/* ===== Vetro (Impostazioni → Aspetto → Vetro), stile Liquid Glass. Barra in basso, tasti, barre delle schede
+   e tutte le schede del contenuto.
    Se in app installata iOS fa sparire qualcosa, basta spegnerlo: torna tutto pieno. ===== */
 html.glass { --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04) 55%, rgba(255, 255, 255, 0.08));
     --glass-border: rgba(255, 255, 255, 0.18); --glass-light: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(255, 255, 255, 0.06); }
@@ -1320,3 +1320,23 @@ html.glass .nav-item.active, html.glass .page-tabs button.active, html.glass .po
 html.glass[data-theme="light"] .nav-item.active, html.glass[data-theme="light"] .page-tabs button.active,
 html.glass[data-theme="light"] .pos-views button.active, html.glass[data-theme="light"] .market-toggle button.active { background: rgba(0, 0, 0, 0.06); }
 html.glass .header-icon-btn.acc-real { background: rgba(255, 159, 10, 0.22); border-color: var(--warning); }
+/* Vetro anche su tutte le schede e i tasti: superfici traslucide sopra uno sfondo con luci tenui
+   (sul nero pieno il vetro non si vedrebbe). La sfocatura vera solo sulle schede grandi, per non appesantire. */
+html.glass { --surface: rgba(255, 255, 255, 0.06); --surface-2: rgba(255, 255, 255, 0.04); --surface-hover: rgba(255, 255, 255, 0.13);
+    --border: rgba(255, 255, 255, 0.11); --chart-bg: transparent;
+    --wall: radial-gradient(60% 45% at 0% 0%, rgba(10, 132, 255, 0.28), transparent 70%),
+            radial-gradient(55% 40% at 100% 45%, rgba(48, 209, 88, 0.16), transparent 70%),
+            radial-gradient(65% 45% at 20% 100%, rgba(191, 90, 242, 0.20), transparent 70%), #000; }
+html.glass[data-theme="light"] { --surface: rgba(255, 255, 255, 0.58); --surface-2: rgba(255, 255, 255, 0.42); --surface-hover: rgba(255, 255, 255, 0.85);
+    --border: rgba(255, 255, 255, 0.85);
+    --wall: radial-gradient(60% 45% at 0% 0%, rgba(10, 132, 255, 0.22), transparent 70%),
+            radial-gradient(55% 40% at 100% 45%, rgba(48, 209, 88, 0.16), transparent 70%),
+            radial-gradient(65% 45% at 20% 100%, rgba(191, 90, 242, 0.18), transparent 70%), #eef0f6; }
+html.glass body, html.glass #app, html.glass .assist-box, html.glass .lock-screen, html.glass .modal-overlay,
+html.glass .modal-overlay .modal-box { background: var(--wall); }
+html.glass .card-box, html.glass .home-card, html.glass .home-tile, html.glass .home-chart-item, html.glass .chart-container,
+html.glass .set-group, html.glass .active-trade-card, html.glass .log-item, html.glass .be-card, html.glass .calc-card,
+html.glass .signal-history-item, html.glass #tech-panel, html.glass #tr-panel, html.glass #val-panel, html.glass #fut-panel, html.glass #ai-panel {
+    -webkit-backdrop-filter: blur(18px) saturate(170%); backdrop-filter: blur(18px) saturate(170%); box-shadow: var(--glass-light); }
+html.glass .signal-cell, html.glass .auto-item, html.glass .bt-tile, html.glass .mode-pill, html.glass .assist-icon, html.glass .btn-generic,
+html.glass .signal-info-bar, html.glass .signal-legend, html.glass .assist-ctx div { box-shadow: var(--glass-light); }
