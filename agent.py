@@ -425,8 +425,16 @@ def run(notify, cfg_path=automation.CONFIG_PATH, summary_path=automation.SUMMARY
         cap = capital(cfg, _load(live_path, {}), paper)
     except Exception as e:
         print(f"Controllo del capitale non riuscito: {e}")
-    facts = facts_text(cfg, paper, d, errors) + capital_facts(cap)
+    import review as reviewer
+    rev = None
+    try:
+        rev = reviewer.review(_load(live_path, {}), paper, now)
+    except Exception as e:
+        print(f"Revisione dell'esecuzione non riuscita: {e}")
+    facts = facts_text(cfg, paper, d, errors) + capital_facts(cap) + reviewer.facts(rev)
     acted = any(d[k] for k in ("off", "on", "observe", "promote", "demote")) or errors
+    if rev and rev.get("alert") and not (state.get("review") or {}).get("alert"):
+        acted = True                    # il reale si allontana dalla carta: avviso subito, la prima volta
     new_props = sorted(p["key"] for p in d["proposals"]) != sorted(p["key"] for p in state.get("proposals", []))
     cap_warn = bool(capital_facts(cap))
     if cap_warn and not state.get("capital_warned"):
@@ -443,7 +451,7 @@ def run(notify, cfg_path=automation.CONFIG_PATH, summary_path=automation.SUMMARY
     events += [{"at": at, "kind": "proposal", "key": p["key"], "why": f"{p['n']} trade su carta, netto medio {p['avg_net_pct']}%"} for p in d["proposals"]] if new_props else []
     for e in events:
         event_log.record("agente", e["kind"], f"Agente: {_label(e['key'])} {WHAT.get(e['kind'], e['kind'])} ({e['why']}).", at=at, key=e["key"])
-    state.update(last_run=at, settings=ag, added=sorted(added), observing=sorted(observing & added), proposals=d["proposals"], facts=facts, capital=cap, capital_warned=cap_warn,
+    state.update(last_run=at, settings=ag, added=sorted(added), observing=sorted(observing & added), proposals=d["proposals"], facts=facts, capital=cap, capital_warned=cap_warn, review=rev,
                  log=(state.get("log", []) + events)[-LOG_MAX:])
     if text or full_report:
         state.update(report=text, report_model=model, report_at=at)

@@ -334,6 +334,17 @@ export function renderAutomation() {
     if (note) note.textContent = `Su carta dal ${day(cfg && cfg.paper_start)}. I comandi passano da GitHub: l'effetto si vede qui dopo qualche minuto. Ordini veri solo con: strategia confermata in Reale, interruttore acceso e chiavi Bitget.`;
 }
 
+// Agente revisore (review.py, ogni giorno con l'agente): esecuzione reale contro la carta, ingressi saltati
+function reviewLine() {
+    const r = agentState && agentState.review;
+    const n2 = v => `${v > 0 ? '+' : v < 0 ? '−' : ''}${fmtIt(Math.abs(v), 2)}`;
+    if (!r) return { text: 'in attesa del primo controllo', cls: '' };
+    if (r.matched) return { text: `${r.matched} trade reali · ingresso ${n2(r.avg_entry_slip_pct)}%${r.avg_gap_pct != null ? ` · ${n2(-r.avg_gap_pct)}% vs carta` : ''}`, cls: r.alert ? 'text-warning' : '' };
+    const skipped = Object.values(r.skipped || {}).reduce((s, n) => s + n, 0);
+    if (skipped || r.errors) return { text: `nessun trade reale · ${skipped} ingressi saltati${r.errors ? ` · ${r.errors} falliti` : ''}`, cls: 'text-secondary' };
+    return { text: 'nessun trade reale da confrontare', cls: 'text-secondary' };
+}
+
 // Agente eventi: pausa dei nuovi ingressi reali per una notizia di rischio (event_guard.py)
 export function guardLine(now = Date.now()) {
     const g = guardState || {};
@@ -628,6 +639,7 @@ export function renderAgentView() {
         <div class="auto-row"><span>Strategie</span><b>${nPaper} su carta${observingKeys().size ? ` (${[...observingKeys()].filter(k => currentMode(k) === 'paper').length} in osservazione)` : ''} · ${nLive} reali</b></div>
         ${capitalRow()}
         <div class="auto-row"><span>Oggi</span><b class="${dayInfo > 0 ? 'text-accent' : dayInfo < 0 ? 'text-danger' : ''}">${escapeHtml(dayText)}</b></div>
+        <div class="auto-row"><span>Esecuzione</span><b class="${reviewLine().cls}">${escapeHtml(reviewLine().text)}</b></div>
         <div class="auto-row"><span>Ultima decisione</span><b>${agentState && agentState.last_run ? escapeHtml(new Date(agentState.last_run).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })) : 'ogni giorno alle 19:41'}</b></div>`
         + agentProposals().map(p => `<div class="agent-prop-inline"><div><b>Proposta: ${escapeHtml(label(p.key))} al reale</b><small>${p.n} trade su carta, netto medio ${pct(p.avg_net_pct)}, in linea con lo storico</small></div><button type="button" onclick="openAgent()">Valuta</button></div>`).join('');
     const setting = field => `<div class="agent-set"><span>${AG_TITLES[field]}</span><div class="option-toggle compact">${

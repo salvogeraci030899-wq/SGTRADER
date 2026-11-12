@@ -211,3 +211,53 @@ def donchian20_oi(x):
 def crowd_fade(x):
     z = x["feat"]("ls_z_30")
     return np.where(z > 2, -1, np.where(z < -2, 1, 0))
+
+
+# =====================================================================
+# VARIANTI DELL'AGENTE RICERCATORE (research.py, research.json): dichiarate con data e motivo prima di
+# essere provate, scelte da una grammatica chiusa. Solo 1d. Ognuna conta come una prova in più.
+# =====================================================================
+def _research_signal(template, p):
+    if template == "breakout":
+        return lambda x: np.where(x["close"] > x["high_max"](p["n"]), 1, np.where(x["close"] < x["low_min"](p["n"]), -1, 0))
+    if template == "momentum":
+        return lambda x: np.sign(x["ret"](p["p"])).astype(int)
+    if template == "ema_cross":
+        def ema_cross(x):
+            f, s = x["ema"](p["f"]), x["ema"](p["s"])
+            return np.where(_cross_up(f, s), 1, np.where(_cross_up(-f, -s), -1, 0))
+        return ema_cross
+    if template == "rsi_pullback":
+        def rsi_pullback(x):
+            r, c, s200 = x["rsi"](p["r"]), x["close"], x["sma"](200)
+            return np.where((c > s200) & (r < p["lv"]), 1, np.where((c < s200) & (r > 100 - p["lv"]), -1, 0))
+        return rsi_pullback
+    return None
+
+
+def _research_exit(template, p):
+    return {"breakout": {"stop_atr": 2.0, "trail_atr": float(p.get("trail", 3)), "max_hold": 60},
+            "momentum": {"stop_atr": 3.0, "max_hold": p.get("hold", 7)},
+            "ema_cross": dict(TREND_EXIT),
+            "rsi_pullback": dict(REV_EXIT)}[template]
+
+
+def _register_research(path=None):
+    import json
+    import os
+    import research
+    path = path or os.path.join(os.path.dirname(os.path.abspath(__file__)), research.PATH)
+    try:
+        with open(path) as f:
+            proposals = json.load(f).get("proposals") or []
+    except (OSError, ValueError):
+        return
+    for prop in proposals:
+        t, p, name = prop.get("template"), prop.get("params") or {}, prop.get("name")
+        if not research.valid(t, p) or name != research.name_of(t, p) or name in STRATEGIES:
+            continue
+        desc = f"{research.TEMPLATES[t]['desc']} ({', '.join(f'{k}={v}' for k, v in p.items())}). Proposta dal ricercatore il {prop.get('declared_at', '')[:10]}: {prop.get('why', '')}"
+        strategy(name, "ricerca", desc, _research_exit(t, p), tfs=["1d"])(_research_signal(t, p))
+
+
+_register_research()

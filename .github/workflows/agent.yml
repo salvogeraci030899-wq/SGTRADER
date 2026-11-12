@@ -38,6 +38,14 @@ jobs:
           python-version: '3.11'
       - name: Installa dipendenze minime
         run: pip install "pandas>=2.2.2" numpy requests
+      # Agente ricercatore: al massimo 2 varianti nuove a settimana da una grammatica chiusa, dichiarate prima del laboratorio
+      - name: Ricercatore
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python research.py || echo "Ricercatore non riuscito, il laboratorio gira lo stesso"
       - name: Calcola (con la prova finale per le strategie pronte)
         run: |
           UNSEAL="$(python agent.py --unseal-plan)"
@@ -49,6 +57,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add lab_summary.json lab_registry.json validation/LABORATORIO.md
+          for f in research.json events; do if [ -e "$f" ]; then git add "$f"; fi; done
           git commit -m "Agente: laboratorio aggiornato $(date -u +%Y-%m-%d_%H:%M)" || { echo "Nessuna modifica"; exit 0; }
           bash tools/push_state.sh
 
