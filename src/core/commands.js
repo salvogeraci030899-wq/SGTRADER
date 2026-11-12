@@ -26,11 +26,18 @@ export function safeEqual(a, b) {
     return diff === 0;
 }
 
-// Senza APP_SECRET l'endpoint resterebbe aperto a chiunque: per i comandi è obbligatoria
+// Senza APP_SECRET l'endpoint resterebbe aperto a chiunque: per i comandi è obbligatoria.
+// IA e avvio del bot (required = false) restano aperti all'app anche con APP_SECRET impostata: basta
+// l'origine dell'app (il browser la manda sempre) oppure la chiave. Sul server Cloudflare c'è in più il
+// limite di richieste al minuto (worker/index.js).
+export const DEFAULT_ORIGINS = 'https://salvogeraci030899-wq.github.io,https://sgtrader.vercel.app';
 export function isAuthorized(headers, env, required = false) {
     const secret = String(env.APP_SECRET || '').trim();
     if (!secret) return !required;
-    return safeEqual(headers['x-app-key'], secret);
+    if (safeEqual(headers['x-app-key'], secret)) return true;
+    if (required) return false;
+    const allowed = String(env.ALLOWED_ORIGINS || DEFAULT_ORIGINS).split(',').map(x => x.trim()).filter(Boolean);
+    return allowed.includes(headers.origin || '');
 }
 
 const json = (status, body) => ({ status, body });
