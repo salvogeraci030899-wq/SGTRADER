@@ -4,9 +4,9 @@ name: Test
 on:
   push:
     branches: [main]
-    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', 'src/**', 'index.html', 'style.css', '.gitattributes', '.github/actions/**', '.github/workflows/tests.yml']
+    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', 'src/**', 'index.html', 'style.css', '.gitattributes', '.github/actions/**', 'ruff.toml', 'eslint.config.js', 'package.json', '.github/workflows/tests.yml']
   pull_request:
-    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', 'src/**', 'index.html', 'style.css', '.gitattributes', '.github/actions/**', '.github/workflows/tests.yml']
+    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', 'src/**', 'index.html', 'style.css', '.gitattributes', '.github/actions/**', 'ruff.toml', 'eslint.config.js', 'package.json', '.github/workflows/tests.yml']
 
 permissions:
   contents: read
@@ -21,27 +21,16 @@ jobs:
         with:
           python-version: '3.11'
       - name: Installa dipendenze minime
-        run: pip install "pandas>=2.2.2" numpy requests cryptography
-      - name: Esegui i test
+        run: pip install "pandas>=2.2.2" numpy requests cryptography ruff
+      - name: Controllo statico (Python e JavaScript)
         run: |
-          python tests/test_datacrypt.py
-          python tests/test_track_record.py
-          python tests/test_validation.py
-          python tests/test_futures_data.py
-          python tests/test_strategies_validation.py
-          python tests/test_strategy_lab.py
-          python tests/test_run_bot.py
-          python tests/test_paper.py
-          python tests/test_automation.py
-          python tests/test_executor.py
-          python tests/test_daily_report.py
-          python tests/test_price_alerts.py
-          python tests/test_quick.py
-          python tests/test_agent.py
-          python tests/test_events.py
-          python tests/test_futures_archive.py
-          python tests/test_watchdog.py
-          python tests/test_position.py
+          ruff check .
+          npx --yes eslint@10.14.0 .
+      - name: Esegui i test
+        # tutti i file tests/test_*.py: uno nuovo entra da solo; si ferma al primo che fallisce
+        run: |
+          set -e
+          for t in tests/test_*.py; do echo "== $t"; python "$t"; done
           node tests/test_core.mjs
           node tests/test_rules.mjs
           node tests/test_lab_engine.mjs

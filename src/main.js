@@ -1,5 +1,4 @@
 import { State } from './core/state.js';
-import { CONFIG } from './core/config.js';
 import { Logger } from './core/logger.js';
 import * as Helpers from './utils/helpers.js';
 import * as TerminalUI from './ui/terminal.js';
@@ -126,7 +125,6 @@ window.executeTradeOpen = TradeUI.executeTradeOpen;
 // Journal
 // trade chiusi o conto cambiati: si ridisegna la pagina Risultati (se è aperta)
 window.renderHistory = Results.renderResults;
-window.renderStats = () => {};
 window.setResultsSource = Results.setResultsSource;
 window.setLogFilter = Log.setLogFilter;
 window.logDay = Log.logDay;
@@ -138,11 +136,6 @@ window.exportCSV = JournalUI.exportCSV;
 window.confirmReset = JournalUI.confirmReset;
 window.closeResetModal = JournalUI.closeResetModal;
 window.executeReset = JournalUI.executeReset;
-window.openDeleteModal = JournalUI.openDeleteModal;
-window.closeModal = JournalUI.closeModal;
-window.confirmDelete = JournalUI.confirmDelete;
-window.goToTradeSlide = JournalUI.goToTradeSlide;
-window.updateTradeLogDots = JournalUI.updateTradeLogDots;
 
 // Signals
 window.scanAllSignals = SignalsUI.scanAllSignals;
@@ -365,7 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
     TerminalUI.initTerminal();
     CalculatorUI.initCalculator();
     TradeUI.initTrade();
-    JournalUI.initJournal();
     SignalsUI.initSignals();
     HomeUI.initHome();
 
@@ -429,12 +421,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (activeTradesListEl) activeTradesListEl.addEventListener('scroll', () => {
         clearTimeout(window._activeTradeScrollTimeout);
         window._activeTradeScrollTimeout = setTimeout(TradeUI.renderActiveTradeDots, 50);
-    });
-
-    const simHistoryEl = document.getElementById('simHistory');
-    if (simHistoryEl) simHistoryEl.addEventListener('scroll', () => {
-        clearTimeout(window._tradeLogScrollTimeout);
-        window._tradeLogScrollTimeout = setTimeout(JournalUI.updateTradeLogDots, 50);
     });
 
     const signalHistoryEl = document.getElementById('signalHistoryList');

@@ -5,5 +5,11 @@
   "private": true,
   "engines": {
     "node": "26.0"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "node tests/test_core.mjs && node tests/test_rules.mjs && node tests/test_lab_engine.mjs",
+    "test:ui": "node tests/ui_smoke.mjs",
+    "lint": "npx --yes eslint@10.14.0 ."
   }
 }

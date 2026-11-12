@@ -64,9 +64,12 @@ try {
             const ev = Array.from({ length: 14 }, (_, i) => JSON.stringify({ at, kind: ['ordini', 'agente', 'carta', 'avvisi', 'posizioni', 'sistema', 'conto'][i % 7], action: 'prova', text: `🔔 Evento di prova numero ${i + 1} ✅, con un testo di lunghezza normale come quelli veri.`, id: 'e' + i, ok: i % 5 !== 0, net: i % 2 ? 0.5 : -0.2 }));
             return r.fulfill({ contentType: 'text/plain', body: ev.join('\n') + '\n' });
         });
-        await page.route('**/automation.json*', r => {
-            const j = JSON.parse(fs.readFileSync(path.join(ROOT, 'automation.json'), 'utf8'));
-            j.risk = { ...(j.risk || {}), trading_enabled: mode === 'real' };
+        // dati personali inventati (quelli veri nel repository sono cifrati): conto, posizioni, carta, agente, storico
+        const FIX = JSON.parse(fs.readFileSync(path.join(ROOT, 'tests', 'fixtures', 'ui_data.json'), 'utf8'));
+        await page.route(/\/(automation|live_trades|paper_trades|agent_state|equity_history|quick_state|alerts_state)\.json/, r => {
+            const name = new URL(r.request().url()).pathname.split('/').pop();
+            const j = structuredClone(FIX[name]);
+            if (name === 'automation.json') j.risk = { ...(j.risk || {}), trading_enabled: mode === 'real' };
             return r.fulfill({ contentType: 'application/json', body: JSON.stringify(j) });
         });
         await page.route(/api\.github\.com|workers\.dev|api\.telegram\.org/, r => r.fulfill({ status: 204, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*' } }));

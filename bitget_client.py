@@ -78,7 +78,7 @@ class BitgetClient:
         try:
             data = r.json()
         except ValueError:
-            raise BitgetError(f"{method} {path}: risposta non JSON (HTTP {r.status_code})")
+            raise BitgetError(f"{method} {path}: risposta non JSON (HTTP {r.status_code})") from None
         if r.status_code != 200 or str(data.get("code")) != "00000":
             raise BitgetError(f"{method} {path}: {data.get('code')} {data.get('msg')}")
         return data.get("data")

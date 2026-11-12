@@ -39,7 +39,6 @@ def test_main_non_si_rompe_con_prova_su_carta_ed_esecutore():
         try:
             json.dump({"paper_start": "2026-11-11", "strategies": {"big_candle_trail:1d": "paper"}}, open("automation.json", "w"))
             json.dump({"started": "2026-11-11", "strategies": {}}, open("paper_trades.json", "w"))
-            prev = {"BTCUSDT_1h": 0}
             t = pd.Timestamp.now(tz="UTC").floor("h") - pd.Timedelta(hours=300)   # candele tutte chiuse
             kl = [[str(int((t + pd.Timedelta(hours=i)).timestamp() * 1000)), "100", "101", "99", "100", "1", "1", "1"] for i in range(200)]
             saved = {k: getattr(run_bot, k) for k in ("ASSETS_TO_RUN", "TIMEFRAMES_TO_RUN", "get_historical_data", "load_predictor", "generate_payload", "get_live_price")}

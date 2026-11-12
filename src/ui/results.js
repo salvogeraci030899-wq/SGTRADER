@@ -91,7 +91,11 @@ function summary(source, p) {
     for (const [, v] of curve) { peak = Math.max(peak, v); dd = Math.max(dd, peak - v); }
     const wins = list.filter(x => x.pnl > 0).length;
     const coins = {};
-    for (const x of list) coins[x.symbol] = coins[x.symbol] || { pnl: 0, n: 0 }, coins[x.symbol].pnl += x.pnl, coins[x.symbol].n++;
+    for (const x of list) {
+        const c = coins[x.symbol] || (coins[x.symbol] = { pnl: 0, n: 0 });
+        c.pnl += x.pnl;
+        c.n++;
+    }
     return { list, total, base, curve, dd, wins, coins, fees: list.reduce((s, x) => s + (x.fees || 0), 0), usedEquity };
 }
 

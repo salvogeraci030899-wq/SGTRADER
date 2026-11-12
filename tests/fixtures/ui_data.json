@@ -1,0 +1,307 @@
+{
+ "automation.json": {
+  "note": "Dati di prova per il test dell'interfaccia (inventati).",
+  "paper_start": "2026-11-01",
+  "strategies": {
+   "big_candle_trail:1d": "paper",
+   "tsmom30:1d": "paper",
+   "donchian20_turtle:1d": "off"
+  },
+  "emergency": false,
+  "history": [
+   {
+    "at": "2026-11-10T10:00:00+00:00",
+    "cmd": "set",
+    "key": "tsmom30:1d",
+    "from": "off",
+    "to": "paper"
+   }
+  ],
+  "risk": {
+   "trading_enabled": false,
+   "risk_per_trade_pct": 0.5,
+   "max_leverage": 3,
+   "max_exposure_x": 1.5,
+   "max_open_positions": 3,
+   "max_daily_loss_pct": 3.0,
+   "daily_target_pct": 2.0,
+   "max_strategy_dd_pct": 5.0
+  },
+  "agent": {
+   "autonomy": "paper",
+   "profile": "bilanciato",
+   "style": "swing"
+  },
+  "price_alerts": [
+   {
+    "id": "aaaaaaa1",
+    "symbol": "BTCUSDT",
+    "side": "above",
+    "price": 75000,
+    "created_at": "2026-11-11T10:00:00+00:00"
+   },
+   {
+    "id": "aaaaaaa2",
+    "symbol": "SOLUSDT",
+    "side": "below",
+    "price": 80,
+    "created_at": "2026-11-12T10:00:00+00:00"
+   }
+  ]
+ },
+ "live_trades.json": {
+  "positions": {},
+  "day": {
+   "date": "2026-11-12",
+   "start_equity": 250.0,
+   "blocked": false
+  },
+  "halted": false,
+  "events": [
+   {
+    "at": "2026-11-12T10:00:00+00:00",
+    "kind": "info",
+    "reason": "prova"
+   }
+  ],
+  "mode": "simulata",
+  "simulated": {
+   "equity": 250.0,
+   "positions": {}
+  },
+  "account": {
+   "connected": true,
+   "demo": false,
+   "equity": 250.0,
+   "positions": 1,
+   "upl": 1.2,
+   "day_change": 0.8,
+   "day_start_total": 249.2,
+   "positions_detail": [
+    {
+     "symbol": "SOLUSDT",
+     "side": "short",
+     "size": 0.5,
+     "entry": 160.0,
+     "mark": 157.6,
+     "upl": 1.2,
+     "leverage": 3,
+     "margin": 26.7,
+     "liq": 205.0,
+     "sl": 166.0,
+     "tp": 150.0
+    }
+   ],
+   "spot_usdt": 20.0,
+   "spot_coins": [],
+   "spot_detail": [],
+   "total_usdt": 270.0,
+   "accounts_usdt": {
+    "spot": 20.0,
+    "futures": 250.0,
+    "funding": 0.0,
+    "earn": 0.0,
+    "bots": 0.0,
+    "margin": 0.0
+   },
+   "history": [
+    {
+     "id": "h1",
+     "symbol": "SOLUSDT",
+     "side": "short",
+     "size": 0.5,
+     "entry": 165.0,
+     "exit": 161.0,
+     "pnl": 2.0,
+     "fees": 0.1,
+     "funding": -0.01,
+     "net": 1.89,
+     "opened_at": 1794257429000,
+     "closed_at": 1794343829000
+    },
+    {
+     "id": "h2",
+     "symbol": "BTCUSDT",
+     "side": "long",
+     "size": 0.001,
+     "entry": 70000.0,
+     "exit": 69500.0,
+     "pnl": -0.5,
+     "fees": 0.08,
+     "funding": 0.0,
+     "net": -0.58,
+     "opened_at": 1794343829000,
+     "closed_at": 1794430229000
+    }
+   ]
+  },
+  "halt_reason": null,
+  "closed_notified": [
+   "h1",
+   "h2"
+  ],
+  "manual": []
+ },
+ "paper_trades.json": {
+  "started": "2026-11-01",
+  "updated_at": "2026-11-12T10:00:00+00:00",
+  "strategies": {
+   "big_candle_trail:1d": {
+    "mode": "paper",
+    "since": 1793652629,
+    "last_candle": {
+     "BTCUSDT": 1794516629,
+     "ETHUSDT": 1794516629,
+     "SOLUSDT": 1794516629
+    },
+    "trades": [
+     {
+      "symbol": "BTCUSDT",
+      "dir": 1,
+      "t": 1793825429,
+      "t_exit": 1794084629,
+      "entry": 68000,
+      "stop": 66000,
+      "exit": 70000,
+      "net": 2.8,
+      "open": false
+     },
+     {
+      "symbol": "ETHUSDT",
+      "dir": -1,
+      "t": 1794343829,
+      "entry": 2100,
+      "stop": 2200,
+      "open": true
+     }
+    ],
+    "stats": {
+     "n": 1,
+     "open": 1,
+     "avg_net_pct": 2.8,
+     "vs_backtest": {
+      "bt_avg": 1.1,
+      "bt_n": 120,
+      "n": 1,
+      "verdict": "pochi_trade"
+     }
+    }
+   },
+   "tsmom30:1d": {
+    "mode": "paper",
+    "since": 1794171029,
+    "last_candle": {
+     "BTCUSDT": 1794516629,
+     "ETHUSDT": 1794516629,
+     "SOLUSDT": 1794516629
+    },
+    "trades": [],
+    "stats": {
+     "n": 0,
+     "open": 0
+    }
+   }
+  }
+ },
+ "agent_state.json": {
+  "last_run": "2026-11-12T18:41:00+00:00",
+  "added": [
+   "tsmom30:1d"
+  ],
+  "proposals": [],
+  "facts": [
+   "Capitale di prova."
+  ],
+  "report": "Rapporto di prova: nessuna strategia pronta per il reale.",
+  "report_model": "prova",
+  "report_at": "2026-11-12T18:41:00+00:00",
+  "log": [
+   {
+    "at": "2026-11-12T18:41:00+00:00",
+    "kind": "observe",
+    "key": "tsmom30:1d",
+    "why": "in osservazione: promettente sullo storico"
+   },
+   {
+    "at": "2026-11-11T18:41:00+00:00",
+    "kind": "on",
+    "key": "big_candle_trail:1d",
+    "why": "candidata del laboratorio"
+   }
+  ],
+  "settings": {
+   "autonomy": "paper",
+   "profile": "bilanciato",
+   "style": "swing"
+  },
+  "capital": {
+   "equity": 250.0,
+   "stop_pct": 3.0,
+   "risk_pct": 0.5,
+   "paper_feasible": [
+    1,
+    1
+   ],
+   "symbols": {
+    "BTCUSDT": {
+     "min_usdt": 70.0,
+     "needed": 73.0,
+     "ok": true,
+     "min_size": 0.001
+    },
+    "ETHUSDT": {
+     "min_usdt": 20.0,
+     "needed": 21.0,
+     "ok": true,
+     "min_size": 0.01
+    },
+    "SOLUSDT": {
+     "min_usdt": 16.0,
+     "needed": 17.0,
+     "ok": true,
+     "min_size": 0.1
+    }
+   }
+  },
+  "capital_warned": false,
+  "observing": [
+   "tsmom30:1d"
+  ]
+ },
+ "equity_history.json": {
+  "note": "Dati di prova.",
+  "days": {
+   "2026-11-10": {
+    "at": "2026-11-10T23:59:00+00:00",
+    "open": 245.0,
+    "close": 247.0,
+    "flows": 0.0,
+    "pnl": 2.0,
+    "demo": false
+   },
+   "2026-11-11": {
+    "at": "2026-11-11T23:59:00+00:00",
+    "open": 247.0,
+    "close": 249.2,
+    "flows": 0.0,
+    "pnl": 2.2,
+    "demo": false
+   },
+   "2026-11-12": {
+    "at": "2026-11-12T23:59:00+00:00",
+    "open": 249.2,
+    "close": 250.0,
+    "flows": 0.0,
+    "pnl": 0.8,
+    "demo": false
+   }
+  }
+ },
+ "quick_state.json": {
+  "_price_alerts_fired": [],
+  "closed_notified": []
+ },
+ "alerts_state.json": {
+  "_price_alerts_fired": []
+ }
+}

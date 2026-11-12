@@ -1,6 +1,5 @@
 import { State } from '../core/state.js';
 import { CONFIG } from '../core/config.js';
-import { Logger } from '../core/logger.js';
 import { $, SYM, fetchT, fmtDateTime, analyzeTrend, buildRiskData, calcEMA, parseBitgetCandles } from '../utils/helpers.js';
 
 export function initSignals() {
@@ -187,7 +186,7 @@ export async function scanAllSignals(manual = false) {
     State.signalScanInFlight = false;
     renderSignalGrid();
     renderSignalHistory();
-    if (manual && fired.length === 0) showAlert('Scansione completata', 'Nessun nuovo segnale forte rilevato.');
+    if (manual && fired.length === 0) window.showAlert('Scansione completata', 'Nessun nuovo segnale forte rilevato.');
 }
 
 export function refreshKronosSignalsInMatrix() {
@@ -375,12 +374,12 @@ export function updateSignalNotifStatus() {
 }
 
 export async function toggleBrowserNotifications() {
-    if (!('Notification' in window)) { showAlert('Non supportato', 'Il browser non supporta le notifiche.'); return; }
+    if (!('Notification' in window)) { window.showAlert('Non supportato', 'Il browser non supporta le notifiche.'); return; }
     if (Notification.permission === 'granted') { State.signalSettings.notificationsEnabled = !State.signalSettings.notificationsEnabled; State.saveSignalState(); updateSignalNotifStatus(); updateNotifButton(); return; }
-    if (Notification.permission === 'denied') { showAlert('Bloccate', 'Notifiche bloccate nelle impostazioni.'); return; }
+    if (Notification.permission === 'denied') { window.showAlert('Bloccate', 'Notifiche bloccate nelle impostazioni.'); return; }
     const perm = await Notification.requestPermission();
-    if (perm === 'granted') { State.signalSettings.notificationsEnabled = true; State.saveSignalState(); updateSignalNotifStatus(); updateNotifButton(); showAlert('Attivate', 'Notifiche abilitate.'); }
-    else showAlert('Negate', 'Permesso negato.');
+    if (perm === 'granted') { State.signalSettings.notificationsEnabled = true; State.saveSignalState(); updateSignalNotifStatus(); updateNotifButton(); window.showAlert('Attivate', 'Notifiche abilitate.'); }
+    else window.showAlert('Negate', 'Permesso negato.');
 }
 
 export function updateNotifButton() {
@@ -412,7 +411,7 @@ export function saveSignalSettingsFromUI() {
     State.saveSignalState();
     updateSignalNotifStatus();
     closeSignalSettings();
-    showAlert('Salvato', 'Impostazioni segnali aggiornate.');
+    window.showAlert('Salvato', 'Impostazioni segnali aggiornate.');
 }
 
 function sendTelegramMessage(text) {
@@ -429,7 +428,7 @@ function sendTelegramMessage(text) {
 export function testTelegramNotification() {
     const token = ($('signalTelegramToken').value || '').trim();
     const chatId = ($('signalTelegramChat').value || '').trim();
-    if (!token || !chatId) { showAlert('Telegram', 'Inserisci Bot Token e Chat ID prima del test.'); return; }
+    if (!token || !chatId) { window.showAlert('Telegram', 'Inserisci Bot Token e Chat ID prima del test.'); return; }
     const savedToken = State.signalSettings.telegramBotToken;
     const savedChat = State.signalSettings.telegramChatId;
     State.signalSettings.telegramBotToken = token;
@@ -437,8 +436,8 @@ export function testTelegramNotification() {
     const ok = sendTelegramMessage('🧪 <b>Kronos Test</b>\nNotifiche Telegram configurate.\n' + new Date().toLocaleString('it-IT'));
     State.signalSettings.telegramBotToken = savedToken;
     State.signalSettings.telegramChatId = savedChat;
-    if (ok) showAlert('Telegram', 'Test inviato. Controlla Telegram.\n\nSe non arriva: verifica token/chatId e avvia il bot con /start.');
-    else showAlert('Telegram', 'Impossibile inviare.');
+    if (ok) window.showAlert('Telegram', 'Test inviato. Controlla Telegram.\n\nSe non arriva: verifica token/chatId e avvia il bot con /start.');
+    else window.showAlert('Telegram', 'Impossibile inviare.');
 }
 
 function fireSignalNotifications(sig) {

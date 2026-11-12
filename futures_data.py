@@ -98,7 +98,7 @@ def fetch_snapshot(symbol, get=None, pause=LONG_SHORT_PAUSE):
 
     for field, path, long_key, short_key in LONG_SHORT_SOURCES:
         error = None
-        for attempt in range(2):  # un secondo tentativo dopo la pausa: il limite di frequenza è stretto
+        for _attempt in range(2):  # un secondo tentativo dopo la pausa: il limite di frequenza è stretto
             time.sleep(pause)
             try:
                 rows = get(path, symbol=symbol, period="1h")

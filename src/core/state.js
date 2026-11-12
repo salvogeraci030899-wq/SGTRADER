@@ -28,7 +28,6 @@ export const State = {
     signalScanInFlight: false,
     calcContext: null,
     tradeToCloseId: null,
-    tradeToDeleteId: null,
     
     // Intervals
     tradeTimerInterval: null,

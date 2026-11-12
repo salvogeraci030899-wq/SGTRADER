@@ -23,7 +23,6 @@ import os
 import time
 from datetime import datetime, timezone
 
-import pandas as pd
 import requests
 
 import validation_stats as vs

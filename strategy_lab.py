@@ -359,7 +359,7 @@ def benjamini_hochberg(p_values, m, q=FDR):
     for rank, (p, _) in enumerate(ranked, start=1):
         if p <= q * rank / m:
             cut = rank
-    for p, k in ranked[:cut]:
+    for _p, k in ranked[:cut]:
         passed.add(k)
     return passed
 

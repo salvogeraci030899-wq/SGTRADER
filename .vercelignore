@@ -13,3 +13,6 @@ futures_archive
 .github
 __pycache__
 lab_registry.json
+eslint.config.js
+ruff.toml
+package-lock.json

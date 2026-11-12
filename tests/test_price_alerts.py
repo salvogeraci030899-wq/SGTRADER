@@ -18,19 +18,19 @@ def test_aggiunta_e_regole():
     for bad in ["DOGEUSDT:above:1", "BTCUSDT:sopra:1", "BTCUSDT:above:-5", "BTCUSDT:above", "x"]:
         try:
             pa.add(cfg, bad)
-            assert False, bad
+            raise AssertionError(bad)
         except pa.AlertError:
             pass
     try:
         pa.add(cfg, "BTCUSDT:above:75000")
-        assert False
+        raise AssertionError()
     except pa.AlertError as e:
         assert "già" in str(e)
     for i in range(9):
         pa.add(cfg, f"ETHUSDT:below:{1000 + i}")
     try:
         pa.add(cfg, "SOLUSDT:below:10")
-        assert False
+        raise AssertionError()
     except pa.AlertError as e:
         assert "massimo" in str(e)
     # uno scattato libera un posto e viene tolto quando il file viene riscritto
@@ -75,7 +75,7 @@ def test_comando_automation():
         assert cfg["history"][-1]["cmd"] == "alert"
         try:
             automation.run(["alert", "del", "nonesiste"], path=path, alerts_state_path=sp)
-            assert False
+            raise AssertionError()
         except automation.CommandError:
             pass
         assert automation.run(["alert", "del", aid], path=path, alerts_state_path=sp) == "Avviso tolto."

@@ -1,0 +1,6 @@
+# Controllo statico del codice Python (ruff check .): errori, import inutili, trappole comuni.
+# B905 (zip senza strict) escluso: le serie unite hanno sempre la stessa lunghezza per costruzione.
+line-length = 200
+[lint]
+select = ["F", "E9", "B", "PLE"]
+ignore = ["B905"]

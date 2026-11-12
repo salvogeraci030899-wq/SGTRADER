@@ -39,7 +39,7 @@ def parse_spec(spec):
         symbol, side, price = spec.split(":")
         price = float(price)
     except (ValueError, AttributeError):
-        raise AlertError(f"Avviso non valido: {spec}")
+        raise AlertError(f"Avviso non valido: {spec}") from None
     if symbol not in SYMBOLS or side not in SIDES or not (0 < price < 1e9):
         raise AlertError(f"Avviso non valido: {spec}")
     return symbol, side, price

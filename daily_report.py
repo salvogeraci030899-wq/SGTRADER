@@ -12,7 +12,6 @@ I dati sono quelli già scritti dal bot: niente chiamate esterne in più.
 Il testo evita i caratteri speciali del Markdown di Telegram (trattino basso, asterisco).
 """
 import json
-import os
 from datetime import datetime, timezone
 
 REPORT_HOUR_UTC = 7          # circa le 8-9 in Italia
