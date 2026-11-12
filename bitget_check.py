@@ -51,6 +51,11 @@ def main():
             for sym in ("BTCUSDT", "SOLUSDT"):
                 print(f"Spot {sym}: regole {client.spot_symbol(sym)} · ordini a scatto in attesa {len(client.spot_plan_orders(sym))}")
             print(f"Spot SOL disponibile: {client.spot_available('SOL')}")
+            for sym in ("BTCUSDT", "ETHUSDT", "SOLUSDT"):
+                fills = client.spot_fills_raw(sym, 20) or []
+                # solo i NOMI dei campi e i lati, per verificare il formato
+                print(f"Eseguiti spot {sym}: {len(fills)}" + (f" · campi: {', '.join(sorted(fills[0].keys()))} · lati: {sorted(set(str(f.get('side')) for f in fills))}"
+                      f" · feeDetail: {fills[0].get('feeDetail')}" if fills else ""))
         except Exception as e:
             print(f"Lettura spot non riuscita: {e}")
         try:
