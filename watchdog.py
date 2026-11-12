@@ -4,7 +4,8 @@ Se qualcosa non va manda un avviso su Telegram (anche quando il bot stesso non p
 Controlla:
 - che il bot sia partito di recente e che l'ultimo giro non sia fallito;
 - che l'esecutore non sia bloccato e che non ci sia un'emergenza attiva;
-- che l'archivio futures non sia vecchio (aggiornamento settimanale fallito).
+- che l'archivio futures non sia vecchio (aggiornamento settimanale fallito);
+- che il controllo rapido (avvisi di prezzo, chiusure Bitget) e l'agente girino e non falliscano.
 
     python watchdog.py --last-run 2026-11-11T09:17:00Z --last-conclusion success
 """
@@ -17,6 +18,10 @@ import requests
 
 MAX_BOT_GAP_HOURS = float(os.environ.get("WATCHDOG_MAX_HOURS", "2"))   # Cloudflare avvia il bot ogni 15 minuti: 2 ore = 8 giri saltati
 MAX_ARCHIVE_AGE_DAYS = 10
+# Altri workflow sorvegliati: (nome, ore massime senza giri). Il controllo rapido parte ogni 5 minuti,
+# l'agente una volta al giorno (GitHub può ritardare i giri programmati anche di qualche ora).
+WATCHED = {"quick": ("Il controllo rapido (avvisi di prezzo, chiusure Bitget)", 1.0), "agent": ("L'agente", 30.0)}
+OK_STATES = (None, "", "success", "in_progress", "queued", "waiting", "requested", "pending", "skipped", "cancelled")
 
 
 def _read(path):
@@ -27,7 +32,7 @@ def _read(path):
         return None
 
 
-def checks(now, last_run, last_conclusion, live=None, automation=None, archive_last_day=None):
+def checks(now, last_run, last_conclusion, live=None, automation=None, archive_last_day=None, others=None):
     """Lista dei problemi trovati (testi brevi in italiano). Vuota se va tutto bene."""
     problems = []
     if last_run is None:
@@ -43,6 +48,15 @@ def checks(now, last_run, last_conclusion, live=None, automation=None, archive_l
         problems.append("L'esecutore è BLOCCATO (posizioni su Bitget diverse dal previsto o emergenza). Controlla Bitget, poi Sblocca nell'app.")
     if automation and automation.get("emergency"):
         problems.append("Emergenza attiva: automazione ferma finché non la sblocchi dall'app.")
+    for key, (when, conclusion) in (others or {}).items():
+        name, max_h = WATCHED[key]
+        if when is None:
+            continue                     # mai partito (workflow nuovo): niente allarme
+        gap = (now - when).total_seconds() / 3600
+        if gap > max_h:
+            problems.append(f"{name} non gira da {gap:.0f} ore (limite {max_h:g}).")
+        if conclusion not in OK_STATES:
+            problems.append(f"{name}: ultimo giro finito con esito {conclusion}. Controlla i log in GitHub, scheda Actions.")
     if archive_last_day is not None and (now.date() - archive_last_day).days > MAX_ARCHIVE_AGE_DAYS:
         problems.append(f"Archivio futures fermo al {archive_last_day:%d/%m}: l'aggiornamento settimanale non funziona.")
     return problems
@@ -74,10 +88,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--last-run", default="")
     parser.add_argument("--last-conclusion", default="")
+    for k in WATCHED:
+        parser.add_argument(f"--{k}-run", default="")
+        parser.add_argument(f"--{k}-conclusion", default="")
     args = parser.parse_args()
     now = datetime.now(timezone.utc)
-    last_run = datetime.fromisoformat(args.last_run.replace("Z", "+00:00")) if args.last_run else None
-    found = checks(now, last_run, args.last_conclusion or None, _read("live_trades.json"), _read("automation.json"), archive_last_day())
+    when = lambda v: datetime.fromisoformat(v.replace("Z", "+00:00")) if v else None  # noqa: E731
+    last_run = when(args.last_run)
+    others = {k: (when(getattr(args, f"{k}_run")), getattr(args, f"{k}_conclusion") or None) for k in WATCHED}
+    found = checks(now, last_run, args.last_conclusion or None, _read("live_trades.json"), _read("automation.json"), archive_last_day(), others)
     if found:
         text = "🩺 SGTRADER, CONTROLLO DI SALUTE\n" + "\n".join(f"- {p}" for p in found)
         print(text)

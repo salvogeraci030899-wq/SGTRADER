@@ -172,6 +172,7 @@ export async function confirmChartAlert() {
     if (window.renderOrders) window.renderOrders();
 }
 let agentState = null;     // agent_state.json: ultimo giro dell'agente, rapporto, proposte
+const observingKeys = () => new Set((agentState && agentState.observing) || []);
 let pendingTrading = null;   // 'on' / 'off' inviato ma non ancora visibile in automation.json
 const pending = {};   // comandi inviati ma non ancora visibili nei file pubblicati
 
@@ -284,7 +285,7 @@ export function renderAutomation() {
             : (res ? `Storico: ${res.n} trade, oltre il mercato ${pct(res.excess_avg_pct)}${res.holdout ? (res.holdout.confirmed ? ' · confermata' : ' · bocciata alla prova finale') : ''}` : 'Nessun dato');
         const btn = (m, text, disabled, title) => `<button type="button" class="pill-btn${mode === m ? ' active' : ''}" ${disabled ? 'disabled' : ''} title="${title || ''}" onclick="setAutoMode('${escapeHtml(key)}','${m}')">${text}</button>`;
         return `<div class="auto-item">
-            <div class="auto-item-head"><b class="clickable auto-open-trades" onclick="openPaperTrades('${escapeHtml(key)}')">${escapeHtml(label(key))} ›</b>${pending[key] ? '<span class="text-warning">in corso…</span>' : ''}</div>
+            <div class="auto-item-head"><b class="clickable auto-open-trades" onclick="openPaperTrades('${escapeHtml(key)}')">${escapeHtml(label(key))} ›</b>${pending[key] ? '<span class="text-warning">in corso…</span>' : (observingKeys().has(key) ? '<span class="auto-tag" title="Messa dall\'agente solo per raccogliere dati: niente prova finale né reale">osservazione</span>' : '')}</div>
             <div class="auto-item-info">${escapeHtml(info)}</div>
             <div class="option-toggle compact">${btn('off', 'Spenta')}${btn('paper', 'Su carta', emergency)}${btn('live', 'Reale', emergency || !isConfirmed(key), isConfirmed(key) ? '' : 'Solo per strategie confermate dalla prova finale')}</div>
         </div>`;
@@ -560,7 +561,7 @@ const AG_LABELS = {
     style: { swing: 'Swing', giornaliero: 'Giornaliero', misto: 'Misto' }
 };
 const AG_TITLES = { autonomy: 'Autonomia', profile: 'Rischio', style: 'Stile' };
-const AG_KIND = { on: ['＋', 'Su carta', 'text-ui'], off: ['−', 'Spenta', ''], promote: ['▲', 'Al reale', 'text-warning'], demote: ['▼', 'Tornata su carta', 'text-danger'], proposal: ['?', 'Proposta', 'text-warning'] };
+const AG_KIND = { observe: ['◎', 'In osservazione', 'text-ui'], on: ['＋', 'Su carta', 'text-ui'], off: ['−', 'Spenta', ''], promote: ['▲', 'Al reale', 'text-warning'], demote: ['▼', 'Tornata su carta', 'text-danger'], proposal: ['?', 'Proposta', 'text-warning'] };
 const agentPending = {};
 export const agentSettings = () => ({ ...AG_DEFAULT, ...((cfg && cfg.agent) || {}), ...agentPending });
 
@@ -581,7 +582,7 @@ export function renderAgentView() {
     const realState = ag.autonomy !== 'live' ? 'decidi tu' : (risk.trading_enabled ? 'decide l\'agente' : 'interruttore spento');
     status.innerHTML = `
         <div class="auto-row"><span>Autonomia</span><b class="${autoCls}">${AG_LABELS.autonomy[ag.autonomy]}${agentPending.autonomy ? ' (in corso…)' : ''} · reale: ${realState}</b></div>
-        <div class="auto-row"><span>Strategie</span><b>${nPaper} su carta · ${nLive} reali</b></div>
+        <div class="auto-row"><span>Strategie</span><b>${nPaper} su carta${observingKeys().size ? ` (${[...observingKeys()].filter(k => currentMode(k) === 'paper').length} in osservazione)` : ''} · ${nLive} reali</b></div>
         ${capitalRow()}
         <div class="auto-row"><span>Oggi</span><b class="${dayInfo > 0 ? 'text-accent' : dayInfo < 0 ? 'text-danger' : ''}">${escapeHtml(dayText)}</b></div>
         <div class="auto-row"><span>Ultima decisione</span><b>${agentState && agentState.last_run ? escapeHtml(new Date(agentState.last_run).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })) : 'ogni giorno alle 19:41'}${agentProposals().length ? ` · <span class="text-warning">${agentProposals().length} proposta</span>` : ''}</b></div>`;

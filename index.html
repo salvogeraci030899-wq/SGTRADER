@@ -51,41 +51,41 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=136">
-    <meta name="app-version" content="136">
+    <link rel="stylesheet" href="./style.css?v=137">
+    <meta name="app-version" content="137">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=136",
-            "./src/core/commands.js": "./src/core/commands.js?v=136",
-            "./src/core/config.js": "./src/core/config.js?v=136",
-            "./src/core/labEngine.js": "./src/core/labEngine.js?v=136",
-            "./src/core/logger.js": "./src/core/logger.js?v=136",
-            "./src/core/rules.js": "./src/core/rules.js?v=136",
-            "./src/core/state.js": "./src/core/state.js?v=136",
-            "./src/core/theme.js": "./src/core/theme.js?v=136",
-            "./src/main.js": "./src/main.js?v=136",
-            "./src/ui/account.js": "./src/ui/account.js?v=136",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=136",
-            "./src/ui/assistant.js": "./src/ui/assistant.js?v=136",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=136",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=136",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=136",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=136",
-            "./src/ui/history.js": "./src/ui/history.js?v=136",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=136",
-            "./src/ui/home.js": "./src/ui/home.js?v=136",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=136",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=136",
-            "./src/ui/lock.js": "./src/ui/lock.js?v=136",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=136",
-            "./src/ui/orders.js": "./src/ui/orders.js?v=136",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=136",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=136",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=136",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=136",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=136"
+            "./src/core/backup.js": "./src/core/backup.js?v=137",
+            "./src/core/commands.js": "./src/core/commands.js?v=137",
+            "./src/core/config.js": "./src/core/config.js?v=137",
+            "./src/core/labEngine.js": "./src/core/labEngine.js?v=137",
+            "./src/core/logger.js": "./src/core/logger.js?v=137",
+            "./src/core/rules.js": "./src/core/rules.js?v=137",
+            "./src/core/state.js": "./src/core/state.js?v=137",
+            "./src/core/theme.js": "./src/core/theme.js?v=137",
+            "./src/main.js": "./src/main.js?v=137",
+            "./src/ui/account.js": "./src/ui/account.js?v=137",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=137",
+            "./src/ui/assistant.js": "./src/ui/assistant.js?v=137",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=137",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=137",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=137",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=137",
+            "./src/ui/history.js": "./src/ui/history.js?v=137",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=137",
+            "./src/ui/home.js": "./src/ui/home.js?v=137",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=137",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=137",
+            "./src/ui/lock.js": "./src/ui/lock.js?v=137",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=137",
+            "./src/ui/orders.js": "./src/ui/orders.js?v=137",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=137",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=137",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=137",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=137",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=137"
         }
     }
     </script>
@@ -1020,7 +1020,7 @@
                     <div class="rule-card">
                         <div class="rule-card-title blue">Il percorso di una strategia</div>
                         <div class="rule-step"><div class="content"><b>1. Candidata</b> → il laboratorio la trova migliore del mercato dopo i costi, e regge il controllo sulle prove multiple.</div></div>
-                        <div class="rule-step"><div class="content"><b>2. Su carta</b> → segue i segnali dal vivo senza soldi. Va peggio dello storico? Spenta.</div></div>
+                        <div class="rule-step"><div class="content"><b>2. Su carta</b> → segue i segnali dal vivo senza soldi. Va peggio dello storico? Spenta. Con meno di 4 strategie accese, l'agente aggiunge le più promettenti non candidate <b>in osservazione</b>: solo carta, per avere dati prima; niente prova finale né reale finché non diventano candidate.</div></div>
                         <div class="rule-step"><div class="content"><b>3. Prova finale</b> → con almeno 20 trade su carta, guadagno medio positivo e in linea con lo storico, la domenica l'agente la prova sui 12 mesi sigillati. Una volta sola.</div></div>
                         <div class="rule-step"><div class="content"><b>4. Reale</b> → confermata e buona su carta: proposta (Simulato) o reale (Reale).</div></div>
                         <div class="rule-step"><div class="content"><b>5. Ritorno su carta</b> → se su carta va peggio dello storico, o se perde dal suo massimo più del limite del profilo.</div></div>
@@ -1231,6 +1231,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=136"></script>
+<script type="module" src="./src/main.js?v=137"></script>
 </body>
 </html>

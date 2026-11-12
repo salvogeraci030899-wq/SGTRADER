@@ -43,6 +43,8 @@ STATE_PATH = "agent_state.json"
 PAPER_PATH = "paper_trades.json"
 PROMO_MIN_TRADES = 20          # trade chiusi su carta prima della prova finale e del reale
 LOG_MAX = 60
+OBSERVE_UP_TO = 4              # strategie accese in tutto, oltre le quali non se ne aggiungono in osservazione
+OBSERVE_MIN_TRADES = 50        # storico minimo per l'osservazione
 
 
 def _load(path, default):
@@ -79,7 +81,9 @@ def unseal_plan(cfg, summary, paper):
     results = summary.get("results") or {}
     out = []
     for key, mode in sorted((cfg.get("strategies") or {}).items()):
-        if mode == "paper" and key in results and not results[key].get("holdout") and _good_on_paper(_paper_stats(paper, key)):
+        # solo le candidate: quelle in osservazione non fanno la prova finale (ogni prova in più indebolisce le altre)
+        if (mode == "paper" and key in results and key in (summary.get("candidates") or []) and not results[key].get("holdout")
+                and _good_on_paper(_paper_stats(paper, key))):
             out.append(key)
     return out
 
@@ -182,7 +186,14 @@ def capital_facts(cap):
     return []
 
 
-def decide(cfg, summary, paper, added):
+def observable(key, r, tfs):
+    """In osservazione: non candidata ma promettente sullo storico (abbastanza trade, sopra il mercato, stabile
+    nelle due metà del periodo). Solo carta, per raccogliere dati dal vivo: niente prova finale né reale."""
+    return (key.split(":")[1] in tfs and _usable(key) and (r.get("n") or 0) >= OBSERVE_MIN_TRADES
+            and (r.get("excess_avg_pct") or 0) > 0 and bool(r.get("stable")) and not r.get("candidate"))
+
+
+def decide(cfg, summary, paper, added, observing=frozenset()):
     """Solo regole, nessun effetto. Ritorna un dizionario di liste: off, on, promote, demote, proposals, notes."""
     ag = automation.agent_config(cfg)
     tfs = automation.STYLES[ag["style"]]
@@ -191,7 +202,7 @@ def decide(cfg, summary, paper, added):
     candidates = [k for k in dict.fromkeys(sorted(confirmed) + list(summary.get("candidates") or [])) if k.split(":")[1] in tfs]
     active = {k: m for k, m in (cfg.get("strategies") or {}).items() if m != "off"}
     agent_live = automation.agent_live_keys(cfg)
-    out = {"off": [], "on": [], "promote": [], "demote": [], "proposals": [], "notes": []}
+    out = {"off": [], "on": [], "observe": [], "promote": [], "demote": [], "proposals": [], "notes": []}
     limit = float(automation.executor.risk_config(cfg)["max_strategy_dd_pct"])
     for key in sorted(k for k, m in active.items() if m == "live"):
         dd, n = strategy_drawdown(cfg, paper, key)
@@ -218,6 +229,9 @@ def decide(cfg, summary, paper, added):
                 out["off"].append((key, f"su carta va peggio dello storico ({st.get('n')} trade, netto medio {st.get('avg_net_pct')}%)"))
             else:
                 out["notes"].append(f"{_label(key)}: su carta va peggio dello storico. L'hai accesa tu: decidi tu se spegnerla.")
+        elif active[key] == "paper" and key in observing and key not in candidates:
+            if not observable(key, results.get(key) or {}, tfs):
+                out["off"].append((key, "non è più promettente sullo storico (osservazione finita)"))
         elif active[key] == "paper" and key in added and key not in candidates:
             out["off"].append((key, "non è più candidata (laboratorio aggiornato o stile cambiato)"))
 
@@ -240,6 +254,13 @@ def decide(cfg, summary, paper, added):
         free -= 1
     if not candidates:
         out["notes"].append(f"Nessuna strategia {('giornaliera' if ag['style'] == 'giornaliero' else ag['style'])} supera i controlli del laboratorio: l'agente non ne accende.")
+
+    # 2b) posti liberi: le più promettenti non candidate, in osservazione su carta (più dati dal vivo, prima)
+    room = min(free, OBSERVE_UP_TO - (len(active) - len(leaving) + len(out["on"])))
+    pool = sorted(((k, r) for k, r in results.items() if k not in active and observable(k, r, tfs)),
+                  key=lambda kv: (kv[1].get("excess_p") if kv[1].get("excess_p") is not None else 1, -(kv[1].get("excess_avg_pct") or 0)))
+    for key, r in pool[:max(0, room)]:
+        out["observe"].append((key, f"in osservazione: non candidata ma promettente sullo storico ({r.get('n')} trade, oltre il mercato {r.get('excess_avg_pct')}% a trade). Solo carta, non andrà al reale"))
 
     # 3) dalla carta al reale
     trading = bool((cfg.get("risk") or {}).get("trading_enabled"))
@@ -270,6 +291,8 @@ def facts_text(cfg, paper, d, errors):
         lines.append(f"Spenta {_label(k)}: {why}.")
     for k, why in d["on"]:
         lines.append(f"Messa su carta {_label(k)}: {why}.")
+    for k, why in d.get("observe", []):
+        lines.append(f"Messa su carta {_label(k)} {why}.")
     for k, why in d["promote"]:
         lines.append(f"PORTATA AL REALE {_label(k)}: {why}. Limiti del profilo attuale.")
     for e in errors:
@@ -346,14 +369,15 @@ def run(notify, cfg_path=automation.CONFIG_PATH, summary_path=automation.SUMMARY
     paper = _load(paper_path, {})
     state = _load(state_path, {})
     added = set(state.get("added", []))
+    observing = set(state.get("observing", []))
     ag = automation.agent_config(cfg)
 
-    d = {"off": [], "on": [], "promote": [], "demote": [], "proposals": [], "notes": []}
+    d = {"off": [], "on": [], "observe": [], "promote": [], "demote": [], "proposals": [], "notes": []}
     errors, changed = [], False
     if not summary.get("results"):
         d["notes"].append("Risultati del laboratorio non disponibili: nessuna modifica.")
     else:
-        d = decide(cfg, summary, paper, added)
+        d = decide(cfg, summary, paper, added, observing)
         confirmed = automation.confirmed(summary_path)
 
         def apply(items, mode):
@@ -374,6 +398,11 @@ def run(notify, cfg_path=automation.CONFIG_PATH, summary_path=automation.SUMMARY
         added -= {k for k, _ in d["off"]}
         d["on"] = apply(d["on"], "paper")
         added |= {k for k, _ in d["on"]}
+        # spenta o diventata candidata: non più in osservazione
+        observing -= {k for k, _ in d["off"]} | {k for k, _ in d["on"]} | set(summary.get("candidates") or [])
+        d["observe"] = apply(d["observe"], "paper")
+        added |= {k for k, _ in d["observe"]}
+        observing |= {k for k, _ in d["observe"]}
         d["promote"] = apply(d["promote"], "live")
 
     cap = None
@@ -382,7 +411,7 @@ def run(notify, cfg_path=automation.CONFIG_PATH, summary_path=automation.SUMMARY
     except Exception as e:
         print(f"Controllo del capitale non riuscito: {e}")
     facts = facts_text(cfg, paper, d, errors) + capital_facts(cap)
-    acted = any(d[k] for k in ("off", "on", "promote", "demote")) or errors
+    acted = any(d[k] for k in ("off", "on", "observe", "promote", "demote")) or errors
     new_props = sorted(p["key"] for p in d["proposals"]) != sorted(p["key"] for p in state.get("proposals", []))
     cap_warn = bool(capital_facts(cap))
     if cap_warn and not state.get("capital_warned"):
@@ -392,9 +421,9 @@ def run(notify, cfg_path=automation.CONFIG_PATH, summary_path=automation.SUMMARY
         automation.save(cfg, cfg_path)
 
     at = now.isoformat(timespec="seconds")
-    events = [{"at": at, "kind": kind, "key": k, "why": why} for kind in ("demote", "off", "on", "promote") for k, why in d[kind]]
+    events = [{"at": at, "kind": kind, "key": k, "why": why} for kind in ("demote", "off", "on", "observe", "promote") for k, why in d[kind]]
     events += [{"at": at, "kind": "proposal", "key": p["key"], "why": f"{p['n']} trade su carta, netto medio {p['avg_net_pct']}%"} for p in d["proposals"]] if new_props else []
-    state.update(last_run=at, settings=ag, added=sorted(added), proposals=d["proposals"], facts=facts, capital=cap, capital_warned=cap_warn,
+    state.update(last_run=at, settings=ag, added=sorted(added), observing=sorted(observing & added), proposals=d["proposals"], facts=facts, capital=cap, capital_warned=cap_warn,
                  log=(state.get("log", []) + events)[-LOG_MAX:])
     if text or full_report:
         state.update(report=text, report_model=model, report_at=at)
