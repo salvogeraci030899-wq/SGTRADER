@@ -953,7 +953,15 @@ html.pwa-mode .nav-item svg { width: 22px; height: 22px; }
 .assist-ctx div { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 6px 8px; min-width: 0; }
 .assist-ctx small { display: block; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.3px; }
 .assist-ctx b { display: block; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.assist-log { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 4px 0; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+.assist-log { flex: 1 1 0; min-height: 0; overflow-x: auto; overflow-y: hidden; padding: 4px 0; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+    column-width: calc(100vw - 32px); column-gap: 32px; column-fill: auto; scrollbar-width: none; touch-action: pan-x; }
+.assist-log::-webkit-scrollbar { display: none; }
+/* un messaggio non si spezza tra due schermate; ogni tua domanda comincia una schermata nuova */
+.assist-log .assist-msg { display: block; width: fit-content; break-inside: avoid; margin-bottom: 8px; }
+.assist-log .assist-msg.user { break-before: column; margin-left: auto; }
+.assist-log .assist-msg.bot { margin-right: auto; }
+.assist-log .assist-msg.plan { width: auto; }
+.assist-log .assist-msg.analysis { width: auto; break-inside: auto; }
 .assist-msg { max-width: 86%; padding: 9px 12px; border-radius: 18px; font-size: 14px; line-height: 1.45; -webkit-user-select: text; user-select: text; }
 .assist-msg.user { align-self: flex-end; background: var(--ui); color: var(--on-ui); border-bottom-right-radius: 6px; }
 .assist-msg.bot { align-self: flex-start; background: var(--surface-hover); color: var(--text); border-bottom-left-radius: 6px; }

@@ -19,15 +19,24 @@ const MAX_REC_MS = 30000;
 
 const trade = () => State.simState.activeTrades.find(t => t.id === tradeId);
 
+// La chat scorre di lato: ogni tua domanda apre una nuova schermata (CSS: break-before), le risposte lunghe
+// continuano nella schermata a destra. Si vede sempre l'ultima; i puntini dicono quante ce ne sono.
 function addMsg(role, html) {
     const log = $('assistLog');
     const div = document.createElement('div');
     div.className = `assist-msg ${role}`;
     div.innerHTML = html;
     log.appendChild(div);
-    log.scrollTop = log.scrollHeight;
+    requestAnimationFrame(() => { log.scrollLeft = log.scrollWidth; updateDots(); });
     return div;
 }
+function updateDots() {
+    const log = $('assistLog'), dots = $('assistDots');
+    if (!log || !dots) return;
+    const page = log.clientWidth + 32, pages = Math.max(1, Math.ceil((log.scrollWidth - 2) / page)), at = Math.round(log.scrollLeft / page);
+    dots.innerHTML = pages > 1 ? Array.from({ length: pages }, (_, i) => `<span class="${i === at ? 'on' : ''}"></span>`).join('') : '';
+}
+document.addEventListener('DOMContentLoaded', () => { const l = $('assistLog'); if (l) l.addEventListener('scroll', updateDots, { passive: true }); });
 
 function status(text) { const el = $('assistStatus'); if (el) el.textContent = text || ''; }
 
@@ -88,6 +97,7 @@ export function openAssistant(id, voice, real) {
     renderCtx(real, t);
     renderQuick(!!real);
     $('assistLog').innerHTML = '';
+    updateDots();
     addMsg('bot', real
         ? 'Dimmi cosa fare con questa posizione, scrivendo o con il microfono, oppure usa un comando rapido qui sotto. Diventa un ordine vero su Bitget solo dopo la tua conferma.'
         : general
