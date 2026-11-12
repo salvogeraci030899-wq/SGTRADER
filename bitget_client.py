@@ -147,6 +147,29 @@ class BitgetClient:
                                       "margin": num(row.get("marginSize")), "liq": num(row.get("liquidationPrice"))}
         return out
 
+    def history_raw(self, limit=30):
+        """Posizioni chiuse (storico di Bitget, ultimi 90 giorni), righe così come arrivano."""
+        data = self._request("GET", "/api/v2/mix/position/history-position", {"productType": PRODUCT_TYPE, "limit": str(limit)}) or {}
+        return (data.get("list") if isinstance(data, dict) else data) or []
+
+    def closed_positions(self, limit=30):
+        """Posizioni chiuse per il Diario dell'app (sola lettura), dalla più recente:
+        side, size, entry, exit, pnl lordo, fee (apertura + chiusura), funding, netto e orari (ms)."""
+        num = lambda v: float(v) if v not in (None, "") else None
+        out = []
+        for r in self.history_raw(limit):
+            open_fee, close_fee = num(r.get("openFee")) or 0.0, num(r.get("closeFee")) or 0.0
+            out.append({
+                "id": str(r.get("positionId") or f"{r.get('symbol')}-{r.get('ctime')}"),
+                "symbol": r.get("symbol"), "side": r.get("holdSide"),
+                "size": num(r.get("closeTotalPos")) or num(r.get("openTotalPos")),
+                "entry": num(r.get("openAvgPrice")), "exit": num(r.get("closeAvgPrice")),
+                "pnl": num(r.get("pnl")), "fees": round(abs(open_fee) + abs(close_fee), 6),
+                "funding": num(r.get("totalFunding")), "net": num(r.get("netProfit")),
+                "opened_at": int(r["ctime"]) if r.get("ctime") else None, "closed_at": int(r["utime"]) if r.get("utime") else None,
+                "margin_mode": r.get("marginMode")})
+        return out
+
     # ---------- ordini ----------
     def open_position(self, symbol, side, size, stop_price, client_oid=None):
         """Ordine a mercato con stop loss già impostato sull'exchange (protegge anche se il bot si ferma)."""
