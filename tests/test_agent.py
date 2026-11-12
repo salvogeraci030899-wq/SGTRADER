@@ -242,6 +242,48 @@ def test_rendimento_su_carta():
     assert any("Su carta in totale: +1.00%" in f for f in agent.facts_text({"strategies": {}}, paper, {k: [] for k in ("off", "on", "promote", "demote", "proposals", "notes")}, []))
 
 
+# ---------- osservazione ----------
+def _obs_setup(**kw):
+    p = _setup(**kw)
+    sm = json.load(open(p("lab_summary.json")))
+    sm["results"][B] = {"n": 120, "excess_avg_pct": 1.5, "excess_p": 0.05, "stable": True}
+    sm["results"][C] = {"n": 120, "excess_avg_pct": 1.0, "excess_p": 0.20, "stable": True}
+    sm["results"][PLAIN[3] + ":1d"] = {"n": 120, "excess_avg_pct": 3.0, "excess_p": 0.01, "stable": False}     # instabile
+    sm["results"][PLAIN[4] + ":1d"] = {"n": 20, "excess_avg_pct": 5.0, "excess_p": 0.01, "stable": True}      # pochi trade
+    json.dump(sm, open(p("lab_summary.json"), "w"))
+    return p
+
+
+def test_osservazione_riempie_fino_a_quattro():
+    p = _obs_setup(strategies={A: "paper"}, candidates=[A])
+    st, cfg, sent = _run(p)
+    assert cfg["strategies"] == {A: "paper", B: "paper", C: "paper"}
+    assert sorted(st["observing"]) == sorted([B, C]) and "in osservazione" in sent[0]
+    assert [e["kind"] for e in st["log"]] == ["observe", "observe"]
+
+
+def test_osservazione_niente_prova_finale_ne_reale():
+    paper = {B: stats(30, 2.0, "in_linea")}
+    p = _obs_setup(strategies={B: "paper"}, paper=paper, agent_cfg={"autonomy": "live"}, trading=True, state={"added": [B], "observing": [B]})
+    cfg = json.load(open(p("automation.json")))
+    assert agent.unseal_plan(cfg, json.load(open(p("lab_summary.json"))), json.load(open(p("paper_trades.json")))) == []
+    _, cfg, _ = _run(p)
+    assert cfg["strategies"][B] == "paper"
+
+
+def test_osservazione_finisce_se_non_piu_promettente():
+    p = _obs_setup(strategies={B: "paper"}, state={"added": [B], "observing": [B]})
+    sm = json.load(open(p("lab_summary.json"))); sm["results"][B]["stable"] = False; json.dump(sm, open(p("lab_summary.json"), "w"))
+    st, cfg, _ = _run(p)
+    assert B not in cfg["strategies"] and B not in st["observing"]
+
+
+def test_osservata_diventa_candidata():
+    p = _obs_setup(strategies={B: "paper"}, candidates=[B], state={"added": [B], "observing": [B]})
+    st, cfg, _ = _run(p)
+    assert cfg["strategies"][B] == "paper" and B not in st["observing"]
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in tests:

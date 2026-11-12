@@ -21,6 +21,15 @@ def test_problemi():
     assert wd.checks(NOW, None, None) == ["Il bot non risulta mai partito."]
 
 
+def test_controllo_rapido_e_agente():
+    ok = {"quick": (NOW - timedelta(minutes=10), "success"), "agent": (NOW - timedelta(hours=20), "success")}
+    assert wd.checks(NOW, NOW - timedelta(hours=1), "success", others=ok) == []
+    bad = {"quick": (NOW - timedelta(hours=3), "success"), "agent": (NOW - timedelta(hours=40), "failure")}
+    p = wd.checks(NOW, NOW - timedelta(hours=1), "success", others=bad)
+    assert len(p) == 3 and "controllo rapido" in p[0] and "da 3 ore" in p[0] and "da 40 ore" in p[1] and "failure" in p[2]
+    assert wd.checks(NOW, NOW - timedelta(hours=1), "success", others={"agent": (None, None)}) == []   # mai partito: niente allarme
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in tests:

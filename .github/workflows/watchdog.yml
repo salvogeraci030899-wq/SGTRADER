@@ -1,7 +1,7 @@
 name: Controllo di salute
 
-# Controllo indipendente dal bot, ogni 3 ore: se il bot non parte, fallisce, l'esecutore è
-# bloccato o l'archivio futures è vecchio, arriva un avviso su Telegram. Senza problemi non scrive nulla.
+# Controllo indipendente dal bot, ogni 3 ore: se il bot, il controllo rapido o l'agente non partono o falliscono,
+# l'esecutore è bloccato o l'archivio futures è vecchio, arriva un avviso su Telegram. Senza problemi non scrive nulla.
 on:
   workflow_dispatch:
   schedule:
@@ -30,10 +30,27 @@ jobs:
           gh run list --workflow bot.yml --limit 1 --json createdAt,conclusion,status > last.json || echo "[]" > last.json
           echo "created=$(python -c "import json; r=json.load(open('last.json')); print(r[0]['createdAt'] if r else '')")" >> "$GITHUB_OUTPUT"
           echo "conclusion=$(python -c "import json; r=json.load(open('last.json')); print((r[0].get('conclusion') or r[0].get('status')) if r else '')")" >> "$GITHUB_OUTPUT"
+      - name: Controllo rapido e agente
+        id: others
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for w in quick agent; do
+            gh run list --workflow "$w.yml" --limit 1 --json createdAt,conclusion,status > "$w.json" || echo "[]" > "$w.json"
+            echo "${w}_created=$(python -c "import json,sys; r=json.load(open(sys.argv[1])); print(r[0]['createdAt'] if r else '')" "$w.json")" >> "$GITHUB_OUTPUT"
+            echo "${w}_conclusion=$(python -c "import json,sys; r=json.load(open(sys.argv[1])); print((r[0].get('conclusion') or r[0].get('status')) if r else '')" "$w.json")" >> "$GITHUB_OUTPUT"
+          done
       - name: Controlla
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           LAST_RUN: ${{ steps.bot.outputs.created }}
           LAST_CONCLUSION: ${{ steps.bot.outputs.conclusion }}
-        run: python watchdog.py --last-run "$LAST_RUN" --last-conclusion "$LAST_CONCLUSION" | tee -a "$GITHUB_STEP_SUMMARY"
+          QUICK_RUN: ${{ steps.others.outputs.quick_created }}
+          QUICK_CONCLUSION: ${{ steps.others.outputs.quick_conclusion }}
+          AGENT_RUN: ${{ steps.others.outputs.agent_created }}
+          AGENT_CONCLUSION: ${{ steps.others.outputs.agent_conclusion }}
+        run: |
+          python watchdog.py --last-run "$LAST_RUN" --last-conclusion "$LAST_CONCLUSION" \
+            --quick-run "$QUICK_RUN" --quick-conclusion "$QUICK_CONCLUSION" \
+            --agent-run "$AGENT_RUN" --agent-conclusion "$AGENT_CONCLUSION" | tee -a "$GITHUB_STEP_SUMMARY"
