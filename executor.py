@@ -333,11 +333,19 @@ def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
                         account["total_usdt"] = round(sum(acc_all.values()), 2)
                 except Exception as e:
                     account["accounts_error"] = str(e)[:120]
+            # Posizioni chiuse (Diario dell'app in modalità Reale): un errore qui tiene lo storico precedente
+            if hasattr(client, "closed_positions"):
+                try:
+                    account["history"] = client.closed_positions(30)
+                except Exception as e:
+                    account["history_error"] = str(e)[:120]
         except Exception as e:
             account = {"connected": False, "demo": bool(getattr(client, "demo", False)), "reason": str(e)[:160]}
         account["checked_at"] = now.isoformat(timespec="seconds")
     state = _load(state_path)
     previous = state.get("account") or {}
+    if account.get("connected") and "history" not in account and previous.get("history"):
+        account["history"] = previous["history"]
     # Variazione di oggi: patrimonio totale rispetto alla prima lettura del giorno (UTC). Comprende
     # anche depositi e prelievi del giorno: nell'app è indicata come "variazione", non come guadagno.
     if account.get("connected") and account.get("total_usdt") is not None:

@@ -47,6 +47,14 @@ def main():
     try:
         pos = client.positions()
         print("Posizioni aperte: " + (", ".join(f"{s} {p['side']} {p['size']}" for s, p in pos.items()) or "nessuna"))
+        try:
+            raw = client.history_raw(5)
+            # solo i NOMI dei campi della prima riga, per verificare il formato (nessun valore)
+            print(f"Storico posizioni chiuse: {len(raw)} righe lette" + (f" · campi: {', '.join(sorted(raw[0].keys()))}" if raw else ""))
+            for h in client.closed_positions(5):
+                print(f"  chiusa {h['symbol']} {h['side']} {h['size']}: entrata {h['entry']} uscita {h['exit']}, netto {h['net']} USDT")
+        except Exception as e:
+            print(f"Storico posizioni chiuse non leggibile: {e}")
     except BitgetError as e:
         ok = False
         print(f"Lettura delle posizioni FALLITA: {e}")

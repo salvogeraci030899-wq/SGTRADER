@@ -24,6 +24,11 @@ export const riskCfg = () => ({ ...DEFAULT_RISK, ...((cfg && cfg.risk) || {}) })
 // Pagine che cambiano tra Simulato e Reale: Account, Posizioni (saldo e lista), Home
 function onModeData() {
     if (window.renderAccount) window.renderAccount();
+    // Diario, break-even e segni sul grafico: trade della sola modalità attiva
+    if (window.renderHistory) window.renderHistory();
+    if (window.renderStats) window.renderStats();
+    if (window.renderBreakEven) window.renderBreakEven();
+    if (window.refreshMarkers) window.refreshMarkers();
     if (window.refreshCapitalUI) window.refreshCapitalUI();
     if (window.renderActiveTrades) window.renderActiveTrades();
     if (window.updateHome) window.updateHome();

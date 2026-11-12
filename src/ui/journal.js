@@ -3,22 +3,39 @@ import { CONFIG } from '../core/config.js';
 import { $, SYM, fmtDateTime, fmtUsdt, tradeMarket, tradeLeverage, fmtIt } from '../utils/helpers.js';
 import * as Calculator from './calculator.js';
 import * as Trade from './trade.js';
+import { journalTrades, isRealMode, realAccount } from './history.js';
 
 export function initJournal() {
     // Eventuali listener specifici del journal (se necessari)
 }
 
+// Intestazione e tasti del Diario secondo la modalità: in Reale i trade sono quelli di Bitget (niente reset né cancellazioni)
+function renderJournalMode(real) {
+    const sub = document.getElementById('journalSubtitle');
+    if (sub) sub.textContent = real ? 'Bitget · reale: posizioni chiuse' : 'Simulato: trade dell\'app';
+    const reset = document.getElementById('journalReset');
+    if (reset) reset.style.display = real ? 'none' : '';
+}
+
 export function renderHistory() {
     const el = document.getElementById('simHistory');
     if (!el) return;
+    const real = isRealMode();
+    renderJournalMode(real);
+    const trades = journalTrades();
     const prevScroll = el.scrollLeft;
-    if (State.simState.history.length === 0) {
-        el.innerHTML = '<div style="color:var(--text-secondary);font-size:12px;text-align:center;padding:20px;width:100%;">Nessun trade registrato</div>';
+    if (trades.length === 0) {
+        const acc = real ? realAccount() : null;
+        const msg = !real ? 'Nessun trade simulato registrato'
+            : !acc || !acc.connected ? 'Conto Bitget non letto'
+            : acc.history ? 'Nessuna posizione chiusa su Bitget negli ultimi 90 giorni'
+            : 'Storico di Bitget in arrivo con la prossima lettura del conto';
+        el.innerHTML = `<div style="color:var(--text-secondary);font-size:12px;text-align:center;padding:20px;width:100%;">${msg}</div>`;
         renderTradeLogDots();
         return;
     }
     el.innerHTML = '';
-    State.simState.history.forEach(h => {
+    trades.forEach(h => {
         const coinName = h.symbol ? h.symbol.replace('USDT', '') : 'UNK';
         const tf = h.granularity || '--';
         const market = tradeMarket(h);
@@ -41,17 +58,17 @@ export function renderHistory() {
         <div class="lg-header">
             <div class="lg-title">
                 <span class="lg-coin">${coinName} ${h.type}</span>
-                <span class="lg-tf">${tf}</span>
+                ${h.real ? '' : `<span class="lg-tf">${tf}</span>`}
                 <span class="lg-market ${marketClass}">${market}</span>
                 ${levBadge}
-                <span class="log-reason reason-${h.reason}">${h.reason}</span>
+                <span class="log-reason reason-${h.reason}">${h.real ? 'BITGET' : h.reason}</span>
             </div>
-            <div class="lg-actions">
+            ${h.real ? '' : `<div class="lg-actions">
                 <button class="btn-delete" onclick="openDeleteModal('${h.id}')"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
-            </div>
+            </div>`}
         </div>
         <div class="lg-meta">
-            <span>Aperto ${fmtDateTime(h.entryTime)}</span><span class="arrow">→</span><span>Chiuso ${fmtDateTime(h.closedAt)}</span>
+            <span>Aperto ${h.entryTime ? fmtDateTime(h.entryTime) : '—'}</span><span class="arrow">→</span><span>Chiuso ${fmtDateTime(h.closedAt)}</span>
         </div>
         <div class="lg-body">
             <div class="lg-item"><span class="lg-lbl">Entry / Exit</span><span class="lg-val">${fmtIt(h.entry)} → ${fmtIt(h.exit)}</span></div>
@@ -59,7 +76,9 @@ export function renderHistory() {
             <div class="lg-item"><span class="lg-lbl">Durata</span><span class="lg-val">${durStr}</span></div>
             <div class="lg-item"><span class="lg-lbl">PnL Lordo</span><span class="lg-val" style="color:${grossColor};">${grossSign}${fmtUsdt(h.grossPnl)}</span></div>
             <div class="lg-item"><span class="lg-lbl">Fee</span><span class="lg-val" style="color:var(--warning);">-${fmtUsdt(h.fees)}</span></div>
-            <div class="lg-item"><span class="lg-lbl">Tasse</span><span class="lg-val" style="color:var(--warning);">-${fmtUsdt(h.tax)}</span></div>
+            ${h.real
+                ? `<div class="lg-item"><span class="lg-lbl">Funding</span><span class="lg-val" style="color:${h.funding >= 0 ? 'var(--accent)' : 'var(--warning)'};">${h.funding >= 0 ? '+' : ''}${fmtUsdt(h.funding)}</span></div>`
+                : `<div class="lg-item"><span class="lg-lbl">Tasse</span><span class="lg-val" style="color:var(--warning);">-${fmtUsdt(h.tax)}</span></div>`}
         </div>
         <div class="lg-footer">
             <div class="lg-item" style="align-items: flex-end;">
@@ -77,7 +96,7 @@ export function renderHistory() {
 }
 
 export function renderStats() {
-    const trades = State.simState.history;
+    const trades = journalTrades();
     const statWinRate = document.getElementById('statWinRate'), statPF = document.getElementById('statPF'),
           statAvgWin = document.getElementById('statAvgWin'), statAvgLoss = document.getElementById('statAvgLoss'),
           statExp = document.getElementById('statExp'), statMaxDD = document.getElementById('statMaxDD');
@@ -93,7 +112,10 @@ export function renderStats() {
     const grossLosses = Math.abs(losses.reduce((s, t) => s + t.pnl, 0));
     const pf = grossLosses > 0 ? grossWins / grossLosses : (grossWins > 0 ? 99 : 0);
     const exp = trades.reduce((s, t) => s + t.pnl, 0) / trades.length;
-    let equity = State.simState.initialAccountBalance, peak = equity, maxDD = 0;
+    // base del drawdown: in Simulato il capitale iniziale dell'app; in Reale il saldo di oggi meno i risultati dei trade
+    const acc = isRealMode() ? realAccount() : null;
+    const start = acc ? Math.max(0, (acc.total_usdt || 0) - trades.reduce((s, t) => s + t.pnl, 0)) : State.simState.initialAccountBalance;
+    let equity = start, peak = equity, maxDD = 0;
     [...trades].reverse().forEach(t => {
         equity += t.pnl;
         if (equity > peak) peak = equity;
@@ -113,7 +135,7 @@ export function renderTradeLogDots() {
     const dotsContainer = document.getElementById('tradeLogDots');
     const counter = document.getElementById('tradeLogCounter');
     if (!dotsContainer) return;
-    const count = State.simState.history.length;
+    const count = journalTrades().length;
     if (count === 0) { dotsContainer.innerHTML = ''; if (counter) counter.textContent = ''; return; }
     const container = document.getElementById('simHistory');
     let activeIdx = 0;
@@ -159,9 +181,10 @@ export function updateTradeLogDots() {
 }
 
 export function exportCSV() {
-    if (State.simState.history.length === 0) return;
+    const trades = journalTrades();
+    if (trades.length === 0) return;
     let csv = 'Data,Coin,TF,Mercato,Leva,Tipo,Motivo,Entry,Exit,Size,Gross_PnL,Fees,Tax,Net_PnL\n';
-    [...State.simState.history].reverse().forEach(h => {
+    [...trades].reverse().forEach(h => {
         const coin = h.symbol ? h.symbol.replace('USDT', '') : 'UNK';
         const dateStr = h.closedAt ? new Date(h.closedAt).toISOString() : h.time;
         const mkt = tradeMarket(h);
@@ -171,7 +194,7 @@ export function exportCSV() {
     const blob = new Blob([csv], { type: 'text/csv' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `kronos_trades_${new Date().toISOString().slice(0,10)}.csv`;
+    a.download = `sgtrader_${isRealMode() ? 'bitget' : 'simulato'}_${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
 }
 

@@ -1,6 +1,7 @@
 import { State } from '../core/state.js';
 import { tradingMode } from './account.js';
 import { getAutoState } from './automation.js';
+import { journalTrades } from './history.js';
 import { CONFIG } from '../core/config.js';
 import { Logger } from '../core/logger.js';
 import { $, SYM, fetchT, fmtUsd, fmtUsdt } from '../utils/helpers.js';
@@ -280,7 +281,7 @@ function setupBreakEven() {
 export function renderBreakEven() {
     const el = id => document.getElementById(id);
     if (!el('beValue')) return;
-    const trades = State.simState.history;
+    const trades = journalTrades();
     const wins = trades.filter(t => t.pnl > 0), losses = trades.filter(t => t.pnl < 0);
     let bePct = null, source = '';
     if (wins.length && losses.length) {

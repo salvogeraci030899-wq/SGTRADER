@@ -155,7 +155,8 @@ def _account_key(state):
     a = (state or {}).get("account") or {}
     pos = sorted((p.get("symbol"), p.get("side"), p.get("size"), p.get("entry"), p.get("tp"), p.get("sl"))
                  for p in a.get("positions_detail") or [])
-    return json.dumps([a.get("connected"), a.get("positions"), pos], default=str)
+    closed = [h.get("id") for h in a.get("history") or []]
+    return json.dumps([a.get("connected"), a.get("positions"), pos, closed], default=str)
 
 
 def refresh_if_changed(state_path=executor.STATE_PATH, client=None):
