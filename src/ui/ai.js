@@ -66,8 +66,10 @@ export async function runAIAnalysis({ symbol, tf, trade = null }) {
         };
         if (trade) Object.assign(payload, {
             entry: trade.entryPrice, stop: trade.slPrice, take: trade.tpPrice, leverage: trade.leverage || 1,
-            pnl: Number(calcPnl(trade, px || trade.entryPrice).net.toFixed(2)),
-            hours_open: Number(((Date.now() - trade.entryTime) / 3600e3).toFixed(1))
+            // posizione reale: PnL di Bitget al prezzo mark (stima live), senza tasse; ora di apertura non nota
+            pnl: Number((trade.real ? trade.pnl : calcPnl(trade, px || trade.entryPrice).net).toFixed(2)),
+            hours_open: trade.entryTime ? Number(((Date.now() - trade.entryTime) / 3600e3).toFixed(1)) : null,
+            ...(trade.real ? { real: true } : {})
         });
         badge.textContent = 'L\'IA sta analizzando…';
         const res = await apiPost('/api/analyze', payload);

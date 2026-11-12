@@ -119,7 +119,7 @@ export async function command(body, env, fetchFn) {
         case 'position': {
             // posizione REALE su Bitget (assistente): chiusura, TP, SL, rimozione TP/SL. position_cmd.py ricontrolla tutto.
             const price = b.price == null || b.price === '' ? '' : String(b.price);
-            if (!['close', 'tp', 'sl', 'clear'].includes(b.action) || !['BTCUSDT', 'ETHUSDT', 'SOLUSDT'].includes(b.symbol) || !['long', 'short'].includes(b.side)) {
+            if (!['close', 'tp', 'sl', 'clear', 'untp', 'unsl'].includes(b.action) || !['BTCUSDT', 'ETHUSDT', 'SOLUSDT'].includes(b.symbol) || !['long', 'short'].includes(b.side)) {
                 return json(400, { error: 'Comando sulla posizione non valido' });
             }
             if (['tp', 'sl'].includes(b.action) ? !/^\d{1,9}(\.\d{1,8})?$/.test(price) || !(Number(price) > 0) : price !== '') {
@@ -210,8 +210,11 @@ export function buildAnalysisPrompt(b) {
     const tfs = ['1d', '4h', '1h'].map(tf => tfLine(tf, summarizeCandles(candles[tf]))).join('\n');
     const hasTrade = b.type === 'LONG' || b.type === 'SHORT';
     const trade = hasTrade
-        ? `POSIZIONE APERTA (simulata): ${b.type} ${b.symbol} timeframe ${b.timeframe}, entry ${show(num(b.entry))}, stop ${show(num(b.stop))}, target ${show(num(b.take))}, `
-          + `leva ${show(num(b.leverage))}x, PnL netto attuale ${show(num(b.pnl))} USDT, aperta da ${show(num(b.hours_open))} ore.`
+        ? (b.real === true
+            ? `POSIZIONE APERTA REALE su Bitget (soldi veri): ${b.type} ${b.symbol}, entry ${show(num(b.entry))}, stop su Bitget ${num(b.stop) == null ? 'nessuno' : show(num(b.stop))}, target su Bitget ${num(b.take) == null ? 'nessuno' : show(num(b.take))}, `
+              + `leva ${show(num(b.leverage))}x, PnL attuale ${show(num(b.pnl))} USDT (prezzo mark, prima delle commissioni di chiusura). Valuta anche se manca uno stop.`
+            : `POSIZIONE APERTA (simulata): ${b.type} ${b.symbol} timeframe ${b.timeframe}, entry ${show(num(b.entry))}, stop ${show(num(b.stop))}, target ${show(num(b.take))}, `
+              + `leva ${show(num(b.leverage))}x, PnL netto attuale ${show(num(b.pnl))} USDT, aperta da ${show(num(b.hours_open))} ore.`)
         : `NESSUNA POSIZIONE: analisi di mercato su ${b.symbol}, timeframe di riferimento ${b.timeframe}.`;
     const consensus = CONSENSUS.includes(cons.direction) ? `${cons.direction} (${show(num(cons.agreement))}/4 strategie d'accordo)` : 'N/D';
     const bias = BIASES.includes(plan.bias) ? plan.bias : 'N/D';

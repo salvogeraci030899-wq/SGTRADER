@@ -31,9 +31,9 @@ class Fake:
     def set_tpsl(self, symbol, side, kind, price):
         self.calls.append((kind, symbol, side, price))
 
-    def cancel_all_tpsl(self, symbol):
-        self.calls.append(("clear", symbol))
-        return 2
+    def cancel_all_tpsl(self, symbol, only=None):
+        self.calls.append(("clear", symbol) if only is None else ("un" + only, symbol))
+        return 2 if only is None else (1 if only == "tp" else 0)
 
     def tpsl_orders(self, symbol=None):
         return {"BTCUSDT": {"tp": {"price": 72000.0}}}
@@ -112,6 +112,17 @@ def test_esito_salvato_anche_se_fallito():
             del os.environ["REQ"]
         st = json.load(open(path))
         assert st["events"][-1]["ok"] is True and "req" not in st["events"][-1] and st["positions"]["x"]["status"] == "closed"
+
+
+def test_togli_solo_tp_o_sl():
+    with tempfile.TemporaryDirectory() as d:
+        path = os.path.join(d, "live.json")
+        json.dump({"positions": {}, "day": {}, "halted": False, "events": []}, open(path, "w"))
+        c = Fake(dict(POS))
+        assert pc.run(["untp", "BTCUSDT", "long"], client=c, state_path=path) == "Tolto il take profit di BTC LONG su Bitget."
+        assert "non aveva uno stop loss" in pc.run(["unsl", "BTCUSDT", "long"], client=c, state_path=path)
+        assert c.calls == [("untp", "BTCUSDT"), ("unsl", "BTCUSDT")]
+        rejected(["unsl", "BTCUSDT", "short"], Fake(dict(POS)), "non c'è una posizione SHORT", path)
 
 
 def test_rilettura_salvata_solo_se_cambia():

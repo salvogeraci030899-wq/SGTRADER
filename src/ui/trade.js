@@ -1,12 +1,12 @@
 import { State } from '../core/state.js';
 import { CONFIG } from '../core/config.js';
 import { Logger } from '../core/logger.js';
-import { $, SYM, fetchT, apiPost, escapeHtml, fmtDateTime, fmtUsdt, calcPnl } from '../utils/helpers.js';
+import { $, SYM, fetchT, apiPost, escapeHtml, fmtDateTime, fmtUsdt, calcPnl, fmtPrice } from '../utils/helpers.js';
 import * as Terminal from './terminal.js';
 import * as Calculator from './calculator.js';
 import * as AI from './ai.js';
 import { tradingMode } from './account.js';
-import { getAutoState, maybeRefreshAccount } from './automation.js';
+import { getAutoState, maybeRefreshAccount, isRealOrderRemoving } from './automation.js';
 import { planAction, ruleHitPrice, ruleHitCandle } from '../core/rules.js';
 
 export function initTrade() {
@@ -81,14 +81,42 @@ export function refreshCapitalUI() {
     Calculator.syncCapital();
 }
 
+// "Comandi attivi" di una posizione reale: TP e SL che stanno su Bitget (messi con Chat o Voce, o a mano
+// nell'app Bitget), ciascuno con ✕ per toglierlo; sotto, l'esito dell'ultimo comando dato dall'app.
+function realCommands(p, events) {
+    const short = p.side === 'short';
+    const row = (kind, price) => {
+        const label = kind === 'tp' ? `Take profit su Bitget: chiude a ${short ? '≤' : '≥'} ${fmtPrice(price)}` : `Stop loss su Bitget: chiude a ${short ? '≥' : '≤'} ${fmtPrice(price)}`;
+        return isRealOrderRemoving(p.symbol, kind)
+            ? `<div class="at-rule"><span>${label} · in rimozione…</span></div>`
+            : `<div class="at-rule"><span>${label}</span><button type="button" onclick="removeRealOrder('${p.symbol}','${p.side}','${kind}',${Number(price)})" title="Togli">✕</button></div>`;
+    };
+    const rows = [p.sl ? row('sl', p.sl) : '', p.tp ? row('tp', p.tp) : ''].join('');
+    const ev = events.filter(e => e.symbol === p.symbol && e.side === p.side).pop();
+    const recent = ev && Date.now() - Date.parse(ev.at) < 24 * 3600e3;
+    const last = recent ? `<div class="at-meta at-last">Ultimo comando ${new Date(ev.at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}: <span class="${ev.ok === false ? 'text-danger' : 'text-accent'}">${ev.ok === false ? '✗' : '✓'}</span> ${escapeHtml(ev.msg || ev.action)}</div>` : '';
+    const none = !p.sl && !p.tp ? `<div class="at-meta">Nessuno stop né target su Bitget: chiedili con Chat o Voce.</div>` : '';
+    return rows + none + last;
+}
+
+export function requestAIAnalysisReal(symbol) {
+    const p = realList().find(x => x.symbol === symbol);
+    if (!p) return;
+    const trade = { symbol, type: p.side === 'short' ? 'SHORT' : 'LONG', entryPrice: p.entry, slPrice: p.sl || null, tpPrice: p.tp || null,
+        leverage: p.leverage, size: p.size, currentPrice: markPx[symbol] || p.mark || p.entry, pnl: liveUpl(p) || 0, real: true };
+    return AI.runAIAnalysis({ symbol, tf: '4h', trade });
+}
+
 function renderRealPositions(el) {
     const acc = bitgetAccount();
     const list = (acc && acc.positions_detail) || [];
-    const sig = `real|${acc && acc.checked_at}|${list.length}|${State.simState.activeTrades.length}`;
+    const events = ((getAutoState().live || {}).events || []).filter(e => e && e.kind === 'manual');
+    const lastEv = events[events.length - 1];
+    const sig = `real|${acc && acc.checked_at}|${list.map(p => `${p.symbol}${p.tp}/${p.sl}/${isRealOrderRemoving(p.symbol, 'tp')}${isRealOrderRemoving(p.symbol, 'sl')}`).join()}|${lastEv && lastEv.at}|${State.simState.activeTrades.length}`;
     if (sig === State.atSig) return;
     State.atSig = sig;
     const hidden = State.simState.activeTrades.length;
-    const note = `<div class="at-real-note">Lette da Bitget dal bot ogni 15 minuti${acc && acc.checked_at ? ` (ultima: ${new Date(acc.checked_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })})` : ''}. Si gestiscono con Chat e Voce (ordini veri, dopo conferma), dall'esecutore o con l'Emergenza.${hidden ? ` ${hidden} trade simulati nascosti: tornano in Simulato.` : ''}</div>`;
+    const note = `<div class="at-real-note">Da Bitget${acc && acc.checked_at ? `, letto alle ${new Date(acc.checked_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}` : ''}. Ordini veri solo dopo la tua conferma.${hidden ? ` ${hidden} trade simulati nascosti: tornano in Simulato.` : ''}</div>`;
     if (!acc || !acc.connected) {
         el.classList.add('empty');
         el.innerHTML = `<div class="at-empty">Conto Bitget non letto.${note}</div>`;
@@ -104,6 +132,7 @@ function renderRealPositions(el) {
                     <span class="at-coin">${SYM(p.symbol)} ${String(p.side || '').toUpperCase()}</span>
                     <span class="at-market futures">FUTURES</span>${p.leverage ? `<span class="at-lev">${n(p.leverage, 0)}x</span>` : ''}
                 </div></div>
+                ${realCommands(p, events)}
                 <div class="at-body">
                     <div class="at-item"><span class="at-lbl">Entry</span><span class="at-val">${n(p.entry)}</span></div>
                     <div class="at-item"><span class="at-lbl">Mark</span><span class="at-val" data-f="mark">${n(p.mark)}</span></div>
@@ -111,10 +140,14 @@ function renderRealPositions(el) {
                     <div class="at-item"><span class="at-lbl">Margine</span><span class="at-val">${n(p.margin)}</span></div>
                     <div class="at-item"><span class="at-lbl">Liquidazione</span><span class="at-val red">${n(p.liq)}</span></div>
                     <div class="at-item"><span class="at-lbl" data-f="upl-lbl">PnL aperto</span><span class="at-val" data-f="upl" style="color:${(p.upl || 0) >= 0 ? 'var(--accent)' : 'var(--danger)'}">${p.upl == null ? '—' : (p.upl >= 0 ? '+' : '') + n(p.upl)}</span></div>
-                    <div class="at-item"><span class="at-lbl">Take profit</span><span class="at-val green">${p.tp ? n(p.tp) : '—'}</span></div>
-                    <div class="at-item"><span class="at-lbl">Stop loss</span><span class="at-val red">${p.sl ? n(p.sl) : '—'}</span></div>
+                    <div class="at-item"><span class="at-lbl">Take profit</span><span class="at-val green">${p.tp ? fmtPrice(p.tp) : '—'}</span></div>
+                    <div class="at-item"><span class="at-lbl">Stop loss</span><span class="at-val red">${p.sl ? fmtPrice(p.sl) : '—'}</span></div>
                 </div>
-                <div class="at-actions at-actions-3 at-actions-2">
+                <div class="at-actions at-actions-3">
+                    <button class="btn-ai-analysis" onclick="requestAIAnalysisReal('${p.symbol}')" title="Analisi AI in tempo reale della posizione">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        Analisi AI
+                    </button>
                     <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistantReal('${p.symbol}', false)" title="Chat con l'assistente (ordini veri su Bitget)">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                         Chat

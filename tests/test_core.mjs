@@ -130,6 +130,10 @@ test('analisi AI: indicatori calcolati sul server, solo numeri nel prompt', () =
     assert.match(p, /Consenso delle regole tecniche dell'app: N\/D/);
     assert.match(p, /funding 0.01%/);
     assert.doesNotMatch(p, /ignora/);
+    const pr = buildAnalysisPrompt({ symbol: 'SOLUSDT', timeframe: '4h', type: 'SHORT', real: true, entry: 83.724, stop: 100.391, take: null, leverage: 3, pnl: 0.01, currentPrice: 83.6, candles: { '1d': rows } });
+    assert.match(pr, /POSIZIONE APERTA REALE su Bitget/);
+    assert.match(pr, /stop su Bitget 100.391, target su Bitget nessuno/);
+    assert.doesNotMatch(pr, /simulata|aperta da/);
 });
 
 test('assistente: risposta JSON, azione validata, azioni inventate scartate', async () => {

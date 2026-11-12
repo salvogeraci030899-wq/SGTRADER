@@ -201,9 +201,12 @@ class BitgetClient:
                 "clientOid": f"sgt{uuid.uuid4().hex[:24]}"}
         return self._request("POST", "/api/v2/mix/order/place-tpsl-order", body=body)
 
-    def cancel_all_tpsl(self, symbol):
+    def cancel_all_tpsl(self, symbol, only=None):
+        """Toglie TP e SL della posizione; only='tp' o 'sl' per toglierne uno solo."""
         done = 0
         for kind, o in (self.tpsl_orders(symbol).get(symbol) or {}).items():
+            if only and kind != only:
+                continue
             if o.get("orderId"):
                 self.cancel_tpsl(symbol, o["orderId"], o.get("planType"))
                 done += 1
