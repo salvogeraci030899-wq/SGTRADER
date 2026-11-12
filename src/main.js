@@ -24,6 +24,7 @@ import { initPageFit } from './ui/page-fit.js';
 import { normalizeWindows } from './ui/windows.js';
 import * as Market from './ui/market.js';
 import * as Results from './ui/results.js';
+import * as Log from './ui/log.js';
 
 State.loadState();
 State.loadSignalState();
@@ -116,6 +117,8 @@ window.executeTradeOpen = TradeUI.executeTradeOpen;
 window.renderHistory = Results.renderResults;
 window.renderStats = () => {};
 window.setResultsSource = Results.setResultsSource;
+window.setLogFilter = Log.setLogFilter;
+window.logDay = Log.logDay;
 window.setResultsPeriod = Results.setResultsPeriod;
 window.renderBreakEven = CalculatorUI.renderBreakEven;
 window.syncTradeMode = CalculatorUI.syncTradeMode;
@@ -313,6 +316,8 @@ window.switchTab = (tabId) => {
         setTimeout(TradeUI.renderActiveTradeDots, 50);
     } else if (tabId === 'journal') {
         Results.renderResults();
+    } else if (tabId === 'log') {
+        Log.renderLog(true);
     } else if (tabId === 'calculator') {
         CalculatorUI.setCtxLabel();
     } else if (tabId === 'account') {
