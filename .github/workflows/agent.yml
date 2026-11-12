@@ -14,6 +14,10 @@ on:
 permissions:
   contents: write
 
+# Registro degli eventi (events.py): i giri scrivono in events/AAAA-MM.jsonl
+env:
+  SGT_EVENTS_DIR: events
+
 jobs:
   lab:
     name: Laboratorio aggiornato
@@ -77,5 +81,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add automation.json agent_state.json
+          git add events 2>/dev/null || true
           git commit -m "Agente: scelte $(date -u +%Y-%m-%d_%H:%M)" || { echo "Nessuna modifica"; exit 0; }
           bash tools/push_state.sh

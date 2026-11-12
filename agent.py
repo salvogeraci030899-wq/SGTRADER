@@ -436,7 +436,12 @@ def run(notify, cfg_path=automation.CONFIG_PATH, summary_path=automation.SUMMARY
 
     at = now.isoformat(timespec="seconds")
     events = [{"at": at, "kind": kind, "key": k, "why": why} for kind in ("demote", "off", "on", "observe", "promote") for k, why in d[kind]]
+    import events as event_log
+    WHAT = {"demote": "tornata su carta dal reale", "off": "spenta", "on": "messa su carta", "observe": "in osservazione su carta",
+            "promote": "PORTATA AL REALE", "proposal": "proposta per il reale"}
     events += [{"at": at, "kind": "proposal", "key": p["key"], "why": f"{p['n']} trade su carta, netto medio {p['avg_net_pct']}%"} for p in d["proposals"]] if new_props else []
+    for e in events:
+        event_log.record("agente", e["kind"], f"Agente: {_label(e['key'])} {WHAT.get(e['kind'], e['kind'])} ({e['why']}).", at=at, key=e["key"])
     state.update(last_run=at, settings=ag, added=sorted(added), observing=sorted(observing & added), proposals=d["proposals"], facts=facts, capital=cap, capital_warned=cap_warn,
                  log=(state.get("log", []) + events)[-LOG_MAX:])
     if text or full_report:

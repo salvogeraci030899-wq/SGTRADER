@@ -275,6 +275,9 @@ def run(argv, path=CONFIG_PATH, summary_path=SUMMARY_PATH, state_path=executor.S
     else:
         raise CommandError(f"Comando non valido: {' '.join(argv)}")
     save(cfg, path)
+    import events
+    kind = {"set": "strategie", "agent": "agente", "alert": "avvisi"}.get(cmd, "sistema")
+    events.record(kind, cmd, f"Comando dall'app: {msg}", args=" ".join(argv[1:])[:120] or None)
     return msg
 
 
