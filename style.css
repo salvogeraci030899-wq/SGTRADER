@@ -1327,8 +1327,8 @@ html.glass { --surface: rgba(255, 255, 255, 0.06); --surface-2: rgba(255, 255, 2
     --wall: radial-gradient(60% 45% at 0% 0%, rgba(10, 132, 255, 0.28), transparent 70%),
             radial-gradient(55% 40% at 100% 45%, rgba(48, 209, 88, 0.16), transparent 70%),
             radial-gradient(65% 45% at 20% 100%, rgba(191, 90, 242, 0.20), transparent 70%), #000; }
-html.glass[data-theme="light"] { --surface: rgba(255, 255, 255, 0.58); --surface-2: rgba(255, 255, 255, 0.42); --surface-hover: rgba(255, 255, 255, 0.85);
-    --border: rgba(255, 255, 255, 0.85);
+html.glass[data-theme="light"] { --surface: rgba(255, 255, 255, 0.66); --surface-2: rgba(255, 255, 255, 0.5); --surface-hover: rgba(255, 255, 255, 0.9);
+    --border: rgba(255, 255, 255, 0.9);
     --wall: radial-gradient(60% 45% at 0% 0%, rgba(10, 132, 255, 0.22), transparent 70%),
             radial-gradient(55% 40% at 100% 45%, rgba(48, 209, 88, 0.16), transparent 70%),
             radial-gradient(65% 45% at 20% 100%, rgba(191, 90, 242, 0.18), transparent 70%), #eef0f6; }
@@ -1341,3 +1341,8 @@ html.glass .signal-history-item, html.glass #tech-panel, html.glass #tr-panel, h
 html.glass .signal-cell, html.glass .auto-item, html.glass .bt-tile, html.glass .mode-pill, html.glass .assist-icon, html.glass .btn-generic,
 html.glass .signal-info-bar, html.glass .signal-legend, html.glass .assist-ctx div { box-shadow: var(--glass-light); }
 .btn-link-secondary.on { color: var(--ui); }
+/* vetro chiaro: un'ombra leggera stacca le schede dallo sfondo chiaro */
+html.glass[data-theme="light"] .card-box, html.glass[data-theme="light"] .home-card, html.glass[data-theme="light"] .home-tile,
+html.glass[data-theme="light"] .home-chart-item, html.glass[data-theme="light"] .chart-container, html.glass[data-theme="light"] .set-group,
+html.glass[data-theme="light"] .active-trade-card, html.glass[data-theme="light"] .signal-history-item, html.glass[data-theme="light"] .res-kpis div,
+html.glass[data-theme="light"] .signal-cell, html.glass[data-theme="light"] .auto-item { box-shadow: var(--glass-light), 0 2px 10px rgba(30, 40, 80, 0.07); }

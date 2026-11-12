@@ -122,7 +122,7 @@ def big_candle(x):
 
 
 # ---------- Le regole dell'app, con uscite da trend ----------
-@strategy("app_breakout_trail", "trend", "La regola Breakout della pagina Segnali (rottura a 20 candele con volume, RSI e EMA200), "
+@strategy("app_breakout_trail", "trend", "La regola Breakout di Mercato → Segnali (rottura a 20 candele con volume, RSI e EMA200), "
           "ma lasciata correre: stop 2 ATR, stop che segue a 3 ATR, massimo 60 candele.", TREND_EXIT)
 def app_breakout_trail(x):
     return x["app"]("breakout")
