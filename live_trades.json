@@ -113,6 +113,15 @@
    "at": "2026-11-12T05:48:23+00:00",
    "kind": "daily_limit",
    "pnl_pct": -98.4
+  },
+  {
+   "at": "2026-11-12T05:50:03+00:00",
+   "kind": "manual",
+   "action": "unsl",
+   "symbol": "SOLUSDT",
+   "side": "short",
+   "ok": true,
+   "msg": "Tolto lo stop loss di SOL SHORT su Bitget."
   }
  ],
  "mode": "reale",
@@ -131,13 +140,13 @@
     "side": "short",
     "size": 0.1,
     "entry": 83.026,
-    "mark": 82.924,
-    "upl": 0.0102,
+    "mark": 82.915,
+    "upl": 0.0111,
     "leverage": 3.0,
     "margin": 2.767533,
     "liq": 110.084858,
     "tp": 82.43,
-    "sl": 83.93
+    "sl": null
    }
   ],
   "upl": 0.01,
@@ -176,7 +185,7 @@
     "margin_mode": "isolated"
    }
   ],
-  "checked_at": "2026-11-12T05:48:24+00:00",
+  "checked_at": "2026-11-12T05:50:03+00:00",
   "day": "2026-11-12",
   "day_start_total": 15.98,
   "day_change": 0.06
