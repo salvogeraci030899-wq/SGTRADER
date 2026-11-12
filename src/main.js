@@ -178,6 +178,7 @@ window.closeAgent = AutoUI.closeAgent;
 window.agentPromote = AutoUI.agentPromote;
 window.runAgent = AutoUI.runAgent;
 window.setAgent = AutoUI.setAgent;
+window.setAgentTab = AutoUI.setAgentTab;
 window.openChartAlert = AutoUI.openChartAlert;
 window.closeChartAlert = AutoUI.closeChartAlert;
 window.chartAlertStep = AutoUI.chartAlertStep;

@@ -116,6 +116,25 @@ def strategy_drawdown(cfg, paper, key):
     return round(dd, 2), len(closed)
 
 
+def paper_performance(cfg, paper):
+    """Tutte le strategie su carta, in % del patrimonio con il rischio per trade attuale (come l'app):
+    ritorna (rendimento, trade, calo massimo)."""
+    risk = float(automation.executor.risk_config(cfg)["risk_per_trade_pct"])
+    rs = []
+    for e in (paper.get("strategies") or {}).values():
+        for t in e.get("trades") or []:
+            if not t.get("open") and t.get("net") is not None and t.get("entry") and t.get("stop"):
+                stop_pct = abs(t["entry"] - t["stop"]) / t["entry"] * 100
+                if stop_pct > 0:
+                    rs.append((t.get("t_exit") or t.get("t") or 0, t["net"] / stop_pct))
+    eq = peak = dd = 0.0
+    for _, r in sorted(rs):
+        eq += r * risk
+        peak = max(peak, eq)
+        dd = max(dd, peak - eq)
+    return round(eq, 2), len(rs), round(dd, 2)
+
+
 def capital_check(cfg, live, paper, price_fn=None, specs_fn=None):
     """Il capitale basta per i minimi di Bitget con il profilo attuale? Per ogni coin: capitale minimo perché
     la posizione calcolata dal rischio (rischio / distanza dello stop, entro la leva) superi la quantità minima.
@@ -266,6 +285,9 @@ def facts_text(cfg, paper, d, errors):
                      f"{st.get('open', 0)} aperti" + (f", netto medio {st['avg_net_pct']}%" if st.get("avg_net_pct") is not None else "") + ".")
     if not active:
         lines.append("Nessuna strategia accesa.")
+    ret, n, dd = paper_performance(cfg, paper)
+    if n:
+        lines.append(f"Su carta in totale: {ret:+.2f}% del patrimonio in {n} trade (calo massimo {dd:.2f}%), con il rischio per trade attuale.")
     if cfg.get("emergency"):
         lines.insert(0, "Emergenza attiva: l'agente non accende nulla.")
     return lines
