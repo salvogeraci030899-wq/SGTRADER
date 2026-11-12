@@ -5,9 +5,9 @@
    "mode": "paper",
    "trades": [],
    "last_candle": {
-    "BTCUSDT": 1794326400,
-    "ETHUSDT": 1794326400,
-    "SOLUSDT": 1794326400
+    "BTCUSDT": 1794412800,
+    "ETHUSDT": 1794412800,
+    "SOLUSDT": 1794412800
    },
    "stats": {
     "n": 0,
@@ -37,9 +37,9 @@
    "mode": "paper",
    "trades": [],
    "last_candle": {
-    "BTCUSDT": 1794326400,
-    "ETHUSDT": 1794326400,
-    "SOLUSDT": 1794326400
+    "BTCUSDT": 1794412800,
+    "ETHUSDT": 1794412800,
+    "SOLUSDT": 1794412800
    },
    "stats": {
     "n": 0,
@@ -57,9 +57,9 @@
    "mode": "paper",
    "trades": [],
    "last_candle": {
-    "BTCUSDT": 1794326400,
-    "ETHUSDT": 1794326400,
-    "SOLUSDT": 1794326400
+    "BTCUSDT": 1794412800,
+    "ETHUSDT": 1794412800,
+    "SOLUSDT": 1794412800
    },
    "stats": {
     "n": 0,
@@ -77,9 +77,9 @@
    "mode": "paper",
    "trades": [],
    "last_candle": {
-    "BTCUSDT": 1794326400,
-    "ETHUSDT": 1794326400,
-    "SOLUSDT": 1794326400
+    "BTCUSDT": 1794412800,
+    "ETHUSDT": 1794412800,
+    "SOLUSDT": 1794412800
    },
    "stats": {
     "n": 0,
@@ -94,5 +94,5 @@
    "since": 1794355200
   }
  },
- "updated_at": "2026-11-12T09:48:23+00:00"
+ "updated_at": "2026-11-12T16:14:05+00:00"
 }
