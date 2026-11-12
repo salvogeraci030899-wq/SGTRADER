@@ -233,7 +233,7 @@ window.toggleRecording = Assist.toggleRecording;
 window.toggleAssistSpeak = Assist.toggleAssistSpeak;
 window.removeRule = TradeUI.removeRule;
 // dalla Home: Segnali → Auto in un tocco
-window.openAutomation = () => { window.switchTab('signals'); AutoUI.setSignalsView('auto'); };
+window.openAutomation = () => { window.switchTab('signals'); AutoUI.setSignalsView('auto'); };   // Home → Automazione: Agente → Strategie
 
 // Home Live Charts
 window.initHomeCharts = HomeCharts.initHomeCharts;
@@ -268,6 +268,8 @@ function updateNavDots() {
 }
 
 window.switchTab = (tabId) => {
+    // il Backtest ora è Agente → Laboratorio
+    if (tabId === 'test') { window.switchTab('signals'); AutoUI.setSignalsView('lab'); return; }
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     const targetPage = document.getElementById(`page-${tabId}`);
@@ -317,11 +319,15 @@ window.switchTab = (tabId) => {
     } else if (tabId === 'settings') {
         AccountUI.renderSettings();
     } else if (tabId === 'signals') {
+        // pagina Agente: riapre la scheda in uso
+        AutoUI.setSignalsView(document.getElementById('signalsView').value || 'agent');
+    }
+    if (tabId === 'terminal') {
+        // Mercato → Segnali: griglia e storico dei segnali tecnici
         SignalsUI.renderSignalGrid();
         SignalsUI.renderSignalHistory();
         SignalsUI.updateSignalNotifStatus();
         setTimeout(SignalsUI.updateSignalHistoryDots, 50);
-        AutoUI.renderAutomation();
     }
 };
 
