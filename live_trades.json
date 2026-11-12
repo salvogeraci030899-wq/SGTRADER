@@ -21,7 +21,7 @@
  "account": {
   "connected": true,
   "demo": false,
-  "equity": 0.0,
+  "equity": 15.98,
   "positions": 0,
   "positions_detail": [],
   "upl": 0,
@@ -29,23 +29,23 @@
   "spot_coins": [
    {
     "coin": "EUR",
-    "qty": 14.52584849,
+    "qty": 0.10344849,
     "usdt": null
    }
   ],
-  "total_usdt": 0.0,
+  "total_usdt": 15.98,
   "accounts_usdt": {
    "spot": 0.0,
-   "futures": 0.0,
+   "futures": 15.98,
    "funding": 0.0,
    "earn": 0.0,
    "bots": 0.0,
    "margin": 0.0
   },
-  "checked_at": "2026-11-12T00:13:41+00:00",
+  "checked_at": "2026-11-12T00:19:13+00:00",
   "day": "2026-11-12",
   "day_start_total": 0.0,
-  "day_change": 0.0
+  "day_change": 15.98
  },
  "halt_reason": null
 }
