@@ -51,41 +51,41 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=132">
-    <meta name="app-version" content="132">
+    <link rel="stylesheet" href="./style.css?v=133">
+    <meta name="app-version" content="133">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=132",
-            "./src/core/commands.js": "./src/core/commands.js?v=132",
-            "./src/core/config.js": "./src/core/config.js?v=132",
-            "./src/core/labEngine.js": "./src/core/labEngine.js?v=132",
-            "./src/core/logger.js": "./src/core/logger.js?v=132",
-            "./src/core/rules.js": "./src/core/rules.js?v=132",
-            "./src/core/state.js": "./src/core/state.js?v=132",
-            "./src/core/theme.js": "./src/core/theme.js?v=132",
-            "./src/main.js": "./src/main.js?v=132",
-            "./src/ui/account.js": "./src/ui/account.js?v=132",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=132",
-            "./src/ui/assistant.js": "./src/ui/assistant.js?v=132",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=132",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=132",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=132",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=132",
-            "./src/ui/history.js": "./src/ui/history.js?v=132",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=132",
-            "./src/ui/home.js": "./src/ui/home.js?v=132",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=132",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=132",
-            "./src/ui/lock.js": "./src/ui/lock.js?v=132",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=132",
-            "./src/ui/orders.js": "./src/ui/orders.js?v=132",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=132",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=132",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=132",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=132",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=132"
+            "./src/core/backup.js": "./src/core/backup.js?v=133",
+            "./src/core/commands.js": "./src/core/commands.js?v=133",
+            "./src/core/config.js": "./src/core/config.js?v=133",
+            "./src/core/labEngine.js": "./src/core/labEngine.js?v=133",
+            "./src/core/logger.js": "./src/core/logger.js?v=133",
+            "./src/core/rules.js": "./src/core/rules.js?v=133",
+            "./src/core/state.js": "./src/core/state.js?v=133",
+            "./src/core/theme.js": "./src/core/theme.js?v=133",
+            "./src/main.js": "./src/main.js?v=133",
+            "./src/ui/account.js": "./src/ui/account.js?v=133",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=133",
+            "./src/ui/assistant.js": "./src/ui/assistant.js?v=133",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=133",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=133",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=133",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=133",
+            "./src/ui/history.js": "./src/ui/history.js?v=133",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=133",
+            "./src/ui/home.js": "./src/ui/home.js?v=133",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=133",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=133",
+            "./src/ui/lock.js": "./src/ui/lock.js?v=133",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=133",
+            "./src/ui/orders.js": "./src/ui/orders.js?v=133",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=133",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=133",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=133",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=133",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=133"
         }
     }
     </script>
@@ -615,6 +615,7 @@
                 <div class="market-toggle">
                     <button id="btn-view-sig" onclick="setSignalsView('sig')" class="active">Segnali</button>
                     <button id="btn-view-auto" onclick="setSignalsView('auto')">Auto</button>
+                    <button id="btn-view-agent" onclick="setSignalsView('agent')">Agente</button>
                 </div>
             </div>
             <input type="hidden" id="signalsView" value="sig">
@@ -657,6 +658,15 @@
                 </div>
                 <button class="btn-generic auto-emergency" id="autoEmergencyBtn" onclick="toggleEmergency()">Emergenza: spegni tutto</button>
                 <div class="bt-note" id="autoNote"></div>
+            </div>
+            <!-- Agente gestore (agent.py): stato, impostazioni, cronologia. Niente scroll verticale: la cronologia scorre di lato -->
+            <div id="agentView" class="signals-view" style="display:none;">
+                <div class="card-box auto-status" id="agentStatus"></div>
+                <div class="agent-settings" id="agentSettings"></div>
+                <div class="section-title"><span>Attività <small class="auto-count" id="agentLogCount"></small></span>
+                    <span class="section-actions"><button class="btn-link-secondary" onclick="openAgent()">Rapporto</button><button class="btn-link-secondary" onclick="runAgent()">Avvia ora</button></span></div>
+                <div class="agent-log" id="agentLog"></div>
+                <div class="bt-note" id="agentNote"></div>
             </div>
         </section>
 
@@ -1166,6 +1176,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=132"></script>
+<script type="module" src="./src/main.js?v=133"></script>
 </body>
 </html>

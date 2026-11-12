@@ -48,6 +48,8 @@ test('comandi ammessi e workflow giusti', async () => {
     const cases = [
         [{ type: 'run_lab' }, 'lab.yml', { unseal: '' }],
         [{ type: 'run_agent' }, 'agent.yml', {}],
+        [{ type: 'set_agent', field: 'autonomy', value: 'live' }, 'automation.yml', { action: 'agent', key: 'autonomy', mode: 'live' }],
+        [{ type: 'set_agent', field: 'profile', value: 'prudente' }, 'automation.yml', { action: 'agent', key: 'profile', mode: 'prudente' }],
         [{ type: 'run_lab', unseal: 'donchian55:4h' }, 'lab.yml', { unseal: 'donchian55:4h' }],
         [{ type: 'run_strategies' }, 'strategies.yml', { start: '2018-01-01' }],
         [{ type: 'run_validation' }, 'validation.yml', { n_samples: '50', max_minutes: '320' }],
@@ -78,6 +80,8 @@ test('comandi rifiutati prima di toccare GitHub', async () => {
         { type: 'set_risk', field: 'GH_TOKEN', value: '1' },
         { type: 'set_risk', field: 'max_leverage', value: '2; rm -rf /' },
         { type: 'trading', value: 'maybe' },
+        { type: 'set_agent', field: 'autonomy', value: 'yolo' },
+        { type: 'set_agent', field: 'GH_TOKEN', value: 'live' },
     ];
     for (const body of bad) assert.equal((await handle('POST', '/api/command', body, ok, env, fakeFetch)).status, 400, JSON.stringify(body));
     assert.equal((await handle('GET', '/api/command', {}, ok, env, fakeFetch)).status, 405);

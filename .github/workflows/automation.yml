@@ -10,9 +10,9 @@ on:
         description: 'set = cambia lo stato di una strategia, emergency = spegni tutto, resume = sblocca'
         required: true
         type: choice
-        options: [set, emergency, resume, risk, trading, alert]
+        options: [set, emergency, resume, risk, trading, alert, agent]
       key:
-        description: 'Strategia (set, es. big_candle_trail:1d) oppure limite di rischio (risk)'
+        description: 'Strategia (set, es. big_candle_trail:1d), limite di rischio (risk) o impostazione dell agente (agent: autonomy/profile/style)'
         required: false
         default: ''
       mode:
@@ -47,7 +47,7 @@ jobs:
           MODE: ${{ github.event.inputs.mode }}
         run: |
           set -o pipefail
-          if [ "$ACTION" = "set" ] || [ "$ACTION" = "risk" ]; then
+          if [ "$ACTION" = "set" ] || [ "$ACTION" = "risk" ] || [ "$ACTION" = "agent" ]; then
             python automation.py "$ACTION" "$KEY" "$MODE" | tee -a "$GITHUB_STEP_SUMMARY"
           elif [ "$ACTION" = "alert" ]; then
             python automation.py alert "$MODE" "$KEY" | tee -a "$GITHUB_STEP_SUMMARY"

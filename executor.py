@@ -16,7 +16,8 @@ Limiti di rischio (automation.json -> risk), controllati prima di ogni ingresso:
 - max_exposure_x: esposizione totale massima (somma dei nominali) in multipli del patrimonio,
   perché BTC, ETH e SOL si muovono insieme: tre posizioni sono quasi una sola scommessa;
 - max_open_positions: posizioni aperte contemporaneamente;
-- max_daily_loss_pct: se la perdita del giorno (UTC) supera questa soglia, niente nuovi ingressi fino a domani.
+- max_daily_loss_pct: se la perdita del giorno (UTC) supera questa soglia, niente nuovi ingressi fino a domani;
+- daily_target_pct: se il guadagno del giorno raggiunge l'obiettivo, niente nuovi ingressi fino a domani (0 = nessuno).
 
 Sicurezza:
 - ogni posizione nasce con lo stop loss già sull'exchange: protetta anche se il bot si ferma;
@@ -45,6 +46,7 @@ DEFAULT_RISK = {
     "max_exposure_x": 1.5,
     "max_open_positions": 3,
     "max_daily_loss_pct": 3.0,
+    "daily_target_pct": 0.0,        # obiettivo del giorno: raggiunto, niente nuovi ingressi fino a domani (0 = nessuno)
     "dry_run_equity": 1000.0,
 }
 # Valori ammessi per ogni limite (anche dall'app): fuori da qui il comando viene rifiutato
@@ -54,6 +56,7 @@ RISK_BOUNDS = {
     "max_exposure_x": (0.5, 3.0),
     "max_open_positions": (1, 6),
     "max_daily_loss_pct": (1.0, 10.0),
+    "daily_target_pct": (0.0, 10.0),
     "dry_run_equity": (100.0, 1_000_000.0),
 }
 DEFAULT_SPECS = {"volume_place": 3, "price_place": 1, "min_size": 0.001}
@@ -197,6 +200,12 @@ def run(cfg, ledger, client=None, mode="simulata", state_path=STATE_PATH, now=No
         state["day"]["blocked"] = True
         say(f"Perdita del giorno {day_pnl:.2f}% oltre il limite ({risk['max_daily_loss_pct']}%): niente nuovi ingressi fino a domani.")
         log("daily_limit", pnl_pct=round(day_pnl, 2))
+    # obiettivo del giorno: raggiunto, si smette di aprire (le posizioni aperte restano con i loro stop)
+    target = risk.get("daily_target_pct") or 0
+    if target > 0 and day_pnl >= target and not state["day"].get("target_hit"):
+        state["day"]["target_hit"] = True
+        say(f"Obiettivo del giorno raggiunto: {day_pnl:+.2f}% (obiettivo {target}%). Niente nuovi ingressi fino a domani.")
+        log("daily_target", pnl_pct=round(day_pnl, 2))
 
     # --- trade che le strategie live vogliono aperti adesso ---
     wanted = {}
@@ -234,6 +243,8 @@ def run(cfg, ledger, client=None, mode="simulata", state_path=STATE_PATH, now=No
             skip = "segnale troppo vecchio (oltre una candela)"
         elif state["day"].get("blocked"):
             skip = "limite di perdita giornaliera"
+        elif state["day"].get("target_hit"):
+            skip = "obiettivo del giorno già raggiunto"
         elif t["symbol"] in busy:
             skip = "già una posizione su questa coin" + (" (aperta a mano)" if t["symbol"] in manual else "")
         elif len(open_now) >= risk["max_open_positions"]:

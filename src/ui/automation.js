@@ -220,8 +220,10 @@ export async function loadAutomation() {
     loaded = true;
     loading = false;
     for (const [key, mode] of Object.entries(pending)) if (currentMode(key, true) === mode) delete pending[key];
+    for (const [f, v] of Object.entries(agentPending)) if (cfg && cfg.agent && cfg.agent[f] === v) delete agentPending[f];
     if (pendingTrading && (pendingTrading === 'on') === !!riskCfg().trading_enabled) pendingTrading = null;
     renderAutomation();
+    renderAgentView();
     onModeData();
 }
 
@@ -269,7 +271,7 @@ export function renderAutomation() {
         <div class="auto-row"><span>Saldo Bitget</span><b class="${accClass}" title="${escapeHtml((acc && acc.reason) || '')}">${accText}</b></div>
         ${accDetail ? `<div class="auto-row auto-sub"><span></span><b>${escapeHtml(accDetail)}</b></div>` : ''}
         <div class="auto-row clickable" onclick="openAccount()"><span>Ordini veri</span><b class="${risk.trading_enabled ? 'text-warning' : ''}">${realText} ›</b></div>
-        <div class="auto-row clickable" onclick="openAgent()"><span>Agente</span><b class="${agentProposals().length ? 'text-warning' : 'text-ui'}">${escapeHtml(agentLine())} ›</b></div>
+        <div class="auto-row clickable" onclick="setSignalsView('agent')"><span>Agente</span><b class="${agentProposals().length ? 'text-warning' : 'text-ui'}">${escapeHtml(agentLine())} ›</b></div>
         <div class="auto-row auto-row-risk"><span>Rischio</span><b>${risk.risk_per_trade_pct}% a trade · leva ${risk.max_leverage}x · max ${risk.max_open_positions} · −${risk.max_daily_loss_pct}%/giorno</b></div>`;
 
     const keys = shownKeys();
@@ -541,12 +543,72 @@ export function okAutoConfirm() { const a = confirmAction; closeAutoConfirm(); i
 // Passa tra i segnali e l'automazione (stessa pagina, tasti in alto a destra)
 export function setSignalsView(view) {
     $('signalsView').value = view;
-    $('btn-view-sig').classList.toggle('active', view === 'sig');
-    $('btn-view-auto').classList.toggle('active', view === 'auto');
-    $('sigView').style.display = view === 'sig' ? '' : 'none';
-    $('autoView').style.display = view === 'auto' ? '' : 'none';
-    $('signalsSubtitle').textContent = view === 'sig' ? 'Consensus multi-sorgente' : 'Strategie automatiche';
+    for (const v of ['sig', 'auto', 'agent']) {
+        $(`btn-view-${v}`).classList.toggle('active', view === v);
+        $(`${v}View`).style.display = view === v ? '' : 'none';
+    }
+    $('signalsSubtitle').textContent = { sig: 'Consensus multi-sorgente', auto: 'Strategie automatiche', agent: 'Lavora per te' }[view];
     if (view === 'auto') { loaded = false; renderAutomation(); }
+    if (view === 'agent') { loaded = false; renderAgentView(); }
+}
+
+// --- Vista Agente: stato, impostazioni (autonomia, profilo, stile), cronologia delle decisioni ---
+const AG_DEFAULT = { autonomy: 'paper', profile: 'bilanciato', style: 'swing' };
+const AG_LABELS = {
+    autonomy: { off: 'Spento', paper: 'Simulato', live: 'Reale' },
+    profile: { prudente: 'Prudente', bilanciato: 'Bilanciato', aggressivo: 'Aggressivo' },
+    style: { swing: 'Swing', giornaliero: 'Giornaliero', misto: 'Misto' }
+};
+const AG_TITLES = { autonomy: 'Autonomia', profile: 'Rischio', style: 'Stile' };
+const AG_KIND = { on: ['＋', 'Su carta', 'text-ui'], off: ['−', 'Spenta', ''], promote: ['▲', 'Al reale', 'text-warning'], demote: ['▼', 'Tornata su carta', 'text-danger'], proposal: ['?', 'Proposta', 'text-warning'] };
+const agentPending = {};
+export const agentSettings = () => ({ ...AG_DEFAULT, ...((cfg && cfg.agent) || {}), ...agentPending });
+
+export function renderAgentView() {
+    const status = $('agentStatus');
+    if (!status || $('signalsView').value !== 'agent') return;
+    if (!loaded) { status.innerHTML = 'Caricamento…'; loadAutomation(); return; }
+    const ag = agentSettings(), risk = riskCfg();
+    const strategies = Object.entries((cfg && cfg.strategies) || {}).filter(([, m]) => m !== 'off');
+    const nPaper = strategies.filter(([, m]) => m === 'paper').length, nLive = strategies.filter(([, m]) => m === 'live').length;
+    // andamento del giorno dell'esecutore: solo con il conto vero (in simulazione il saldo è fittizio)
+    const realExec = live && live.mode && live.mode !== 'simulata';
+    const dayInfo = realExec && live.day && live.day.start_equity && live.account && live.account.equity
+        ? (live.account.equity / live.day.start_equity - 1) * 100 : null;
+    const target = Number(risk.daily_target_pct) || 0;
+    const dayText = (dayInfo == null ? (realExec ? 'nessun dato di oggi' : 'esecutore simulato') : `${pct(dayInfo)}`) + ` · obiettivo ${target ? '+' + fmtIt(target, 1).replace(/,0$/, '') + '%' : 'nessuno'} · limite −${fmtIt(risk.max_daily_loss_pct, 1).replace(/,0$/, '')}%`;
+    const autoCls = ag.autonomy === 'live' ? 'text-warning' : ag.autonomy === 'paper' ? 'text-ui' : '';
+    const realState = ag.autonomy !== 'live' ? 'decidi tu' : (risk.trading_enabled ? 'decide l\'agente' : 'interruttore spento');
+    status.innerHTML = `
+        <div class="auto-row"><span>Autonomia</span><b class="${autoCls}">${AG_LABELS.autonomy[ag.autonomy]}${agentPending.autonomy ? ' (in corso…)' : ''} · reale: ${realState}</b></div>
+        <div class="auto-row"><span>Strategie</span><b>${nPaper} su carta · ${nLive} reali</b></div>
+        <div class="auto-row"><span>Oggi</span><b class="${dayInfo > 0 ? 'text-accent' : dayInfo < 0 ? 'text-danger' : ''}">${escapeHtml(dayText)}</b></div>
+        <div class="auto-row"><span>Ultima decisione</span><b>${agentState && agentState.last_run ? escapeHtml(new Date(agentState.last_run).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })) : 'ogni giorno alle 19:41'}${agentProposals().length ? ` · <span class="text-warning">${agentProposals().length} proposta</span>` : ''}</b></div>`;
+    $('agentSettings').innerHTML = Object.keys(AG_LABELS).map(field => `<div class="agent-set"><span>${AG_TITLES[field]}</span><div class="option-toggle compact">${
+        Object.entries(AG_LABELS[field]).map(([v, l]) => `<button type="button" class="pill-btn${ag[field] === v ? ' active' : ''}${field === 'autonomy' && v === 'live' ? ' agent-live' : ''}" onclick="setAgent('${field}','${v}')">${l}</button>`).join('')
+    }</div></div>`).join('');
+    const log = ((agentState && agentState.log) || []).slice().reverse();
+    $('agentLogCount').textContent = log.length ? String(log.length) : '';
+    $('agentLog').innerHTML = log.length
+        ? log.map(e => { const [icon, what, cls] = AG_KIND[e.kind] || ['•', e.kind, '']; return `<div class="agent-ev"><div class="agent-ev-head"><b class="${cls}">${icon} ${what}</b><small>${escapeHtml(day(e.at))}</small></div><b>${escapeHtml(label(e.key || ''))}</b><small>${escapeHtml(e.why || '')}</small></div>`; }).join('')
+        : '<div class="empty-hint">Ancora nessuna decisione. L\'agente decide ogni giorno alle 19:41 (ora italiana); la domenica rilancia anche il laboratorio.</div>';
+    $('agentNote').textContent = 'Ogni cambio arriva su Telegram. Il reale dell\'agente richiede autonomia Reale e interruttore degli ordini veri acceso (Account). Emergenza: Auto → Emergenza.';
+}
+
+export function setAgent(field, value) {
+    if (!AG_LABELS[field] || !(value in AG_LABELS[field]) || agentSettings()[field] === value) return;
+    const go = async () => {
+        const ok = await send({ type: 'set_agent', field, value }, `Agente: ${AG_TITLES[field].toLowerCase()} ${AG_LABELS[field][value].toLowerCase()}. Attivo entro 1-2 minuti.`);
+        if (ok) { agentPending[field] = value; renderAgentView(); setTimeout(() => { delete agentPending[field]; loadAutomation(); }, 90000); }
+    };
+    if (field === 'autonomy' && value === 'live') {
+        return openAutoConfirm('Autonomia reale?', 'L\'agente potrà portare da solo al reale le strategie che hanno superato laboratorio, carta e prova finale, e riportarle su carta se peggiorano. Userà soldi veri con i limiti del profilo scelto. I risultati passati non garantiscono quelli futuri. Serve anche l\'interruttore degli ordini veri acceso.', 'Attiva', go);
+    }
+    if (field === 'profile') {
+        const P = { prudente: '0,25% a trade, leva 2x, max 2 posizioni, obiettivo +1% e limite −2% al giorno', bilanciato: '0,5% a trade, leva 3x, max 3 posizioni, obiettivo +2% e limite −3% al giorno', aggressivo: '1% a trade, leva 5x, max 4 posizioni, obiettivo +3% e limite −5% al giorno' };
+        return openAutoConfirm(`Profilo ${AG_LABELS.profile[value].toLowerCase()}?`, `Imposta tutti i limiti di rischio: ${P[value]}.`, 'Imposta', go);
+    }
+    go();
 }
 
 // --- Impostazioni: indirizzo del server comandi ---

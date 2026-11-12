@@ -119,6 +119,29 @@ def test_perdita_giornaliera():
         assert json.load(open(path))["positions"][trade(t=T_SIGNAL + D)["id"]]["status"] == "open"
 
 
+def test_obiettivo_giornaliero():
+    with tempfile.TemporaryDirectory() as d:
+        path = os.path.join(d, "live.json")
+        client = bg.DryRunClient(10_000)
+        risk = {"risk": {"daily_target_pct": 2}}
+        go(cfg=setup([], cfg_extra=risk)[0], ledger=setup([], cfg_extra=risk)[1], path=path, client=client)
+        client._equity = 10_250                                              # +2,5% nel giorno
+        notes = []
+        cfg, ledger = setup([trade()], cfg_extra=risk)
+        go(cfg, ledger, path, client, notes=notes)
+        st = json.load(open(path))
+        assert st["day"]["target_hit"] is True and st["positions"][trade()["id"]]["reason"] == "obiettivo del giorno già raggiunto"
+        assert any("Obiettivo del giorno raggiunto" in n for n in notes)
+        # senza obiettivo (0) si entra
+        with tempfile.TemporaryDirectory() as d2:
+            p2 = os.path.join(d2, "live.json")
+            c2 = bg.DryRunClient(10_000)
+            go(*setup([]), p2, c2)
+            c2._equity = 10_500
+            go(*setup([trade()]), p2, c2)
+            assert json.load(open(p2))["positions"][trade()["id"]]["status"] == "open"
+
+
 def test_riconciliazione_e_sblocco():
     with tempfile.TemporaryDirectory() as d:
         path, notes = os.path.join(d, "live.json"), []
