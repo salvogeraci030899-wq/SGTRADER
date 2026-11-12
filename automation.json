@@ -164,9 +164,14 @@
    "to": "paper",
    "by": "agent",
    "why": "in osservazione: non candidata ma promettente sullo storico (669 trade, oltre il mercato 0.696% a trade). Solo carta, non andrà al reale"
+  },
+  {
+   "at": "2026-11-12T17:22:46+00:00",
+   "cmd": "trading",
+   "to": "off"
   }
  ],
  "risk": {
-  "trading_enabled": true
+  "trading_enabled": false
  }
 }
