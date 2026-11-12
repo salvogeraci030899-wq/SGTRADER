@@ -171,6 +171,7 @@ export async function confirmChartAlert() {
     await sendAlertCommand({ op: 'add', symbol: caSym, side: c.side, price: String(c.price) }, 'Avviso inviato: attivo entro 1-2 minuti.');
     if (window.renderOrders) window.renderOrders();
 }
+let agentState = null;     // agent_state.json: ultimo giro dell'agente, rapporto, proposte
 let pendingTrading = null;   // 'on' / 'off' inviato ma non ancora visibile in automation.json
 const pending = {};   // comandi inviati ma non ancora visibili nei file pubblicati
 
@@ -214,7 +215,7 @@ export async function loadAutomation() {
     if (loading) return;
     loading = true;
     let alertsState, quickState;
-    [cfg, ledger, lab, live, alertsState, quickState] = await Promise.all([getJson('automation.json'), getJson('paper_trades.json'), getJson('lab_summary.json'), getJson('live_trades.json'), getJson('alerts_state.json'), getJson('quick_state.json')]);
+    [cfg, ledger, lab, live, alertsState, quickState, agentState] = await Promise.all([getJson('automation.json'), getJson('paper_trades.json'), getJson('lab_summary.json'), getJson('live_trades.json'), getJson('alerts_state.json'), getJson('quick_state.json'), getJson('agent_state.json')]);
     firedAlerts = [...((alertsState && alertsState._price_alerts_fired) || []), ...((quickState && quickState._price_alerts_fired) || [])];
     loaded = true;
     loading = false;
@@ -268,6 +269,7 @@ export function renderAutomation() {
         <div class="auto-row"><span>Saldo Bitget</span><b class="${accClass}" title="${escapeHtml((acc && acc.reason) || '')}">${accText}</b></div>
         ${accDetail ? `<div class="auto-row auto-sub"><span></span><b>${escapeHtml(accDetail)}</b></div>` : ''}
         <div class="auto-row clickable" onclick="openAccount()"><span>Ordini veri</span><b class="${risk.trading_enabled ? 'text-warning' : ''}">${realText} ›</b></div>
+        <div class="auto-row clickable" onclick="openAgent()"><span>Agente</span><b class="${agentProposals().length ? 'text-warning' : 'text-ui'}">${escapeHtml(agentLine())} ›</b></div>
         <div class="auto-row auto-row-risk"><span>Rischio</span><b>${risk.risk_per_trade_pct}% a trade · leva ${risk.max_leverage}x · max ${risk.max_open_positions} · −${risk.max_daily_loss_pct}%/giorno</b></div>`;
 
     const keys = shownKeys();
@@ -304,6 +306,39 @@ export function renderAutomation() {
     }
     const note = $('autoNote');
     if (note) note.textContent = `Su carta dal ${day(cfg && cfg.paper_start)}. I comandi passano da GitHub: l'effetto si vede qui dopo qualche minuto. Ordini veri solo con: strategia confermata in Reale, interruttore acceso e chiavi Bitget.`;
+}
+
+// --- Agente selezionatore (agent.py, ogni domenica): rapporto, scelte su carta, proposte per il reale ---
+// Le proposte non partono mai da sole: "Passa al reale" invia lo stesso comando del tasto Reale, dopo conferma.
+const agentProposals = () => ((agentState && agentState.proposals) || []).filter(p => p && currentMode(p.key) === 'paper' && isConfirmed(p.key));
+function agentLine() {
+    if (!agentState || !agentState.last_run) return 'ogni domenica, non ancora partito';
+    const n = agentProposals().length;
+    return `${day(agentState.last_run)}${n ? ` · ${n} ${n === 1 ? 'proposta' : 'proposte'}` : ' · nessuna proposta'}`;
+}
+function renderAgent() {
+    const box = $('agentBody');
+    if (!box) return;
+    const a = agentState;
+    const props = agentProposals();
+    const when = a && a.last_run ? new Date(a.last_run).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : null;
+    box.innerHTML = `
+        <p class="agent-lead">Ogni domenica rilancia il laboratorio, mette su carta le strategie candidate e spegne quelle che ha messo lui se su carta vanno peggio dello storico. <b>Non passa mai nulla al reale</b>: te lo propone.</p>
+        ${props.length ? `<div class="agent-props">${props.map(p => `<div class="agent-prop"><span><b>${escapeHtml(label(p.key))}</b><br><small>Su carta ${p.n} trade, netto medio ${pct(p.avg_net_pct)}, in linea con lo storico</small></span><button type="button" class="btn-confirm agent-go" onclick="agentPromote('${escapeHtml(p.key)}')">Passa al reale</button></div>`).join('')}</div>` : ''}
+        <div class="agent-report">${when ? `<small>Ultimo giro: ${escapeHtml(when)}${a.report_model ? ` · testo di ${escapeHtml(a.report_model)}` : ''}</small>` : '<small>Non ancora partito: il primo giro è domenica sera, oppure avvialo ora.</small>'}
+            ${a && a.report ? `<p>${escapeHtml(a.report).replace(/\n/g, '<br>')}</p>` : ''}
+            ${a && a.facts && a.facts.length ? `<ul>${a.facts.map(f => `<li>${escapeHtml(f)}</li>`).join('')}</ul>` : ''}
+        </div>`;
+}
+export function openAgent() { $('agentModal').classList.add('active'); renderAgent(); }
+export function closeAgent() { $('agentModal').classList.remove('active'); }
+export function agentPromote(key) {
+    if (!agentProposals().some(p => p.key === key)) return;
+    closeAgent();
+    openAutoConfirm('Passare al reale?', `${label(key)} userà soldi veri su Bitget, con i limiti di rischio attuali. Va bene su carta, ma i risultati passati non garantiscono quelli futuri. Servono anche l'interruttore degli ordini veri acceso e le chiavi Bitget.`, 'Passa al reale', () => setAutoMode(key, 'live'));
+}
+export function runAgent() {
+    send({ type: 'run_agent' }, 'Agente avviato: laboratorio e scelte in circa 15-30 minuti, rapporto su Telegram.');
 }
 
 const NO_SERVER = 'Per inviare comandi serve un token GitHub (Impostazioni → Comandi) oppure l\'indirizzo di un server.';

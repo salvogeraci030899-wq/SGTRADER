@@ -1136,3 +1136,16 @@ html.app-locked .lock-screen, .lock-screen.active { display: flex; }
 /* Una scheda per pagina (poche schede o schermo basso): altezza naturale, niente seconda riga vuota */
 #activeTradesList.one-row { grid-template-rows: minmax(0, 1fr); align-items: start; }
 #activeTradesList.one-row > .active-trade-card { height: auto; max-height: 100%; scroll-snap-align: start; }
+
+/* Agente (Segnali → Auto → Agente): rapporto e proposte, il testo lungo scorre dentro la finestra */
+.agent-box { text-align: left; max-height: 86vh; display: flex; flex-direction: column; }
+.agent-box h3 { text-align: center; }
+.agent-body { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; font-size: 13px; line-height: 1.45; }
+.agent-lead { color: var(--text-secondary); font-size: 12px; margin: 4px 0 10px; }
+.agent-props { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.agent-prop { display: flex; align-items: center; gap: 10px; justify-content: space-between; background: var(--field); border: 1px solid var(--warning); border-radius: 12px; padding: 10px; }
+.agent-prop small { color: var(--text-secondary); }
+.agent-go { flex: none; background: var(--warning) !important; color: #000 !important; padding: 8px 10px; font-size: 12px; }
+.agent-report small { color: var(--text-secondary); }
+.agent-report p { margin: 6px 0; }
+.agent-report ul { margin: 6px 0 0; padding-left: 18px; color: var(--text-secondary); }

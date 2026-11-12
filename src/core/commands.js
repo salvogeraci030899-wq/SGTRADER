@@ -89,6 +89,8 @@ export async function command(body, env, fetchFn) {
             if (unseal && !STRATEGY_KEY.test(unseal)) return json(400, { error: 'Prova finale: strategia non valida' });
             return dispatch(env, fetchFn, 'lab.yml', { unseal });
         }
+        case 'run_agent':
+            return dispatch(env, fetchFn, 'agent.yml', {});
         case 'run_strategies':
             return dispatch(env, fetchFn, 'strategies.yml', { start: '2018-01-01' });
         case 'run_validation':
