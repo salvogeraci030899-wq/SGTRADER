@@ -190,7 +190,7 @@
  "account": {
   "connected": true,
   "demo": false,
-  "equity": 16.03,
+  "equity": 16.04,
   "positions": 1,
   "positions_detail": [
    {
@@ -198,8 +198,8 @@
     "side": "short",
     "size": 0.1,
     "entry": 83.026,
-    "mark": 82.968,
-    "upl": 0.0058,
+    "mark": 82.888,
+    "upl": 0.0138,
     "leverage": 3.0,
     "margin": 2.767533,
     "liq": 110.084858,
@@ -216,10 +216,10 @@
     "usdt": null
    }
   ],
-  "total_usdt": 16.03,
+  "total_usdt": 16.04,
   "accounts_usdt": {
    "spot": 0.0,
-   "futures": 16.03,
+   "futures": 16.04,
    "funding": 0.0,
    "earn": 0.0,
    "bots": 0.0,
@@ -243,10 +243,10 @@
     "margin_mode": "isolated"
    }
   ],
-  "checked_at": "2026-11-12T06:31:55+00:00",
+  "checked_at": "2026-11-12T06:33:22+00:00",
   "day": "2026-11-12",
   "day_start_total": 15.98,
-  "day_change": 0.05
+  "day_change": 0.06
  },
  "halt_reason": null,
  "closed_notified": [
