@@ -91,8 +91,8 @@
     "side": "short",
     "size": 0.1,
     "entry": 83.026,
-    "mark": 83.264,
-    "upl": -0.0238,
+    "mark": 83.259,
+    "upl": -0.0233,
     "leverage": 3.0,
     "margin": 2.767533,
     "liq": 110.084858,
@@ -135,7 +135,7 @@
     "margin_mode": "isolated"
    }
   ],
-  "checked_at": "2026-11-12T03:33:46+00:00",
+  "checked_at": "2026-11-12T03:48:45+00:00",
   "day": "2026-11-12",
   "day_start_total": 15.98,
   "day_change": 0.02
