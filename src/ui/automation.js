@@ -35,27 +35,43 @@ const removingAlerts = new Set();   // tolti dall'app, finché automation.json n
 export const isRemovingAlert = id => removingAlerts.has(id);
 export const priceAlerts = () => ((cfg && cfg.price_alerts) || []).filter(a => a && !firedAlerts.includes(a.id) && !removingAlerts.has(a.id));
 
-// Rilettura del conto Bitget con l'app aperta in modalità Reale: chi apre una posizione a mano su Bitget
-// la vede comparire in 1-2 minuti invece di aspettare il giro del bot (15 minuti). Nessun ordine.
-// Al massimo una richiesta ogni 10 minuti per dispositivo, e solo se l'ultima lettura ha più di 10 minuti:
-// il bot salva solo se le posizioni sono cambiate (ogni salvataggio è una pubblicazione del sito).
-const REFRESH_EVERY_MS = 10 * 60_000, REFRESH_KEY = 'sg_account_refresh_at';
-let refreshInFlight = false;
-export async function maybeRefreshAccount() {
+// Rilettura del conto Bitget con l'app aperta in modalità Reale: una posizione aperta a mano su Bitget
+// compare senza aspettare il giro del bot (15 minuti). Nessun ordine.
+// - Subito quando torni nell'app (per esempio dall'app Bitget) o apri Posizioni, se l'ultima richiesta ha più di 1 minuto;
+// - con l'app aperta in Reale, ogni 3 minuti.
+// Dopo la richiesta (il workflow impiega circa 30-60 s, la pubblicazione dei dati altri 30-60 s) l'app controlla i dati
+// ogni 10 secondi per 4 minuti e mostra il cambiamento appena arriva. Il bot salva solo se le posizioni cambiano.
+const REFRESH_GAP_MS = 60_000, REFRESH_EVERY_MS = 3 * 60_000, WATCH_EVERY_MS = 10_000, WATCH_FIRST_MS = 30_000, WATCH_MAX_MS = 4 * 60_000;
+const REFRESH_KEY = 'sg_account_refresh_at';
+let refreshing = false;
+export const isRefreshingAccount = () => refreshing;
+const posSig = acc => JSON.stringify(((acc && acc.positions_detail) || []).map(p => [p.symbol, p.side, p.size, p.tp, p.sl]));
+function setRefreshing(v) {
+    refreshing = v;
+    if (window.renderActiveTrades) window.renderActiveTrades();
+}
+export async function maybeRefreshAccount(soon = false) {
     const acc = live && live.account;
-    if (refreshInFlight || !acc || !acc.connected || document.visibilityState !== 'visible' || commandMode() === 'none') return;
+    if (refreshing || !acc || !acc.connected || document.visibilityState !== 'visible' || commandMode() === 'none') return;
+    const gap = soon ? REFRESH_GAP_MS : REFRESH_EVERY_MS;
     const checked = Date.parse(acc.checked_at || '') || 0;
     let last = 0;
     try { last = Number(localStorage.getItem(REFRESH_KEY)) || 0; } catch (e) {}
     const now = Date.now();
-    if (now - checked < REFRESH_EVERY_MS || now - last < REFRESH_EVERY_MS) return;
-    refreshInFlight = true;
+    if (now - checked < gap || now - last < gap) return;
     try { localStorage.setItem(REFRESH_KEY, String(now)); } catch (e) {}
-    try {
-        const r = await apiPost('/api/command', { type: 'account_refresh' }, { silent: true });
-        if (r.ok) setTimeout(() => loadAutomation(), 120_000);
-    } catch (e) { /* rete: riprova al prossimo intervallo */ }
-    refreshInFlight = false;
+    setRefreshing(true);
+    let ok = false;
+    try { ok = (await apiPost('/api/command', { type: 'account_refresh' }, { silent: true })).ok; } catch (e) { /* rete: si riprova più tardi */ }
+    if (!ok) { setRefreshing(false); return; }
+    const before = posSig(acc), started = Date.now();
+    const watch = async () => {
+        const fresh = await getJson('live_trades.json');
+        if (fresh && fresh.account && posSig(fresh.account) !== before) { refreshing = false; await loadAutomation(); return; }
+        if (Date.now() - started >= WATCH_MAX_MS) { setRefreshing(false); return; }   // nessun cambiamento su Bitget
+        setTimeout(watch, WATCH_EVERY_MS);
+    };
+    setTimeout(watch, WATCH_FIRST_MS);
 }
 
 // Togliere solo lo stop o solo il target di una posizione REALE (✕ nei "Comandi attivi" della scheda)

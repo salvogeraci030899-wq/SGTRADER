@@ -252,6 +252,7 @@ window.switchTab = (tabId) => {
         }
     }
 
+    if (tabId === 'trade') TradeUI.onOpenTrade();
     if (tabId === 'home') {
         HomeUI.updateHome();
         if (typeof HomeCharts.refresh === 'function') {
