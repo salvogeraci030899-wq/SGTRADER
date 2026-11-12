@@ -203,7 +203,7 @@ export function refreshKronosSignalsInMatrix() {
 
 export function startSignalAutoScan() {
     if (State.signalScanInterval) clearInterval(State.signalScanInterval);
-    State.signalScanInterval = setInterval(() => { scanAllSignals(false); }, CONFIG.SIGNAL_SCAN_INTERVAL_MS);
+    State.signalScanInterval = setInterval(() => { if (!document.hidden) scanAllSignals(false); }, CONFIG.SIGNAL_SCAN_INTERVAL_MS);
 }
 
 export function renderSignalGrid() {

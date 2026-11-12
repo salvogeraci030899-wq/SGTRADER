@@ -20,7 +20,9 @@ export function initTerminal() {
     try { initChart(); } catch (e) { Logger.log('ERROR', 'TERMINAL', 'Errore chart init', e); }
     loadData();
     startPricePoll();
-    setInterval(loadData, 60000);       // il bot pubblica ogni 15 minuti: l'app se ne accorge entro un minuto
+    // il bot pubblica ogni 15 minuti: l'app se ne accorge entro un minuto (solo in primo piano; al ritorno subito)
+    setInterval(() => { if (!document.hidden) loadData(); }, 60000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastDataAt > 30000) loadData(); });
     initRefreshState();
     loadTechData();
 }
@@ -266,7 +268,9 @@ export function renderFutures() {
     foot.textContent = `Bitget, ${when} · funding${every}: positivo = i long pagano gli short${oi}${pos} · solo informativi, non usati nei segnali`;
 }
 
+let lastDataAt = 0;
 export async function loadData() {
+    lastDataAt = Date.now();
     try {
         const res = await fetchData('dashboard.json');
         State.allData = await res.json();
