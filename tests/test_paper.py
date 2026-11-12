@@ -77,6 +77,22 @@ def test_ciclo_completo():
         assert abs(e["trades"][0]["gross"] - t0["gross"]) < 1e-9 and e["trades"][0].get("revised") is True and e["stats"]["revised"] == 1
 
 
+def test_strategia_nuova_parte_da_adesso():
+    """Accesa dopo l'inizio della carta: niente trade ricostruiti sui giorni prima."""
+    with tempfile.TemporaryDirectory() as d:
+        cfg, led = setup(d)
+        json.dump({"paper_start": START, "strategies": {}}, open(cfg, "w"))
+        calls, notes = [], []
+        run(cfg, led, 6, calls, notes)                       # carta già avviata, nessuna strategia
+        json.dump({"paper_start": START, "strategies": {KEY: "paper"}}, open(cfg, "w"))
+        assert run(cfg, led, 6, calls, notes) is True        # accesa con 6 candele già passate
+        e = json.load(open(led))["strategies"][KEY]
+        assert e["since"] == T_START + 5 * D and e["trades"] == []
+        run(cfg, led, 8, calls, notes)                       # due candele dopo: primo trade, ingresso a 106
+        e = json.load(open(led))["strategies"][KEY]
+        assert len(e["trades"]) == 1 and e["trades"][0]["entry"] == 106.0
+
+
 def test_modi_e_blocco_del_reale():
     assert paper.effective_mode("a:1d", "live", {"a:1d"}) == "live"
     assert paper.effective_mode("a:1d", "live", set()) == "paper"          # non confermata: mai in reale
