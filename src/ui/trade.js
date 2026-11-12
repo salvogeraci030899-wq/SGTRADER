@@ -319,6 +319,7 @@ export function closeTrade(id, reason = 'MANUALE', exitPrice = 0, when = 0) {
 export function renderActiveTrades() {
     const el = document.getElementById('activeTradesList');
     if (!el) return;
+    if (window.renderOrders) window.renderOrders();       // vista Ordini, se è quella aperta
     if (isReal()) { renderRealPositions(el); return; }
     const sig = State.simState.activeTrades.map(t => `${t.id}|${t.granularity || ''}|${t.margin ?? ''}|${t.market || ''}|${t.leverage || ''}|${t.slPrice}|${t.tpPrice}|${(t.rules || []).map(r => r.id).join('.')}`).join(',');
     
