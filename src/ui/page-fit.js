@@ -45,7 +45,8 @@ function reserveListHeights(page) {
         let deficit = 0;
         for (const item of list.children) deficit = Math.max(deficit, item.scrollHeight - item.clientHeight);
         if (deficit <= 1) continue;
-        const rows = list.id === 'activeTradesList' ? 2 : 1;
+        // righe di schede della lista (due, una sugli schermi bassi)
+        const rows = list.id === 'activeTradesList' ? Math.max(1, getComputedStyle(list).gridTemplateRows.split(' ').filter(Boolean).length) : 1;
         list.style.minHeight = Math.ceil(list.clientHeight + deficit * rows) + 'px';
     }
 }
