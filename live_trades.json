@@ -122,6 +122,15 @@
    "side": "short",
    "ok": true,
    "msg": "Tolto lo stop loss di SOL SHORT su Bitget."
+  },
+  {
+   "at": "2026-11-12T05:50:06+00:00",
+   "kind": "manual",
+   "action": "untp",
+   "symbol": "SOLUSDT",
+   "side": "short",
+   "ok": true,
+   "msg": "Tolto il take profit di SOL SHORT su Bitget."
   }
  ],
  "mode": "reale",
@@ -140,12 +149,12 @@
     "side": "short",
     "size": 0.1,
     "entry": 83.026,
-    "mark": 82.915,
-    "upl": 0.0111,
+    "mark": 82.918,
+    "upl": 0.0108,
     "leverage": 3.0,
     "margin": 2.767533,
     "liq": 110.084858,
-    "tp": 82.43,
+    "tp": null,
     "sl": null
    }
   ],
@@ -185,7 +194,7 @@
     "margin_mode": "isolated"
    }
   ],
-  "checked_at": "2026-11-12T05:50:03+00:00",
+  "checked_at": "2026-11-12T05:50:06+00:00",
   "day": "2026-11-12",
   "day_start_total": 15.98,
   "day_change": 0.06
