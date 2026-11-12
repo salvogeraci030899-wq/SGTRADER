@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-11T01:33:36+00:00",
+ "generated_at": "2026-11-12T21:32:25+00:00",
  "horizon_candles": 7,
  "plan": {
   "atr_mult": 1.5,
@@ -338,17 +338,17 @@
    "strategies": {
     "breakout": {
      "plan": {
-      "n": 621,
-      "win_rate": 44.6,
-      "avg_gross_pct": 0.35,
-      "avg_net_pct": 0.05,
+      "n": 624,
+      "win_rate": 44.4,
+      "avg_gross_pct": 0.334,
+      "avg_net_pct": 0.034,
       "avg_net_ci": [
-       -0.3002,
-       0.4077
+       -0.2969,
+       0.3963
       ],
-      "total_net_pct": 30.91,
-      "total_after_tax_pct": 20.71,
-      "profit_factor": 1.03,
+      "total_net_pct": 21.08,
+      "total_after_tax_pct": 14.12,
+      "profit_factor": 1.02,
       "max_drawdown_pct": -74.89,
       "verdict": "non_dimostrato",
       "halves": [
@@ -362,28 +362,28 @@
         "verdict": "non_dimostrato"
        },
        {
-        "n": 447,
-        "avg_net_pct": 0.017,
+        "n": 450,
+        "avg_net_pct": -0.005,
         "avg_net_ci": [
-         -0.39,
-         0.4078
+         -0.4228,
+         0.4155
         ],
         "verdict": "non_dimostrato"
        }
       ]
      },
      "hold": {
-      "n": 621,
-      "win_rate": 44.9,
-      "avg_gross_pct": 0.405,
-      "avg_net_pct": 0.105,
+      "n": 624,
+      "win_rate": 44.7,
+      "avg_gross_pct": 0.391,
+      "avg_net_pct": 0.091,
       "avg_net_ci": [
-       -0.3548,
-       0.5446
+       -0.3597,
+       0.5614
       ],
-      "total_net_pct": 65.08,
-      "total_after_tax_pct": 43.6,
-      "profit_factor": 1.07,
+      "total_net_pct": 56.75,
+      "total_after_tax_pct": 38.02,
+      "profit_factor": 1.06,
       "max_drawdown_pct": -155.31,
       "verdict": "non_dimostrato"
      }
@@ -442,51 +442,51 @@
     },
     "ma_crossover": {
      "plan": {
-      "n": 4501,
-      "win_rate": 43.4,
-      "avg_gross_pct": 0.155,
-      "avg_net_pct": -0.145,
+      "n": 4507,
+      "win_rate": 43.5,
+      "avg_gross_pct": 0.158,
+      "avg_net_pct": -0.142,
       "avg_net_ci": [
-       -0.2687,
-       -0.0184
+       -0.2659,
+       -0.0153
       ],
-      "total_net_pct": -652.09,
-      "total_after_tax_pct": -652.09,
+      "total_net_pct": -641.7,
+      "total_after_tax_pct": -641.7,
       "profit_factor": 0.9,
       "max_drawdown_pct": -700.77,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 1965,
-        "avg_net_pct": -0.1,
+        "n": 1968,
+        "avg_net_pct": -0.097,
         "avg_net_ci": [
-         -0.3061,
-         0.1219
+         -0.321,
+         0.1363
         ],
         "verdict": "non_dimostrato"
        },
        {
-        "n": 2536,
-        "avg_net_pct": -0.18,
+        "n": 2539,
+        "avg_net_pct": -0.178,
         "avg_net_ci": [
-         -0.315,
-         -0.0383
+         -0.318,
+         -0.039
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 4501,
-      "win_rate": 44.6,
-      "avg_gross_pct": 0.192,
-      "avg_net_pct": -0.108,
+      "n": 4507,
+      "win_rate": 44.7,
+      "avg_gross_pct": 0.194,
+      "avg_net_pct": -0.106,
       "avg_net_ci": [
-       -0.2726,
-       0.0499
+       -0.264,
+       0.0596
       ],
-      "total_net_pct": -485.87,
-      "total_after_tax_pct": -485.87,
+      "total_net_pct": -475.74,
+      "total_after_tax_pct": -475.74,
       "profit_factor": 0.93,
       "max_drawdown_pct": -789.06,
       "verdict": "non_dimostrato"
@@ -494,17 +494,17 @@
     },
     "consensus": {
      "plan": {
-      "n": 435,
-      "win_rate": 43.4,
-      "avg_gross_pct": 0.138,
-      "avg_net_pct": -0.162,
+      "n": 438,
+      "win_rate": 43.2,
+      "avg_gross_pct": 0.117,
+      "avg_net_pct": -0.183,
       "avg_net_ci": [
-       -0.5543,
-       0.2486
+       -0.6087,
+       0.2271
       ],
-      "total_net_pct": -70.34,
-      "total_after_tax_pct": -70.34,
-      "profit_factor": 0.9,
+      "total_net_pct": -80.17,
+      "total_after_tax_pct": -80.17,
+      "profit_factor": 0.89,
       "max_drawdown_pct": -174.29,
       "verdict": "non_dimostrato",
       "halves": [
@@ -518,79 +518,79 @@
         "verdict": "non_dimostrato"
        },
        {
-        "n": 305,
-        "avg_net_pct": -0.286,
+        "n": 308,
+        "avg_net_pct": -0.315,
         "avg_net_ci": [
-         -0.7545,
-         0.2163
+         -0.8135,
+         0.1536
         ],
         "verdict": "non_dimostrato"
        }
       ]
      },
      "hold": {
-      "n": 435,
-      "win_rate": 44.6,
-      "avg_gross_pct": 0.251,
-      "avg_net_pct": -0.049,
+      "n": 438,
+      "win_rate": 44.3,
+      "avg_gross_pct": 0.232,
+      "avg_net_pct": -0.068,
       "avg_net_ci": [
-       -0.5758,
-       0.5036
+       -0.621,
+       0.4794
       ],
-      "total_net_pct": -21.48,
-      "total_after_tax_pct": -21.48,
-      "profit_factor": 0.97,
+      "total_net_pct": -29.81,
+      "total_after_tax_pct": -29.81,
+      "profit_factor": 0.96,
       "max_drawdown_pct": -261.28,
       "verdict": "non_dimostrato"
      }
     },
     "momentum": {
      "plan": {
-      "n": 6651,
+      "n": 6656,
       "win_rate": 41.3,
       "avg_gross_pct": 0.003,
       "avg_net_pct": -0.297,
       "avg_net_ci": [
-       -0.3885,
-       -0.2022
+       -0.3919,
+       -0.2078
       ],
-      "total_net_pct": -1977.65,
-      "total_after_tax_pct": -1977.65,
+      "total_net_pct": -1976.16,
+      "total_after_tax_pct": -1976.16,
       "profit_factor": 0.8,
       "max_drawdown_pct": -1987.0,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 2866,
-        "avg_net_pct": -0.299,
+        "n": 2869,
+        "avg_net_pct": -0.297,
         "avg_net_ci": [
-         -0.4663,
-         -0.1322
+         -0.463,
+         -0.1365
         ],
         "verdict": "negativo"
        },
        {
-        "n": 3785,
-        "avg_net_pct": -0.296,
+        "n": 3787,
+        "avg_net_pct": -0.297,
         "avg_net_ci": [
-         -0.404,
-         -0.1936
+         -0.4004,
+         -0.1911
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 6651,
+      "n": 6656,
       "win_rate": 42.6,
-      "avg_gross_pct": 0.032,
-      "avg_net_pct": -0.268,
+      "avg_gross_pct": 0.033,
+      "avg_net_pct": -0.267,
       "avg_net_ci": [
-       -0.3884,
-       -0.1428
+       -0.3923,
+       -0.1391
       ],
-      "total_net_pct": -1781.2,
-      "total_after_tax_pct": -1781.2,
+      "total_net_pct": -1778.97,
+      "total_after_tax_pct": -1778.97,
       "profit_factor": 0.83,
       "max_drawdown_pct": -1845.39,
       "verdict": "negativo"
@@ -598,54 +598,54 @@
     },
     "always_long": {
      "plan": {
-      "n": 6651,
+      "n": 6656,
       "win_rate": 42.6,
-      "avg_gross_pct": 0.044,
-      "avg_net_pct": -0.256,
+      "avg_gross_pct": 0.043,
+      "avg_net_pct": -0.257,
       "avg_net_ci": [
-       -0.3638,
-       -0.1526
+       -0.3585,
+       -0.1587
       ],
-      "total_net_pct": -1704.48,
-      "total_after_tax_pct": -1704.48,
+      "total_net_pct": -1710.87,
+      "total_after_tax_pct": -1710.87,
       "profit_factor": 0.82,
-      "max_drawdown_pct": -1733.91,
+      "max_drawdown_pct": -1740.3,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 2866,
-        "avg_net_pct": -0.217,
+        "n": 2869,
+        "avg_net_pct": -0.218,
         "avg_net_ci": [
-         -0.4014,
-         -0.0301
+         -0.3972,
+         -0.045
         ],
         "verdict": "negativo"
        },
        {
-        "n": 3785,
-        "avg_net_pct": -0.286,
+        "n": 3787,
+        "avg_net_pct": -0.287,
         "avg_net_ci": [
-         -0.4006,
-         -0.1757
+         -0.3965,
+         -0.1751
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 6651,
+      "n": 6656,
       "win_rate": 45.5,
-      "avg_gross_pct": 0.168,
-      "avg_net_pct": -0.132,
+      "avg_gross_pct": 0.167,
+      "avg_net_pct": -0.133,
       "avg_net_ci": [
-       -0.2781,
-       -0.0005
+       -0.2702,
+       0.0051
       ],
-      "total_net_pct": -879.99,
-      "total_after_tax_pct": -879.99,
+      "total_net_pct": -886.35,
+      "total_after_tax_pct": -886.35,
       "profit_factor": 0.91,
-      "max_drawdown_pct": -1289.77,
-      "verdict": "negativo"
+      "max_drawdown_pct": -1296.13,
+      "verdict": "non_dimostrato"
      }
     }
    }
@@ -654,51 +654,51 @@
    "strategies": {
     "breakout": {
      "plan": {
-      "n": 2495,
+      "n": 2497,
       "win_rate": 38.2,
       "avg_gross_pct": 0.029,
       "avg_net_pct": -0.271,
       "avg_net_ci": [
-       -0.3588,
-       -0.1837
+       -0.3569,
+       -0.1834
       ],
-      "total_net_pct": -675.4,
-      "total_after_tax_pct": -675.4,
+      "total_net_pct": -676.72,
+      "total_after_tax_pct": -676.72,
       "profit_factor": 0.69,
       "max_drawdown_pct": -688.11,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 716,
-        "avg_net_pct": -0.2,
+        "n": 717,
+        "avg_net_pct": -0.201,
         "avg_net_ci": [
-         -0.3835,
-         -0.0221
+         -0.378,
+         -0.029
         ],
         "verdict": "negativo"
        },
        {
-        "n": 1779,
+        "n": 1780,
         "avg_net_pct": -0.299,
         "avg_net_ci": [
-         -0.3996,
-         -0.1945
+         -0.3966,
+         -0.1961
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 2495,
-      "win_rate": 38.8,
+      "n": 2497,
+      "win_rate": 38.9,
       "avg_gross_pct": 0.042,
       "avg_net_pct": -0.258,
       "avg_net_ci": [
-       -0.379,
-       -0.1428
+       -0.3734,
+       -0.1467
       ],
-      "total_net_pct": -644.65,
-      "total_after_tax_pct": -644.65,
+      "total_net_pct": -644.0,
+      "total_after_tax_pct": -644.0,
       "profit_factor": 0.73,
       "max_drawdown_pct": -657.5,
       "verdict": "negativo"
@@ -706,51 +706,51 @@
     },
     "mean_reversion": {
      "plan": {
-      "n": 6449,
+      "n": 6450,
       "win_rate": 38.2,
       "avg_gross_pct": -0.038,
       "avg_net_pct": -0.338,
       "avg_net_ci": [
-       -0.3765,
-       -0.3019
+       -0.3775,
+       -0.2999
       ],
-      "total_net_pct": -2179.77,
-      "total_after_tax_pct": -2179.77,
+      "total_net_pct": -2180.81,
+      "total_after_tax_pct": -2180.81,
       "profit_factor": 0.53,
-      "max_drawdown_pct": -2200.23,
+      "max_drawdown_pct": -2201.27,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 2480,
+        "n": 2482,
         "avg_net_pct": -0.398,
         "avg_net_ci": [
-         -0.4708,
-         -0.3238
+         -0.4688,
+         -0.3245
         ],
         "verdict": "negativo"
        },
        {
-        "n": 3969,
+        "n": 3968,
         "avg_net_pct": -0.301,
         "avg_net_ci": [
-         -0.3459,
-         -0.2573
+         -0.3465,
+         -0.2529
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 6449,
+      "n": 6450,
       "win_rate": 40.5,
       "avg_gross_pct": -0.042,
       "avg_net_pct": -0.342,
       "avg_net_ci": [
-       -0.3935,
-       -0.2871
+       -0.3965,
+       -0.2907
       ],
-      "total_net_pct": -2203.09,
-      "total_after_tax_pct": -2203.09,
+      "total_net_pct": -2205.06,
+      "total_after_tax_pct": -2205.06,
       "profit_factor": 0.57,
       "max_drawdown_pct": -2237.34,
       "verdict": "negativo"
@@ -758,51 +758,51 @@
     },
     "ma_crossover": {
      "plan": {
-      "n": 18169,
+      "n": 18188,
       "win_rate": 37.9,
       "avg_gross_pct": 0.042,
       "avg_net_pct": -0.258,
       "avg_net_ci": [
-       -0.2889,
-       -0.2268
+       -0.2883,
+       -0.2271
       ],
-      "total_net_pct": -4686.85,
-      "total_after_tax_pct": -4686.85,
+      "total_net_pct": -4688.0,
+      "total_after_tax_pct": -4688.0,
       "profit_factor": 0.67,
-      "max_drawdown_pct": -4701.1,
+      "max_drawdown_pct": -4708.11,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 7934,
-        "avg_net_pct": -0.223,
+        "n": 7939,
+        "avg_net_pct": -0.224,
         "avg_net_ci": [
-         -0.2784,
-         -0.1723
+         -0.2767,
+         -0.1709
         ],
         "verdict": "negativo"
        },
        {
-        "n": 10235,
-        "avg_net_pct": -0.285,
+        "n": 10249,
+        "avg_net_pct": -0.284,
         "avg_net_ci": [
-         -0.3202,
-         -0.248
+         -0.3203,
+         -0.246
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 18169,
+      "n": 18188,
       "win_rate": 37.8,
       "avg_gross_pct": 0.06,
       "avg_net_pct": -0.24,
       "avg_net_ci": [
-       -0.2791,
-       -0.1995
+       -0.2821,
+       -0.2003
       ],
-      "total_net_pct": -4366.97,
-      "total_after_tax_pct": -4366.97,
+      "total_net_pct": -4366.58,
+      "total_after_tax_pct": -4366.58,
       "profit_factor": 0.72,
       "max_drawdown_pct": -4406.13,
       "verdict": "negativo"
@@ -810,16 +810,16 @@
     },
     "consensus": {
      "plan": {
-      "n": 1679,
-      "win_rate": 40.4,
-      "avg_gross_pct": 0.115,
-      "avg_net_pct": -0.185,
+      "n": 1681,
+      "win_rate": 40.5,
+      "avg_gross_pct": 0.114,
+      "avg_net_pct": -0.186,
       "avg_net_ci": [
-       -0.3025,
-       -0.0639
+       -0.3027,
+       -0.0681
       ],
-      "total_net_pct": -310.81,
-      "total_after_tax_pct": -310.81,
+      "total_net_pct": -312.13,
+      "total_after_tax_pct": -312.13,
       "profit_factor": 0.79,
       "max_drawdown_pct": -354.7,
       "verdict": "negativo",
@@ -834,27 +834,27 @@
         "verdict": "non_dimostrato"
        },
        {
-        "n": 1161,
+        "n": 1163,
         "avg_net_pct": -0.237,
         "avg_net_ci": [
-         -0.3696,
-         -0.0946
+         -0.3685,
+         -0.0989
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 1679,
+      "n": 1681,
       "win_rate": 41.2,
       "avg_gross_pct": 0.14,
       "avg_net_pct": -0.16,
       "avg_net_ci": [
-       -0.3207,
-       -0.0059
+       -0.3179,
+       -0.004
       ],
-      "total_net_pct": -269.25,
-      "total_after_tax_pct": -269.25,
+      "total_net_pct": -268.59,
+      "total_after_tax_pct": -268.59,
       "profit_factor": 0.84,
       "max_drawdown_pct": -338.27,
       "verdict": "negativo"
@@ -862,105 +862,105 @@
     },
     "momentum": {
      "plan": {
-      "n": 27209,
+      "n": 27227,
       "win_rate": 36.9,
       "avg_gross_pct": 0.01,
       "avg_net_pct": -0.29,
       "avg_net_ci": [
-       -0.3149,
-       -0.2666
+       -0.313,
+       -0.2664
       ],
-      "total_net_pct": -7896.45,
-      "total_after_tax_pct": -7896.45,
+      "total_net_pct": -7899.77,
+      "total_after_tax_pct": -7899.77,
       "profit_factor": 0.63,
-      "max_drawdown_pct": -7901.33,
+      "max_drawdown_pct": -7908.86,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 11744,
+        "n": 11753,
         "avg_net_pct": -0.27,
         "avg_net_ci": [
-         -0.3103,
-         -0.2302
+         -0.3115,
+         -0.2314
         ],
         "verdict": "negativo"
        },
        {
-        "n": 15465,
-        "avg_net_pct": -0.306,
+        "n": 15474,
+        "avg_net_pct": -0.305,
         "avg_net_ci": [
-         -0.3328,
-         -0.2774
+         -0.3334,
+         -0.2783
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 27209,
+      "n": 27227,
       "win_rate": 37.3,
       "avg_gross_pct": 0.008,
       "avg_net_pct": -0.292,
       "avg_net_ci": [
-       -0.3227,
-       -0.2615
+       -0.3223,
+       -0.2604
       ],
-      "total_net_pct": -7953.47,
-      "total_after_tax_pct": -7953.47,
+      "total_net_pct": -7957.97,
+      "total_after_tax_pct": -7957.97,
       "profit_factor": 0.66,
-      "max_drawdown_pct": -7974.22,
+      "max_drawdown_pct": -7978.22,
       "verdict": "negativo"
      }
     },
     "always_long": {
      "plan": {
-      "n": 27209,
+      "n": 27227,
       "win_rate": 38.3,
       "avg_gross_pct": 0.0,
       "avg_net_pct": -0.3,
       "avg_net_ci": [
-       -0.3258,
-       -0.2733
+       -0.3255,
+       -0.2749
       ],
-      "total_net_pct": -8153.9,
-      "total_after_tax_pct": -8153.9,
+      "total_net_pct": -8162.28,
+      "total_after_tax_pct": -8162.28,
       "profit_factor": 0.62,
-      "max_drawdown_pct": -8157.1,
+      "max_drawdown_pct": -8162.28,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 11744,
+        "n": 11753,
         "avg_net_pct": -0.302,
         "avg_net_ci": [
-         -0.3456,
-         -0.2588
+         -0.3466,
+         -0.2591
         ],
         "verdict": "negativo"
        },
        {
-        "n": 15465,
+        "n": 15474,
         "avg_net_pct": -0.298,
         "avg_net_ci": [
-         -0.3289,
-         -0.2655
+         -0.3303,
+         -0.2673
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 27209,
-      "win_rate": 39.8,
+      "n": 27227,
+      "win_rate": 39.7,
       "avg_gross_pct": 0.037,
       "avg_net_pct": -0.263,
       "avg_net_ci": [
-       -0.2981,
-       -0.2285
+       -0.2985,
+       -0.2278
       ],
-      "total_net_pct": -7151.97,
-      "total_after_tax_pct": -7151.97,
+      "total_net_pct": -7163.77,
+      "total_after_tax_pct": -7163.77,
       "profit_factor": 0.69,
-      "max_drawdown_pct": -7155.17,
+      "max_drawdown_pct": -7163.77,
       "verdict": "negativo"
      }
     }
@@ -971,9 +971,9 @@
   "BTCUSDT_1d": {
    "period": {
     "from": 1558281600,
-    "to": 1794240000,
-    "candles": 2732,
-    "buy_hold_gross_pct": 834.8
+    "to": 1794412800,
+    "candles": 2734,
+    "buy_hold_gross_pct": 815.7
    },
    "strategies": {
     "breakout": {
@@ -1293,24 +1293,24 @@
   "BTCUSDT_4h": {
    "period": {
     "from": 1536753600,
-    "to": 1794340800,
-    "candles": 17889,
-    "buy_hold_gross_pct": 1076.5
+    "to": 1794499200,
+    "candles": 17900,
+    "buy_hold_gross_pct": 1043.0
    },
    "strategies": {
     "breakout": {
      "plan": {
-      "n": 207,
-      "win_rate": 42.5,
-      "avg_gross_pct": 0.184,
-      "avg_net_pct": -0.116,
+      "n": 208,
+      "win_rate": 42.3,
+      "avg_gross_pct": 0.173,
+      "avg_net_pct": -0.127,
       "avg_net_ci": [
-       -0.4462,
-       0.2429
+       -0.4774,
+       0.2109
       ],
-      "total_net_pct": -24.0,
-      "total_after_tax_pct": -24.0,
-      "profit_factor": 0.9,
+      "total_net_pct": -26.39,
+      "total_after_tax_pct": -26.39,
+      "profit_factor": 0.89,
       "max_drawdown_pct": -58.33,
       "verdict": "non_dimostrato",
       "halves": [
@@ -1324,28 +1324,28 @@
         "verdict": "non_dimostrato"
        },
        {
-        "n": 142,
-        "avg_net_pct": -0.151,
+        "n": 143,
+        "avg_net_pct": -0.167,
         "avg_net_ci": [
-         -0.5312,
-         0.207
+         -0.534,
+         0.2068
         ],
         "verdict": "non_dimostrato"
        }
       ]
      },
      "hold": {
-      "n": 207,
-      "win_rate": 44.4,
-      "avg_gross_pct": 0.511,
-      "avg_net_pct": 0.211,
+      "n": 208,
+      "win_rate": 44.2,
+      "avg_gross_pct": 0.501,
+      "avg_net_pct": 0.201,
       "avg_net_ci": [
-       -0.3124,
-       0.7794
+       -0.3449,
+       0.7317
       ],
-      "total_net_pct": 43.73,
-      "total_after_tax_pct": 29.3,
-      "profit_factor": 1.18,
+      "total_net_pct": 41.8,
+      "total_after_tax_pct": 28.0,
+      "profit_factor": 1.17,
       "max_drawdown_pct": -63.08,
       "verdict": "non_dimostrato"
      }
@@ -1404,51 +1404,51 @@
     },
     "ma_crossover": {
      "plan": {
-      "n": 1742,
-      "win_rate": 41.9,
-      "avg_gross_pct": 0.105,
-      "avg_net_pct": -0.195,
+      "n": 1744,
+      "win_rate": 42.0,
+      "avg_gross_pct": 0.107,
+      "avg_net_pct": -0.193,
       "avg_net_ci": [
-       -0.3141,
-       -0.0653
+       -0.3169,
+       -0.0644
       ],
-      "total_net_pct": -339.85,
-      "total_after_tax_pct": -339.85,
+      "total_net_pct": -337.0,
+      "total_after_tax_pct": -337.0,
       "profit_factor": 0.83,
       "max_drawdown_pct": -369.08,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 882,
-        "avg_net_pct": -0.17,
+        "n": 883,
+        "avg_net_pct": -0.171,
         "avg_net_ci": [
-         -0.3741,
-         0.0328
+         -0.3801,
+         0.0397
         ],
         "verdict": "non_dimostrato"
        },
        {
-        "n": 860,
-        "avg_net_pct": -0.22,
+        "n": 861,
+        "avg_net_pct": -0.217,
         "avg_net_ci": [
-         -0.3503,
-         -0.0927
+         -0.3466,
+         -0.0874
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 1742,
+      "n": 1744,
       "win_rate": 43.1,
-      "avg_gross_pct": 0.172,
-      "avg_net_pct": -0.128,
+      "avg_gross_pct": 0.174,
+      "avg_net_pct": -0.126,
       "avg_net_ci": [
-       -0.3022,
-       0.0479
+       -0.2968,
+       0.0406
       ],
-      "total_net_pct": -223.59,
-      "total_after_tax_pct": -223.59,
+      "total_net_pct": -220.51,
+      "total_after_tax_pct": -220.51,
       "profit_factor": 0.9,
       "max_drawdown_pct": -315.26,
       "verdict": "non_dimostrato"
@@ -1456,157 +1456,157 @@
     },
     "consensus": {
      "plan": {
-      "n": 143,
-      "win_rate": 46.2,
-      "avg_gross_pct": 0.297,
-      "avg_net_pct": -0.003,
+      "n": 144,
+      "win_rate": 45.8,
+      "avg_gross_pct": 0.281,
+      "avg_net_pct": -0.019,
       "avg_net_ci": [
-       -0.4547,
-       0.4455
+       -0.4511,
+       0.4046
       ],
-      "total_net_pct": -0.38,
-      "total_after_tax_pct": -0.38,
-      "profit_factor": 1.0,
+      "total_net_pct": -2.77,
+      "total_after_tax_pct": -2.77,
+      "profit_factor": 0.98,
       "max_drawdown_pct": -52.91,
       "verdict": "non_dimostrato",
       "halves": [
        {
-        "n": 46,
-        "avg_net_pct": 0.453,
+        "n": 47,
+        "avg_net_pct": 0.42,
         "avg_net_ci": [
-         -0.4411,
-         1.3093
+         -0.4371,
+         1.3252
         ],
         "verdict": "non_dimostrato"
        },
        {
         "n": 97,
-        "avg_net_pct": -0.219,
+        "avg_net_pct": -0.232,
         "avg_net_ci": [
-         -0.7343,
-         0.2729
+         -0.7218,
+         0.2617
         ],
         "verdict": "non_dimostrato"
        }
       ]
      },
      "hold": {
-      "n": 143,
-      "win_rate": 47.6,
-      "avg_gross_pct": 0.692,
-      "avg_net_pct": 0.392,
+      "n": 144,
+      "win_rate": 47.2,
+      "avg_gross_pct": 0.676,
+      "avg_net_pct": 0.376,
       "avg_net_ci": [
-       -0.3189,
-       1.1542
+       -0.3097,
+       1.0672
       ],
-      "total_net_pct": 56.05,
-      "total_after_tax_pct": 37.55,
-      "profit_factor": 1.32,
+      "total_net_pct": 54.11,
+      "total_after_tax_pct": 36.25,
+      "profit_factor": 1.3,
       "max_drawdown_pct": -72.06,
       "verdict": "non_dimostrato"
      }
     },
     "momentum": {
      "plan": {
-      "n": 2555,
+      "n": 2557,
       "win_rate": 39.1,
-      "avg_gross_pct": -0.03,
-      "avg_net_pct": -0.33,
+      "avg_gross_pct": -0.029,
+      "avg_net_pct": -0.329,
       "avg_net_ci": [
-       -0.4277,
-       -0.2248
+       -0.4327,
+       -0.2205
       ],
-      "total_net_pct": -842.06,
-      "total_after_tax_pct": -842.06,
+      "total_net_pct": -841.57,
+      "total_after_tax_pct": -841.57,
       "profit_factor": 0.72,
-      "max_drawdown_pct": -842.06,
+      "max_drawdown_pct": -844.16,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 1278,
-        "avg_net_pct": -0.384,
+        "n": 1279,
+        "avg_net_pct": -0.382,
         "avg_net_ci": [
-         -0.5532,
-         -0.2185
+         -0.5487,
+         -0.212
         ],
         "verdict": "negativo"
        },
        {
-        "n": 1277,
-        "avg_net_pct": -0.275,
+        "n": 1278,
+        "avg_net_pct": -0.277,
         "avg_net_ci": [
-         -0.3769,
-         -0.1684
+         -0.3746,
+         -0.1698
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 2555,
+      "n": 2557,
       "win_rate": 40.4,
-      "avg_gross_pct": 0.03,
-      "avg_net_pct": -0.27,
+      "avg_gross_pct": 0.031,
+      "avg_net_pct": -0.269,
       "avg_net_ci": [
-       -0.3974,
-       -0.1326
+       -0.408,
+       -0.1418
       ],
-      "total_net_pct": -690.76,
-      "total_after_tax_pct": -690.76,
+      "total_net_pct": -688.82,
+      "total_after_tax_pct": -688.82,
       "profit_factor": 0.79,
-      "max_drawdown_pct": -725.27,
+      "max_drawdown_pct": -726.14,
       "verdict": "negativo"
      }
     },
     "always_long": {
      "plan": {
-      "n": 2555,
-      "win_rate": 41.9,
-      "avg_gross_pct": 0.071,
-      "avg_net_pct": -0.229,
+      "n": 2557,
+      "win_rate": 41.8,
+      "avg_gross_pct": 0.07,
+      "avg_net_pct": -0.23,
       "avg_net_ci": [
-       -0.328,
-       -0.1311
+       -0.3289,
+       -0.1375
       ],
-      "total_net_pct": -584.69,
-      "total_after_tax_pct": -584.69,
+      "total_net_pct": -589.02,
+      "total_after_tax_pct": -589.02,
       "profit_factor": 0.79,
-      "max_drawdown_pct": -620.07,
+      "max_drawdown_pct": -622.91,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 1278,
-        "avg_net_pct": -0.199,
+        "n": 1279,
+        "avg_net_pct": -0.2,
         "avg_net_ci": [
-         -0.3649,
-         -0.0283
+         -0.3612,
+         -0.037
         ],
         "verdict": "negativo"
        },
        {
-        "n": 1277,
-        "avg_net_pct": -0.259,
+        "n": 1278,
+        "avg_net_pct": -0.261,
         "avg_net_ci": [
-         -0.3619,
-         -0.1528
+         -0.3628,
+         -0.1593
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 2555,
+      "n": 2557,
       "win_rate": 44.0,
-      "avg_gross_pct": 0.156,
-      "avg_net_pct": -0.144,
+      "avg_gross_pct": 0.154,
+      "avg_net_pct": -0.146,
       "avg_net_ci": [
-       -0.2813,
-       -0.0151
+       -0.2735,
+       -0.0173
       ],
-      "total_net_pct": -368.68,
-      "total_after_tax_pct": -368.68,
+      "total_net_pct": -372.96,
+      "total_after_tax_pct": -372.96,
       "profit_factor": 0.88,
-      "max_drawdown_pct": -430.14,
+      "max_drawdown_pct": -433.99,
       "verdict": "negativo"
      }
     }
@@ -1615,23 +1615,23 @@
   "BTCUSDT_1h": {
    "period": {
     "from": 1533528000,
-    "to": 1794355200,
-    "candles": 72453,
-    "buy_hold_gross_pct": 935.6
+    "to": 1794513600,
+    "candles": 72497,
+    "buy_hold_gross_pct": 906.2
    },
    "strategies": {
     "breakout": {
      "plan": {
-      "n": 890,
+      "n": 891,
       "win_rate": 38.9,
-      "avg_gross_pct": 0.066,
-      "avg_net_pct": -0.234,
+      "avg_gross_pct": 0.067,
+      "avg_net_pct": -0.233,
       "avg_net_ci": [
-       -0.3306,
-       -0.1403
+       -0.3284,
+       -0.1374
       ],
-      "total_net_pct": -207.9,
-      "total_after_tax_pct": -207.9,
+      "total_net_pct": -207.79,
+      "total_after_tax_pct": -207.79,
       "profit_factor": 0.65,
       "max_drawdown_pct": -222.24,
       "verdict": "negativo",
@@ -1646,27 +1646,27 @@
         "verdict": "non_dimostrato"
        },
        {
-        "n": 592,
-        "avg_net_pct": -0.258,
+        "n": 593,
+        "avg_net_pct": -0.257,
         "avg_net_ci": [
-         -0.3468,
-         -0.1648
+         -0.3476,
+         -0.1637
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 890,
-      "win_rate": 38.3,
+      "n": 891,
+      "win_rate": 38.4,
       "avg_gross_pct": 0.098,
       "avg_net_pct": -0.202,
       "avg_net_ci": [
-       -0.3193,
-       -0.0847
+       -0.3161,
+       -0.0856
       ],
-      "total_net_pct": -179.67,
-      "total_after_tax_pct": -179.67,
+      "total_net_pct": -179.57,
+      "total_after_tax_pct": -179.57,
       "profit_factor": 0.71,
       "max_drawdown_pct": -188.84,
       "verdict": "negativo"
@@ -1674,18 +1674,18 @@
     },
     "mean_reversion": {
      "plan": {
-      "n": 2766,
+      "n": 2767,
       "win_rate": 35.8,
       "avg_gross_pct": -0.04,
       "avg_net_pct": -0.34,
       "avg_net_ci": [
-       -0.3785,
-       -0.3001
+       -0.3802,
+       -0.3004
       ],
-      "total_net_pct": -940.38,
-      "total_after_tax_pct": -940.38,
+      "total_net_pct": -941.43,
+      "total_after_tax_pct": -941.43,
       "profit_factor": 0.45,
-      "max_drawdown_pct": -949.67,
+      "max_drawdown_pct": -950.71,
       "verdict": "negativo",
       "halves": [
        {
@@ -1698,27 +1698,27 @@
         "verdict": "negativo"
        },
        {
-        "n": 1550,
+        "n": 1551,
         "avg_net_pct": -0.32,
         "avg_net_ci": [
-         -0.3639,
-         -0.2759
+         -0.3647,
+         -0.2734
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 2766,
+      "n": 2767,
       "win_rate": 38.0,
-      "avg_gross_pct": -0.059,
-      "avg_net_pct": -0.359,
+      "avg_gross_pct": -0.06,
+      "avg_net_pct": -0.36,
       "avg_net_ci": [
-       -0.4162,
-       -0.3021
+       -0.418,
+       -0.303
       ],
-      "total_net_pct": -993.5,
-      "total_after_tax_pct": -993.5,
+      "total_net_pct": -995.47,
+      "total_after_tax_pct": -995.47,
       "profit_factor": 0.47,
       "max_drawdown_pct": -1009.93,
       "verdict": "negativo"
@@ -1726,68 +1726,68 @@
     },
     "ma_crossover": {
      "plan": {
-      "n": 7026,
+      "n": 7033,
       "win_rate": 35.4,
       "avg_gross_pct": 0.021,
       "avg_net_pct": -0.279,
       "avg_net_ci": [
-       -0.3079,
-       -0.25
+       -0.3107,
+       -0.2477
       ],
-      "total_net_pct": -1963.38,
-      "total_after_tax_pct": -1963.38,
+      "total_net_pct": -1965.01,
+      "total_after_tax_pct": -1965.01,
       "profit_factor": 0.56,
-      "max_drawdown_pct": -1970.3,
+      "max_drawdown_pct": -1972.5,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 3508,
-        "avg_net_pct": -0.267,
+        "n": 3510,
+        "avg_net_pct": -0.268,
         "avg_net_ci": [
-         -0.3198,
-         -0.2158
+         -0.3202,
+         -0.2142
         ],
         "verdict": "negativo"
        },
        {
-        "n": 3518,
-        "avg_net_pct": -0.292,
+        "n": 3523,
+        "avg_net_pct": -0.291,
         "avg_net_ci": [
-         -0.3239,
-         -0.2611
+         -0.3216,
+         -0.26
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 7026,
+      "n": 7033,
       "win_rate": 34.6,
       "avg_gross_pct": 0.033,
       "avg_net_pct": -0.267,
       "avg_net_ci": [
-       -0.3046,
-       -0.2288
+       -0.3069,
+       -0.2242
       ],
-      "total_net_pct": -1874.91,
-      "total_after_tax_pct": -1874.91,
+      "total_net_pct": -1874.56,
+      "total_after_tax_pct": -1874.56,
       "profit_factor": 0.62,
-      "max_drawdown_pct": -1881.71,
+      "max_drawdown_pct": -1882.36,
       "verdict": "negativo"
      }
     },
     "consensus": {
      "plan": {
-      "n": 609,
-      "win_rate": 42.4,
+      "n": 610,
+      "win_rate": 42.5,
       "avg_gross_pct": 0.167,
       "avg_net_pct": -0.133,
       "avg_net_ci": [
-       -0.2567,
-       -0.0107
+       -0.2578,
+       -0.0086
       ],
-      "total_net_pct": -81.24,
-      "total_after_tax_pct": -81.24,
+      "total_net_pct": -81.13,
+      "total_after_tax_pct": -81.13,
       "profit_factor": 0.8,
       "max_drawdown_pct": -103.38,
       "verdict": "negativo",
@@ -1802,27 +1802,27 @@
         "verdict": "non_dimostrato"
        },
        {
-        "n": 398,
+        "n": 399,
         "avg_net_pct": -0.219,
         "avg_net_ci": [
-         -0.3442,
-         -0.0954
+         -0.3427,
+         -0.0974
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 609,
-      "win_rate": 42.0,
-      "avg_gross_pct": 0.24,
-      "avg_net_pct": -0.06,
+      "n": 610,
+      "win_rate": 42.1,
+      "avg_gross_pct": 0.241,
+      "avg_net_pct": -0.059,
       "avg_net_ci": [
-       -0.2057,
-       0.0881
+       -0.2102,
+       0.0954
       ],
-      "total_net_pct": -36.37,
-      "total_after_tax_pct": -36.37,
+      "total_net_pct": -36.26,
+      "total_after_tax_pct": -36.26,
       "profit_factor": 0.91,
       "max_drawdown_pct": -75.97,
       "verdict": "non_dimostrato"
@@ -1830,105 +1830,105 @@
     },
     "momentum": {
      "plan": {
-      "n": 10350,
+      "n": 10356,
       "win_rate": 34.6,
       "avg_gross_pct": 0.004,
       "avg_net_pct": -0.296,
       "avg_net_ci": [
-       -0.3221,
-       -0.2718
+       -0.3203,
+       -0.2727
       ],
-      "total_net_pct": -3065.36,
-      "total_after_tax_pct": -3065.36,
+      "total_net_pct": -3067.06,
+      "total_after_tax_pct": -3067.06,
       "profit_factor": 0.54,
-      "max_drawdown_pct": -3066.55,
+      "max_drawdown_pct": -3069.2,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 5175,
+        "n": 5178,
         "avg_net_pct": -0.298,
         "avg_net_ci": [
-         -0.3417,
-         -0.256
+         -0.3407,
+         -0.257
         ],
         "verdict": "negativo"
        },
        {
-        "n": 5175,
+        "n": 5178,
         "avg_net_pct": -0.294,
         "avg_net_ci": [
-         -0.3182,
-         -0.2693
+         -0.319,
+         -0.2692
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 10350,
+      "n": 10356,
       "win_rate": 34.4,
       "avg_gross_pct": 0.018,
       "avg_net_pct": -0.282,
       "avg_net_ci": [
-       -0.317,
-       -0.2506
+       -0.316,
+       -0.2474
       ],
-      "total_net_pct": -2920.43,
-      "total_after_tax_pct": -2920.43,
+      "total_net_pct": -2920.71,
+      "total_after_tax_pct": -2920.71,
       "profit_factor": 0.6,
-      "max_drawdown_pct": -2921.2,
+      "max_drawdown_pct": -2922.89,
       "verdict": "negativo"
      }
     },
     "always_long": {
      "plan": {
-      "n": 10350,
+      "n": 10356,
       "win_rate": 36.2,
       "avg_gross_pct": 0.003,
       "avg_net_pct": -0.297,
       "avg_net_ci": [
-       -0.3212,
-       -0.2741
+       -0.321,
+       -0.2732
       ],
-      "total_net_pct": -3071.75,
-      "total_after_tax_pct": -3071.75,
+      "total_net_pct": -3074.16,
+      "total_after_tax_pct": -3074.16,
       "profit_factor": 0.53,
-      "max_drawdown_pct": -3072.1,
+      "max_drawdown_pct": -3074.16,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 5175,
-        "avg_net_pct": -0.306,
+        "n": 5178,
+        "avg_net_pct": -0.305,
         "avg_net_ci": [
-         -0.3488,
-         -0.2648
+         -0.3476,
+         -0.2642
         ],
         "verdict": "negativo"
        },
        {
-        "n": 5175,
+        "n": 5178,
         "avg_net_pct": -0.288,
         "avg_net_ci": [
-         -0.3124,
-         -0.2617
+         -0.3139,
+         -0.2621
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 10350,
+      "n": 10356,
       "win_rate": 37.0,
       "avg_gross_pct": 0.037,
       "avg_net_pct": -0.263,
       "avg_net_ci": [
-       -0.2963,
-       -0.2312
+       -0.2961,
+       -0.23
       ],
-      "total_net_pct": -2719.53,
-      "total_after_tax_pct": -2719.53,
+      "total_net_pct": -2723.96,
+      "total_after_tax_pct": -2723.96,
       "profit_factor": 0.61,
-      "max_drawdown_pct": -2719.89,
+      "max_drawdown_pct": -2723.96,
       "verdict": "negativo"
      }
     }
@@ -1937,9 +1937,9 @@
   "ETHUSDT_1d": {
    "period": {
     "from": 1559404800,
-    "to": 1794240000,
-    "candles": 2719,
-    "buy_hold_gross_pct": 655.4
+    "to": 1794412800,
+    "candles": 2721,
+    "buy_hold_gross_pct": 650.0
    },
    "strategies": {
     "breakout": {
@@ -2259,24 +2259,24 @@
   "ETHUSDT_4h": {
    "period": {
     "from": 1536753600,
-    "to": 1794340800,
-    "candles": 17814,
-    "buy_hold_gross_pct": 1096.7
+    "to": 1794499200,
+    "candles": 17825,
+    "buy_hold_gross_pct": 1075.9
    },
    "strategies": {
     "breakout": {
      "plan": {
-      "n": 245,
-      "win_rate": 44.1,
-      "avg_gross_pct": 0.42,
-      "avg_net_pct": 0.12,
+      "n": 246,
+      "win_rate": 43.9,
+      "avg_gross_pct": 0.404,
+      "avg_net_pct": 0.104,
       "avg_net_ci": [
-       -0.3591,
-       0.5913
+       -0.3739,
+       0.566
       ],
-      "total_net_pct": 29.33,
-      "total_after_tax_pct": 19.65,
-      "profit_factor": 1.08,
+      "total_net_pct": 25.66,
+      "total_after_tax_pct": 17.19,
+      "profit_factor": 1.07,
       "max_drawdown_pct": -53.03,
       "verdict": "non_dimostrato",
       "halves": [
@@ -2290,27 +2290,27 @@
         "verdict": "non_dimostrato"
        },
        {
-        "n": 162,
-        "avg_net_pct": -0.075,
+        "n": 163,
+        "avg_net_pct": -0.097,
         "avg_net_ci": [
-         -0.6112,
-         0.4472
+         -0.6435,
+         0.4299
         ],
         "verdict": "non_dimostrato"
        }
       ]
      },
      "hold": {
-      "n": 245,
-      "win_rate": 44.5,
-      "avg_gross_pct": 0.489,
-      "avg_net_pct": 0.189,
+      "n": 246,
+      "win_rate": 44.3,
+      "avg_gross_pct": 0.476,
+      "avg_net_pct": 0.176,
       "avg_net_ci": [
-       -0.3798,
-       0.7667
+       -0.3639,
+       0.7547
       ],
-      "total_net_pct": 46.39,
-      "total_after_tax_pct": 31.08,
+      "total_net_pct": 43.39,
+      "total_after_tax_pct": 29.07,
       "profit_factor": 1.12,
       "max_drawdown_pct": -80.69,
       "verdict": "non_dimostrato"
@@ -2370,51 +2370,51 @@
     },
     "ma_crossover": {
      "plan": {
-      "n": 1707,
-      "win_rate": 43.6,
-      "avg_gross_pct": 0.193,
-      "avg_net_pct": -0.107,
+      "n": 1709,
+      "win_rate": 43.7,
+      "avg_gross_pct": 0.195,
+      "avg_net_pct": -0.105,
       "avg_net_ci": [
-       -0.2758,
-       0.072
+       -0.2709,
+       0.067
       ],
-      "total_net_pct": -183.32,
-      "total_after_tax_pct": -183.32,
+      "total_net_pct": -179.63,
+      "total_after_tax_pct": -179.63,
       "profit_factor": 0.93,
       "max_drawdown_pct": -217.12,
       "verdict": "non_dimostrato",
       "halves": [
        {
-        "n": 842,
-        "avg_net_pct": -0.013,
+        "n": 843,
+        "avg_net_pct": -0.014,
         "avg_net_ci": [
-         -0.3108,
-         0.2818
+         -0.2998,
+         0.2804
         ],
         "verdict": "non_dimostrato"
        },
        {
-        "n": 865,
-        "avg_net_pct": -0.199,
+        "n": 866,
+        "avg_net_pct": -0.193,
         "avg_net_ci": [
-         -0.3748,
-         -0.0166
+         -0.3738,
+         -0.0096
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 1707,
+      "n": 1709,
       "win_rate": 44.6,
-      "avg_gross_pct": 0.169,
-      "avg_net_pct": -0.131,
+      "avg_gross_pct": 0.171,
+      "avg_net_pct": -0.129,
       "avg_net_ci": [
-       -0.3466,
-       0.089
+       -0.3549,
+       0.086
       ],
-      "total_net_pct": -224.18,
-      "total_after_tax_pct": -224.18,
+      "total_net_pct": -220.85,
+      "total_after_tax_pct": -220.85,
       "profit_factor": 0.92,
       "max_drawdown_pct": -313.95,
       "verdict": "non_dimostrato"
@@ -2422,17 +2422,17 @@
     },
     "consensus": {
      "plan": {
-      "n": 180,
-      "win_rate": 40.6,
-      "avg_gross_pct": 0.133,
-      "avg_net_pct": -0.167,
+      "n": 181,
+      "win_rate": 40.3,
+      "avg_gross_pct": 0.114,
+      "avg_net_pct": -0.186,
       "avg_net_ci": [
-       -0.7172,
-       0.4225
+       -0.7414,
+       0.3964
       ],
-      "total_net_pct": -30.03,
-      "total_after_tax_pct": -30.03,
-      "profit_factor": 0.9,
+      "total_net_pct": -33.69,
+      "total_after_tax_pct": -33.69,
+      "profit_factor": 0.89,
       "max_drawdown_pct": -90.93,
       "verdict": "non_dimostrato",
       "halves": [
@@ -2446,131 +2446,131 @@
         "verdict": "non_dimostrato"
        },
        {
-        "n": 116,
-        "avg_net_pct": -0.43,
+        "n": 117,
+        "avg_net_pct": -0.458,
         "avg_net_ci": [
-         -1.0295,
-         0.1937
+         -1.0476,
+         0.1743
         ],
         "verdict": "non_dimostrato"
        }
       ]
      },
      "hold": {
-      "n": 180,
-      "win_rate": 43.9,
-      "avg_gross_pct": 0.46,
-      "avg_net_pct": 0.16,
+      "n": 181,
+      "win_rate": 43.6,
+      "avg_gross_pct": 0.443,
+      "avg_net_pct": 0.143,
       "avg_net_ci": [
-       -0.5071,
-       0.8575
+       -0.5536,
+       0.7758
       ],
-      "total_net_pct": 28.84,
-      "total_after_tax_pct": 19.32,
-      "profit_factor": 1.1,
+      "total_net_pct": 25.83,
+      "total_after_tax_pct": 17.31,
+      "profit_factor": 1.09,
       "max_drawdown_pct": -71.79,
       "verdict": "non_dimostrato"
      }
     },
     "momentum": {
      "plan": {
-      "n": 2500,
+      "n": 2501,
       "win_rate": 41.8,
-      "avg_gross_pct": 0.025,
-      "avg_net_pct": -0.275,
+      "avg_gross_pct": 0.023,
+      "avg_net_pct": -0.277,
       "avg_net_ci": [
-       -0.4146,
-       -0.1412
+       -0.4035,
+       -0.1413
       ],
-      "total_net_pct": -688.32,
-      "total_after_tax_pct": -688.32,
+      "total_net_pct": -691.99,
+      "total_after_tax_pct": -691.99,
       "profit_factor": 0.81,
       "max_drawdown_pct": -704.79,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 1222,
+        "n": 1223,
         "avg_net_pct": -0.211,
         "avg_net_ci": [
-         -0.4362,
-         0.0238
+         -0.4504,
+         0.0193
         ],
         "verdict": "non_dimostrato"
        },
        {
         "n": 1278,
-        "avg_net_pct": -0.337,
+        "avg_net_pct": -0.339,
         "avg_net_ci": [
-         -0.486,
-         -0.1965
+         -0.4821,
+         -0.1937
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 2500,
+      "n": 2501,
       "win_rate": 42.7,
-      "avg_gross_pct": 0.044,
-      "avg_net_pct": -0.256,
+      "avg_gross_pct": 0.043,
+      "avg_net_pct": -0.257,
       "avg_net_ci": [
-       -0.435,
-       -0.0771
+       -0.4284,
+       -0.081
       ],
-      "total_net_pct": -639.97,
-      "total_after_tax_pct": -639.97,
-      "profit_factor": 0.85,
+      "total_net_pct": -642.98,
+      "total_after_tax_pct": -642.98,
+      "profit_factor": 0.84,
       "max_drawdown_pct": -669.92,
       "verdict": "negativo"
      }
     },
     "always_long": {
      "plan": {
-      "n": 2500,
+      "n": 2501,
       "win_rate": 43.5,
-      "avg_gross_pct": 0.048,
-      "avg_net_pct": -0.252,
+      "avg_gross_pct": 0.05,
+      "avg_net_pct": -0.25,
       "avg_net_ci": [
-       -0.3775,
-       -0.1159
+       -0.3836,
+       -0.1209
       ],
-      "total_net_pct": -628.75,
-      "total_after_tax_pct": -628.75,
+      "total_net_pct": -626.34,
+      "total_after_tax_pct": -626.34,
       "profit_factor": 0.83,
       "max_drawdown_pct": -656.65,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 1222,
+        "n": 1223,
         "avg_net_pct": -0.225,
         "avg_net_ci": [
-         -0.4487,
-         -0.0124
+         -0.4461,
+         0.0167
         ],
-        "verdict": "negativo"
+        "verdict": "non_dimostrato"
        },
        {
         "n": 1278,
-        "avg_net_pct": -0.277,
+        "avg_net_pct": -0.275,
         "avg_net_ci": [
-         -0.415,
-         -0.1391
+         -0.4125,
+         -0.1326
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 2500,
-      "win_rate": 47.0,
-      "avg_gross_pct": 0.201,
-      "avg_net_pct": -0.099,
+      "n": 2501,
+      "win_rate": 47.1,
+      "avg_gross_pct": 0.202,
+      "avg_net_pct": -0.098,
       "avg_net_ci": [
-       -0.2651,
-       0.0741
+       -0.2785,
+       0.0802
       ],
-      "total_net_pct": -246.47,
-      "total_after_tax_pct": -246.47,
+      "total_net_pct": -244.07,
+      "total_after_tax_pct": -244.07,
       "profit_factor": 0.94,
       "max_drawdown_pct": -446.51,
       "verdict": "non_dimostrato"
@@ -2581,23 +2581,23 @@
   "ETHUSDT_1h": {
    "period": {
     "from": 1533524400,
-    "to": 1794355200,
-    "candles": 72149,
-    "buy_hold_gross_pct": 399.7
+    "to": 1794513600,
+    "candles": 72193,
+    "buy_hold_gross_pct": 391.6
    },
    "strategies": {
     "breakout": {
      "plan": {
-      "n": 933,
+      "n": 934,
       "win_rate": 37.6,
-      "avg_gross_pct": 0.034,
-      "avg_net_pct": -0.266,
+      "avg_gross_pct": 0.032,
+      "avg_net_pct": -0.268,
       "avg_net_ci": [
-       -0.3871,
-       -0.1389
+       -0.3866,
+       -0.1468
       ],
-      "total_net_pct": -248.54,
-      "total_after_tax_pct": -248.54,
+      "total_net_pct": -249.96,
+      "total_after_tax_pct": -249.96,
       "profit_factor": 0.7,
       "max_drawdown_pct": -254.01,
       "verdict": "negativo",
@@ -2612,27 +2612,27 @@
         "verdict": "negativo"
        },
        {
-        "n": 593,
-        "avg_net_pct": -0.255,
+        "n": 594,
+        "avg_net_pct": -0.257,
         "avg_net_ci": [
-         -0.3837,
-         -0.1308
+         -0.3873,
+         -0.1264
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 933,
-      "win_rate": 38.7,
-      "avg_gross_pct": 0.043,
-      "avg_net_pct": -0.257,
+      "n": 934,
+      "win_rate": 38.8,
+      "avg_gross_pct": 0.044,
+      "avg_net_pct": -0.256,
       "avg_net_ci": [
-       -0.4178,
-       -0.0899
+       -0.4171,
+       -0.1
       ],
-      "total_net_pct": -239.68,
-      "total_after_tax_pct": -239.68,
+      "total_net_pct": -239.14,
+      "total_after_tax_pct": -239.14,
       "profit_factor": 0.74,
       "max_drawdown_pct": -249.52,
       "verdict": "negativo"
@@ -2692,51 +2692,51 @@
     },
     "ma_crossover": {
      "plan": {
-      "n": 6775,
+      "n": 6781,
       "win_rate": 38.2,
       "avg_gross_pct": 0.036,
       "avg_net_pct": -0.264,
       "avg_net_ci": [
-       -0.307,
-       -0.2226
+       -0.3057,
+       -0.2225
       ],
-      "total_net_pct": -1789.47,
-      "total_after_tax_pct": -1789.47,
+      "total_net_pct": -1788.81,
+      "total_after_tax_pct": -1788.81,
       "profit_factor": 0.67,
-      "max_drawdown_pct": -1802.71,
+      "max_drawdown_pct": -1804.87,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 3410,
-        "avg_net_pct": -0.216,
+        "n": 3411,
+        "avg_net_pct": -0.217,
         "avg_net_ci": [
-         -0.2852,
-         -0.1443
+         -0.2848,
+         -0.1427
         ],
         "verdict": "negativo"
        },
        {
-        "n": 3365,
-        "avg_net_pct": -0.312,
+        "n": 3370,
+        "avg_net_pct": -0.311,
         "avg_net_ci": [
-         -0.3582,
-         -0.2669
+         -0.3566,
+         -0.264
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 6775,
-      "win_rate": 38.1,
+      "n": 6781,
+      "win_rate": 38.2,
       "avg_gross_pct": 0.057,
       "avg_net_pct": -0.243,
       "avg_net_ci": [
-       -0.2976,
-       -0.191
+       -0.2971,
+       -0.1887
       ],
-      "total_net_pct": -1647.86,
-      "total_after_tax_pct": -1647.86,
+      "total_net_pct": -1647.89,
+      "total_after_tax_pct": -1647.89,
       "profit_factor": 0.72,
       "max_drawdown_pct": -1683.21,
       "verdict": "negativo"
@@ -2744,16 +2744,16 @@
     },
     "consensus": {
      "plan": {
-      "n": 616,
+      "n": 617,
       "win_rate": 38.6,
-      "avg_gross_pct": 0.079,
-      "avg_net_pct": -0.221,
+      "avg_gross_pct": 0.077,
+      "avg_net_pct": -0.223,
       "avg_net_ci": [
-       -0.3698,
-       -0.0679
+       -0.3761,
+       -0.0721
       ],
-      "total_net_pct": -136.39,
-      "total_after_tax_pct": -136.39,
+      "total_net_pct": -137.82,
+      "total_after_tax_pct": -137.82,
       "profit_factor": 0.75,
       "max_drawdown_pct": -147.84,
       "verdict": "negativo",
@@ -2768,27 +2768,27 @@
         "verdict": "non_dimostrato"
        },
        {
-        "n": 380,
-        "avg_net_pct": -0.194,
+        "n": 381,
+        "avg_net_pct": -0.197,
         "avg_net_ci": [
-         -0.3705,
-         -0.0155
+         -0.3763,
+         -0.0254
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 616,
-      "win_rate": 40.1,
-      "avg_gross_pct": 0.1,
-      "avg_net_pct": -0.2,
+      "n": 617,
+      "win_rate": 40.2,
+      "avg_gross_pct": 0.101,
+      "avg_net_pct": -0.199,
       "avg_net_ci": [
-       -0.4116,
-       0.0173
+       -0.4169,
+       0.0247
       ],
-      "total_net_pct": -123.33,
-      "total_after_tax_pct": -123.33,
+      "total_net_pct": -122.79,
+      "total_after_tax_pct": -122.79,
       "profit_factor": 0.81,
       "max_drawdown_pct": -154.2,
       "verdict": "non_dimostrato"
@@ -2796,51 +2796,51 @@
     },
     "momentum": {
      "plan": {
-      "n": 10216,
-      "win_rate": 37.1,
+      "n": 10222,
+      "win_rate": 37.2,
       "avg_gross_pct": 0.014,
       "avg_net_pct": -0.286,
       "avg_net_ci": [
-       -0.3187,
-       -0.2537
+       -0.3164,
+       -0.2527
       ],
-      "total_net_pct": -2921.6,
-      "total_after_tax_pct": -2921.6,
+      "total_net_pct": -2920.74,
+      "total_after_tax_pct": -2920.74,
       "profit_factor": 0.64,
-      "max_drawdown_pct": -2931.87,
+      "max_drawdown_pct": -2932.44,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 5041,
+        "n": 5044,
         "avg_net_pct": -0.268,
         "avg_net_ci": [
-         -0.3225,
-         -0.2143
+         -0.3227,
+         -0.2146
         ],
         "verdict": "negativo"
        },
        {
-        "n": 5175,
-        "avg_net_pct": -0.304,
+        "n": 5178,
+        "avg_net_pct": -0.303,
         "avg_net_ci": [
-         -0.3381,
-         -0.2688
+         -0.3354,
+         -0.2678
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 10216,
+      "n": 10222,
       "win_rate": 37.5,
       "avg_gross_pct": 0.018,
       "avg_net_pct": -0.282,
       "avg_net_ci": [
-       -0.3239,
-       -0.2387
+       -0.3229,
+       -0.2397
       ],
-      "total_net_pct": -2879.48,
-      "total_after_tax_pct": -2879.48,
+      "total_net_pct": -2879.33,
+      "total_after_tax_pct": -2879.33,
       "profit_factor": 0.68,
       "max_drawdown_pct": -2902.47,
       "verdict": "negativo"
@@ -2848,53 +2848,53 @@
     },
     "always_long": {
      "plan": {
-      "n": 10216,
+      "n": 10222,
       "win_rate": 39.0,
       "avg_gross_pct": -0.0,
       "avg_net_pct": -0.3,
       "avg_net_ci": [
-       -0.3307,
-       -0.2693
+       -0.331,
+       -0.2686
       ],
-      "total_net_pct": -3065.87,
-      "total_after_tax_pct": -3065.87,
+      "total_net_pct": -3068.55,
+      "total_after_tax_pct": -3068.55,
       "profit_factor": 0.62,
-      "max_drawdown_pct": -3067.3,
+      "max_drawdown_pct": -3068.55,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 5041,
-        "avg_net_pct": -0.3,
+        "n": 5044,
+        "avg_net_pct": -0.299,
         "avg_net_ci": [
-         -0.3534,
-         -0.2461
+         -0.3514,
+         -0.2442
         ],
         "verdict": "negativo"
        },
        {
-        "n": 5175,
-        "avg_net_pct": -0.3,
+        "n": 5178,
+        "avg_net_pct": -0.301,
         "avg_net_ci": [
-         -0.3354,
-         -0.2668
+         -0.335,
+         -0.2656
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 10216,
+      "n": 10222,
       "win_rate": 40.6,
-      "avg_gross_pct": 0.037,
-      "avg_net_pct": -0.263,
+      "avg_gross_pct": 0.036,
+      "avg_net_pct": -0.264,
       "avg_net_ci": [
-       -0.3032,
-       -0.2215
+       -0.3056,
+       -0.2233
       ],
-      "total_net_pct": -2690.19,
-      "total_after_tax_pct": -2690.19,
+      "total_net_pct": -2693.75,
+      "total_after_tax_pct": -2693.75,
       "profit_factor": 0.69,
-      "max_drawdown_pct": -2691.62,
+      "max_drawdown_pct": -2693.75,
       "verdict": "negativo"
      }
     }
@@ -2903,9 +2903,9 @@
   "SOLUSDT_1d": {
    "period": {
     "from": 1650124800,
-    "to": 1794240000,
-    "candles": 1665,
-    "buy_hold_gross_pct": -21.7
+    "to": 1794412800,
+    "candles": 1667,
+    "buy_hold_gross_pct": -22.3
    },
    "strategies": {
     "breakout": {
@@ -3225,24 +3225,24 @@
   "SOLUSDT_4h": {
    "period": {
     "from": 1628654400,
-    "to": 1794340800,
-    "candles": 11481,
-    "buy_hold_gross_pct": 95.9
+    "to": 1794499200,
+    "candles": 11492,
+    "buy_hold_gross_pct": 91.9
    },
    "strategies": {
     "breakout": {
      "plan": {
-      "n": 169,
-      "win_rate": 47.9,
-      "avg_gross_pct": 0.451,
-      "avg_net_pct": 0.151,
+      "n": 170,
+      "win_rate": 47.6,
+      "avg_gross_pct": 0.428,
+      "avg_net_pct": 0.128,
       "avg_net_ci": [
-       -0.6117,
-       0.9285
+       -0.6158,
+       0.871
       ],
-      "total_net_pct": 25.58,
-      "total_after_tax_pct": 17.14,
-      "profit_factor": 1.08,
+      "total_net_pct": 21.81,
+      "total_after_tax_pct": 14.61,
+      "profit_factor": 1.07,
       "max_drawdown_pct": -50.51,
       "verdict": "non_dimostrato",
       "halves": [
@@ -3256,28 +3256,28 @@
         "verdict": "non_dimostrato"
        },
        {
-        "n": 111,
-        "avg_net_pct": -0.111,
+        "n": 112,
+        "avg_net_pct": -0.143,
         "avg_net_ci": [
-         -0.9089,
-         0.6893
+         -0.9301,
+         0.626
         ],
         "verdict": "non_dimostrato"
        }
       ]
      },
      "hold": {
-      "n": 169,
-      "win_rate": 46.2,
-      "avg_gross_pct": 0.152,
-      "avg_net_pct": -0.148,
+      "n": 170,
+      "win_rate": 45.9,
+      "avg_gross_pct": 0.133,
+      "avg_net_pct": -0.167,
       "avg_net_ci": [
-       -1.1124,
-       0.8789
+       -1.1421,
+       0.8414
       ],
-      "total_net_pct": -25.05,
-      "total_after_tax_pct": -25.05,
-      "profit_factor": 0.93,
+      "total_net_pct": -28.43,
+      "total_after_tax_pct": -28.43,
+      "profit_factor": 0.92,
       "max_drawdown_pct": -73.65,
       "verdict": "non_dimostrato"
      }
@@ -3336,51 +3336,51 @@
     },
     "ma_crossover": {
      "plan": {
-      "n": 1052,
-      "win_rate": 45.6,
-      "avg_gross_pct": 0.177,
-      "avg_net_pct": -0.123,
+      "n": 1054,
+      "win_rate": 45.7,
+      "avg_gross_pct": 0.181,
+      "avg_net_pct": -0.119,
       "avg_net_ci": [
-       -0.392,
-       0.1548
+       -0.3838,
+       0.157
       ],
-      "total_net_pct": -128.91,
-      "total_after_tax_pct": -128.91,
-      "profit_factor": 0.93,
+      "total_net_pct": -125.08,
+      "total_after_tax_pct": -125.08,
+      "profit_factor": 0.94,
       "max_drawdown_pct": -214.85,
       "verdict": "non_dimostrato",
       "halves": [
        {
-        "n": 518,
-        "avg_net_pct": 0.038,
+        "n": 519,
+        "avg_net_pct": 0.029,
         "avg_net_ci": [
-         -0.4373,
-         0.505
+         -0.4183,
+         0.4879
         ],
         "verdict": "non_dimostrato"
        },
        {
-        "n": 534,
-        "avg_net_pct": -0.278,
+        "n": 535,
+        "avg_net_pct": -0.262,
         "avg_net_ci": [
-         -0.5853,
-         0.011
+         -0.5751,
+         0.0305
         ],
         "verdict": "non_dimostrato"
        }
       ]
      },
      "hold": {
-      "n": 1052,
-      "win_rate": 47.3,
-      "avg_gross_pct": 0.264,
-      "avg_net_pct": -0.036,
+      "n": 1054,
+      "win_rate": 47.4,
+      "avg_gross_pct": 0.267,
+      "avg_net_pct": -0.033,
       "avg_net_ci": [
-       -0.3626,
-       0.3071
+       -0.3669,
+       0.3066
       ],
-      "total_net_pct": -38.1,
-      "total_after_tax_pct": -38.1,
+      "total_net_pct": -34.39,
+      "total_after_tax_pct": -34.39,
       "profit_factor": 0.98,
       "max_drawdown_pct": -312.32,
       "verdict": "non_dimostrato"
@@ -3388,17 +3388,17 @@
     },
     "consensus": {
      "plan": {
-      "n": 112,
-      "win_rate": 44.6,
-      "avg_gross_pct": -0.057,
-      "avg_net_pct": -0.357,
+      "n": 113,
+      "win_rate": 44.2,
+      "avg_gross_pct": -0.087,
+      "avg_net_pct": -0.387,
       "avg_net_ci": [
-       -1.3325,
-       0.7255
+       -1.3834,
+       0.6029
       ],
-      "total_net_pct": -39.94,
-      "total_after_tax_pct": -39.94,
-      "profit_factor": 0.84,
+      "total_net_pct": -43.71,
+      "total_after_tax_pct": -43.71,
+      "profit_factor": 0.83,
       "max_drawdown_pct": -73.41,
       "verdict": "non_dimostrato",
       "halves": [
@@ -3412,79 +3412,79 @@
         "verdict": "non_dimostrato"
        },
        {
-        "n": 71,
-        "avg_net_pct": -0.86,
+        "n": 72,
+        "avg_net_pct": -0.9,
         "avg_net_ci": [
-         -1.8337,
-         0.1874
+         -1.8661,
+         0.1327
         ],
         "verdict": "non_dimostrato"
        }
       ]
      },
      "hold": {
-      "n": 112,
-      "win_rate": 42.0,
-      "avg_gross_pct": -0.65,
-      "avg_net_pct": -0.95,
+      "n": 113,
+      "win_rate": 41.6,
+      "avg_gross_pct": -0.671,
+      "avg_net_pct": -0.971,
       "avg_net_ci": [
-       -2.2156,
-       0.3276
+       -2.2702,
+       0.4383
       ],
-      "total_net_pct": -106.36,
-      "total_after_tax_pct": -106.36,
-      "profit_factor": 0.66,
+      "total_net_pct": -109.75,
+      "total_after_tax_pct": -109.75,
+      "profit_factor": 0.65,
       "max_drawdown_pct": -146.77,
       "verdict": "non_dimostrato"
      }
     },
     "momentum": {
      "plan": {
-      "n": 1596,
-      "win_rate": 43.9,
-      "avg_gross_pct": 0.02,
-      "avg_net_pct": -0.28,
+      "n": 1598,
+      "win_rate": 44.0,
+      "avg_gross_pct": 0.023,
+      "avg_net_pct": -0.277,
       "avg_net_ci": [
-       -0.4961,
-       -0.0629
+       -0.4863,
+       -0.0585
       ],
-      "total_net_pct": -447.27,
-      "total_after_tax_pct": -447.27,
+      "total_net_pct": -442.6,
+      "total_after_tax_pct": -442.6,
       "profit_factor": 0.85,
       "max_drawdown_pct": -493.28,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 775,
-        "avg_net_pct": -0.364,
+        "n": 776,
+        "avg_net_pct": -0.363,
         "avg_net_ci": [
-         -0.7238,
-         0.0009
+         -0.7176,
+         -0.0123
         ],
-        "verdict": "non_dimostrato"
+        "verdict": "negativo"
        },
        {
-        "n": 821,
-        "avg_net_pct": -0.201,
+        "n": 822,
+        "avg_net_pct": -0.196,
         "avg_net_ci": [
-         -0.4353,
-         0.046
+         -0.4192,
+         0.0357
         ],
         "verdict": "non_dimostrato"
        }
       ]
      },
      "hold": {
-      "n": 1596,
-      "win_rate": 46.0,
-      "avg_gross_pct": 0.018,
-      "avg_net_pct": -0.282,
+      "n": 1598,
+      "win_rate": 46.1,
+      "avg_gross_pct": 0.02,
+      "avg_net_pct": -0.28,
       "avg_net_ci": [
-       -0.55,
-       -0.0134
+       -0.5512,
+       -0.0167
       ],
-      "total_net_pct": -450.46,
-      "total_after_tax_pct": -450.46,
+      "total_net_pct": -447.17,
+      "total_after_tax_pct": -447.17,
       "profit_factor": 0.86,
       "max_drawdown_pct": -525.41,
       "verdict": "negativo"
@@ -3492,53 +3492,53 @@
     },
     "always_long": {
      "plan": {
-      "n": 1596,
-      "win_rate": 42.4,
-      "avg_gross_pct": -0.008,
-      "avg_net_pct": -0.308,
+      "n": 1598,
+      "win_rate": 42.3,
+      "avg_gross_pct": -0.01,
+      "avg_net_pct": -0.31,
       "avg_net_ci": [
-       -0.5131,
-       -0.0904
+       -0.5114,
+       -0.0996
       ],
-      "total_net_pct": -491.04,
-      "total_after_tax_pct": -491.04,
-      "profit_factor": 0.84,
-      "max_drawdown_pct": -604.56,
+      "total_net_pct": -495.5,
+      "total_after_tax_pct": -495.5,
+      "profit_factor": 0.83,
+      "max_drawdown_pct": -606.84,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 775,
+        "n": 776,
         "avg_net_pct": -0.306,
         "avg_net_ci": [
-         -0.6335,
-         0.059
+         -0.668,
+         0.0517
         ],
         "verdict": "non_dimostrato"
        },
        {
-        "n": 821,
-        "avg_net_pct": -0.31,
+        "n": 822,
+        "avg_net_pct": -0.313,
         "avg_net_ci": [
-         -0.5401,
-         -0.0789
+         -0.5493,
+         -0.078
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 1596,
-      "win_rate": 45.4,
-      "avg_gross_pct": 0.134,
-      "avg_net_pct": -0.166,
+      "n": 1598,
+      "win_rate": 45.3,
+      "avg_gross_pct": 0.131,
+      "avg_net_pct": -0.169,
       "avg_net_ci": [
-       -0.4317,
-       0.0961
+       -0.4279,
+       0.0949
       ],
-      "total_net_pct": -264.84,
-      "total_after_tax_pct": -264.84,
+      "total_net_pct": -269.32,
+      "total_after_tax_pct": -269.32,
       "profit_factor": 0.92,
-      "max_drawdown_pct": -455.8,
+      "max_drawdown_pct": -460.29,
       "verdict": "non_dimostrato"
      }
     }
@@ -3547,9 +3547,9 @@
   "SOLUSDT_1h": {
    "period": {
     "from": 1625425200,
-    "to": 1794355200,
-    "candles": 46818,
-    "buy_hold_gross_pct": 137.6
+    "to": 1794513600,
+    "candles": 46862,
+    "buy_hold_gross_pct": 132.4
    },
    "strategies": {
     "breakout": {
@@ -3658,51 +3658,51 @@
     },
     "ma_crossover": {
      "plan": {
-      "n": 4368,
+      "n": 4374,
       "win_rate": 41.4,
       "avg_gross_pct": 0.086,
       "avg_net_pct": -0.214,
       "avg_net_ci": [
-       -0.2812,
-       -0.1456
+       -0.2813,
+       -0.1421
       ],
-      "total_net_pct": -934.0,
-      "total_after_tax_pct": -934.0,
+      "total_net_pct": -934.17,
+      "total_after_tax_pct": -934.17,
       "profit_factor": 0.79,
-      "max_drawdown_pct": -1022.21,
+      "max_drawdown_pct": -1024.16,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 2193,
-        "avg_net_pct": -0.167,
+        "n": 2196,
+        "avg_net_pct": -0.165,
         "avg_net_ci": [
-         -0.2733,
-         -0.0493
+         -0.2765,
+         -0.0522
         ],
         "verdict": "negativo"
        },
        {
-        "n": 2175,
-        "avg_net_pct": -0.261,
+        "n": 2178,
+        "avg_net_pct": -0.263,
         "avg_net_ci": [
-         -0.3357,
-         -0.1846
+         -0.3382,
+         -0.1894
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 4368,
+      "n": 4374,
       "win_rate": 42.3,
       "avg_gross_pct": 0.107,
       "avg_net_pct": -0.193,
       "avg_net_ci": [
-       -0.2773,
-       -0.1077
+       -0.2743,
+       -0.1107
       ],
-      "total_net_pct": -844.2,
-      "total_after_tax_pct": -844.2,
+      "total_net_pct": -844.13,
+      "total_after_tax_pct": -844.13,
       "profit_factor": 0.82,
       "max_drawdown_pct": -972.17,
       "verdict": "negativo"
@@ -3762,105 +3762,105 @@
     },
     "momentum": {
      "plan": {
-      "n": 6643,
+      "n": 6649,
       "win_rate": 40.1,
-      "avg_gross_pct": 0.013,
-      "avg_net_pct": -0.287,
+      "avg_gross_pct": 0.012,
+      "avg_net_pct": -0.288,
       "avg_net_ci": [
-       -0.3409,
-       -0.2356
+       -0.3391,
+       -0.2373
       ],
-      "total_net_pct": -1909.5,
-      "total_after_tax_pct": -1909.5,
+      "total_net_pct": -1911.96,
+      "total_after_tax_pct": -1911.96,
       "profit_factor": 0.71,
-      "max_drawdown_pct": -1958.05,
+      "max_drawdown_pct": -1962.37,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 3291,
-        "avg_net_pct": -0.247,
+        "n": 3294,
+        "avg_net_pct": -0.249,
         "avg_net_ci": [
-         -0.336,
-         -0.1615
+         -0.3317,
+         -0.1619
         ],
         "verdict": "negativo"
        },
        {
-        "n": 3352,
-        "avg_net_pct": -0.327,
+        "n": 3355,
+        "avg_net_pct": -0.325,
         "avg_net_ci": [
-         -0.3842,
-         -0.2677
+         -0.3823,
+         -0.2613
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 6643,
+      "n": 6649,
       "win_rate": 41.6,
-      "avg_gross_pct": -0.024,
-      "avg_net_pct": -0.324,
+      "avg_gross_pct": -0.025,
+      "avg_net_pct": -0.325,
       "avg_net_ci": [
-       -0.3865,
-       -0.2605
+       -0.3903,
+       -0.2617
       ],
-      "total_net_pct": -2153.55,
-      "total_after_tax_pct": -2153.55,
-      "profit_factor": 0.71,
-      "max_drawdown_pct": -2206.98,
+      "total_net_pct": -2157.94,
+      "total_after_tax_pct": -2157.94,
+      "profit_factor": 0.7,
+      "max_drawdown_pct": -2210.39,
       "verdict": "negativo"
      }
     },
     "always_long": {
      "plan": {
-      "n": 6643,
+      "n": 6649,
       "win_rate": 40.7,
       "avg_gross_pct": -0.004,
       "avg_net_pct": -0.304,
       "avg_net_ci": [
-       -0.3562,
-       -0.2537
+       -0.3585,
+       -0.2531
       ],
-      "total_net_pct": -2016.29,
-      "total_after_tax_pct": -2016.29,
+      "total_net_pct": -2019.57,
+      "total_after_tax_pct": -2019.57,
       "profit_factor": 0.7,
-      "max_drawdown_pct": -2064.85,
+      "max_drawdown_pct": -2066.73,
       "verdict": "negativo",
       "halves": [
        {
-        "n": 3291,
-        "avg_net_pct": -0.286,
+        "n": 3294,
+        "avg_net_pct": -0.285,
         "avg_net_ci": [
-         -0.37,
-         -0.1982
+         -0.3705,
+         -0.1928
         ],
         "verdict": "negativo"
        },
        {
-        "n": 3352,
-        "avg_net_pct": -0.321,
+        "n": 3355,
+        "avg_net_pct": -0.322,
         "avg_net_ci": [
-         -0.3812,
-         -0.2624
+         -0.3803,
+         -0.2618
         ],
         "verdict": "negativo"
        }
       ]
      },
      "hold": {
-      "n": 6643,
+      "n": 6649,
       "win_rate": 42.7,
-      "avg_gross_pct": 0.038,
-      "avg_net_pct": -0.262,
+      "avg_gross_pct": 0.037,
+      "avg_net_pct": -0.263,
       "avg_net_ci": [
-       -0.3255,
-       -0.1956
+       -0.3284,
+       -0.1965
       ],
-      "total_net_pct": -1742.25,
-      "total_after_tax_pct": -1742.25,
+      "total_net_pct": -1746.06,
+      "total_after_tax_pct": -1746.06,
       "profit_factor": 0.75,
-      "max_drawdown_pct": -1874.68,
+      "max_drawdown_pct": -1877.08,
       "verdict": "negativo"
      }
     }

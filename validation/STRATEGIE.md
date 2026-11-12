@@ -1,6 +1,6 @@
 # Validazione storica delle strategie tecniche
 
-Generato il 2026-11-11T01:33:36+00:00 · orizzonte 7 candele · piano: stop 1.5 x ATR, target 1.5 x il rischio.
+Generato il 2026-11-12T21:32:25+00:00 · orizzonte 7 candele · piano: stop 1.5 x ATR, target 1.5 x il rischio.
 
 - **Costi**: commissione 0.1% e slippage 0.05% per lato. "Netto" = dopo questi costi. Tasse 33% applicate una volta al guadagno complessivo (le perdite compensano i guadagni).
 - **Giudizio**: un vantaggio è dimostrato solo se l'intero intervallo di confidenza al 95% del netto medio è sopra zero.
@@ -23,27 +23,27 @@ Generato il 2026-11-11T01:33:36+00:00 · orizzonte 7 candele · piano: stop 1.5 
 
 | Strategia | Trade | Vincenti | Netto medio (piano) | IC 95% | Giudizio | Prima metà | Seconda metà | Netto medio (solo direzione) |
 |---|---|---|---|---|---|---|---|---|
-| Breakout | 621 | 44.6% | +0.050% | [-0.30%, +0.41%] | vantaggio NON dimostrato | +0.135% (174) | +0.017% (447) | +0.105% [-0.35%, +0.54%] |
+| Breakout | 624 | 44.4% | +0.034% | [-0.30%, +0.40%] | vantaggio NON dimostrato | +0.135% (174) | -0.005% (450) | +0.091% [-0.36%, +0.56%] |
 | Mean Reversion | 1032 | 41.6% | -0.317% | [-0.52%, -0.12%] | svantaggio dimostrato | -0.249% (387) | -0.359% (645) | -0.288% [-0.55%, +0.00%] |
-| MA Crossover | 4501 | 43.4% | -0.145% | [-0.27%, -0.02%] | svantaggio dimostrato | -0.100% (1965) | -0.180% (2536) | -0.108% [-0.27%, +0.05%] |
-| Consenso (almeno 2 su 3) | 435 | 43.4% | -0.162% | [-0.55%, +0.25%] | vantaggio NON dimostrato | +0.129% (130) | -0.286% (305) | -0.049% [-0.58%, +0.50%] |
-| Momentum (confronto) | 6651 | 41.3% | -0.297% | [-0.39%, -0.20%] | svantaggio dimostrato | -0.299% (2866) | -0.296% (3785) | -0.268% [-0.39%, -0.14%] |
-| Sempre long (confronto) | 6651 | 42.6% | -0.256% | [-0.36%, -0.15%] | svantaggio dimostrato | -0.217% (2866) | -0.286% (3785) | -0.132% [-0.28%, -0.00%] |
+| MA Crossover | 4507 | 43.5% | -0.142% | [-0.27%, -0.02%] | svantaggio dimostrato | -0.097% (1968) | -0.178% (2539) | -0.106% [-0.26%, +0.06%] |
+| Consenso (almeno 2 su 3) | 438 | 43.2% | -0.183% | [-0.61%, +0.23%] | vantaggio NON dimostrato | +0.129% (130) | -0.315% (308) | -0.068% [-0.62%, +0.48%] |
+| Momentum (confronto) | 6656 | 41.3% | -0.297% | [-0.39%, -0.21%] | svantaggio dimostrato | -0.297% (2869) | -0.297% (3787) | -0.267% [-0.39%, -0.14%] |
+| Sempre long (confronto) | 6656 | 42.6% | -0.257% | [-0.36%, -0.16%] | svantaggio dimostrato | -0.218% (2869) | -0.287% (3787) | -0.133% [-0.27%, +0.01%] |
 
 ### Timeframe 1h (BTC, ETH e SOL insieme)
 
 | Strategia | Trade | Vincenti | Netto medio (piano) | IC 95% | Giudizio | Prima metà | Seconda metà | Netto medio (solo direzione) |
 |---|---|---|---|---|---|---|---|---|
-| Breakout | 2495 | 38.2% | -0.271% | [-0.36%, -0.18%] | svantaggio dimostrato | -0.200% (716) | -0.299% (1779) | -0.258% [-0.38%, -0.14%] |
-| Mean Reversion | 6449 | 38.2% | -0.338% | [-0.38%, -0.30%] | svantaggio dimostrato | -0.398% (2480) | -0.301% (3969) | -0.342% [-0.39%, -0.29%] |
-| MA Crossover | 18169 | 37.9% | -0.258% | [-0.29%, -0.23%] | svantaggio dimostrato | -0.223% (7934) | -0.285% (10235) | -0.240% [-0.28%, -0.20%] |
-| Consenso (almeno 2 su 3) | 1679 | 40.4% | -0.185% | [-0.30%, -0.06%] | svantaggio dimostrato | -0.070% (518) | -0.237% (1161) | -0.160% [-0.32%, -0.01%] |
-| Momentum (confronto) | 27209 | 36.9% | -0.290% | [-0.31%, -0.27%] | svantaggio dimostrato | -0.270% (11744) | -0.306% (15465) | -0.292% [-0.32%, -0.26%] |
-| Sempre long (confronto) | 27209 | 38.3% | -0.300% | [-0.33%, -0.27%] | svantaggio dimostrato | -0.302% (11744) | -0.298% (15465) | -0.263% [-0.30%, -0.23%] |
+| Breakout | 2497 | 38.2% | -0.271% | [-0.36%, -0.18%] | svantaggio dimostrato | -0.201% (717) | -0.299% (1780) | -0.258% [-0.37%, -0.15%] |
+| Mean Reversion | 6450 | 38.2% | -0.338% | [-0.38%, -0.30%] | svantaggio dimostrato | -0.398% (2482) | -0.301% (3968) | -0.342% [-0.40%, -0.29%] |
+| MA Crossover | 18188 | 37.9% | -0.258% | [-0.29%, -0.23%] | svantaggio dimostrato | -0.224% (7939) | -0.284% (10249) | -0.240% [-0.28%, -0.20%] |
+| Consenso (almeno 2 su 3) | 1681 | 40.5% | -0.186% | [-0.30%, -0.07%] | svantaggio dimostrato | -0.070% (518) | -0.237% (1163) | -0.160% [-0.32%, -0.00%] |
+| Momentum (confronto) | 27227 | 36.9% | -0.290% | [-0.31%, -0.27%] | svantaggio dimostrato | -0.270% (11753) | -0.305% (15474) | -0.292% [-0.32%, -0.26%] |
+| Sempre long (confronto) | 27227 | 38.3% | -0.300% | [-0.33%, -0.27%] | svantaggio dimostrato | -0.302% (11753) | -0.298% (15474) | -0.263% [-0.30%, -0.23%] |
 
 ### BTCUSDT 1d
 
-Dal 19/05/2019 al 09/11/2026, 2732 candele. Buy & hold nel periodo: +834.8% lordo.
+Dal 19/05/2019 al 11/11/2026, 2734 candele. Buy & hold nel periodo: +815.7% lordo.
 
 | Strategia | Trade | Vincenti | Netto medio (piano) | IC 95% | Giudizio | Prima metà | Seconda metà | Netto medio (solo direzione) |
 |---|---|---|---|---|---|---|---|---|
@@ -56,33 +56,33 @@ Dal 19/05/2019 al 09/11/2026, 2732 candele. Buy & hold nel periodo: +834.8% lord
 
 ### BTCUSDT 4h
 
-Dal 12/09/2018 al 10/11/2026, 17889 candele. Buy & hold nel periodo: +1076.5% lordo.
+Dal 12/09/2018 al 12/11/2026, 17900 candele. Buy & hold nel periodo: +1043.0% lordo.
 
 | Strategia | Trade | Vincenti | Netto medio (piano) | IC 95% | Giudizio | Prima metà | Seconda metà | Netto medio (solo direzione) |
 |---|---|---|---|---|---|---|---|---|
-| Breakout | 207 | 42.5% | -0.116% | [-0.45%, +0.24%] | vantaggio NON dimostrato | -0.039% (65) | -0.151% (142) | +0.211% [-0.31%, +0.78%] |
+| Breakout | 208 | 42.3% | -0.127% | [-0.48%, +0.21%] | vantaggio NON dimostrato | -0.039% (65) | -0.167% (143) | +0.201% [-0.34%, +0.73%] |
 | Mean Reversion | 463 | 41.5% | -0.273% | [-0.47%, -0.07%] | svantaggio dimostrato | -0.356% (197) | -0.211% (266) | -0.248% [-0.52%, +0.02%] |
-| MA Crossover | 1742 | 41.9% | -0.195% | [-0.31%, -0.07%] | svantaggio dimostrato | -0.170% (882) | -0.220% (860) | -0.128% [-0.30%, +0.05%] |
-| Consenso (almeno 2 su 3) | 143 | 46.2% | -0.003% | [-0.45%, +0.45%] | vantaggio NON dimostrato | +0.453% (46) | -0.219% (97) | +0.392% [-0.32%, +1.15%] |
-| Momentum (confronto) | 2555 | 39.1% | -0.330% | [-0.43%, -0.22%] | svantaggio dimostrato | -0.384% (1278) | -0.275% (1277) | -0.270% [-0.40%, -0.13%] |
-| Sempre long (confronto) | 2555 | 41.9% | -0.229% | [-0.33%, -0.13%] | svantaggio dimostrato | -0.199% (1278) | -0.259% (1277) | -0.144% [-0.28%, -0.02%] |
+| MA Crossover | 1744 | 42.0% | -0.193% | [-0.32%, -0.06%] | svantaggio dimostrato | -0.171% (883) | -0.217% (861) | -0.126% [-0.30%, +0.04%] |
+| Consenso (almeno 2 su 3) | 144 | 45.8% | -0.019% | [-0.45%, +0.40%] | vantaggio NON dimostrato | +0.420% (47) | -0.232% (97) | +0.376% [-0.31%, +1.07%] |
+| Momentum (confronto) | 2557 | 39.1% | -0.329% | [-0.43%, -0.22%] | svantaggio dimostrato | -0.382% (1279) | -0.277% (1278) | -0.269% [-0.41%, -0.14%] |
+| Sempre long (confronto) | 2557 | 41.8% | -0.230% | [-0.33%, -0.14%] | svantaggio dimostrato | -0.200% (1279) | -0.261% (1278) | -0.146% [-0.27%, -0.02%] |
 
 ### BTCUSDT 1h
 
-Dal 06/08/2018 al 11/11/2026, 72453 candele. Buy & hold nel periodo: +935.6% lordo.
+Dal 06/08/2018 al 12/11/2026, 72497 candele. Buy & hold nel periodo: +906.2% lordo.
 
 | Strategia | Trade | Vincenti | Netto medio (piano) | IC 95% | Giudizio | Prima metà | Seconda metà | Netto medio (solo direzione) |
 |---|---|---|---|---|---|---|---|---|
-| Breakout | 890 | 38.9% | -0.234% | [-0.33%, -0.14%] | svantaggio dimostrato | -0.185% (298) | -0.258% (592) | -0.202% [-0.32%, -0.08%] |
-| Mean Reversion | 2766 | 35.8% | -0.340% | [-0.38%, -0.30%] | svantaggio dimostrato | -0.366% (1216) | -0.320% (1550) | -0.359% [-0.42%, -0.30%] |
-| MA Crossover | 7026 | 35.4% | -0.279% | [-0.31%, -0.25%] | svantaggio dimostrato | -0.267% (3508) | -0.292% (3518) | -0.267% [-0.30%, -0.23%] |
-| Consenso (almeno 2 su 3) | 609 | 42.4% | -0.133% | [-0.26%, -0.01%] | svantaggio dimostrato | +0.029% (211) | -0.219% (398) | -0.060% [-0.21%, +0.09%] |
-| Momentum (confronto) | 10350 | 34.6% | -0.296% | [-0.32%, -0.27%] | svantaggio dimostrato | -0.298% (5175) | -0.294% (5175) | -0.282% [-0.32%, -0.25%] |
-| Sempre long (confronto) | 10350 | 36.2% | -0.297% | [-0.32%, -0.27%] | svantaggio dimostrato | -0.306% (5175) | -0.288% (5175) | -0.263% [-0.30%, -0.23%] |
+| Breakout | 891 | 38.9% | -0.233% | [-0.33%, -0.14%] | svantaggio dimostrato | -0.185% (298) | -0.257% (593) | -0.202% [-0.32%, -0.09%] |
+| Mean Reversion | 2767 | 35.8% | -0.340% | [-0.38%, -0.30%] | svantaggio dimostrato | -0.366% (1216) | -0.320% (1551) | -0.360% [-0.42%, -0.30%] |
+| MA Crossover | 7033 | 35.4% | -0.279% | [-0.31%, -0.25%] | svantaggio dimostrato | -0.268% (3510) | -0.291% (3523) | -0.267% [-0.31%, -0.22%] |
+| Consenso (almeno 2 su 3) | 610 | 42.5% | -0.133% | [-0.26%, -0.01%] | svantaggio dimostrato | +0.029% (211) | -0.219% (399) | -0.059% [-0.21%, +0.10%] |
+| Momentum (confronto) | 10356 | 34.6% | -0.296% | [-0.32%, -0.27%] | svantaggio dimostrato | -0.298% (5178) | -0.294% (5178) | -0.282% [-0.32%, -0.25%] |
+| Sempre long (confronto) | 10356 | 36.2% | -0.297% | [-0.32%, -0.27%] | svantaggio dimostrato | -0.305% (5178) | -0.288% (5178) | -0.263% [-0.30%, -0.23%] |
 
 ### ETHUSDT 1d
 
-Dal 01/06/2019 al 09/11/2026, 2719 candele. Buy & hold nel periodo: +655.4% lordo.
+Dal 01/06/2019 al 11/11/2026, 2721 candele. Buy & hold nel periodo: +650.0% lordo.
 
 | Strategia | Trade | Vincenti | Netto medio (piano) | IC 95% | Giudizio | Prima metà | Seconda metà | Netto medio (solo direzione) |
 |---|---|---|---|---|---|---|---|---|
@@ -95,33 +95,33 @@ Dal 01/06/2019 al 09/11/2026, 2719 candele. Buy & hold nel periodo: +655.4% lord
 
 ### ETHUSDT 4h
 
-Dal 12/09/2018 al 10/11/2026, 17814 candele. Buy & hold nel periodo: +1096.7% lordo.
+Dal 12/09/2018 al 12/11/2026, 17825 candele. Buy & hold nel periodo: +1075.9% lordo.
 
 | Strategia | Trade | Vincenti | Netto medio (piano) | IC 95% | Giudizio | Prima metà | Seconda metà | Netto medio (solo direzione) |
 |---|---|---|---|---|---|---|---|---|
-| Breakout | 245 | 44.1% | +0.120% | [-0.36%, +0.59%] | vantaggio NON dimostrato | +0.500% (83) | -0.075% (162) | +0.189% [-0.38%, +0.77%] |
+| Breakout | 246 | 43.9% | +0.104% | [-0.37%, +0.57%] | vantaggio NON dimostrato | +0.500% (83) | -0.097% (163) | +0.176% [-0.36%, +0.75%] |
 | Mean Reversion | 361 | 41.3% | -0.453% | [-0.74%, -0.15%] | svantaggio dimostrato | -0.555% (151) | -0.380% (210) | -0.524% [-0.90%, -0.12%] |
-| MA Crossover | 1707 | 43.6% | -0.107% | [-0.28%, +0.07%] | vantaggio NON dimostrato | -0.013% (842) | -0.199% (865) | -0.131% [-0.35%, +0.09%] |
-| Consenso (almeno 2 su 3) | 180 | 40.6% | -0.167% | [-0.72%, +0.42%] | vantaggio NON dimostrato | +0.311% (64) | -0.430% (116) | +0.160% [-0.51%, +0.86%] |
-| Momentum (confronto) | 2500 | 41.8% | -0.275% | [-0.41%, -0.14%] | svantaggio dimostrato | -0.211% (1222) | -0.337% (1278) | -0.256% [-0.43%, -0.08%] |
-| Sempre long (confronto) | 2500 | 43.5% | -0.252% | [-0.38%, -0.12%] | svantaggio dimostrato | -0.225% (1222) | -0.277% (1278) | -0.099% [-0.27%, +0.07%] |
+| MA Crossover | 1709 | 43.7% | -0.105% | [-0.27%, +0.07%] | vantaggio NON dimostrato | -0.014% (843) | -0.193% (866) | -0.129% [-0.35%, +0.09%] |
+| Consenso (almeno 2 su 3) | 181 | 40.3% | -0.186% | [-0.74%, +0.40%] | vantaggio NON dimostrato | +0.311% (64) | -0.458% (117) | +0.143% [-0.55%, +0.78%] |
+| Momentum (confronto) | 2501 | 41.8% | -0.277% | [-0.40%, -0.14%] | svantaggio dimostrato | -0.211% (1223) | -0.339% (1278) | -0.257% [-0.43%, -0.08%] |
+| Sempre long (confronto) | 2501 | 43.5% | -0.250% | [-0.38%, -0.12%] | svantaggio dimostrato | -0.225% (1223) | -0.275% (1278) | -0.098% [-0.28%, +0.08%] |
 
 ### ETHUSDT 1h
 
-Dal 06/08/2018 al 11/11/2026, 72149 candele. Buy & hold nel periodo: +399.7% lordo.
+Dal 06/08/2018 al 12/11/2026, 72193 candele. Buy & hold nel periodo: +391.6% lordo.
 
 | Strategia | Trade | Vincenti | Netto medio (piano) | IC 95% | Giudizio | Prima metà | Seconda metà | Netto medio (solo direzione) |
 |---|---|---|---|---|---|---|---|---|
-| Breakout | 933 | 37.6% | -0.266% | [-0.39%, -0.14%] | svantaggio dimostrato | -0.286% (340) | -0.255% (593) | -0.257% [-0.42%, -0.09%] |
+| Breakout | 934 | 37.6% | -0.268% | [-0.39%, -0.15%] | svantaggio dimostrato | -0.286% (340) | -0.257% (594) | -0.256% [-0.42%, -0.10%] |
 | Mean Reversion | 2339 | 39.2% | -0.355% | [-0.41%, -0.30%] | svantaggio dimostrato | -0.436% (1011) | -0.293% (1328) | -0.342% [-0.42%, -0.26%] |
-| MA Crossover | 6775 | 38.2% | -0.264% | [-0.31%, -0.22%] | svantaggio dimostrato | -0.216% (3410) | -0.312% (3365) | -0.243% [-0.30%, -0.19%] |
-| Consenso (almeno 2 su 3) | 616 | 38.6% | -0.221% | [-0.37%, -0.07%] | svantaggio dimostrato | -0.266% (236) | -0.194% (380) | -0.200% [-0.41%, +0.02%] |
-| Momentum (confronto) | 10216 | 37.1% | -0.286% | [-0.32%, -0.25%] | svantaggio dimostrato | -0.268% (5041) | -0.304% (5175) | -0.282% [-0.32%, -0.24%] |
-| Sempre long (confronto) | 10216 | 39.0% | -0.300% | [-0.33%, -0.27%] | svantaggio dimostrato | -0.300% (5041) | -0.300% (5175) | -0.263% [-0.30%, -0.22%] |
+| MA Crossover | 6781 | 38.2% | -0.264% | [-0.31%, -0.22%] | svantaggio dimostrato | -0.217% (3411) | -0.311% (3370) | -0.243% [-0.30%, -0.19%] |
+| Consenso (almeno 2 su 3) | 617 | 38.6% | -0.223% | [-0.38%, -0.07%] | svantaggio dimostrato | -0.266% (236) | -0.197% (381) | -0.199% [-0.42%, +0.02%] |
+| Momentum (confronto) | 10222 | 37.2% | -0.286% | [-0.32%, -0.25%] | svantaggio dimostrato | -0.268% (5044) | -0.303% (5178) | -0.282% [-0.32%, -0.24%] |
+| Sempre long (confronto) | 10222 | 39.0% | -0.300% | [-0.33%, -0.27%] | svantaggio dimostrato | -0.299% (5044) | -0.301% (5178) | -0.264% [-0.31%, -0.22%] |
 
 ### SOLUSDT 1d
 
-Dal 16/04/2022 al 09/11/2026, 1665 candele. Buy & hold nel periodo: -21.7% lordo.
+Dal 16/04/2022 al 11/11/2026, 1667 candele. Buy & hold nel periodo: -22.3% lordo.
 
 | Strategia | Trade | Vincenti | Netto medio (piano) | IC 95% | Giudizio | Prima metà | Seconda metà | Netto medio (solo direzione) |
 |---|---|---|---|---|---|---|---|---|
@@ -134,27 +134,27 @@ Dal 16/04/2022 al 09/11/2026, 1665 candele. Buy & hold nel periodo: -21.7% lordo
 
 ### SOLUSDT 4h
 
-Dal 11/08/2021 al 10/11/2026, 11481 candele. Buy & hold nel periodo: +95.9% lordo.
+Dal 11/08/2021 al 12/11/2026, 11492 candele. Buy & hold nel periodo: +91.9% lordo.
 
 | Strategia | Trade | Vincenti | Netto medio (piano) | IC 95% | Giudizio | Prima metà | Seconda metà | Netto medio (solo direzione) |
 |---|---|---|---|---|---|---|---|---|
-| Breakout | 169 | 47.9% | +0.151% | [-0.61%, +0.93%] | vantaggio NON dimostrato | +0.653% (58) | -0.111% (111) | -0.148% [-1.11%, +0.88%] |
+| Breakout | 170 | 47.6% | +0.128% | [-0.62%, +0.87%] | vantaggio NON dimostrato | +0.653% (58) | -0.143% (112) | -0.167% [-1.14%, +0.84%] |
 | Mean Reversion | 208 | 42.3% | -0.180% | [-0.75%, +0.36%] | vantaggio NON dimostrato | +0.210% (91) | -0.484% (117) | +0.033% [-0.62%, +0.70%] |
-| MA Crossover | 1052 | 45.6% | -0.123% | [-0.39%, +0.15%] | vantaggio NON dimostrato | +0.038% (518) | -0.278% (534) | -0.036% [-0.36%, +0.31%] |
-| Consenso (almeno 2 su 3) | 112 | 44.6% | -0.357% | [-1.33%, +0.73%] | vantaggio NON dimostrato | +0.515% (41) | -0.860% (71) | -0.950% [-2.22%, +0.33%] |
-| Momentum (confronto) | 1596 | 43.9% | -0.280% | [-0.50%, -0.06%] | svantaggio dimostrato | -0.364% (775) | -0.201% (821) | -0.282% [-0.55%, -0.01%] |
-| Sempre long (confronto) | 1596 | 42.4% | -0.308% | [-0.51%, -0.09%] | svantaggio dimostrato | -0.306% (775) | -0.310% (821) | -0.166% [-0.43%, +0.10%] |
+| MA Crossover | 1054 | 45.7% | -0.119% | [-0.38%, +0.16%] | vantaggio NON dimostrato | +0.029% (519) | -0.262% (535) | -0.033% [-0.37%, +0.31%] |
+| Consenso (almeno 2 su 3) | 113 | 44.2% | -0.387% | [-1.38%, +0.60%] | vantaggio NON dimostrato | +0.515% (41) | -0.900% (72) | -0.971% [-2.27%, +0.44%] |
+| Momentum (confronto) | 1598 | 44.0% | -0.277% | [-0.49%, -0.06%] | svantaggio dimostrato | -0.363% (776) | -0.196% (822) | -0.280% [-0.55%, -0.02%] |
+| Sempre long (confronto) | 1598 | 42.3% | -0.310% | [-0.51%, -0.10%] | svantaggio dimostrato | -0.306% (776) | -0.313% (822) | -0.169% [-0.43%, +0.09%] |
 
 ### SOLUSDT 1h
 
-Dal 04/07/2021 al 11/11/2026, 46818 candele. Buy & hold nel periodo: +137.6% lordo.
+Dal 04/07/2021 al 12/11/2026, 46862 candele. Buy & hold nel periodo: +132.4% lordo.
 
 | Strategia | Trade | Vincenti | Netto medio (piano) | IC 95% | Giudizio | Prima metà | Seconda metà | Netto medio (solo direzione) |
 |---|---|---|---|---|---|---|---|---|
 | Breakout | 672 | 38.1% | -0.326% | [-0.52%, -0.13%] | svantaggio dimostrato | -0.337% (235) | -0.320% (437) | -0.335% [-0.59%, -0.09%] |
 | Mean Reversion | 1344 | 41.4% | -0.304% | [-0.40%, -0.21%] | svantaggio dimostrato | -0.297% (608) | -0.310% (736) | -0.304% [-0.42%, -0.19%] |
-| MA Crossover | 4368 | 41.4% | -0.214% | [-0.28%, -0.15%] | svantaggio dimostrato | -0.167% (2193) | -0.261% (2175) | -0.193% [-0.28%, -0.11%] |
+| MA Crossover | 4374 | 41.4% | -0.214% | [-0.28%, -0.14%] | svantaggio dimostrato | -0.165% (2196) | -0.263% (2178) | -0.193% [-0.27%, -0.11%] |
 | Consenso (almeno 2 su 3) | 454 | 40.3% | -0.205% | [-0.48%, +0.06%] | vantaggio NON dimostrato | -0.230% (165) | -0.191% (289) | -0.241% [-0.57%, +0.11%] |
-| Momentum (confronto) | 6643 | 40.1% | -0.287% | [-0.34%, -0.24%] | svantaggio dimostrato | -0.247% (3291) | -0.327% (3352) | -0.324% [-0.39%, -0.26%] |
-| Sempre long (confronto) | 6643 | 40.7% | -0.304% | [-0.36%, -0.25%] | svantaggio dimostrato | -0.286% (3291) | -0.321% (3352) | -0.262% [-0.33%, -0.20%] |
+| Momentum (confronto) | 6649 | 40.1% | -0.288% | [-0.34%, -0.24%] | svantaggio dimostrato | -0.249% (3294) | -0.325% (3355) | -0.325% [-0.39%, -0.26%] |
+| Sempre long (confronto) | 6649 | 40.7% | -0.304% | [-0.36%, -0.25%] | svantaggio dimostrato | -0.285% (3294) | -0.322% (3355) | -0.263% [-0.33%, -0.20%] |
 
