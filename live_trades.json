@@ -5,7 +5,7 @@
   "start_equity": 1000.0,
   "blocked": false
  },
- "halted": true,
+ "halted": false,
  "events": [
   {
    "at": "2026-11-11T15:25:04+00:00",
@@ -104,6 +104,10 @@
    "ok": false,
    "req": "mwd1tfdfwkhfc2",
    "msg": "Comando NON eseguito: Allo stop perderesti circa 0,8811 USDT, oltre il limite di 0,4805 (3% del conto, perdita massima del giorno)."
+  },
+  {
+   "at": "2026-11-12T05:35:26+00:00",
+   "kind": "unhalt"
   }
  ],
  "mode": "simulata",
@@ -172,7 +176,7 @@
   "day_start_total": 15.98,
   "day_change": 0.05
  },
- "halt_reason": "mismatch",
+ "halt_reason": null,
  "closed_notified": [
   "1504568835275640835"
  ],
