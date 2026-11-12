@@ -1,0 +1,18 @@
+{
+ "last_run": "2026-11-12T08:40:40+00:00",
+ "added": [],
+ "proposals": [],
+ "facts": [
+  "Stato big candle trail 1d (su carta): 0 trade chiusi, 0 aperti."
+ ],
+ "report": "**Rapporto settimanale – Agente di trading**\n\nNella settimana corrente lo stato della strategia “big candle trail 1d” (su carta) rimane invariato: non sono stati chiusi né aperti trade. Di conseguenza non vi sono variazioni di performance da segnalare e le impostazioni della strategia non hanno subito modifiche. Al momento non è necessario prendere decisioni operative né rivedere i parametri di configurazione. Continueremo a monitorare la situazione e a mantenere la strategia in standby fino a eventuali cambiamenti di mercato che ne giustifichino l’attivazione.",
+ "report_model": "openai/gpt-oss-120b",
+ "log": [
+  {
+   "at": "2026-11-12T08:40:40+00:00",
+   "off": [],
+   "on": [],
+   "proposals": []
+  }
+ ]
+}
