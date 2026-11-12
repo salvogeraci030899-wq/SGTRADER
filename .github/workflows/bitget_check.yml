@@ -1,9 +1,12 @@
 name: Verifica Bitget
 
 # Verifica in SOLA LETTURA del collegamento a Bitget: patrimonio, posizioni e regole dei contratti.
-# Non manda ordini. Da avviare a mano dopo aver inserito o cambiato le chiavi Bitget.
+# Non manda ordini. Da avviare a mano dopo aver inserito o cambiato le chiavi Bitget; gira anche da sola
+# ogni lunedì, così una chiave scaduta o un'API cambiata si scopre prima di averne bisogno (avviso su Telegram).
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '23 6 * * 1'
 
 permissions:
   contents: read
@@ -25,6 +28,19 @@ jobs:
           BITGET_API_SECRET: ${{ secrets.BITGET_API_SECRET }}
           BITGET_API_PASSPHRASE: ${{ secrets.BITGET_API_PASSPHRASE }}
           BITGET_DEMO: ${{ vars.BITGET_DEMO || '1' }}
+          SCHEDULED: ${{ github.event_name == 'schedule' }}
         run: |
           set -o pipefail
-          python bitget_check.py | tee -a "$GITHUB_STEP_SUMMARY"
+          # giro automatico: solo l'esito (i log di un repository pubblico sono visibili a tutti)
+          if [ "$SCHEDULED" = "true" ]; then
+            python bitget_check.py > /dev/null && echo "Verifica Bitget: OK (dettagli solo avviandola a mano)."
+          else
+            python bitget_check.py | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Avviso su Telegram se la verifica fallisce
+        if: failure()
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python -c "import watchdog; watchdog.send('⚠️ Verifica Bitget NON riuscita: chiave scaduta o revocata, oppure Bitget ha cambiato qualcosa. Avviala a mano da GitHub (Actions, Verifica Bitget) per i dettagli. Nessun ordine è stato inviato.')"
