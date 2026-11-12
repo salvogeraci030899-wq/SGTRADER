@@ -55,6 +55,16 @@
   {
    "at": "2026-11-12T02:20:17+00:00",
    "kind": "unhalt"
+  },
+  {
+   "at": "2026-11-12T02:30:55+00:00",
+   "kind": "manual",
+   "action": "tp",
+   "symbol": "SOLUSDT",
+   "side": "short",
+   "ok": true,
+   "req": "mwcxk0j6999fuw",
+   "msg": "Take profit di SOL SHORT impostato su Bitget a 82,43 (scatta sul prezzo mark, a mercato)."
   }
  ],
  "mode": "reale",
@@ -65,7 +75,7 @@
  "account": {
   "connected": true,
   "demo": false,
-  "equity": 15.96,
+  "equity": 15.97,
   "positions": 1,
   "positions_detail": [
    {
@@ -73,16 +83,16 @@
     "side": "short",
     "size": 0.1,
     "entry": 83.026,
-    "mark": 83.673,
-    "upl": -0.0647,
+    "mark": 83.528,
+    "upl": -0.0502,
     "leverage": 3.0,
     "margin": 2.767533,
     "liq": 110.084858,
-    "tp": 82.0,
+    "tp": 82.43,
     "sl": 84.0
    }
   ],
-  "upl": -0.06,
+  "upl": -0.05,
   "spot_usdt": 0.0,
   "spot_coins": [
    {
@@ -91,10 +101,10 @@
     "usdt": null
    }
   ],
-  "total_usdt": 15.96,
+  "total_usdt": 15.97,
   "accounts_usdt": {
    "spot": 0.0,
-   "futures": 15.96,
+   "futures": 15.97,
    "funding": 0.0,
    "earn": 0.0,
    "bots": 0.0,
@@ -117,10 +127,10 @@
     "margin_mode": "isolated"
    }
   ],
-  "checked_at": "2026-11-12T02:18:50+00:00",
+  "checked_at": "2026-11-12T02:30:55+00:00",
   "day": "2026-11-12",
   "day_start_total": 15.98,
-  "day_change": -0.02
+  "day_change": -0.01
  },
  "halt_reason": null,
  "closed_notified": [
