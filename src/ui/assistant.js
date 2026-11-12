@@ -228,7 +228,7 @@ function planBreakevenAll() {
 
 function closeSimMany(pick) {
     pick.forEach(x => Trade.closeTrade(x.sim.id, 'MANUALE'));
-    addMsg('bot', `Chiuse ${pick.length} posizioni simulate ✓`);
+    addMsg('bot', `Chiuse ${pick.length} posizioni simulate.`);
 }
 
 // Un comando a Bitget per posizione, uno dopo l'altro; gli esiti arrivano in Posizioni → Ordini e su Telegram
@@ -241,7 +241,7 @@ async function sendMany(items) {
             else { let o = {}; try { o = await r.json(); } catch (e) {} addMsg('bot error', `${SYM(it.p.symbol)}: non inviato (${escapeHtml(o.error || r.status)})`); }
         } catch (e) { addMsg('bot error', `${SYM(it.p.symbol)}: server non raggiungibile.`); }
     }
-    if (sent) { addMsg('bot', `Inviati ${sent} comandi a Bitget ✓ Esiti in Posizioni → Ordini e su Telegram entro 1-3 minuti.`); say('Comandi inviati a Bitget.'); }
+    if (sent) { addMsg('bot', `Inviati ${sent} comandi a Bitget. Esiti nel Registro e in Posizioni → Ordini e su Telegram entro 1-3 minuti.`); say('Comandi inviati a Bitget.'); }
     setTimeout(() => Auto.loadAutomation(), 90_000);
 }
 
@@ -295,7 +295,7 @@ function showPlan(action) {
         const fresh = Trade.planForTrade(tradeId, action);
         if (!fresh.ok) { done(escapeHtml(fresh.error)); return; }
         const ok = Trade.applyPlan(tradeId, fresh);
-        done(ok ? 'Fatto ✓' : 'Non applicato: la posizione non è più aperta.');
+        done(ok ? 'Fatto.' : 'Non applicato: la posizione non è più aperta.');
         if (ok && fresh.kind === 'close_now') setTimeout(closeAssistant, 900);
     };
 }
@@ -331,7 +331,7 @@ function waitOutcome(req, status) {
         try { const r = await fetchData('live_trades.json'); live = r.ok ? await r.json() : null; } catch (e) {}
         const out = findOutcome(live, req);
         if (out) {
-            status.textContent = `${out.ok ? '✓' : '✗'} ${out.msg}`;
+            status.textContent = `${out.ok ? 'Eseguito' : 'Non eseguito'}: ${out.msg}`;
             status.className = 'assist-plan-done ' + (out.ok ? 'text-accent' : 'text-danger');
             say(out.msg);
             Auto.loadAutomation();
@@ -372,7 +372,7 @@ function showRealPlan(action) {
             try { out = await res.json(); } catch (e) {}
             if (!res.ok) throw new Error(out.error || `Errore ${res.status}`);
             const status = box.querySelector('.assist-plan-done');
-            status.textContent = 'Inviato ✓ Attendo l\'esito da Bitget (1-3 minuti)…';
+            status.textContent = 'Inviato. Attendo l\'esito da Bitget (1-3 minuti)…';
             say('Comando inviato a Bitget.');
             waitOutcome(req, status);
         } catch (e) {
@@ -478,7 +478,7 @@ function showGeneralPlan(action) {
     const [no, yes] = box.querySelectorAll('button');
     const done = text => { box.querySelector('.assist-plan-actions').outerHTML = `<div class="assist-plan-done">${text}</div>`; };
     no.onclick = () => done('Annullato.');
-    yes.onclick = () => { done('Fatto ✓'); plan.run(); };
+    yes.onclick = () => { done('Fatto.'); plan.run(); };
 }
 
 // ---------- Voce ----------

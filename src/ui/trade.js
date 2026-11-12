@@ -113,7 +113,7 @@ function realCommands(p, events) {
     const rows = rulesStrip([p.sl ? row('sl', p.sl) : '', p.tp ? row('tp', p.tp) : ''].filter(Boolean));
     const ev = events.filter(e => e.symbol === p.symbol && e.side === (p.market === 'spot' ? 'spot' : p.side)).pop();
     const recent = ev && Date.now() - Date.parse(ev.at) < 24 * 3600e3;
-    const last = recent ? `<div class="at-meta at-last">Ultimo comando ${new Date(ev.at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}: <span class="${ev.ok === false ? 'text-danger' : 'text-accent'}">${ev.ok === false ? '✗' : '✓'}</span> ${escapeHtml(ev.msg || ev.action)}</div>` : '';
+    const last = recent ? `<div class="at-meta at-last">Ultimo comando ${new Date(ev.at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}: <span class="${ev.ok === false ? 'text-danger' : 'text-accent'}">${ev.ok === false ? 'non eseguito,' : 'eseguito,'}</span> ${escapeHtml(ev.msg || ev.action)}</div>` : '';
     const none = !p.sl && !p.tp ? `<div class="at-meta">Nessuno stop né target su Bitget: chiedili con Chat o Voce.</div>` : '';
     return rows + none + last;
 }

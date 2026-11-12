@@ -57,7 +57,7 @@ try {
         });
         await page.route('**/events/*.jsonl*', r => {
             const at = new Date().toISOString();
-            const ev = Array.from({ length: 14 }, (_, i) => JSON.stringify({ at, kind: ['ordini', 'agente', 'carta', 'avvisi', 'posizioni', 'sistema', 'conto'][i % 7], action: 'prova', text: `Evento di prova numero ${i + 1}, con un testo di lunghezza normale come quelli veri.`, id: 'e' + i, ok: i % 5 !== 0, net: i % 2 ? 0.5 : -0.2 }));
+            const ev = Array.from({ length: 14 }, (_, i) => JSON.stringify({ at, kind: ['ordini', 'agente', 'carta', 'avvisi', 'posizioni', 'sistema', 'conto'][i % 7], action: 'prova', text: `🔔 Evento di prova numero ${i + 1} ✅, con un testo di lunghezza normale come quelli veri.`, id: 'e' + i, ok: i % 5 !== 0, net: i % 2 ? 0.5 : -0.2 }));
             return r.fulfill({ contentType: 'text/plain', body: ev.join('\n') + '\n' });
         });
         await page.route('**/automation.json*', r => {
@@ -82,12 +82,14 @@ try {
             if (v[0]) { await page.evaluate(([f, a]) => window[f] && window[f](a), v); await page.waitForTimeout(400); }
             const r = await page.evaluate(W => {
                 const pg = document.querySelector('section.page.active');
-                return { over: pg ? pg.scrollHeight - pg.clientHeight : -1, wide: document.documentElement.scrollWidth - W };
+                const emoji = pg ? (pg.innerText.match(/\p{Extended_Pictographic}/gu) || []).join('') : '';
+                return { over: pg ? pg.scrollHeight - pg.clientHeight : -1, wide: document.documentElement.scrollWidth - W, emoji };
             }, dev.w);
             const where = `${dev.n}, ${mode === 'real' ? 'Reale' : 'Simulato'}, ${p}${v[1] ? '/' + v[1] : ''}`;
             if (r.over > 1) problems.push(`${where}: la pagina scorre in verticale di ${r.over}px`);
             if (r.over < 0) problems.push(`${where}: pagina non trovata`);
             if (r.wide > 1) problems.push(`${where}: più larga dello schermo di ${r.wide}px`);
+            if (r.emoji) problems.push(`${where}: emoji nella pagina (${r.emoji}); nell'app non ce ne devono essere`);
         }
         // Regole fisse: ogni finestra a schermo intero, intestazione nello stesso punto della Home, niente scroll verticale
         await page.evaluate(() => window.switchTab('home'));

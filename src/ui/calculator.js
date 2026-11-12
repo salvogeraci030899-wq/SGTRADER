@@ -442,13 +442,13 @@ async function sendOrder(payload, say) {
         let out = {};
         try { out = await res.json(); } catch (e) {}
         if (!res.ok) { say(`Ordine NON inviato: ${out.error || 'errore ' + res.status}`, 'text-danger'); return; }
-        say('Inviato ✓ Attendo la conferma di Bitget (1-3 minuti)…', 'text-ui');
+        say('Inviato. Attendo la conferma di Bitget (1-3 minuti)…', 'text-ui');
         const started = Date.now();
         const tick = async () => {
             let live = null;
             try { const r = await fetchData('live_trades.json'); live = r.ok ? await r.json() : null; } catch (e) {}
             const o = findOutcome(live, req);
-            if (o) { say(`${o.ok ? '✓' : '✗'} ${o.msg}`, o.ok ? 'text-accent' : 'text-danger'); loadAutomation(); return; }
+            if (o) { say(`${o.ok ? 'Eseguito' : 'Non eseguito'}: ${o.msg}`, o.ok ? 'text-accent' : 'text-danger'); loadAutomation(); return; }
             if (Date.now() - started > 5 * 60_000) { say('Inviato, ma la conferma non è arrivata: controlla Telegram o la pagina Posizioni.'); return; }
             setTimeout(tick, 15_000);
         };

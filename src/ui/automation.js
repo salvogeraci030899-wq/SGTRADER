@@ -287,7 +287,7 @@ export function renderAutomation() {
         const st = ledger && ledger.strategies && ledger.strategies[key] && ledger.strategies[key].stats;
         const res = lab && lab.results && lab.results[key];
         const info = st && (st.n || st.open)
-            ? `Su carta: ${st.n} ${st.n === 1 ? 'chiuso' : 'chiusi'}${st.n ? ` (${pct(st.avg_net_pct)} medio)` : ''}, ${st.open} ${st.open === 1 ? 'aperto' : 'aperti'}${st.vs_backtest && st.vs_backtest.verdict !== 'pochi_trade' ? ' · ' + { in_linea: 'in linea con lo storico', sotto: '⚠ sotto lo storico', sopra: 'sopra lo storico' }[st.vs_backtest.verdict] : ''}`
+            ? `Su carta: ${st.n} ${st.n === 1 ? 'chiuso' : 'chiusi'}${st.n ? ` (${pct(st.avg_net_pct)} medio)` : ''}, ${st.open} ${st.open === 1 ? 'aperto' : 'aperti'}${st.vs_backtest && st.vs_backtest.verdict !== 'pochi_trade' ? ' · ' + { in_linea: 'in linea con lo storico', sotto: 'sotto lo storico', sopra: 'sopra lo storico' }[st.vs_backtest.verdict] : ''}`
             : (res ? `Storico: ${res.n} trade, oltre il mercato ${pct(res.excess_avg_pct)}${res.holdout ? (res.holdout.confirmed ? ' · confermata' : ' · bocciata alla prova finale') : ''}` : 'Nessun dato');
         const btn = (m, text, disabled, title) => `<button type="button" class="pill-btn${mode === m ? ' active' : ''}" ${disabled ? 'disabled' : ''} title="${title || ''}" onclick="setAutoMode('${escapeHtml(key)}','${m}')">${text}</button>`;
         return `<div class="auto-item">
@@ -448,7 +448,7 @@ export function vsBacktestText(st) {
     if (v.verdict === 'pochi_trade') return `Confronto con lo storico dopo 10 trade chiusi (ora ${v.n}).`;
     const ref = `media storica ${pct(v.bt_avg)} su ${v.bt_n} trade`;
     if (v.verdict === 'in_linea') return `In linea con lo storico (${ref}).`;
-    if (v.verdict === 'sotto') return `⚠ Sotto lo storico (${ref}): la strategia potrebbe non funzionare più.`;
+    if (v.verdict === 'sotto') return `Sotto lo storico (${ref}): la strategia potrebbe non funzionare più.`;
     return `Sopra lo storico (${ref}): bene, ma in buona parte può essere fortuna.`;
 }
 
@@ -573,7 +573,7 @@ const AG_LABELS = {
     style: { swing: 'Swing', giornaliero: 'Giornaliero', misto: 'Misto' }
 };
 const AG_TITLES = { autonomy: 'Autonomia', profile: 'Rischio', style: 'Stile' };
-const AG_KIND = { observe: ['◎', 'In osservazione', 'text-ui'], on: ['＋', 'Su carta', 'text-ui'], off: ['−', 'Spenta', ''], promote: ['▲', 'Al reale', 'text-warning'], demote: ['▼', 'Tornata su carta', 'text-danger'], proposal: ['?', 'Proposta', 'text-warning'] };
+const AG_KIND = { observe: ['', 'In osservazione', 'text-ui'], on: ['', 'Su carta', 'text-ui'], off: ['', 'Spenta', ''], promote: ['', 'Al reale', 'text-warning'], demote: ['', 'Tornata su carta', 'text-danger'], proposal: ['', 'Proposta', 'text-warning'] };
 const agentPending = {};
 const PROFILE_TEXT = { prudente: '0,25% a trade, leva 2x, max 2 posizioni, obiettivo +1% e limite −2% al giorno, ogni strategia reale torna su carta oltre −3% dal suo massimo', bilanciato: '0,5% a trade, leva 3x, max 3 posizioni, obiettivo +2% e limite −3% al giorno, ogni strategia reale torna su carta oltre −5% dal suo massimo', aggressivo: '1% a trade, leva 5x, max 4 posizioni, obiettivo +3% e limite −5% al giorno, ogni strategia reale torna su carta oltre −8% dal suo massimo' };
 export const agentSettings = () => ({ ...AG_DEFAULT, ...((cfg && cfg.agent) || {}), ...agentPending });
@@ -611,7 +611,7 @@ export function renderAgentView() {
     const log = ((agentState && agentState.log) || []).slice().reverse();
     $('agentLogCount').textContent = log.length ? String(log.length) : '';
     $('agentLog').innerHTML = log.length
-        ? log.map(e => { const [icon, what, cls] = AG_KIND[e.kind] || ['•', e.kind, '']; return `<div class="agent-ev${e.kind === 'proposal' ? ' clickable' : ''}"${e.kind === 'proposal' ? ' onclick="openAgent()"' : ''}><div class="agent-ev-head"><b class="${cls}">${icon} ${what}</b><small>${escapeHtml(day(e.at))}</small></div><b>${escapeHtml(label(e.key || ''))}</b><small>${escapeHtml(e.why || '')}</small></div>`; }).join('')
+        ? log.map(e => { const [icon, what, cls] = AG_KIND[e.kind] || ['•', e.kind, '']; return `<div class="agent-ev${e.kind === 'proposal' ? ' clickable' : ''}"${e.kind === 'proposal' ? ' onclick="openAgent()"' : ''}><div class="agent-ev-head"><b class="${cls}"><i class="ev-dot"></i>${what}</b><small>${escapeHtml(day(e.at))}</small></div><b>${escapeHtml(label(e.key || ''))}</b><small>${escapeHtml(e.why || '')}</small></div>`; }).join('')
         : '<div class="empty-hint">Ancora nessuna decisione. L\'agente decide ogni giorno alle 19:41 (ora italiana); la domenica rilancia anche il laboratorio.</div>';
     renderAgentPerf();
     $('agentNote').textContent = 'Ogni cambio arriva su Telegram. Il reale dell\'agente richiede autonomia Reale e modalità ordini Reale (Account). Emergenza: Agente → Rischio.';

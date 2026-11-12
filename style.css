@@ -1297,3 +1297,6 @@ html.pwa-mode .nav-item { height: auto; }
 /* ===== Tasto Account colorato in modalità Reale (al posto della scritta REALE/SIMULATO) ===== */
 .header-icon-btn.acc-real { color: var(--warning); border-color: var(--warning); background: rgba(255, 159, 10, 0.15); }
 .mode-pill { display: none !important; }
+/* pallino colorato al posto delle icone (niente emoji nell'app) */
+.ev-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor; margin-right: 6px; vertical-align: middle; position: relative; top: -1px; }
+.text-secondary { color: var(--text-secondary); }
