@@ -51,43 +51,44 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=147">
-    <meta name="app-version" content="147">
+    <link rel="stylesheet" href="./style.css?v=148">
+    <meta name="app-version" content="148">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=147",
-            "./src/core/commands.js": "./src/core/commands.js?v=147",
-            "./src/core/config.js": "./src/core/config.js?v=147",
-            "./src/core/labEngine.js": "./src/core/labEngine.js?v=147",
-            "./src/core/logger.js": "./src/core/logger.js?v=147",
-            "./src/core/rules.js": "./src/core/rules.js?v=147",
-            "./src/core/state.js": "./src/core/state.js?v=147",
-            "./src/core/telegram.js": "./src/core/telegram.js?v=147",
-            "./src/core/theme.js": "./src/core/theme.js?v=147",
-            "./src/main.js": "./src/main.js?v=147",
-            "./src/ui/account.js": "./src/ui/account.js?v=147",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=147",
-            "./src/ui/assistant.js": "./src/ui/assistant.js?v=147",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=147",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=147",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=147",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=147",
-            "./src/ui/history.js": "./src/ui/history.js?v=147",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=147",
-            "./src/ui/home.js": "./src/ui/home.js?v=147",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=147",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=147",
-            "./src/ui/lock.js": "./src/ui/lock.js?v=147",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=147",
-            "./src/ui/orders.js": "./src/ui/orders.js?v=147",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=147",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=147",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=147",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=147",
-            "./src/ui/windows.js": "./src/ui/windows.js?v=147",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=147"
+            "./src/core/backup.js": "./src/core/backup.js?v=148",
+            "./src/core/commands.js": "./src/core/commands.js?v=148",
+            "./src/core/config.js": "./src/core/config.js?v=148",
+            "./src/core/labEngine.js": "./src/core/labEngine.js?v=148",
+            "./src/core/logger.js": "./src/core/logger.js?v=148",
+            "./src/core/rules.js": "./src/core/rules.js?v=148",
+            "./src/core/state.js": "./src/core/state.js?v=148",
+            "./src/core/telegram.js": "./src/core/telegram.js?v=148",
+            "./src/core/theme.js": "./src/core/theme.js?v=148",
+            "./src/main.js": "./src/main.js?v=148",
+            "./src/ui/account.js": "./src/ui/account.js?v=148",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=148",
+            "./src/ui/assistant.js": "./src/ui/assistant.js?v=148",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=148",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=148",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=148",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=148",
+            "./src/ui/history.js": "./src/ui/history.js?v=148",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=148",
+            "./src/ui/home.js": "./src/ui/home.js?v=148",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=148",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=148",
+            "./src/ui/lock.js": "./src/ui/lock.js?v=148",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=148",
+            "./src/ui/market.js": "./src/ui/market.js?v=148",
+            "./src/ui/orders.js": "./src/ui/orders.js?v=148",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=148",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=148",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=148",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=148",
+            "./src/ui/windows.js": "./src/ui/windows.js?v=148",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=148"
         }
     }
     </script>
@@ -276,13 +277,19 @@
         <section class="page" id="page-terminal">
             <div class="header-row">
                 <div class="header-title">
-                    <h1>Grafici</h1>
-                    <p id="current-asset-label">BTC / USDT · 1D</p>
+                    <h1>Mercato</h1>
+                    <p><span id="current-asset-label">BTC / USDT · 1D</span><span id="mktSub" style="display:none"></span></p>
                 </div>
                 <div class="header-price">
                     <div class="price-val" id="live-price">---</div>
                 </div>
             </div>
+            <div class="page-tabs" id="mktTabs">
+                <button type="button" id="mkt-tab-chart" class="active" onclick="setMarketView('chart')">Grafici</button>
+                <button type="button" id="mkt-tab-sig" onclick="setMarketView('sig')">Segnali</button>
+                <button type="button" id="mkt-tab-alerts" onclick="setMarketView('alerts')">Avvisi</button>
+            </div>
+            <div id="mktChart" class="mkt-view">
             <div class="asset-bar">
                 <button class="pill-btn active" onclick="setAsset('BTCUSDT')" id="btn-BTCUSDT">BTC</button>
                 <button class="pill-btn" onclick="setAsset('ETHUSDT')" id="btn-ETHUSDT">ETH</button>
@@ -398,6 +405,42 @@
                     Analizza Setup
                 </button>
             </div>
+            </div>
+            <div id="mktSig" class="mkt-view" style="display:none">
+            <div id="sigView" class="signals-view">
+            <div class="signal-info-bar" id="signalInfoBar">
+                Scansione ogni 10 min · Consensus su <b>4 sorgenti</b>: SGTRADER AI + 3 strategie. Stato: <span class="be-badge neutral" id="signalScanStatus">—</span><br>
+                Notifiche: <span id="signalNotifStatus" class="badge-notif-off">OFF</span>
+            </div>
+            <div class="signal-actions">
+                <button class="btn-generic" id="btnScanSignals" onclick="scanAllSignals(true)">Scansiona Ora</button>
+                <button class="btn-generic" onclick="openSignalSettings()" style="background:var(--surface); border:1px solid var(--border);">Impostazioni</button>
+            </div>
+            <div class="signal-grid" id="signalGrid"></div>
+            <div class="signal-legend">
+                <span><span class="legend-dot k"></span>SGTRADER</span>
+                <span><span class="legend-dot long"></span>LONG</span>
+                <span><span class="legend-dot short"></span>SHORT</span>
+                <span><span class="legend-dot"></span>Neutro</span>
+            </div>
+            <div class="section-title">
+                <span>Storico Segnali</span>
+                <button class="btn-link-secondary" onclick="clearSignalHistory()">Svuota</button>
+            </div>
+            <div class="log-list" id="signalHistoryList">
+                <div class="empty-hint">Nessun segnale registrato.</div>
+            </div>
+            <div class="info-dots" id="signalHistoryDots"></div>
+            </div>
+            </div>
+            <!-- Avvisi di prezzo: attivi (con ✕), scattati di recente, nuovo avviso -->
+            <div id="mktAlerts" class="mkt-view" style="display:none">
+                <div id="mktAlertsBody" class="mkt-alerts-body"></div>
+                <button type="button" class="btn-confirm mkt-new-alert" onclick="newPriceAlert()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    Nuovo avviso
+                </button>
+            </div>
         </section>
 
         <!-- ==================== RISK MANAGER ==================== -->
@@ -486,7 +529,7 @@
             </div>
             <div class="pos-views">
                 <button type="button" id="btn-pos-open" class="active" onclick="setPosView('open')">Aperte</button>
-                <button type="button" id="btn-pos-orders" onclick="setPosView('orders')">Ordini</button>
+                <button type="button" id="btn-pos-orders" onclick="setPosView('orders')">Ordini in attesa</button>
             </div>
             <div id="activeTradesList" class="empty"></div>
             <div class="info-dots" id="activeTradeDots"></div>
@@ -613,41 +656,15 @@
             <div class="header-row">
                 <div class="header-title">
                     <h1>Segnali</h1>
-                    <p id="signalsSubtitle">Consensus multi-sorgente</p>
+                    <p id="signalsSubtitle">Strategie automatiche</p>
                 </div>
                 <div class="market-toggle">
-                    <button id="btn-view-sig" onclick="setSignalsView('sig')" class="active">Segnali</button>
-                    <button id="btn-view-auto" onclick="setSignalsView('auto')">Auto</button>
+                    <button id="btn-view-auto" onclick="setSignalsView('auto')" class="active">Auto</button>
                     <button id="btn-view-agent" onclick="setSignalsView('agent')">Agente</button>
                 </div>
             </div>
-            <input type="hidden" id="signalsView" value="sig">
-            <div id="sigView" class="signals-view">
-            <div class="signal-info-bar" id="signalInfoBar">
-                Scansione ogni 10 min · Consensus su <b>4 sorgenti</b>: SGTRADER AI + 3 strategie. Stato: <span class="be-badge neutral" id="signalScanStatus">—</span><br>
-                Notifiche: <span id="signalNotifStatus" class="badge-notif-off">OFF</span>
-            </div>
-            <div class="signal-actions">
-                <button class="btn-generic" id="btnScanSignals" onclick="scanAllSignals(true)">Scansiona Ora</button>
-                <button class="btn-generic" onclick="openSignalSettings()" style="background:var(--surface); border:1px solid var(--border);">Impostazioni</button>
-            </div>
-            <div class="signal-grid" id="signalGrid"></div>
-            <div class="signal-legend">
-                <span><span class="legend-dot k"></span>SGTRADER</span>
-                <span><span class="legend-dot long"></span>LONG</span>
-                <span><span class="legend-dot short"></span>SHORT</span>
-                <span><span class="legend-dot"></span>Neutro</span>
-            </div>
-            <div class="section-title">
-                <span>Storico Segnali</span>
-                <button class="btn-link-secondary" onclick="clearSignalHistory()">Svuota</button>
-            </div>
-            <div class="log-list" id="signalHistoryList">
-                <div class="empty-hint">Nessun segnale registrato.</div>
-            </div>
-            <div class="info-dots" id="signalHistoryDots"></div>
-            </div>
-            <div id="autoView" class="signals-view" style="display:none;">
+            <input type="hidden" id="signalsView" value="auto">
+            <div id="autoView" class="signals-view">
                 <div class="card-box auto-status" id="autoStatus"></div>
                 <div class="section-title">
                     <span>Strategie <small class="auto-count" id="autoCount"></small></span>
@@ -1118,7 +1135,7 @@
                 </div>
                 <div class="nav-item" onclick="switchTab('terminal')" id="nav-terminal">
                     <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-                    Grafici
+                    Mercato
                 </div>
                 <div class="nav-item" onclick="switchTab('calculator')" id="nav-calculator">
                     <svg viewBox="0 0 24 24"><path d="M7 19V5"/><polyline points="3 9 7 5 11 9"/><path d="M17 5v14"/><polyline points="13 15 17 19 21 15"/></svg>
@@ -1187,6 +1204,7 @@
 <div class="modal-overlay" id="lockModal" data-sub="Sicurezza"><div class="modal-box auto-add-box"><h3>Blocco app</h3><div id="lockSettingsBody"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeLockSettings()">Chiudi</button></div></div></div>
 <div class="modal-overlay" id="alertsModal" data-sub="Mercato"><div class="modal-box auto-add-box"><h3>Avvisi di prezzo</h3><p>Un messaggio su Telegram quando il prezzo tocca il livello, una volta sola. Nessun ordine.</p><div id="alertsList" class="auto-add-list"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeAlerts()">Chiudi</button></div></div></div>
 <div class="modal-overlay" id="chartAlertModal" data-sub="Avviso di prezzo"><div class="modal-box"><h3 id="caTitle">Avviso</h3><p id="caNow"></p>
+    <div class="ca-coins" id="caCoins"></div>
     <input type="text" inputmode="decimal" id="caPrice" class="ca-input" oninput="caHint()" aria-label="Prezzo dell'avviso">
     <div class="ca-steps" id="caSteps"></div><div id="caList" class="ca-list"></div><div id="caHint" class="ca-hint"></div>
     <div class="modal-actions"><button class="btn-cancel" onclick="closeChartAlert()">Annulla</button><button class="btn-confirm" onclick="confirmChartAlert()">Crea avviso</button></div></div></div>
@@ -1233,6 +1251,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=147"></script>
+<script type="module" src="./src/main.js?v=148"></script>
 </body>
 </html>

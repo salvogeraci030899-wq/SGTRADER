@@ -40,6 +40,8 @@ export const getAutoState = () => ({ cfg, ledger, lab, live, loaded, pendingTrad
 let firedAlerts = [];
 const removingAlerts = new Set();   // tolti dall'app, finché automation.json non si aggiorna
 export const isRemovingAlert = id => removingAlerts.has(id);
+// avvisi già scattati (restano in automation.json finché non si tolgono)
+export const firedPriceAlerts = () => ((cfg && cfg.price_alerts) || []).filter(a => a && firedAlerts.includes(a.id));
 export const priceAlerts = () => ((cfg && cfg.price_alerts) || []).filter(a => a && !firedAlerts.includes(a.id) && !removingAlerts.has(a.id));
 
 // Rilettura del conto Bitget con l'app aperta in modalità Reale: una posizione aperta a mano su Bitget
@@ -122,6 +124,7 @@ export async function removePriceAlert(id) {
     const ok = await send({ type: 'alert', op: 'del', id }, '');
     if (ok === false) removingAlerts.delete(id);
     renderAlerts();
+    if (window.renderMarketAlerts) window.renderMarketAlerts();
     if (window.updateHome) window.updateHome();
 }
 export const sendAlertCommand = (body, okText) => send({ type: 'alert', ...body }, okText);
@@ -131,7 +134,9 @@ export const sendAlertCommand = (body, okText) => send({ type: 'alert', ...body 
 let caSym = null, caPx = null;
 export function openChartAlert(symbol, px) {
     caSym = symbol;
-    caPx = px > 0 ? px : (State.livePx[symbol] || null);
+    const daily = State.allData && State.allData[`${symbol}_1d`];
+    caPx = px > 0 ? px : (State.livePx[symbol] || (daily && daily.current_price) || null);
+    $('caCoins').innerHTML = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'].map(s => `<button type="button" class="pill-btn${s === symbol ? ' active' : ''}" onclick="openChartAlert('${s}')">${s.replace('USDT', '')}</button>`).join('');
     $('caTitle').textContent = `Avviso su ${symbol.replace('USDT', '')}`;
     $('caNow').textContent = caPx ? `Ora ${fmtPrice(caPx)} USDT` : 'Prezzo attuale non disponibile';
     $('caPrice').value = caPx ? String(Number(caPx.toPrecision(6))) : '';
@@ -169,7 +174,7 @@ export async function confirmChartAlert() {
     if (c.error) { caHint(); return; }
     closeChartAlert();
     await sendAlertCommand({ op: 'add', symbol: caSym, side: c.side, price: String(c.price) }, 'Avviso inviato: attivo entro 1-2 minuti.');
-    if (window.renderOrders) window.renderOrders();
+    setTimeout(loadAutomation, 90000);
 }
 let agentState = null;     // agent_state.json: ultimo giro dell'agente, rapporto, proposte
 const observingKeys = () => new Set((agentState && agentState.observing) || []);
@@ -225,6 +230,7 @@ export async function loadAutomation() {
     if (pendingTrading && (pendingTrading === 'on') === !!riskCfg().trading_enabled) pendingTrading = null;
     renderAutomation();
     renderAgentView();
+    if (window.renderMarketAlerts) window.renderMarketAlerts();
     onModeData();
 }
 
@@ -543,12 +549,14 @@ export function okAutoConfirm() { const a = confirmAction; closeAutoConfirm(); i
 
 // Passa tra i segnali e l'automazione (stessa pagina, tasti in alto a destra)
 export function setSignalsView(view) {
+    // la griglia dei segnali tecnici ora sta in Mercato → Segnali
+    if (view === 'sig') { window.switchTab('terminal'); window.setMarketView && window.setMarketView('sig'); return; }
     $('signalsView').value = view;
-    for (const v of ['sig', 'auto', 'agent']) {
+    for (const v of ['auto', 'agent']) {
         $(`btn-view-${v}`).classList.toggle('active', view === v);
         $(`${v}View`).style.display = view === v ? '' : 'none';
     }
-    $('signalsSubtitle').textContent = { sig: 'Consensus multi-sorgente', auto: 'Strategie automatiche', agent: 'Lavora per te' }[view];
+    $('signalsSubtitle').textContent = { auto: 'Strategie automatiche', agent: 'Lavora per te' }[view];
     if (view === 'auto') { loaded = false; renderAutomation(); }
     if (view === 'agent') { loaded = false; renderAgentView(); }
 }
