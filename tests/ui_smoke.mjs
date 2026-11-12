@@ -7,6 +7,7 @@
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
+import net from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -27,7 +28,8 @@ const server = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '1
 const problems = [];
 try {
     for (let i = 0; i < 50; i++) {
-        try { if ((await fetch(`http://127.0.0.1:${PORT}/index.html`)).ok) break; } catch (e) { /* non ancora pronto */ }
+        const up = await new Promise(res => { const c = net.connect(PORT, '127.0.0.1', () => { c.end(); res(true); }); c.on('error', () => res(false)); });
+        if (up) break;
         await new Promise(r => setTimeout(r, 200));
     }
     const browser = await chromium.launch();
@@ -75,6 +77,32 @@ try {
             if (r.over < 0) problems.push(`${where}: pagina non trovata`);
             if (r.wide > 1) problems.push(`${where}: più larga dello schermo di ${r.wide}px`);
         }
+        // Regole fisse: ogni finestra a schermo intero, intestazione nello stesso punto della Home, niente scroll verticale
+        await page.evaluate(() => window.switchTab('home'));
+        await page.waitForTimeout(300);
+        const wins = await page.evaluate(() => {
+            const pos = el => { const r = el.getBoundingClientRect(); return [Math.round(r.top), Math.round(r.height)]; };
+            const home = document.querySelector('#page-home .header-row');
+            const ref = { row: pos(home), h1: pos(home.querySelector('h1')), p: pos(home.querySelector('.header-title p')), btn: pos(home.querySelector('.header-icon-btn')) };
+            const out = [];
+            for (const ov of document.querySelectorAll('.modal-overlay')) {
+                ov.classList.add('active');
+                const box = ov.querySelector('.modal-box, .assist-box'), row = ov.querySelector('.header-row');
+                const r = box.getBoundingClientRect();
+                const bad = [];
+                if (Math.round(r.left) !== 0 || Math.round(r.top) !== 0 || Math.round(r.width) !== innerWidth || Math.round(r.height) !== innerHeight) bad.push(`non a schermo intero (${Math.round(r.width)}x${Math.round(r.height)})`);
+                if (!row) bad.push('senza intestazione');
+                else {
+                    const got = { row: pos(row), h1: pos(row.querySelector('h1')), p: pos(row.querySelector('.header-title p')), btn: row.querySelector('.header-icon-btn') ? pos(row.querySelector('.header-icon-btn')) : null };
+                    for (const k of ['row', 'h1', 'p', 'btn']) if (got[k] && JSON.stringify(got[k]) !== JSON.stringify(ref[k])) bad.push(`${k} a ${got[k]} invece di ${ref[k]}`);
+                }
+                for (const el of [box, ...box.querySelectorAll('.win-body, .assist-log')]) if (el.scrollHeight - el.clientHeight > 1 && getComputedStyle(el).overflowY !== 'hidden') bad.push(`scorre in verticale (${el.className})`);
+                if (bad.length) out.push(`${ov.id}: ${bad.join(', ')}`);
+                ov.classList.remove('active');
+            }
+            return out;
+        });
+        for (const w of wins) problems.push(`${dev.n}, ${mode === 'real' ? 'Reale' : 'Simulato'}: finestra ${w}`);
         // Azioni principali, come le farebbe una persona
         const where = `${dev.n}, ${mode === 'real' ? 'Reale' : 'Simulato'}`;
         const step = async (name, fn) => { try { if (!(await fn())) problems.push(`${where}: ${name}`); } catch (e) { problems.push(`${where}: ${name} (${e.message.split('\n')[0]})`); } };
