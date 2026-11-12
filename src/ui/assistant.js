@@ -1,5 +1,5 @@
 import { State } from '../core/state.js';
-import { $, SYM, apiPost, escapeHtml, calcPnl, fmtPrice } from '../utils/helpers.js';
+import { $, SYM, apiPost, escapeHtml, calcPnl, fmtPrice, fetchData } from '../utils/helpers.js';
 import * as Trade from './trade.js';
 import * as Auto from './automation.js';
 import { tradingMode } from './account.js';
@@ -178,7 +178,7 @@ function waitOutcome(req, status) {
     const start = Date.now();
     const tick = async () => {
         let live = null;
-        try { const r = await fetch(`./live_trades.json?t=${Date.now()}`); live = r.ok ? await r.json() : null; } catch (e) {}
+        try { const r = await fetchData('live_trades.json'); live = r.ok ? await r.json() : null; } catch (e) {}
         const out = findOutcome(live, req);
         if (out) {
             status.textContent = `${out.ok ? '✓' : '✗'} ${out.msg}`;

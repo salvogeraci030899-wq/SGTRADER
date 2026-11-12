@@ -1,4 +1,4 @@
-import { $, escapeHtml, apiPost, getApiBase, setApiBase, clearAppKey, getGhToken, setGhToken, commandMode, fmtIt, fmtPrice } from '../utils/helpers.js';
+import { $, escapeHtml, apiPost, getApiBase, setApiBase, clearAppKey, getGhToken, setGhToken, commandMode, fmtIt, fmtPrice, fetchData } from '../utils/helpers.js';
 
 // --- AUTOMAZIONE (pagina Segnali, vista "Auto") ---
 // Mostra e comanda le strategie automatiche: spenta, su carta (segnali seguiti senza ordini) o reale.
@@ -52,7 +52,7 @@ export async function maybeRefreshAccount() {
     refreshInFlight = true;
     try { localStorage.setItem(REFRESH_KEY, String(now)); } catch (e) {}
     try {
-        const r = await apiPost('/api/command', { type: 'account_refresh' });
+        const r = await apiPost('/api/command', { type: 'account_refresh' }, { silent: true });
         if (r.ok) setTimeout(() => loadAutomation(), 120_000);
     } catch (e) { /* rete: riprova al prossimo intervallo */ }
     refreshInFlight = false;
@@ -93,7 +93,7 @@ const label = key => key.replace(':', ' ').replace(/_/g, ' ');
 
 async function getJson(name) {
     try {
-        const r = await fetch(`./${name}?t=${Date.now()}`);
+        const r = await fetchData(name);
         return r.ok ? await r.json() : null;
     } catch (e) { return null; }
 }

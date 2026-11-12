@@ -1,7 +1,7 @@
 import { State } from '../core/state.js';
 import { CONFIG } from '../core/config.js';
 import { Logger } from '../core/logger.js';
-import { $, SYM, fetchT, apiPost, fmtUsd, cleanData, analyzeTrend, buildRiskData, calcEMA, fmtDateTime, parseBitgetCandles } from '../utils/helpers.js';
+import { $, SYM, fetchT, apiPost, fmtUsd, cleanData, analyzeTrend, buildRiskData, calcEMA, fmtDateTime, parseBitgetCandles, fetchData } from '../utils/helpers.js';
 import { createChart, setCandles, setForecast, setBands, setMarkers, setPriceLines } from './chart.js';
 
 const chartContainer = document.getElementById('chart');
@@ -115,7 +115,7 @@ let trSummary = null;
 
 async function loadTrackRecord() {
     try {
-        const r = await fetch('./track_record_summary.json?t=' + Date.now());
+        const r = await fetchData('track_record_summary.json');
         trSummary = r.ok ? await r.json() : null;
     } catch (e) { trSummary = null; }
     renderTrackRecord();
@@ -170,7 +170,7 @@ let valLoaded = false;
 
 async function loadValidation() {
     try {
-        const r = await fetch('./validation_summary.json?t=' + Date.now());
+        const r = await fetchData('validation_summary.json');
         valSummary = r.ok ? await r.json() : null;
     } catch (e) { valSummary = null; }
     valLoaded = true;
@@ -217,7 +217,7 @@ let futLoaded = false;
 
 async function loadFutures() {
     try {
-        const r = await fetch('./futures_data.json?t=' + Date.now());
+        const r = await fetchData('futures_data.json');
         futData = r.ok ? await r.json() : null;
     } catch (e) { futData = null; }
     futLoaded = true;
@@ -261,7 +261,7 @@ export function renderFutures() {
 
 export async function loadData() {
     try {
-        const res = await fetch('./dashboard.json?t=' + Date.now());
+        const res = await fetchData('dashboard.json');
         State.allData = await res.json();
         updateChart();
         loadTrackRecord();
@@ -592,7 +592,7 @@ export async function triggerRefresh() {
         const poll = setInterval(async () => {
             if (!localStorage.getItem('kronos_refresh_start_ts')) { clearInterval(poll); return; }
             try {
-                const nd = await (await fetch('./dashboard.json?t=' + Date.now())).json();
+                const nd = await (await fetchData('dashboard.json')).json();
                 if (latestUpdate(nd) > before) {
                     clearInterval(poll);
                     State.allData = nd;
