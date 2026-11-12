@@ -181,6 +181,8 @@ Object.assign(window, { lockKey: Lock.lockKey, lockFaceId: Lock.lockFaceId, lock
 Lock.initLock();
 window.setPosView = Orders.setPosView;
 window.renderOrders = Orders.renderOrders;
+window.ordStep = Orders.ordStep;
+window.ordSync = Orders.ordSync;
 Orders.initOrders();
 window.removeRealOrder = AutoUI.removeRealOrder;
 window.requestAIAnalysisReal = TradeUI.requestAIAnalysisReal;

@@ -154,7 +154,7 @@ function renderRealPositions(el) {
                 <div class="at-header"><div class="at-title">
                     <span class="at-coin">${SYM(p.symbol)} ${p.market === 'spot' ? '' : String(p.side || '').toUpperCase()}</span>
                     ${p.market === 'spot' ? '<span class="at-market spot">SPOT</span>' : `<span class="at-market futures">FUTURES</span>${p.leverage ? `<span class="at-lev">${n(p.leverage, 0)}x</span>` : ''}`}
-                </div></div>
+                </div><button type="button" class="at-assist" onclick="openAssistantReal('${p.key}', false)" title="Assistente: scrivi o parla" aria-label="Assistente"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 7v4"/><path d="M10 9.5a2 2 0 0 0 4 0"/></svg></button></div>
                 ${realCommands(p, events)}
                 <div class="at-body">
                     <div class="at-item"><span class="at-lbl">${p.market === 'spot' ? 'Acquisto' : 'Entry'}</span><span class="at-val">${n(p.entry)}</span></div>
@@ -168,12 +168,6 @@ function renderRealPositions(el) {
                     <div class="at-item"><span class="at-lbl" data-f="upl-lbl">PnL aperto</span><span class="at-val" data-f="upl" style="color:${(p.upl || 0) >= 0 ? 'var(--accent)' : 'var(--danger)'}">${p.upl == null ? '—' : (p.upl >= 0 ? '+' : '') + n(p.upl)}</span></div>
                     <div class="at-item"><span class="at-lbl">Take profit</span><span class="at-val green">${p.tp ? fmtPrice(p.tp) + usdAt(realAt(p, p.tp)) : '—'}</span></div>
                     <div class="at-item"><span class="at-lbl">Stop loss</span><span class="at-val red">${p.sl ? fmtPrice(p.sl) + usdAt(realAt(p, p.sl)) : '—'}</span></div>
-                </div>
-                <div class="at-actions at-actions-1">
-                    <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistantReal('${p.key}', false)" title="Assistente: scrivi o parla">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 7v4"/><path d="M10 9.5a2 2 0 0 0 4 0"/></svg>
-                        Assistente
-                    </button>
                 </div>
                 ${note}
             </div>`).join('');
@@ -349,7 +343,7 @@ export function renderActiveTrades() {
                         <span class="at-market ${marketClass}">${market}</span>
                         ${levBadge}
                     </div>
-                    <button class="close-btn" onclick="openCloseTradeModal('${t.id}')">CHIUDI</button>
+                    <div class="at-head-btns"><button type="button" class="at-assist" onclick="openAssistant('${t.id}', false)" title="Assistente: scrivi o parla" aria-label="Assistente"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 7v4"/><path d="M10 9.5a2 2 0 0 0 4 0"/></svg></button><button class="close-btn" onclick="openCloseTradeModal('${t.id}')">CHIUDI</button></div>
                 </div>
                 <div class="at-meta">Aperto ${fmtDateTime(t.entryTime)}</div>
                 ${rulesStrip((t.rules || []).map(r => `<div class="at-rule"><span>Chiude a ${r.side === 'above' ? '≥' : '≤'} ${fmtPrice(r.price)} · ${escapeHtml(r.label)}</span><button type="button" onclick="removeRule('${t.id}','${r.id}')" title="Togli la regola">✕</button></div>`))}
@@ -365,12 +359,6 @@ export function renderActiveTrades() {
                     <div class="at-item" style="text-align:left; flex: 1;"><span class="at-lbl">PnL Lordo</span><span class="at-val" data-f="gross">—</span></div>
                     <div class="at-item" style="text-align:center; flex: 1;"><span class="at-lbl">Costi</span><span class="at-val" data-f="costs" style="color:var(--warning);">—</span></div>
                     <div class="at-item" style="text-align:right; flex: 1;"><span class="at-lbl">PnL Netto</span><span class="at-val" data-f="net" style="font-size:15px;">—</span></div>
-                </div>
-                <div class="at-actions at-actions-1">
-                    <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistant('${t.id}', false)" title="Assistente: scrivi o parla">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 7v4"/><path d="M10 9.5a2 2 0 0 0 4 0"/></svg>
-                        Assistente
-                    </button>
                 </div>
             </div>`;
         }).join('');
