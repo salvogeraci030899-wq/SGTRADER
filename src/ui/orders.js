@@ -34,8 +34,31 @@ const when = iso => {
     return isNaN(d) ? '' : d.toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 };
 // Nessuno scroll verticale: ogni scheda ha i suoi elementi in fila, da scorrere in orizzontale
-const section = (title, rows, empty) => `<div class="ord-sec"><div class="ord-title">${title}${rows.length > 1 ? ` <span class="ord-count">${rows.length}</span>` : ''}</div>`
-    + `<div class="ord-list${rows.length > 1 ? ' many' : ''}">${rows.length ? rows.join('') : `<div class="ord-empty">${empty}</div>`}</div></div>`;
+// Oltre allo scorrimento col dito, frecce ‹ › e posizione (1/4): su iPhone si scorre anche senza trascinare
+const nav = n => n > 1 ? `<span class="ord-nav"><button type="button" aria-label="Precedente" onclick="ordStep(this,-1)">‹</button><span class="ord-pos">1/${n}</span><button type="button" aria-label="Successivo" onclick="ordStep(this,1)">›</button></span>` : '';
+const section = (title, rows, empty) => `<div class="ord-sec"><div class="ord-title">${title}${rows.length > 1 ? ` <span class="ord-count">${rows.length}</span>` : ''}${nav(rows.length)}</div>`
+    + `<div class="ord-list${rows.length > 1 ? ' many' : ''}" onscroll="ordSync(this)">${rows.length ? rows.join('') : `<div class="ord-empty">${empty}</div>`}</div></div>`;
+
+const listIndex = list => {
+    const rows = [...list.children], x = list.scrollLeft;
+    let best = 0;
+    rows.forEach((r, i) => { if (Math.abs(r.offsetLeft - x) < Math.abs(rows[best].offsetLeft - x)) best = i; });
+    return list.scrollLeft + list.clientWidth >= list.scrollWidth - 2 ? rows.length - 1 : best;
+};
+export function ordSync(list) {
+    const sec = list.closest('.ord-sec'), pos = sec && sec.querySelector('.ord-pos');
+    if (!pos) return;
+    const i = listIndex(list), n = list.children.length;
+    pos.textContent = `${i + 1}/${n}`;
+    const [prev, next] = sec.querySelectorAll('.ord-nav button');
+    prev.disabled = i === 0; next.disabled = i === n - 1;
+}
+export function ordStep(btn, dir) {
+    const list = btn.closest('.ord-sec')?.querySelector('.ord-list');
+    if (!list) return;
+    const rows = [...list.children], i = Math.max(0, Math.min(rows.length - 1, listIndex(list) + dir));
+    list.scrollTo({ left: rows[i].offsetLeft, behavior: 'smooth' });
+}
 const row = (main, sub, action = '') => `<div class="ord-row"><div class="ord-main"><b>${main}</b>${sub ? `<small>${sub}</small>` : ''}</div>${action}</div>`;
 
 function realOrders() {
@@ -96,6 +119,7 @@ export function renderOrders() {
           + section('Ultimi comandi', commandRows(), 'Ancora nessun comando dall\'app.')
         : section('Livelli dei trade simulati', simOrders(), 'Nessun trade simulato aperto.')
           + section('Avvisi di prezzo', alertRows(), 'Nessun avviso. Chiedilo all\'assistente: «avvisami se BTC arriva a 75.000».');
+    box.querySelectorAll('.ord-list').forEach(ordSync);
 }
 
 export function initOrders() { applyView(); }
