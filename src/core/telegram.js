@@ -3,10 +3,12 @@
 //   1. l'header "X-Telegram-Bot-Api-Secret-Token" coincide con TELEGRAM_WEBHOOK_SECRET (lo imposta il
 //      workflow "Pubblica server comandi" quando registra il webhook);
 //   2. il messaggio arriva dalla tua chat (TELEGRAM_CHAT_ID).
-// I dati sono gli stessi file pubblici che legge l'app (GitHub Pages). L'unico comando che cambia qualcosa è
+// I dati sono gli stessi file che legge l'app (GitHub Pages); quelli personali sono cifrati nel repository
+// e il server li decifra con DATA_KEY (tools/datacrypt.py). L'unico comando che cambia qualcosa è
 // "/emergenza CONFERMA": spegne tutte le strategie e chiude le posizioni dell'esecutore (come il tasto
 // Emergenza dell'app). Va solo nella direzione che riduce il rischio; sbloccare si fa dall'app.
 import { CONFIG } from './config.js';
+import { isEncrypted, decryptText } from './datacrypt.js';
 
 const COMMANDS = {
     '/stato': 'conto, modalità, strategie, blocchi',
@@ -126,7 +128,9 @@ async function loadData(env, fetchFn) {
     await Promise.all(FILES.map(async f => {
         try {
             const r = await fetchFn(`${base}${f}?t=${Date.now()}`);
-            out[f] = r.ok ? await r.json() : null;
+            if (!r.ok) { out[f] = null; return; }
+            const text = await r.text();
+            out[f] = JSON.parse(isEncrypted(text) ? await decryptText(text, String(env.DATA_KEY || '')) : text);
         } catch (e) { out[f] = null; }
     }));
     return out;

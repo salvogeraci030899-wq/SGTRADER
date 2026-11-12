@@ -4,9 +4,9 @@ name: Test
 on:
   push:
     branches: [main]
-    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', 'src/**', 'index.html', 'style.css', '.github/workflows/tests.yml']
+    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', 'src/**', 'index.html', 'style.css', '.gitattributes', '.github/actions/**', '.github/workflows/tests.yml']
   pull_request:
-    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', 'src/**', 'index.html', 'style.css', '.github/workflows/tests.yml']
+    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', 'src/**', 'index.html', 'style.css', '.gitattributes', '.github/actions/**', '.github/workflows/tests.yml']
 
 permissions:
   contents: read
@@ -21,9 +21,10 @@ jobs:
         with:
           python-version: '3.11'
       - name: Installa dipendenze minime
-        run: pip install "pandas>=2.2.2" numpy requests
+        run: pip install "pandas>=2.2.2" numpy requests cryptography
       - name: Esegui i test
         run: |
+          python tests/test_datacrypt.py
           python tests/test_track_record.py
           python tests/test_validation.py
           python tests/test_futures_data.py

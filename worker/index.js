@@ -9,7 +9,11 @@
 //   GH_TOKEN         token GitHub che può avviare i workflow del repository
 //   GROQ_API_KEY     facoltativa, per l'analisi AI
 //   ALLOWED_ORIGINS  origini ammesse, separate da virgola
+//   DATA_KEY         facoltativa: chiave dei dati cifrati (bot Telegram); con questa l'IA risponde solo a chi
+//                    ha la chiave sul dispositivo (header x-sgt-proof, una prova derivata, non la chiave)
 import { handle, trigger, quickCheck } from '../api/_core.js';
+import { aiProof } from '../src/core/datacrypt.js';
+import { safeEqual } from '../src/core/commands.js';
 
 const DEFAULT_ORIGINS = 'https://salvogeraci030899-wq.github.io,https://sgtrader.vercel.app';
 
@@ -18,7 +22,7 @@ function cors(request, env) {
     const allowed = String(env.ALLOWED_ORIGINS || DEFAULT_ORIGINS).split(',').map(s => s.trim()).filter(Boolean);
     const h = {
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, x-app-key',
+        'Access-Control-Allow-Headers': 'Content-Type, x-app-key, x-sgt-proof',
         'Access-Control-Max-Age': '86400',
         'Vary': 'Origin'
     };
@@ -50,13 +54,17 @@ const AI_PATHS = ['/api/analyze', '/api/assistant', '/api/transcribe'];
 const AI_PER_MINUTE = 30;
 const hits = new Map();
 
-function aiGate(request, env, path) {
+async function aiGate(request, env, path) {
     if (!AI_PATHS.includes(path.replace(/\/+$/, '')) || request.method !== 'POST') return null;
     const secret = String(env.APP_SECRET || '').trim();
     if (secret && request.headers.get('x-app-key') === secret) return null;
     const origin = request.headers.get('Origin') || '';
     const allowed = String(env.ALLOWED_ORIGINS || DEFAULT_ORIGINS).split(',').map(x => x.trim()).filter(Boolean);
     if (!allowed.includes(origin)) return { status: 403, error: "Richiesta non ammessa: l'IA risponde solo all'app SGTRADER." };
+    // con i dati cifrati l'IA risponde solo a chi ha la chiave dei dati: chi apre il link senza chiave non usa la tua quota
+    const dataKey = String(env.DATA_KEY || '').trim();
+    if (dataKey && !safeEqual(request.headers.get('x-sgt-proof') || '', await aiProof(dataKey)))
+        return { status: 403, error: "Serve la chiave dei dati: inseriscila nell'app (Impostazioni → Connessioni)." };
     const ip = request.headers.get('CF-Connecting-IP') || 'ip';
     const now = Date.now(), recent = (hits.get(ip) || []).filter(t => now - t < 60000);
     if (recent.length >= AI_PER_MINUTE) return { status: 429, error: 'Troppe richieste in un minuto: riprova tra poco.' };
@@ -80,7 +88,7 @@ export default {
         const headers = {};
         request.headers.forEach((v, k) => { headers[k.toLowerCase()] = v; });
         const path = new URL(request.url).pathname;
-        const gate = aiGate(request, env, path);
+        const gate = await aiGate(request, env, path);
         if (gate) return new Response(JSON.stringify({ error: gate.error }), { status: gate.status, headers: { ...headersOut, 'Content-Type': 'application/json' } });
         const { status, body: out } = await handle(request.method, path, body, headers, env, fetch);
         return new Response(JSON.stringify(out), { status, headers: { ...headersOut, 'Content-Type': 'application/json' } });

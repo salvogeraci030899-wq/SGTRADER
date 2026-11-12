@@ -1,0 +1,44 @@
+name: Dati cifrati
+description: >
+  Configura il filtro git che tiene cifrati nel repository i dati personali (tools/datacrypt.py) e li
+  decifra nella cartella di lavoro, così il bot legge e scrive JSON normale. Va subito dopo il checkout.
+  Senza la chiave (segreto DATA_KEY non impostato) i file restano in chiaro come prima.
+inputs:
+  key:
+    description: Chiave dei dati (secrets.DATA_KEY); può essere vuota
+    required: false
+    default: ''
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        DATA_KEY: ${{ inputs.key }}
+      run: |
+        set -eu
+        # Python a parte con la libreria di cifratura: il filtro funziona qualunque Python installino i passi dopo
+        if python3 -m venv "$HOME/.sgtcrypt" >/dev/null 2>&1; then
+          "$HOME/.sgtcrypt/bin/pip" install -q --disable-pip-version-check cryptography
+          PYBIN="$HOME/.sgtcrypt/bin/python"
+        else
+          mkdir -p "$HOME/.sgtcrypt"
+          python3 -m pip install -q --user --break-system-packages cryptography
+          PYBIN="$(command -v python3)"
+        fi
+        umask 077
+        printf '%s' "$DATA_KEY" > "$HOME/.sgtcrypt/key"
+        PY="$PYBIN $GITHUB_WORKSPACE/tools/datacrypt.py"
+        git config filter.sgtenc.clean "$PY clean"
+        git config filter.sgtenc.smudge "$PY smudge"
+        git config filter.sgtenc.required true
+        git config merge.sgtenc.name "unione dei dati cifrati"
+        git config merge.sgtenc.driver "$PY merge %O %A %B %P"
+        $PY selftest
+        # i file personali erano già stati estratti dal checkout senza filtro: si estraggono di nuovo, in chiaro
+        files=$(git ls-files ':(attr:filter=sgtenc)')
+        if [ -n "$files" ]; then
+          rm -f $files
+          git checkout -- $files
+          # migrazione: quelli ancora in chiaro nel repository passano cifrati al prossimo salvataggio
+          if [ -n "$DATA_KEY" ]; then git add --renormalize -- $files; fi
+        fi

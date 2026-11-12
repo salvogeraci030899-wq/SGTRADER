@@ -43,6 +43,16 @@ window.setGlass = AccountUI.setGlass;
 window.renderAccount = AccountUI.renderAccount;
 window.setTradingMode = AutoUI.setTradingMode;
 window.openConnections = AccountUI.openConnections;
+window.saveDataKey = AccountUI.saveDataKey;
+window.generateDataKey = AccountUI.generateDataKey;
+window.removeDataKey = AccountUI.removeDataKey;
+// dati cifrati senza chiave (o con quella sbagliata): un avviso solo, poi le pagine restano vuote
+let dataLockedShown = false;
+window.addEventListener('sgt-data-locked', e => {
+    if (dataLockedShown || !window.showAlert) return;
+    dataLockedShown = true;
+    window.showAlert('Dati cifrati', e.detail === 'wrong' ? 'La chiave dei dati salvata non apre i file: inseriscila di nuovo in Impostazioni → Connessioni.' : 'Saldo, posizioni e strategie sono cifrati. Inserisci la chiave dei dati in Impostazioni → Connessioni.');
+});
 window.closeConnections = AccountUI.closeConnections;
 window.goToSlide = (idx) => {
     const carousel = document.getElementById('infoCarousel');

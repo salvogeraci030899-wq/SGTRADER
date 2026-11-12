@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['worker/**', 'api/_core.js', 'src/core/commands.js', 'src/core/rules.js', 'src/core/telegram.js', 'src/core/config.js', 'tools/telegram_webhook.py', '.github/workflows/deploy-server.yml']
+    paths: ['worker/**', 'api/_core.js', 'src/core/commands.js', 'src/core/rules.js', 'src/core/telegram.js', 'src/core/config.js', 'src/core/datacrypt.js', 'tools/telegram_webhook.py', '.github/workflows/deploy-server.yml']
 
 concurrency:
   group: deploy-server
@@ -62,11 +62,14 @@ jobs:
           APP_SECRET: ${{ secrets.APP_SECRET }}
           GH_TOKEN_S: ${{ secrets.SERVER_GH_TOKEN }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          DATA_KEY: ${{ secrets.DATA_KEY }}
         run: |
           npx --yes wrangler@3.114.0 deploy 2>&1 | tee deploy.log
           if [ -n "$APP_SECRET" ]; then printf '%s' "$APP_SECRET" | npx --yes wrangler@3.114.0 secret put APP_SECRET; fi
           printf '%s' "$GH_TOKEN_S" | npx --yes wrangler@3.114.0 secret put GH_TOKEN
           if [ -n "$GROQ_API_KEY" ]; then printf '%s' "$GROQ_API_KEY" | npx --yes wrangler@3.114.0 secret put GROQ_API_KEY; fi
+          # chiave dei dati cifrati (tools/datacrypt.py): il bot Telegram li legge; l'IA risponde solo a chi ha la chiave
+          if [ -n "$DATA_KEY" ]; then printf '%s' "$DATA_KEY" | npx --yes wrangler@3.114.0 secret put DATA_KEY; fi
           url=$(grep -o 'https://[a-z0-9.-]*workers.dev' deploy.log | head -n 1)
           echo "Server pubblicato: ${url:-vedi il log}. Da ora il bot parte ogni 15 minuti da Cloudflare." | tee -a "$GITHUB_STEP_SUMMARY"
           if [ -n "$APP_SECRET" ]; then echo "Comandi dal server attivi: indirizzo da inserire in Impostazioni -> Comandi." | tee -a "$GITHUB_STEP_SUMMARY"; fi
