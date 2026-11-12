@@ -161,18 +161,14 @@ function renderRealPositions(el) {
                     <div class="at-item"><span class="at-lbl">Take profit</span><span class="at-val green">${p.tp ? fmtPrice(p.tp) : '—'}</span></div>
                     <div class="at-item"><span class="at-lbl">Stop loss</span><span class="at-val red">${p.sl ? fmtPrice(p.sl) : '—'}</span></div>
                 </div>
-                <div class="at-actions at-actions-3">
+                <div class="at-actions at-actions-2">
                     <button class="btn-ai-analysis" onclick="requestAIAnalysisReal('${p.key}')" title="Analisi AI in tempo reale della posizione">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                         Analisi AI
                     </button>
-                    <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistantReal('${p.key}', false)" title="Chat con l'assistente (ordini veri su Bitget)">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        Chat
-                    </button>
-                    <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistantReal('${p.key}', true)" title="Parla con l'assistente (ordini veri su Bitget)">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
-                        Voce
+                    <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistantReal('${p.key}', false)" title="Assistente: scrivi o parla">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 7v4"/><path d="M10 9.5a2 2 0 0 0 4 0"/></svg>
+                        Assistente
                     </button>
                 </div>
                 ${note}
@@ -366,18 +362,14 @@ export function renderActiveTrades() {
                     <div class="at-item" style="text-align:center; flex: 1;"><span class="at-lbl">Costi</span><span class="at-val" data-f="costs" style="color:var(--warning);">—</span></div>
                     <div class="at-item" style="text-align:right; flex: 1;"><span class="at-lbl">PnL Netto</span><span class="at-val" data-f="net" style="font-size:15px;">—</span></div>
                 </div>
-                <div class="at-actions at-actions-3">
+                <div class="at-actions at-actions-2">
                     <button class="btn-ai-analysis" onclick="requestAIAnalysis('${t.id}')" title="Analisi AI in tempo reale">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                         Analisi AI
                     </button>
-                    <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistant('${t.id}', false)" title="Chat con l'assistente">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        Chat
-                    </button>
-                    <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistant('${t.id}', true)" title="Parla con l'assistente">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
-                        Voce
+                    <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistant('${t.id}', false)" title="Assistente: scrivi o parla">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 7v4"/><path d="M10 9.5a2 2 0 0 0 4 0"/></svg>
+                        Assistente
                     </button>
                 </div>
             </div>`;

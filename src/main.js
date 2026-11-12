@@ -205,6 +205,7 @@ window.requestMarketAnalysis = AI.requestMarketAnalysis;
 // Assistente sulle posizioni (chat e voce)
 window.openAssistant = Assist.openAssistant;
 window.openAssistantReal = Assist.openAssistantReal;
+window.assistQuick = Assist.assistQuick;
 window.closeAssistant = Assist.closeAssistant;
 window.sendAssist = Assist.sendAssist;
 window.toggleRecording = Assist.toggleRecording;

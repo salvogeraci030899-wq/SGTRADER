@@ -375,6 +375,8 @@ Azioni possibili (usa SOLO queste, con questi campi):
 - {"type":"price_alert","symbol":"BTCUSDT"|"ETHUSDT"|"SOLUSDT","price":numero}: avviso su Telegram quando il prezzo tocca quel livello (solo un messaggio, nessun ordine)
 - {"type":"remove_alert","symbol":"BTCUSDT"|"ETHUSDT"|"SOLUSDT","price":numero o null}: togli UN avviso di prezzo (price null se su quella coin ce n'è uno solo)
 - {"type":"clear_alerts"}: togli tutti gli avvisi di prezzo
+- {"type":"close_positions","filter":"loss"|"profit"|"all"}: chiudi le posizioni aperte in perdita, in profitto o tutte (nella modalità attiva: simulate o reali su Bitget)
+- {"type":"breakeven_all"}: stop a pareggio su tutte le posizioni in profitto
 - {"type":"open_page","page":"home"|"terminal"|"signals"|"trade"|"calculator"|"journal"|"test"|"settings"|"account"}: apri una pagina
 Per le domande rispondi con i dati forniti e action null. Non inventare numeri. Se la richiesta non è chiara, chiedi di precisare.
 Quando proponi un'azione NON dire mai che è già fatta: scrivi cosa farai e chiudi con «Confermi?» (es. «Metto donchian55 1d su carta. Confermi?»). Nessuna strategia è confermata dalla prova finale finché l'elenco "confermate" è vuoto: dillo se l'utente chiede di andare in reale.`;
@@ -398,7 +400,10 @@ export function sanitizeGeneralAction(a) {
             return ANALYZE_SYMBOLS.includes(a.symbol) && Number.isFinite(price) && price > 0 && price < 1e9 ? { type: a.type, symbol: a.symbol, price } : null;
         }
         case 'clear_alerts':
+        case 'breakeven_all':
             return { type: a.type };
+        case 'close_positions':
+            return ['loss', 'profit', 'all'].includes(a.filter) ? { type: a.type, filter: a.filter } : null;
         case 'remove_alert': {
             if (!ANALYZE_SYMBOLS.includes(a.symbol)) return null;
             const price = a.price == null || a.price === '' ? null : Number(a.price);

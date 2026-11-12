@@ -43,9 +43,10 @@ on:
         required: false
         default: ''
 
-# un comando alla volta; le riletture del conto in coda non servono, ne basta l'ultima
+# Le riletture: una alla volta. I comandi: in parallelo (chiudere più posizioni insieme manda un comando per
+# posizione; in un gruppo di concorrenza GitHub terrebbe in coda solo l'ultimo e annullerebbe gli altri).
 concurrency:
-  group: position-${{ inputs.action == 'refresh' && 'refresh' || 'cmd' }}
+  group: position-${{ inputs.action == 'refresh' && 'refresh' || github.run_id }}
   cancel-in-progress: false
 
 permissions:

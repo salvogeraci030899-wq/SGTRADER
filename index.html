@@ -51,41 +51,41 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=124">
-    <meta name="app-version" content="124">
+    <link rel="stylesheet" href="./style.css?v=125">
+    <meta name="app-version" content="125">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=124",
-            "./src/core/commands.js": "./src/core/commands.js?v=124",
-            "./src/core/config.js": "./src/core/config.js?v=124",
-            "./src/core/labEngine.js": "./src/core/labEngine.js?v=124",
-            "./src/core/logger.js": "./src/core/logger.js?v=124",
-            "./src/core/rules.js": "./src/core/rules.js?v=124",
-            "./src/core/state.js": "./src/core/state.js?v=124",
-            "./src/core/theme.js": "./src/core/theme.js?v=124",
-            "./src/main.js": "./src/main.js?v=124",
-            "./src/ui/account.js": "./src/ui/account.js?v=124",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=124",
-            "./src/ui/assistant.js": "./src/ui/assistant.js?v=124",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=124",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=124",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=124",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=124",
-            "./src/ui/history.js": "./src/ui/history.js?v=124",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=124",
-            "./src/ui/home.js": "./src/ui/home.js?v=124",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=124",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=124",
-            "./src/ui/lock.js": "./src/ui/lock.js?v=124",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=124",
-            "./src/ui/orders.js": "./src/ui/orders.js?v=124",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=124",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=124",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=124",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=124",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=124"
+            "./src/core/backup.js": "./src/core/backup.js?v=125",
+            "./src/core/commands.js": "./src/core/commands.js?v=125",
+            "./src/core/config.js": "./src/core/config.js?v=125",
+            "./src/core/labEngine.js": "./src/core/labEngine.js?v=125",
+            "./src/core/logger.js": "./src/core/logger.js?v=125",
+            "./src/core/rules.js": "./src/core/rules.js?v=125",
+            "./src/core/state.js": "./src/core/state.js?v=125",
+            "./src/core/theme.js": "./src/core/theme.js?v=125",
+            "./src/main.js": "./src/main.js?v=125",
+            "./src/ui/account.js": "./src/ui/account.js?v=125",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=125",
+            "./src/ui/assistant.js": "./src/ui/assistant.js?v=125",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=125",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=125",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=125",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=125",
+            "./src/ui/history.js": "./src/ui/history.js?v=125",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=125",
+            "./src/ui/home.js": "./src/ui/home.js?v=125",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=125",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=125",
+            "./src/ui/lock.js": "./src/ui/lock.js?v=125",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=125",
+            "./src/ui/orders.js": "./src/ui/orders.js?v=125",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=125",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=125",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=125",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=125",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=125"
         }
     }
     </script>
@@ -1087,17 +1087,20 @@
 <div class="modal-overlay" id="forceTradeModal"><div class="modal-box"><h3 style="color: var(--warning);">Trade Bloccato</h3><p id="forceTradeReason" style="margin-bottom: 20px;">Motivo del blocco</p><div class="modal-actions"><button class="btn-cancel" onclick="closeForceTradeModal()">Annulla</button><button class="btn-confirm" style="background: var(--warning); color: var(--on-accent);" onclick="confirmForceTrade()">Esegui comunque</button></div></div></div>
 <div class="modal-overlay" id="resetModal"><div class="modal-box"><h3 style="color: var(--danger);">Reset Diario</h3><p>Sei sicuro di voler resettare il diario? Tutti i trade attivi e lo storico verranno eliminati definitivamente.</p><div class="modal-actions"><button class="btn-cancel" onclick="closeResetModal()">Annulla</button><button class="btn-confirm" style="background: var(--danger); color: #fff;" onclick="executeReset()">Reset</button></div></div></div>
 <div class="modal-overlay" id="aiAnalysisModal"><div class="modal-box" style="text-align: left; max-width: 380px;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;"><h3 id="aiAnalysisTitle" style="margin-bottom: 0; font-size: 16px; color: var(--text);">Analisi</h3><span class="be-badge neutral" id="aiAnalysisBadge">...</span></div><div id="aiAnalysisBody" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 24px; max-height: 50vh; overflow-y: auto;"></div><div class="modal-actions"><button class="btn-confirm" onclick="closeAIAnalysisModal()">Chiudi</button></div></div></div>
-<div class="modal-overlay" id="assistModal"><div class="modal-box assist-box">
-    <div class="assist-head"><h3 id="assistTitle">Assistente</h3>
-        <button type="button" class="assist-speak" id="assistSpeak" onclick="toggleAssistSpeak()" title="Leggi le risposte ad alta voce"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
-        <button type="button" class="settings-close" onclick="closeAssistant()" title="Chiudi"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+<div class="modal-overlay assist-overlay" id="assistModal"><div class="assist-box">
+    <div class="assist-head">
+        <button type="button" class="assist-icon" onclick="closeAssistant()" title="Chiudi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <div class="assist-titles"><h3 id="assistTitle">Assistente</h3><p id="assistSub">SGTRADER</p></div>
+        <button type="button" class="assist-icon assist-speak" id="assistSpeak" onclick="toggleAssistSpeak()" title="Leggi le risposte ad alta voce"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
     </div>
+    <div class="assist-ctx" id="assistCtx"></div>
     <div class="assist-log" id="assistLog"></div>
     <div class="assist-status" id="assistStatus"></div>
+    <div class="assist-quick" id="assistQuick"></div>
     <form class="assist-input" onsubmit="event.preventDefault(); sendAssist();">
+        <input type="text" id="assistInput" placeholder="Scrivi o tocca il microfono…" autocomplete="off" enterkeyhint="send">
         <button type="button" class="assist-mic" id="assistMic" onclick="toggleRecording()" title="Parla"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></button>
-        <input type="text" id="assistInput" placeholder="Scrivi cosa fare…" autocomplete="off" enterkeyhint="send">
-        <button type="submit" class="assist-send" title="Invia"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+        <button type="submit" class="assist-send" title="Invia"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></button>
     </form>
     <div class="assist-foot" id="assistFoot">Ogni azione parte solo dopo «Conferma».</div>
 </div></div>
@@ -1152,6 +1155,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=124"></script>
+<script type="module" src="./src/main.js?v=125"></script>
 </body>
 </html>

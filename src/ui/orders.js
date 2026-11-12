@@ -33,7 +33,9 @@ const when = iso => {
     const d = new Date(iso);
     return isNaN(d) ? '' : d.toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 };
-const section = (title, rows, empty) => `<div class="ord-sec"><div class="ord-title">${title}</div>${rows.length ? rows.join('') : `<div class="ord-empty">${empty}</div>`}</div>`;
+// Nessuno scroll verticale: ogni scheda ha i suoi elementi in fila, da scorrere in orizzontale
+const section = (title, rows, empty) => `<div class="ord-sec"><div class="ord-title">${title}${rows.length > 1 ? ` <span class="ord-count">${rows.length}</span>` : ''}</div>`
+    + `<div class="ord-list${rows.length > 1 ? ' many' : ''}">${rows.length ? rows.join('') : `<div class="ord-empty">${empty}</div>`}</div></div>`;
 const row = (main, sub, action = '') => `<div class="ord-row"><div class="ord-main"><b>${main}</b>${sub ? `<small>${sub}</small>` : ''}</div>${action}</div>`;
 
 function realOrders() {
