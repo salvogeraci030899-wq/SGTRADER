@@ -85,9 +85,14 @@
    "key": "app_breakout_trail:1d",
    "from": "paper",
    "to": "off"
+  },
+  {
+   "at": "2026-11-12T00:57:30+00:00",
+   "cmd": "trading",
+   "to": "on"
   }
  ],
  "risk": {
-  "trading_enabled": false
+  "trading_enabled": true
  }
 }
