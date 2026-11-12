@@ -43,13 +43,14 @@ export function setGhToken(token) {
         else localStorage.removeItem(GH_TOKEN_STORAGE);
     } catch (e) {}
 }
-// Da dove partono i comandi: 'server' (indirizzo impostato), 'github' (token sul dispositivo),
-// 'site' (il sito stesso, solo su Vercel) oppure 'none'
+// Da dove partono i comandi: 'server' (indirizzo impostato a mano), 'github' (token sul dispositivo),
+// 'site' (il sito stesso, solo su Vercel) oppure 'cloud' (il server Cloudflare del progetto: la scelta
+// predefinita su GitHub Pages, così l'app non ha bisogno di Vercel). Chiede APP_SECRET al primo comando.
 export function commandMode() {
     if (getApiBase()) return 'server';
     if (getGhToken()) return 'github';
     if (location.hostname.endsWith('vercel.app')) return 'site';
-    return 'none';
+    return 'cloud';
 }
 
 // opts.silent: richiesta automatica (non chiesta dall'utente): con 401 non apre la richiesta della chiave
@@ -59,9 +60,9 @@ export async function apiPost(path, body, opts = {}) {
         const { status, body: out } = await fn(body, { GH_TOKEN: getGhToken() }, (u, o) => fetch(u, o));
         return new Response(JSON.stringify(out), { status, headers: { 'Content-Type': 'application/json' } });
     }
-    // L'analisi AI serve la chiave Groq, che sta solo sui server: senza un indirizzo impostato e fuori
-    // da Vercel si usa il server Cloudflare del progetto
-    const base = getApiBase() || (['/api/analyze', '/api/assistant', '/api/transcribe'].includes(path) && !location.hostname.endsWith('vercel.app') ? CONFIG.AI_SERVER : '');
+    // Analisi AI e comandi: senza un indirizzo impostato e fuori da Vercel si usa il server Cloudflare del
+    // progetto (ha la chiave Groq, il token GitHub e APP_SECRET)
+    const base = getApiBase() || (location.hostname.endsWith('vercel.app') ? '' : CONFIG.AI_SERVER);
     const url = base + path;
     const send = () => {
         let key = '';
@@ -72,6 +73,13 @@ export async function apiPost(path, body, opts = {}) {
     };
     let res = await send();
     if (res.status === 401 && !opts.silent) {
+        // server senza APP_SECRET: chiedere la chiave non servirebbe (i comandi sono spenti sul server)
+        let msg = '';
+        try { msg = (await res.clone().json()).error || ''; } catch (e) {}
+        if (/non configurata/i.test(msg)) {
+            if (window.showAlert) window.showAlert('Comandi spenti sul server', 'Il server Cloudflare non ha la chiave APP_SECRET. Aggiungi il segreto APP_SECRET nel repository GitHub (Settings → Secrets and variables → Actions) e rilancia il workflow "Pubblica server comandi".');
+            return res;
+        }
         const key = (window.prompt('Inserisci la chiave app (APP_SECRET del server comandi):') || '').trim();
         if (!key) return res;
         try { localStorage.setItem(APP_KEY_STORAGE, key); } catch (e) {}
