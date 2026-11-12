@@ -89,6 +89,7 @@ main {
 #page-trade.active,
 #page-journal.active,
 #page-signals.active,
+#page-log.active,
 #page-info.active { height: 100%; overflow: hidden; }
 #page-calculator.active { height: 100%; overflow-y: auto; }
 #page-test.active,
@@ -1253,3 +1254,21 @@ html.app-locked .lock-screen, .lock-screen.active { display: flex; }
 .res-mini small, .res-trade small { color: var(--text-secondary); font-size: 11px; }
 .res-trade { flex: 0 0 62%; scroll-snap-align: start; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 9px 10px; display: flex; flex-direction: column; gap: 3px; font-size: 12px; }
 .res-trade-h { display: flex; justify-content: space-between; gap: 6px; }
+
+/* ===== Registro ===== */
+.log-filters { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; flex: 0 0 34px; height: 34px; margin-bottom: 8px; touch-action: pan-x; }
+.log-filters::-webkit-scrollbar { display: none; }
+.log-filters button { flex: none; background: var(--field); border: 1px solid var(--border); color: var(--text-secondary); border-radius: 999px; padding: 0 12px; font: 700 12px var(--font); }
+.log-filters button.on { background: var(--ui-soft); border-color: var(--ui); color: var(--ui); }
+.log-day { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; flex-shrink: 0; min-height: 30px; }
+.log-day b { flex: 1; }
+.log-day small { color: var(--text-secondary); }
+.log-day button { width: 34px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: var(--field); color: var(--text); font-size: 16px; }
+.log-day button:disabled { opacity: .35; }
+.log-body { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+/* due colonne per schermata; finita l'altezza, gli eventi continuano nella colonna a destra */
+.log-cols { flex: 1 1 0; min-height: 0; overflow-x: auto; overflow-y: hidden; column-width: calc((100vw - 40px) / 2); column-gap: 8px; column-fill: auto; scrollbar-width: none; touch-action: pan-x; }
+.log-cols::-webkit-scrollbar { display: none; }
+.log-ev { break-inside: avoid; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 9px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+.log-ev span { color: var(--text-secondary); font-size: 11px; line-height: 1.35; }
+.log-ev-h { display: flex; justify-content: space-between; gap: 6px; }

@@ -16,7 +16,7 @@ const { chromium } = require('playwright');
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = 8800 + Math.floor(Math.random() * 100);
 const DEVICES = [{ n: 'iPhone 15 Safari', w: 393, h: 659 }, { n: 'iPhone 17 Pro app', w: 402, h: 874, pwa: true }];
-const VIEWS = { journal: [['setResultsSource', 'real'], ['setResultsSource', 'sim'], ['setResultsSource', 'paper'], ['setResultsPeriod', 'all'], ['setResultsPeriod', 'day']], terminal: [['setMarketView', 'chart'], ['setMarketView', 'sig'], ['setMarketView', 'alerts']], trade: [['setPosView', 'open'], ['setPosView', 'orders']], signals: [['setSignalsView', 'agent'], ['setSignalsView', 'auto'], ['setSignalsView', 'lab'], ['setTestView', 'bt'], ['setSignalsView', 'risk']] };
+const VIEWS = { log: [['setLogFilter', 'all'], ['setLogFilter', 'agente']], journal: [['setResultsSource', 'real'], ['setResultsSource', 'sim'], ['setResultsSource', 'paper'], ['setResultsPeriod', 'all'], ['setResultsPeriod', 'day']], terminal: [['setMarketView', 'chart'], ['setMarketView', 'sig'], ['setMarketView', 'alerts']], trade: [['setPosView', 'open'], ['setPosView', 'orders']], signals: [['setSignalsView', 'agent'], ['setSignalsView', 'auto'], ['setSignalsView', 'lab'], ['setTestView', 'bt'], ['setSignalsView', 'risk']] };
 
 const now = Date.now();
 const candles = (n = 200) => Array.from({ length: n }, (_, i) => {
@@ -54,6 +54,11 @@ try {
             const u = r.request().url();
             const data = u.includes('candles') ? candles() : u.includes('ticker') ? [{ symbol: 'BTCUSDT', lastPr: '70500', open24h: '69000', change24h: '0.021', high24h: '71000', low24h: '68800', baseVolume: '1000', usdtVolume: '7e7', markPrice: '70500' }] : [];
             return r.fulfill({ contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ code: '00000', data }) });
+        });
+        await page.route('**/events/*.jsonl*', r => {
+            const at = new Date().toISOString();
+            const ev = Array.from({ length: 14 }, (_, i) => JSON.stringify({ at, kind: ['ordini', 'agente', 'carta', 'avvisi', 'posizioni', 'sistema', 'conto'][i % 7], action: 'prova', text: `Evento di prova numero ${i + 1}, con un testo di lunghezza normale come quelli veri.`, id: 'e' + i, ok: i % 5 !== 0, net: i % 2 ? 0.5 : -0.2 }));
+            return r.fulfill({ contentType: 'text/plain', body: ev.join('\n') + '\n' });
         });
         await page.route('**/automation.json*', r => {
             const j = JSON.parse(fs.readFileSync(path.join(ROOT, 'automation.json'), 'utf8'));
