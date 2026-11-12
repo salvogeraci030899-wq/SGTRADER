@@ -2,16 +2,22 @@
  "started": "2026-11-11",
  "strategies": {
   "big_candle_trail:1d": {
-   "mode": "off",
+   "mode": "paper",
    "trades": [],
    "last_candle": {
-    "BTCUSDT": 1794240000,
-    "ETHUSDT": 1794240000,
-    "SOLUSDT": 1794240000
+    "BTCUSDT": 1794326400,
+    "ETHUSDT": 1794326400,
+    "SOLUSDT": 1794326400
    },
    "stats": {
     "n": 0,
-    "open": 0
+    "open": 0,
+    "vs_backtest": {
+     "bt_avg": 3.819,
+     "bt_n": 187,
+     "n": 0,
+     "verdict": "pochi_trade"
+    }
    }
   },
   "donchian20_turtle:1d": {
@@ -28,5 +34,5 @@
    }
   }
  },
- "updated_at": "2026-11-12T02:33:48+00:00"
+ "updated_at": "2026-11-12T04:15:44+00:00"
 }
