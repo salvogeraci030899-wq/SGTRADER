@@ -124,9 +124,14 @@
    "key": "big_candle_trail:1d",
    "from": "off",
    "to": "paper"
+  },
+  {
+   "at": "2026-11-12T05:31:30+00:00",
+   "cmd": "trading",
+   "to": "off"
   }
  ],
  "risk": {
-  "trading_enabled": true
+  "trading_enabled": false
  }
 }
