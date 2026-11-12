@@ -19,6 +19,7 @@ import * as AccountUI from './ui/account.js';
 import { initTheme } from './core/theme.js';
 import { initManual } from './ui/manual.js';
 import * as Lock from './ui/lock.js';
+import * as Orders from './ui/orders.js';
 import { initPageFit } from './ui/page-fit.js';
 
 State.loadState();
@@ -178,6 +179,9 @@ Object.assign(window, { lockKey: Lock.lockKey, lockFaceId: Lock.lockFaceId, lock
     openLockSettings: Lock.openLockSettings, closeLockSettings: Lock.closeLockSettings, lockSetup: Lock.lockSetup, lockChange: Lock.lockChange,
     lockDisable: Lock.lockDisable, lockSetAfter: Lock.lockSetAfter, lockSetFace: Lock.lockSetFace });
 Lock.initLock();
+window.setPosView = Orders.setPosView;
+window.renderOrders = Orders.renderOrders;
+Orders.initOrders();
 window.removeRealOrder = AutoUI.removeRealOrder;
 window.requestAIAnalysisReal = TradeUI.requestAIAnalysisReal;
 window.addAutoPaper = AutoUI.addAutoPaper;

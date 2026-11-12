@@ -1054,3 +1054,26 @@ html.app-locked .lock-screen, .lock-screen.active { display: flex; }
 .btn-cta-primary.btn-real { background: var(--warning) !important; color: #000 !important; }
 .order-status { font-size: 12px; line-height: 1.35; text-align: center; margin-top: 6px; min-height: 0; color: var(--text-secondary); }
 .order-status:empty { display: none; }
+
+/* Posizioni: viste Aperte / Ordini */
+.pos-views { display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: var(--field); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; flex-shrink: 0; }
+.pos-views button { background: transparent; border: none; color: var(--text-secondary); font-size: 13px; font-weight: 700; min-height: 34px; cursor: pointer; font-family: var(--font); }
+.pos-views button.active { background: var(--surface-hover); color: var(--text); }
+.orders-view { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 12px; padding-bottom: 6px; }
+.ord-sec { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 10px 12px; }
+.ord-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-secondary); margin-bottom: 6px; }
+.ord-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--border); }
+.ord-title + .ord-row { border-top: none; }
+.ord-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.ord-main b { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ord-main small { font-size: 11px; color: var(--text-secondary); line-height: 1.3; }
+.ord-log .ord-main small { white-space: normal; }
+.ord-x { flex: none; background: transparent; border: 1px solid var(--danger); color: var(--danger); border-radius: 8px; min-width: 34px; min-height: 30px; font-size: 14px; cursor: pointer; }
+.ord-tag { flex: none; font-size: 11px; color: var(--text-secondary); }
+.ord-tag.warn { color: var(--warning); font-weight: 700; }
+.ord-ok { flex: none; font-weight: 800; width: 14px; text-align: center; }
+.ord-empty { font-size: 12px; color: var(--text-secondary); padding: 4px 0; }
+@media (max-height: 700px) {
+    .pos-views { margin-bottom: 6px; }
+    .pos-views button { min-height: 28px; font-size: 12px; }
+}

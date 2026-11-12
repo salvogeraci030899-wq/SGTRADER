@@ -51,40 +51,41 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=123">
-    <meta name="app-version" content="123">
+    <link rel="stylesheet" href="./style.css?v=124">
+    <meta name="app-version" content="124">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=123",
-            "./src/core/commands.js": "./src/core/commands.js?v=123",
-            "./src/core/config.js": "./src/core/config.js?v=123",
-            "./src/core/labEngine.js": "./src/core/labEngine.js?v=123",
-            "./src/core/logger.js": "./src/core/logger.js?v=123",
-            "./src/core/rules.js": "./src/core/rules.js?v=123",
-            "./src/core/state.js": "./src/core/state.js?v=123",
-            "./src/core/theme.js": "./src/core/theme.js?v=123",
-            "./src/main.js": "./src/main.js?v=123",
-            "./src/ui/account.js": "./src/ui/account.js?v=123",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=123",
-            "./src/ui/assistant.js": "./src/ui/assistant.js?v=123",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=123",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=123",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=123",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=123",
-            "./src/ui/history.js": "./src/ui/history.js?v=123",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=123",
-            "./src/ui/home.js": "./src/ui/home.js?v=123",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=123",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=123",
-            "./src/ui/lock.js": "./src/ui/lock.js?v=123",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=123",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=123",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=123",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=123",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=123",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=123"
+            "./src/core/backup.js": "./src/core/backup.js?v=124",
+            "./src/core/commands.js": "./src/core/commands.js?v=124",
+            "./src/core/config.js": "./src/core/config.js?v=124",
+            "./src/core/labEngine.js": "./src/core/labEngine.js?v=124",
+            "./src/core/logger.js": "./src/core/logger.js?v=124",
+            "./src/core/rules.js": "./src/core/rules.js?v=124",
+            "./src/core/state.js": "./src/core/state.js?v=124",
+            "./src/core/theme.js": "./src/core/theme.js?v=124",
+            "./src/main.js": "./src/main.js?v=124",
+            "./src/ui/account.js": "./src/ui/account.js?v=124",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=124",
+            "./src/ui/assistant.js": "./src/ui/assistant.js?v=124",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=124",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=124",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=124",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=124",
+            "./src/ui/history.js": "./src/ui/history.js?v=124",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=124",
+            "./src/ui/home.js": "./src/ui/home.js?v=124",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=124",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=124",
+            "./src/ui/lock.js": "./src/ui/lock.js?v=124",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=124",
+            "./src/ui/orders.js": "./src/ui/orders.js?v=124",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=124",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=124",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=124",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=124",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=124"
         }
     }
     </script>
@@ -474,8 +475,13 @@
                     <div class="capital-display" id="simCapitalDisplay">2.000,00 USDT</div>
                 </div>
             </div>
+            <div class="pos-views">
+                <button type="button" id="btn-pos-open" class="active" onclick="setPosView('open')">Aperte</button>
+                <button type="button" id="btn-pos-orders" onclick="setPosView('orders')">Ordini</button>
+            </div>
             <div id="activeTradesList" class="empty"></div>
             <div class="info-dots" id="activeTradeDots"></div>
+            <div id="ordersView" class="orders-view" style="display:none"></div>
         </section>
 
         <!-- ==================== DIARIO ==================== -->
@@ -1146,6 +1152,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=123"></script>
+<script type="module" src="./src/main.js?v=124"></script>
 </body>
 </html>
