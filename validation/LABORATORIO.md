@@ -1,6 +1,6 @@
 # Laboratorio strategie
 
-Generato il 2026-11-12T08:59:51+00:00 · 56 prove in questa esecuzione, 56 registrate in tutto.
+Generato il 2026-11-12T09:19:06+00:00 · 56 prove in questa esecuzione, 56 registrate in tutto.
 
 - **Ricerca** solo sullo storico prima del 2025-11-11; da lì in poi è **sigillato** per la prova finale.
 - **Costi** (scenario principale: futures, ordini a mercato): 0.11% per lato più funding. "Netto" = dopo questi costi, tasse escluse.
