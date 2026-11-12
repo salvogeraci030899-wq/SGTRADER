@@ -22,6 +22,7 @@ import * as Lock from './ui/lock.js';
 import * as Orders from './ui/orders.js';
 import { initPageFit } from './ui/page-fit.js';
 import { normalizeWindows } from './ui/windows.js';
+import * as Market from './ui/market.js';
 
 State.loadState();
 State.loadSignalState();
@@ -173,7 +174,11 @@ window.toggleEmergency = AutoUI.toggleEmergency;
 window.runAutoJob = AutoUI.runAutoJob;
 window.openAutoAdd = AutoUI.openAutoAdd;
 window.closeAutoAdd = AutoUI.closeAutoAdd;
-window.openAlerts = AutoUI.openAlerts;
+window.openAlerts = () => { window.switchTab('terminal'); Market.setMarketView('alerts'); };   // Home → Avvisi prezzo
+window.setMarketView = Market.setMarketView;
+window.renderMarketAlerts = Market.renderMarketAlerts;
+window.newPriceAlert = Market.newPriceAlert;
+window.resizeChart = TerminalUI.resizeChart;
 window.openAgent = AutoUI.openAgent;
 window.closeAgent = AutoUI.closeAgent;
 window.agentPromote = AutoUI.agentPromote;

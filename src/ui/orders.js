@@ -1,11 +1,12 @@
 // --- POSIZIONI → ORDINI: tutto ciò che è in attesa o è stato chiesto, in un posto solo ---
-// Reale:    stop e target in attesa su Bitget (futures e spot, con ✕), avvisi di prezzo, ultimi comandi (✓/✗).
-// Simulato: stop, target e regole dei trade simulati aperti, avvisi di prezzo.
-// Gli ordini si creano dalla pagina Trade o con Chat/Voce; qui si vedono e si tolgono.
+// Solo ciò che aspetta di scattare. Reale: stop e target in attesa su Bitget, futures e spot (con ✕).
+// Simulato: stop, target e regole dei trade simulati aperti.
+// Comandi inviati ed esiti stanno nel Registro; gli avvisi di prezzo in Mercato → Avvisi.
+// Gli ordini si creano dalla pagina Trade o con l'assistente; qui si vedono e si tolgono.
 import { State } from '../core/state.js';
 import { $, SYM, escapeHtml, fmtPrice } from '../utils/helpers.js';
 import { isRealMode, realPositions } from './history.js';
-import { getAutoState, priceAlerts, isRealOrderRemoving } from './automation.js';
+import { isRealOrderRemoving } from './automation.js';
 
 const VIEW_KEY = 'sg_pos_view';
 let view = 'open';
@@ -29,10 +30,6 @@ function applyView() {
     $('btn-pos-orders')?.classList.toggle('active', view === 'orders');
 }
 
-const when = iso => {
-    const d = new Date(iso);
-    return isNaN(d) ? '' : d.toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-};
 // Nessuno scroll verticale: ogni scheda ha i suoi elementi in fila, da scorrere in orizzontale
 // Oltre allo scorrimento col dito, frecce ‹ › e posizione (1/4): su iPhone si scorre anche senza trascinare
 const nav = n => n > 1 ? `<span class="ord-nav"><button type="button" aria-label="Precedente" onclick="ordStep(this,-1)">‹</button><span class="ord-pos">1/${n}</span><button type="button" aria-label="Successivo" onclick="ordStep(this,1)">›</button></span>` : '';
@@ -61,9 +58,9 @@ export function ordStep(btn, dir) {
 }
 const row = (main, sub, action = '') => `<div class="ord-row"><div class="ord-main"><b>${main}</b>${sub ? `<small>${sub}</small>` : ''}</div>${action}</div>`;
 
-function realOrders() {
+function realOrders(market) {
     const rows = [];
-    for (const p of realPositions()) {
+    for (const p of realPositions().filter(x => (x.market === 'spot') === (market === 'spot'))) {
         const name = p.market === 'spot' ? `${SYM(p.symbol)} spot` : `${SYM(p.symbol)} ${String(p.side).toUpperCase()} futures`;
         const short = p.side === 'short';
         for (const [kind, price] of [['sl', p.sl], ['tp', p.tp]]) {
@@ -94,31 +91,16 @@ function simOrders() {
     return rows;
 }
 
-function alertRows() {
-    return priceAlerts().map(a => row(`${SYM(a.symbol)} ${a.side === 'above' ? '≥' : '≤'} ${fmtPrice(a.price)}`, 'avviso su Telegram, nessun ordine',
-        `<button type="button" class="ord-x" title="Togli" onclick="removePriceAlert('${escapeHtml(a.id)}')">✕</button>`));
-}
 
-function commandRows() {
-    const live = getAutoState().live;
-    const ev = ((live && live.events) || []).filter(e => e && e.kind === 'manual').slice(-15).reverse();
-    return ev.map(e => {
-        const ok = e.ok !== false;
-        const mkt = e.side === 'spot' ? 'spot' : e.side ? String(e.side).toUpperCase() : '';
-        return `<div class="ord-row ord-log"><span class="ord-ok ${ok ? 'text-accent' : 'text-danger'}">${ok ? '✓' : '✗'}</span><div class="ord-main"><b>${escapeHtml(SYM(e.symbol || ''))} ${escapeHtml(mkt)} · ${escapeHtml(e.action || '')}</b><small>${escapeHtml(when(e.at))} · ${escapeHtml(e.msg || '')}</small></div></div>`;
-    });
-}
 
 export function renderOrders() {
     const box = $('ordersView');
     if (!box || view !== 'orders') return;
     const real = isRealMode();
     const html = real
-        ? section('In attesa su Bitget', realOrders(), 'Nessuno stop o target in attesa.')
-          + section('Avvisi di prezzo', alertRows(), 'Nessun avviso. Chiedilo all\'assistente: «avvisami se BTC arriva a 75.000».')
-          + section('Ultimi comandi', commandRows(), 'Ancora nessun comando dall\'app.')
-        : section('Livelli dei trade simulati', simOrders(), 'Nessun trade simulato aperto.')
-          + section('Avvisi di prezzo', alertRows(), 'Nessun avviso. Chiedilo all\'assistente: «avvisami se BTC arriva a 75.000».');
+        ? section('Futures · in attesa su Bitget', realOrders('futures'), 'Nessuno stop o target in attesa sui futures.')
+          + section('Spot · in attesa su Bitget', realOrders('spot'), 'Nessun ordine spot in attesa.')
+        : section('Livelli dei trade simulati', simOrders(), 'Nessun trade simulato aperto.');
     // Viene chiamata a ogni aggiornamento dei prezzi: ridisegnare sempre riportava ogni lista al primo
     // elemento mentre la si scorreva. Si ridisegna solo se il contenuto cambia, e si tiene la posizione.
     if (html === lastHtml && box.childElementCount) return;

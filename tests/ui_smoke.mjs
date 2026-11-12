@@ -16,7 +16,7 @@ const { chromium } = require('playwright');
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = 8800 + Math.floor(Math.random() * 100);
 const DEVICES = [{ n: 'iPhone 15 Safari', w: 393, h: 659 }, { n: 'iPhone 17 Pro app', w: 402, h: 874, pwa: true }];
-const VIEWS = { trade: [['setPosView', 'open'], ['setPosView', 'orders']], signals: [['setSignalsView', 'sig'], ['setSignalsView', 'auto'], ['setSignalsView', 'agent']], test: [['setTestView', 'bt'], ['setTestView', 'lab']] };
+const VIEWS = { terminal: [['setMarketView', 'chart'], ['setMarketView', 'sig'], ['setMarketView', 'alerts']], trade: [['setPosView', 'open'], ['setPosView', 'orders']], signals: [['setSignalsView', 'auto'], ['setSignalsView', 'agent']], test: [['setTestView', 'bt'], ['setTestView', 'lab']] };
 
 const now = Date.now();
 const candles = (n = 200) => Array.from({ length: n }, (_, i) => {
@@ -112,7 +112,7 @@ try {
             await step('assistente: non si apre dalla scheda', async () => { await page.click('.at-assist'); await page.waitForTimeout(400); return page.evaluate(() => document.getElementById('assistModal').classList.contains('active')); });
             await step('assistente: la X non chiude', async () => { await page.click('.assist-head [title="Chiudi"]'); await page.waitForTimeout(300); return page.evaluate(() => !document.getElementById('assistModal').classList.contains('active')); });
         }
-        await page.evaluate(() => window.switchTab('terminal'));
+        await page.evaluate(() => { window.switchTab('terminal'); window.setMarketView('chart'); });
         await page.waitForTimeout(600);
         await step('grafico: schermo intero senza tasti avviso e condividi', async () => {
             await page.click('#btnFullscreen'); await page.waitForTimeout(500);
@@ -122,6 +122,13 @@ try {
             await page.click('#mainChartContainer .chart-tool >> nth=0'); await page.waitForTimeout(300);
             const on = await page.evaluate(() => document.getElementById('chartAlertModal').classList.contains('active'));
             await page.evaluate(() => window.closeChartAlert()); await page.click('#mainChartContainer .home-chart-fullscreen'); await page.waitForTimeout(300);
+            return on;
+        });
+        await step('mercato: Nuovo avviso non apre la finestra', async () => {
+            await page.evaluate(() => window.setMarketView('alerts')); await page.waitForTimeout(300);
+            await page.click('.mkt-new-alert'); await page.waitForTimeout(300);
+            const on = await page.evaluate(() => document.getElementById('chartAlertModal').classList.contains('active') && document.querySelectorAll('#caCoins .pill-btn').length === 3);
+            await page.evaluate(() => window.closeChartAlert());
             return on;
         });
         await page.evaluate(() => { window.switchTab('signals'); window.setSignalsView('agent'); });
