@@ -47,14 +47,17 @@ export function initTheme() {
 // Colore di una variabile CSS del tema (per i grafici, che non leggono il CSS da soli)
 export const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-// Vetro (stile Liquid Glass) su barra, tasti e schede: 'on' | 'off', spento all'inizio
+// Vetro (stile Liquid Glass) su barra, tasti e schede: 'off' | 'on' (sfondo fermo) | 'anim' (sfondo che si muove piano), spento all'inizio
 const GLASS_KEY = 'sgt_glass';
+const GLASS = ['off', 'on', 'anim'];
 export function getGlassPref() {
-    try { return localStorage.getItem(GLASS_KEY) === 'on' ? 'on' : 'off'; } catch (e) { return 'off'; }
+    try { const v = localStorage.getItem(GLASS_KEY); return GLASS.includes(v) ? v : 'off'; } catch (e) { return 'off'; }
 }
 export function setGlassPref(pref) {
-    try { localStorage.setItem(GLASS_KEY, pref === 'on' ? 'on' : 'off'); } catch (e) {}
-    document.documentElement.classList.toggle('glass', pref === 'on');
+    if (!GLASS.includes(pref)) pref = 'off';
+    try { localStorage.setItem(GLASS_KEY, pref); } catch (e) {}
+    document.documentElement.classList.toggle('glass', pref !== 'off');
+    document.documentElement.classList.toggle('glass-anim', pref === 'anim');
     applyTheme();      // i grafici si ridipingono (sfondo trasparente col vetro)
 }
 

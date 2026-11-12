@@ -36,7 +36,7 @@ try {
     // ogni dispositivo in Simulato e Reale; l'app installata anche in Reale con il vetro e il tema chiaro
     const RUNS = DEVICES.flatMap(dev => [{ dev, mode: 'sim' }, { dev, mode: 'real' }, ...(dev.pwa ? [{ dev, mode: 'real', glass: true }] : [])]);
     for (const { dev, mode, glass } of RUNS) {
-        const tag = (mode === 'real' ? 'Reale' : 'Simulato') + (glass ? ', vetro chiaro' : '');
+        const tag = (mode === 'real' ? 'Reale' : 'Simulato') + (glass ? ', vetro animato chiaro' : '');
         const ctx = await browser.newContext({ viewport: { width: dev.w, height: dev.h }, isMobile: true, hasTouch: true, colorScheme: glass ? 'light' : 'dark' });
         await ctx.addInitScript(([pwa, glass]) => {
             try {
@@ -47,7 +47,7 @@ try {
                       entryTime: Date.now() - 3600e3, timerSeconds: 86400 * 7, granularity: '1d', market: 'SPOT' }] }));
             } catch (e) {}
             if (pwa) Object.defineProperty(navigator, 'standalone', { get: () => true });
-            if (glass) try { localStorage.setItem('sgt_glass', 'on'); localStorage.setItem('sgt_theme', 'light'); } catch (e) {}
+            if (glass) try { localStorage.setItem('sgt_glass', 'anim'); localStorage.setItem('sgt_theme', 'light'); } catch (e) {}
         }, [!!dev.pwa, !!glass]);
         const page = await ctx.newPage();
         const errors = [];
