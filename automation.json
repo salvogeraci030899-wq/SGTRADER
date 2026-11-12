@@ -110,6 +110,11 @@
    "key": "donchian20_turtle:1d",
    "from": "paper",
    "to": "off"
+  },
+  {
+   "at": "2026-11-12T02:20:17+00:00",
+   "cmd": "resume",
+   "executor_unhalted": true
   }
  ],
  "risk": {
