@@ -192,7 +192,7 @@
    "msg": "Chiusa a mercato SOL SHORT su Bitget."
   }
  ],
- "mode": "reale",
+ "mode": "simulata",
  "simulated": {
   "equity": 1000.0,
   "positions": {}
@@ -254,7 +254,7 @@
     "margin_mode": "isolated"
    }
   ],
-  "checked_at": "2026-11-12T17:18:29+00:00",
+  "checked_at": "2026-11-12T17:33:14+00:00",
   "day": "2026-11-12",
   "day_start_total": 15.98,
   "day_change": 0.08,
