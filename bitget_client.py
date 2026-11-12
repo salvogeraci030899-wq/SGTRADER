@@ -126,11 +126,17 @@ class BitgetClient:
         except Exception:
             return None
 
-    def setup_symbol(self, symbol, leverage):
-        """Margine isolato e leva per la coin. Da chiamare prima di aprire."""
+    def pos_mode(self, symbol):
+        """Modalità delle posizioni del conto futures: "one_way_mode" (una direzione per coin) o "hedge_mode"."""
+        data = self._request("GET", "/api/v2/mix/account/account", {"symbol": symbol, "productType": PRODUCT_TYPE, "marginCoin": MARGIN_COIN}) or {}
+        return (data[0] if isinstance(data, list) and data else data).get("posMode") or "hedge_mode"
+
+    def setup_symbol(self, symbol, leverage, side=None):
+        """Margine isolato e leva per la coin. Da chiamare prima di aprire (con il margine isolato in modalità
+        hedge la leva va data per direzione: holdSide)."""
         base = {"symbol": symbol, "productType": PRODUCT_TYPE, "marginCoin": MARGIN_COIN}
         self._request("POST", "/api/v2/mix/account/set-margin-mode", body={**base, "marginMode": "isolated"})
-        self._request("POST", "/api/v2/mix/account/set-leverage", body={**base, "leverage": str(int(leverage))})
+        self._request("POST", "/api/v2/mix/account/set-leverage", body={**base, "leverage": str(int(leverage)), **({"holdSide": side} if side else {})})
 
     def positions(self):
         """Posizioni aperte: {symbol: {"side": "long"/"short", "size": contratti}}."""
@@ -171,13 +177,18 @@ class BitgetClient:
         return out
 
     # ---------- ordini ----------
-    def open_position(self, symbol, side, size, stop_price, client_oid=None):
-        """Ordine a mercato con stop loss già impostato sull'exchange (protegge anche se il bot si ferma)."""
+    def open_position(self, symbol, side, size, stop_price, client_oid=None, take_price=None, one_way=False):
+        """Ordine a mercato con stop loss (ed eventuale take profit) già impostati sull'exchange: proteggono
+        anche se il bot si ferma. In modalità unidirezionale Bitget non vuole "tradeSide"."""
         body = {
             "symbol": symbol, "productType": PRODUCT_TYPE, "marginMode": "isolated", "marginCoin": MARGIN_COIN,
-            "size": str(size), "side": "buy" if side == "long" else "sell", "tradeSide": "open", "orderType": "market",
+            "size": str(size), "side": "buy" if side == "long" else "sell", "orderType": "market",
             "presetStopLossPrice": str(stop_price), "clientOid": client_oid or f"sgt{uuid.uuid4().hex[:24]}",
         }
+        if not one_way:
+            body["tradeSide"] = "open"
+        if take_price:
+            body["presetStopSurplusPrice"] = str(take_price)
         return self._request("POST", "/api/v2/mix/order/place-order", body=body)
 
     def close_position(self, symbol, side):
@@ -254,7 +265,7 @@ class DryRunClient:
     def positions(self):
         return {s: dict(p) for s, p in self._positions.items()}
 
-    def open_position(self, symbol, side, size, stop_price, client_oid=None):
+    def open_position(self, symbol, side, size, stop_price, client_oid=None, take_price=None, one_way=False):
         self.calls.append(("open", symbol, side, size, stop_price))
         self._positions[symbol] = {"side": side, "size": size}
         return {"orderId": f"dry-{len(self.calls)}"}
