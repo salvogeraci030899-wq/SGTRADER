@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { handle, safeEqual, pickModel, summarizeCandles, buildAnalysisPrompt, modelOptions, sanitizeGeneralAction } from '../api/_core.js';
 import worker, { scheduled } from '../worker/index.js';
+import { telegramAnswer } from '../src/core/telegram.js';
 
 const env = { APP_SECRET: 'segreto-lungo', GH_TOKEN: 'tok', GH_REPO: 'io/repo', GH_REF: 'main', GROQ_API_KEY: 'g' };
 const calls = [];
@@ -326,6 +327,49 @@ test('orologio del bot: avvio programmato', async () => {
 });
 
 let failed = 0;
+test('bot Telegram: risposte in sola lettura', async () => {
+    const data = {
+        'automation.json': { strategies: { 'big_candle_trail:1d': 'paper', 'tsmom30:1d': 'paper' }, risk: { trading_enabled: false, risk_per_trade_pct: 0.5 }, agent: { autonomy: 'paper' },
+            price_alerts: [{ id: 'a1', symbol: 'BTCUSDT', side: 'above', price: 75000 }, { id: 'a2', symbol: 'SOLUSDT', side: 'below', price: 80 }] },
+        'live_trades.json': { mode: 'simulata', account: { connected: true, equity: 16.06, total_usdt: 16.06, positions: 1, upl: 0.4, day_change: -0.1,
+            positions_detail: [{ symbol: 'SOLUSDT', side: 'short', size: 0.1, entry: 160, mark: 156, upl: 0.4, leverage: 3, sl: null, tp: 150 }], spot_detail: [] } },
+        'paper_trades.json': { strategies: { 'big_candle_trail:1d': { stats: { n: 2, open: 1, avg_net_pct: 1.5, vs_backtest: { verdict: 'pochi_trade' } },
+            trades: [{ open: false, net: 10, entry: 100, stop: 95 }, { open: false, net: -5, entry: 100, stop: 95 }] }, 'tsmom30:1d': { stats: { n: 0, open: 0 }, trades: [] } } },
+        'agent_state.json': { observing: ['tsmom30:1d'], proposals: [], log: [{ kind: 'observe', key: 'tsmom30:1d' }],
+            capital: { equity: 16.06, symbols: { BTCUSDT: { needed: 73.3, ok: false }, SOLUSDT: { needed: 82.7, ok: false } } } },
+        'quick_state.json': { _price_alerts_fired: ['a2'] }
+    };
+    const st = telegramAnswer('/stato', data);
+    assert.match(st, /16,06 USDT \(oggi -0,10\)/); assert.match(st, /Ordini veri: spenti/); assert.match(st, /tsmom30 1d \(carta\)/);
+    assert.match(telegramAnswer('/posizioni', data), /SOL SHORT 3x · 0,1000 da 160,00[\s\S]*stop NESSUNO · target 150,00/);
+    const ag = telegramAnswer('/agente@SgBot', data);
+    assert.match(ag, /simulato, bilanciato, swing/); assert.match(ag, /servono ~73 per BTC/); assert.match(ag, /in osservazione: tsmom30 1d/);
+    const ca = telegramAnswer('/carta', data);
+    assert.match(ca, /tsmom30 1d \(osservazione\)/); assert.match(ca, /In totale: \+0,50% del patrimonio in 2 trade/);
+    const av = telegramAnswer('/avvisi', data);
+    assert.match(av, /BTC ≥ 75\.000/); assert.doesNotMatch(av, /SOL/);       // scattato: non più attivo
+    assert.match(telegramAnswer('ciao', data), /\/stato/);
+});
+
+test('bot Telegram: solo con il segreto del webhook e dalla tua chat', async () => {
+    const tenv = { ...env, TELEGRAM_TOKEN: 'bot1', TELEGRAM_CHAT_ID: '42', TELEGRAM_WEBHOOK_SECRET: 'ws-segreto' };
+    const sent = [];
+    const f = async (url, opts = {}) => {
+        if (url.includes('api.telegram.org')) { sent.push(JSON.parse(opts.body)); return { ok: true, status: 200 }; }
+        return { ok: true, status: 200, json: async () => ({}) };
+    };
+    const msg = (chat, text = '/stato') => ({ message: { chat: { id: chat }, text } });
+    assert.equal((await handle('POST', '/api/telegram', msg(42), {}, tenv, f)).status, 401);
+    assert.equal((await handle('POST', '/api/telegram', msg(42), { 'x-telegram-bot-api-secret-token': 'sbagliato!!' }, tenv, f)).status, 401);
+    const h = { 'x-telegram-bot-api-secret-token': 'ws-segreto' };
+    assert.equal((await handle('POST', '/api/telegram', msg(99), h, tenv, f)).status, 200);
+    assert.equal(sent.length, 0);                                                  // altra chat: nessuna risposta
+    assert.equal((await handle('POST', '/api/telegram', msg(42), h, tenv, f)).status, 200);
+    assert.equal(sent.length, 1); assert.equal(sent[0].chat_id, '42'); assert.match(sent[0].text, /STATO/);
+    assert.equal((await handle('POST', '/api/telegram', msg(42), h, { ...env }, f)).status, 503);   // non configurato
+    assert.equal((await handle('GET', '/api/telegram', {}, h, tenv, f)).status, 405);
+});
+
 for (const [name, fn] of tests) {
     try { await fn(); console.log('ok', name); } catch (e) { failed++; console.log('FALLITO', name, e.message); }
 }
