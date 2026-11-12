@@ -254,7 +254,7 @@
     "margin_mode": "isolated"
    }
   ],
-  "checked_at": "2026-11-12T06:52:33+00:00",
+  "checked_at": "2026-11-12T07:08:00+00:00",
   "day": "2026-11-12",
   "day_start_total": 15.98,
   "day_change": 0.08
@@ -263,7 +263,5 @@
  "closed_notified": [
   "1504568835275640835"
  ],
- "manual": [
-  "SOLUSDT"
- ]
+ "manual": []
 }
