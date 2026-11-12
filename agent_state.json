@@ -1,5 +1,5 @@
 {
- "last_run": "2026-11-12T09:43:05+00:00",
+ "last_run": "2026-11-12T16:08:20+00:00",
  "added": [
   "big_candle:1d",
   "tsmom30:1d",
@@ -7,16 +7,13 @@
  ],
  "proposals": [],
  "facts": [
-  "Messa su carta big candle 1d in osservazione: non candidata ma promettente sullo storico (247 trade, oltre il mercato 1.785% a trade). Solo carta, non andrà al reale.",
-  "Messa su carta tsmom30 1d in osservazione: non candidata ma promettente sullo storico (889 trade, oltre il mercato 0.759% a trade). Solo carta, non andrà al reale.",
-  "Messa su carta tsmom combo 1d in osservazione: non candidata ma promettente sullo storico (669 trade, oltre il mercato 0.696% a trade). Solo carta, non andrà al reale.",
   "Stato big candle 1d (su carta): 0 trade chiusi, 0 aperti.",
   "Stato big candle trail 1d (su carta): 0 trade chiusi, 0 aperti.",
   "Stato tsmom30 1d (su carta): 0 trade chiusi, 0 aperti.",
   "Stato tsmom combo 1d (su carta): 0 trade chiusi, 0 aperti.",
-  "Capitale 16.06 USDT, rischio 0.5% a trade, stop tipico 5.0%: troppo poco per i minimi di Bitget, ogni trade reale verrebbe saltato. Servono almeno ~73 USDT (BTC), oppure un profilo con più rischio."
+  "Capitale 16.06 USDT, rischio 0.5% a trade, stop tipico 5.0%: troppo poco per i minimi di Bitget, ogni trade reale verrebbe saltato. Servono almeno ~72 USDT (BTC), oppure un profilo con più rischio."
  ],
- "report": "Settimana conclusa senza attività reale. Sono state inserite in osservazione tre strategie su carta (big candle 1d, tsmom30 1d, tsmom combo 1d); tutte risultano non candidate ma mostrano performance storiche superiori al mercato (247, 889 e 669 trade rispettivamente, con +1,785 %, +0,759 % e +0,696 % a trade). Nessun trade è stato aperto né chiuso per nessuna delle quattro versioni (big candle, big candle trail, tsmom30, tsmom combo). Il capitale disponibile è 16,06 USDT, con rischio impostato allo 0,5 % per trade e stop tipico al 5 %; tale importo è insufficiente per soddisfare i minimi di Bitget, quindi nessun trade reale può essere eseguito. Nessuna decisione è pendente.",
+ "report": "Rapporto settimanale:\n\n- Stato delle strategie su carta (big candle 1d, big candle trail 1d, tsmom30 1d, tsmom combo 1d): 0 trade chiusi, 0 trade aperti per tutte.\n- Capitale disponibile: 16,06 USDT.\n- Rischio impostato: 0,5 % per trade con stop tipico del 5,0 %. Con il capitale attuale il valore minimo richiesto da Bitget (circa 72 USDT per BTC) supera di gran lunga la disponibilità, perciò ogni trade reale verrebbe automaticamente scartato.\n- Nessuna variazione operativa rispetto alla settimana precedente. È necessario valutare l’aumento del capitale o la modifica del profilo di rischio per rendere operative le strategie.",
  "report_model": "openai/gpt-oss-120b",
  "log": [
   {
@@ -49,28 +46,35 @@
   "profile": "bilanciato",
   "style": "swing"
  },
- "report_at": "2026-11-12T09:43:05+00:00",
+ "report_at": "2026-11-12T16:08:20+00:00",
  "capital": {
   "equity": 16.06,
   "stop_pct": 5.0,
   "risk_pct": 0.5,
   "symbols": {
    "BTCUSDT": {
-    "min_usdt": 7.34,
-    "needed": 73.38,
-    "ok": false
+    "min_usdt": 7.2,
+    "needed": 72.03,
+    "ok": false,
+    "min_size": 0.0001
    },
    "ETHUSDT": {
-    "min_usdt": 20.44,
-    "needed": 204.38,
-    "ok": false
+    "min_usdt": 20.22,
+    "needed": 202.21,
+    "ok": false,
+    "min_size": 0.01
    },
    "SOLUSDT": {
-    "min_usdt": 8.3,
-    "needed": 82.95,
-    "ok": false
+    "min_usdt": 8.21,
+    "needed": 82.1,
+    "ok": false,
+    "min_size": 0.1
    }
-  }
+  },
+  "paper_feasible": [
+   0,
+   0
+  ]
  },
  "capital_warned": true,
  "observing": [
