@@ -1,3 +1,16 @@
+# Dati personali: cifrati nel repository (repository pubblico), in chiaro nei workflow.
+# Filtro e unione: tools/datacrypt.py, configurati dal passo "Dati cifrati" (.github/actions/data-key).
+# Senza la chiave DATA_KEY restano in chiaro come prima.
+automation.json filter=sgtenc merge=sgtenc
+live_trades.json filter=sgtenc merge=sgtenc
+paper_trades.json filter=sgtenc merge=sgtenc
+agent_state.json filter=sgtenc merge=sgtenc
+alerts_state.json filter=sgtenc merge=sgtenc
+quick_state.json filter=sgtenc merge=sgtenc
+equity_history.json filter=sgtenc merge=sgtenc
 # File di stato che crescono riga per riga: se due workflow salvano insieme si tengono le righe di entrambi
 # (track_record.py scarta poi i doppioni per id).
 *.jsonl merge=union
+# Registro degli eventi: cresce riga per riga; se due workflow salvano insieme si tengono le righe di
+# entrambi (unione per righe anche quando è cifrato); l'app scarta i doppioni per id.
+events/*.jsonl filter=sgtenc merge=sgtenc

@@ -406,6 +406,42 @@ test('bot Telegram: solo con il segreto del webhook e dalla tua chat', async () 
     assert.equal((await handle('GET', '/api/telegram', {}, h, tenv, f)).status, 405);
 });
 
+test('dati cifrati: stesso formato di tools/datacrypt.py, bot Telegram e IA solo con la chiave', async () => {
+    const { decryptText, isEncrypted, aiProof, newDataKey } = await import('../src/core/datacrypt.js');
+    const KEY = 'chiave-di-prova-lunga-abbastanza-1234567890';
+    // vettore prodotto da tools/datacrypt.py (Python): l'app e il server devono leggerlo uguale
+    const VEC = 'SGTENC1:tPK3PxaiiIlDlBY02njGXlC3i/XWsYdS5B+4v7vN6egzx81M/AP4cl9pT4Vf3sHDe1Afvco8CS/zsiW6nnEj9RQ=';
+    assert.ok(isEncrypted(VEC + '\n')); assert.ok(!isEncrypted('{"a":1}'));
+    assert.equal(await decryptText(VEC + '\n', KEY), '{"saldo": 16.06, "testo": "perché"}\n');
+    await assert.rejects(decryptText(VEC, 'chiave-sbagliata-xxxxxxxxxxxxxxxxxxxx'));
+    assert.equal(await aiProof(KEY), '7aeccf0e37380ddbdf0168863d651ad1b2c355d9923800cd45743b4780d4eed9');
+    assert.match(newDataKey(), /^[A-Za-z0-9_-]{43}$/); assert.notEqual(newDataKey(), newDataKey());
+    // bot Telegram: legge i file cifrati con DATA_KEY
+    const tenv = { ...env, TELEGRAM_TOKEN: 'bot1', TELEGRAM_CHAT_ID: '42', TELEGRAM_WEBHOOK_SECRET: 'ws-segreto', DATA_KEY: KEY };
+    const sent = [];
+    const f = async (url, opts = {}) => {
+        if (url.includes('api.telegram.org')) { sent.push(JSON.parse(opts.body)); return { ok: true, status: 200 }; }
+        if (url.includes('live_trades.json')) return { ok: true, status: 200, text: async () => VEC };
+        return { ok: false, status: 404 };
+    };
+    await handle('POST', '/api/telegram', { message: { chat: { id: 42 }, text: '/stato' } }, { 'x-telegram-bot-api-secret-token': 'ws-segreto' }, tenv, f);
+    assert.match(sent.at(-1).text, /STATO/);
+    // IA: con DATA_KEY sul server risponde solo con la prova della chiave (o con la chiave app)
+    const origFetch = globalThis.fetch;
+    globalThis.fetch = fakeFetch;
+    try {
+        const kenv = { ...env, APP_SECRET: '', DATA_KEY: KEY };
+        const ai = (proof, ip) => worker.fetch(new Request('https://w.dev/api/analyze', { method: 'POST', headers: { Origin: 'https://salvogeraci030899-wq.github.io', 'CF-Connecting-IP': ip, 'Content-Type': 'application/json', ...(proof ? { 'x-sgt-proof': proof } : {}) }, body: JSON.stringify({ symbol: 'BTCUSDT', timeframe: '1d', type: 'NONE' }) }), kenv);
+        assert.equal((await ai(null, '5.5.5.1')).status, 403);                     // link aperto senza chiave
+        assert.equal((await ai('0'.repeat(64), '5.5.5.2')).status, 403);          // prova sbagliata
+        assert.equal((await ai(await aiProof(KEY), '5.5.5.3')).status, 200);      // l'app con la chiave
+        const pre = await worker.fetch(new Request('https://w.dev/api/analyze', { method: 'OPTIONS', headers: { Origin: 'https://salvogeraci030899-wq.github.io' } }), kenv);
+        assert.match(pre.headers.get('Access-Control-Allow-Headers'), /x-sgt-proof/);
+    } finally {
+        globalThis.fetch = origFetch;
+    }
+});
+
 for (const [name, fn] of tests) {
     try { await fn(); console.log('ok', name); } catch (e) { failed++; console.log('FALLITO', name, e.message); }
 }

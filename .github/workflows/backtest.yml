@@ -45,6 +45,10 @@ jobs:
     steps:
       - name: Checkout codice
         uses: actions/checkout@v5
+      - name: Dati cifrati
+        uses: ./.github/actions/data-key
+        with:
+          key: ${{ secrets.DATA_KEY }}
 
       - name: Setup Python
         uses: actions/setup-python@v6

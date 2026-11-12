@@ -1,6 +1,7 @@
 import { State } from '../core/state.js';
 import { getThemePref, setThemePref, getStatusBarPref, setStatusBarPref, getGlassPref, setGlassPref } from '../core/theme.js';
-import { $, fmtUsdt, getApiBase, getGhToken, commandMode } from '../utils/helpers.js';
+import { $, fmtUsdt, getApiBase, getGhToken, commandMode, getDataKey, setDataKey } from '../utils/helpers.js';
+import { isEncrypted, decryptText, newDataKey } from '../core/datacrypt.js';
 import { getAutoState, riskCfg, loadAutomation, bitgetAccountText } from './automation.js';
 
 // --- ACCOUNT (icona in Home) e IMPOSTAZIONI (barra in basso) ---
@@ -137,8 +138,41 @@ export function openConnections() {
     if (tok) tok.value = '';
     const st = $('ghTokenState');
     if (st) st.textContent = getGhToken() ? 'Token salvato su questo dispositivo.' : 'Nessun token salvato.';
+    const dk = $('dataKeyInput');
+    if (dk) { dk.value = ''; dk.type = 'password'; }
+    const ds = $('dataKeyState');
+    if (ds) ds.textContent = getDataKey() ? 'Chiave salvata su questo dispositivo.' : 'Nessuna chiave salvata.';
     $('connModal').classList.add('active');
 }
+// Chiave dei dati: si prova subito su un file cifrato; se i dati non sono ancora cifrati si salva comunque
+export async function saveDataKey() {
+    const key = ($('dataKeyInput').value || '').trim();
+    if (key.length < 24) { window.showAlert('Chiave troppo corta', 'La chiave dei dati deve avere almeno 24 caratteri. Usa "Genera una chiave nuova".'); return; }
+    let text = '';
+    try { const r = await fetch(`./live_trades.json?t=${Date.now()}`, { cache: 'no-store' }); text = r.ok ? await r.text() : ''; } catch (e) {}
+    if (isEncrypted(text)) {
+        try { await decryptText(text, key); } catch (e) { window.showAlert('Chiave sbagliata', 'Questa chiave non apre i dati. Usa quella salvata nel segreto DATA_KEY su GitHub.'); return; }
+    }
+    setDataKey(key);
+    $('dataKeyInput').value = '';
+    $('dataKeyState').textContent = 'Chiave salvata su questo dispositivo.';
+    window.showAlert('Chiave salvata', isEncrypted(text) ? 'I dati si aprono: ricarico la pagina.' : 'I dati non sono ancora cifrati: lo saranno al prossimo giro del bot dopo che avrai aggiunto il segreto DATA_KEY su GitHub. Questa chiave li aprirà.');
+    if (isEncrypted(text)) setTimeout(() => location.reload(), 1200);
+}
+export async function generateDataKey() {
+    const key = newDataKey();
+    const input = $('dataKeyInput');
+    input.type = 'text';
+    input.value = key;
+    let copied = false;
+    try { await navigator.clipboard.writeText(key); copied = true; } catch (e) {}
+    window.showAlert('Chiave nuova', `${copied ? 'Copiata negli appunti. ' : 'Copiala dal campo. '}Poi: 1) salvala in Password di iPhone (se la perdi i dati non si aprono più); 2) su GitHub: repository → Settings → Secrets and variables → Actions → New repository secret, nome DATA_KEY, incolla; 3) torna qui e premi Salva.`);
+}
+export function removeDataKey() {
+    setDataKey('');
+    $('dataKeyState').textContent = 'Nessuna chiave salvata.';
+}
+
 export function closeConnections() {
     $('connModal').classList.remove('active');
     renderSettings();

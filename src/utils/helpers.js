@@ -1,5 +1,6 @@
 import { CONFIG } from '../core/config.js';
 import { trigger as ghTrigger, command as ghCommand } from '../core/commands.js';
+import { isEncrypted, decryptText, aiProof } from '../core/datacrypt.js';
 
 export const $ = id => document.getElementById(id);
 export const SYM = s => (s || '').replace('USDT', '');
@@ -33,6 +34,18 @@ export function clearAppKey() {
 // repository, permesso "Actions: Read and write") salvato su questo dispositivo. L'app avvia i
 // workflow direttamente con la stessa logica e gli stessi controlli del server (api/_core.js).
 // Il token può solo avviare workflow: non legge i segreti e non modifica il codice.
+// Chiave dei dati: apre i file personali che il bot salva cifrati nel repository pubblico (tools/datacrypt.py).
+// Resta solo su questo dispositivo; al server va solo una prova derivata (header x-sgt-proof).
+const DATA_KEY_STORAGE = 'sgt_data_key';
+export function getDataKey() {
+    try { return localStorage.getItem(DATA_KEY_STORAGE) || ''; } catch (e) { return ''; }
+}
+export function setDataKey(key) {
+    try {
+        if (key) localStorage.setItem(DATA_KEY_STORAGE, key);
+        else localStorage.removeItem(DATA_KEY_STORAGE);
+    } catch (e) {}
+}
 const GH_TOKEN_STORAGE = 'kronos_gh_token';
 export function getGhToken() {
     try { return localStorage.getItem(GH_TOKEN_STORAGE) || ''; } catch (e) { return ''; }
@@ -69,8 +82,11 @@ export async function apiPost(path, body, opts = {}) {
         try { key = localStorage.getItem(APP_KEY_STORAGE) || ''; } catch (e) {}
         const headers = { 'Content-Type': 'application/json' };
         if (key) headers['x-app-key'] = key;
+        if (proof) headers['x-sgt-proof'] = proof;
         return fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
     };
+    const dataKey = getDataKey();
+    const proof = dataKey ? await aiProof(dataKey).catch(() => '') : '';
     let res = await send();
     if (res.status === 401 && !opts.silent) {
         // server senza APP_SECRET: chiedere la chiave non servirebbe (i comandi sono spenti sul server)
@@ -128,11 +144,23 @@ export async function fetchData(name) {
     for (const base of sources) {
         try {
             const r = await fetch(base + name + t, { cache: 'no-store' });
-            if (r.ok) return r;
+            if (r.ok) return openData(await r.text());
             last = r;
         } catch (e) { /* rete o CORS: provo la fonte successiva */ }
     }
     return last || new Response('null', { status: 503 });
+}
+
+// File cifrato: si decifra con la chiave dei dati. Senza chiave (o con quella sbagliata) risponde 423 come
+// se il file mancasse, e l'app avvisa una volta (evento "sgt-data-locked")
+async function openData(text) {
+    if (!isEncrypted(text)) return new Response(text, { status: 200 });
+    const key = getDataKey();
+    if (key) {
+        try { return new Response(await decryptText(text, key), { status: 200 }); } catch (e) { /* chiave sbagliata */ }
+    }
+    window.dispatchEvent(new CustomEvent('sgt-data-locked', { detail: key ? 'wrong' : 'missing' }));
+    return new Response('null', { status: 423 });
 }
 // prezzo all'italiana senza zeri inutili, separatore delle migliaia sempre (72.000 · 3.000,5 · 0,1234)
 export const fmtPrice = v => fmtIt(v, Number(v) >= 1000 ? 1 : 4).replace(/,?0+$/, '');

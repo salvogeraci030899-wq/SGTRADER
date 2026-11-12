@@ -24,6 +24,10 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v5
+      - name: Dati cifrati
+        uses: ./.github/actions/data-key
+        with:
+          key: ${{ secrets.DATA_KEY }}
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'

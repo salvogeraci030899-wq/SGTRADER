@@ -53,46 +53,47 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=161">
-    <meta name="app-version" content="161">
+    <link rel="stylesheet" href="./style.css?v=162">
+    <meta name="app-version" content="162">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=161",
-            "./src/core/commands.js": "./src/core/commands.js?v=161",
-            "./src/core/config.js": "./src/core/config.js?v=161",
-            "./src/core/labEngine.js": "./src/core/labEngine.js?v=161",
-            "./src/core/logger.js": "./src/core/logger.js?v=161",
-            "./src/core/rules.js": "./src/core/rules.js?v=161",
-            "./src/core/state.js": "./src/core/state.js?v=161",
-            "./src/core/telegram.js": "./src/core/telegram.js?v=161",
-            "./src/core/theme.js": "./src/core/theme.js?v=161",
-            "./src/main.js": "./src/main.js?v=161",
-            "./src/ui/account.js": "./src/ui/account.js?v=161",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=161",
-            "./src/ui/assistant.js": "./src/ui/assistant.js?v=161",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=161",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=161",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=161",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=161",
-            "./src/ui/history.js": "./src/ui/history.js?v=161",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=161",
-            "./src/ui/home.js": "./src/ui/home.js?v=161",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=161",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=161",
-            "./src/ui/lock.js": "./src/ui/lock.js?v=161",
-            "./src/ui/log.js": "./src/ui/log.js?v=161",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=161",
-            "./src/ui/market.js": "./src/ui/market.js?v=161",
-            "./src/ui/orders.js": "./src/ui/orders.js?v=161",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=161",
-            "./src/ui/results.js": "./src/ui/results.js?v=161",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=161",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=161",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=161",
-            "./src/ui/windows.js": "./src/ui/windows.js?v=161",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=161"
+            "./src/core/backup.js": "./src/core/backup.js?v=162",
+            "./src/core/commands.js": "./src/core/commands.js?v=162",
+            "./src/core/config.js": "./src/core/config.js?v=162",
+            "./src/core/datacrypt.js": "./src/core/datacrypt.js?v=162",
+            "./src/core/labEngine.js": "./src/core/labEngine.js?v=162",
+            "./src/core/logger.js": "./src/core/logger.js?v=162",
+            "./src/core/rules.js": "./src/core/rules.js?v=162",
+            "./src/core/state.js": "./src/core/state.js?v=162",
+            "./src/core/telegram.js": "./src/core/telegram.js?v=162",
+            "./src/core/theme.js": "./src/core/theme.js?v=162",
+            "./src/main.js": "./src/main.js?v=162",
+            "./src/ui/account.js": "./src/ui/account.js?v=162",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=162",
+            "./src/ui/assistant.js": "./src/ui/assistant.js?v=162",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=162",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=162",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=162",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=162",
+            "./src/ui/history.js": "./src/ui/history.js?v=162",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=162",
+            "./src/ui/home.js": "./src/ui/home.js?v=162",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=162",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=162",
+            "./src/ui/lock.js": "./src/ui/lock.js?v=162",
+            "./src/ui/log.js": "./src/ui/log.js?v=162",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=162",
+            "./src/ui/market.js": "./src/ui/market.js?v=162",
+            "./src/ui/orders.js": "./src/ui/orders.js?v=162",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=162",
+            "./src/ui/results.js": "./src/ui/results.js?v=162",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=162",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=162",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=162",
+            "./src/ui/windows.js": "./src/ui/windows.js?v=162",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=162"
         }
     }
     </script>
@@ -1060,6 +1061,7 @@
                     <div class="rule-card">
                         <div class="rule-card-title default">Sicurezza</div>
                         <div class="rule-step"><div class="content"><b>Blocco app:</b> codice di 6 cifre e Face ID (Impostazioni → Blocco app).</div></div>
+                        <div class="rule-step"><div class="content"><b>Dati cifrati:</b> saldo, posizioni, strategie, agente e registro sono cifrati nel repository pubblico; chi apre il link senza la chiave dei dati vede l'app vuota e non può usare l'assistente. La chiave sta nel segreto DATA_KEY su GitHub e, una volta inserita, in Impostazioni → Connessioni. Conservala in Password di iPhone: senza, i dati non si aprono. Ordini e comandi restano protetti dal token GitHub o dalla chiave app.</div></div>
                         <div class="rule-step"><div class="content"><b>Risultati:</b> Reale, Simulato e Carta separati, mai mescolati, per oggi, settimana, mese, anno o tutto. In Reale: guadagno del conto al netto di versamenti e prelievi, posizioni chiuse su Bitget e vendite spot. <b>Registro:</b> tutto quello che succede (ordini, chiusure, agente, carta, avvisi, comandi), un giorno per pagina.</div></div>
                         <div class="rule-step"><div class="content"><b>Emergenza:</b> Agente → Rischio → Emergenza spegne tutto e chiude le posizioni aperte dall'esecutore.</div></div>
                     </div>
@@ -1206,6 +1208,22 @@
         </div>
         <div class="settings-hint conn-warn">Servono solo per inviare comandi dall'app (Aggiorna, Agente, Account). Le chiavi Bitget non stanno qui: sono segreti su GitHub e l'app non le vede mai.</div>
         <div class="settings-section">
+            <div class="settings-section-title">Chiave dei dati</div>
+            <div class="settings-hint">Saldo, posizioni, strategie e registro sono cifrati nel repository pubblico: senza questa chiave chi apre il link non li vede. Resta solo su questo dispositivo. <span id="dataKeyState"></span></div>
+            <div class="settings-field">
+                <input type="password" id="dataKeyInput" placeholder="chiave dei dati" autocomplete="off" autocapitalize="off" spellcheck="false">
+                <button class="btn-generic btn-generic-tight" onclick="saveDataKey()">Salva</button>
+            </div>
+            <button class="settings-item" onclick="generateDataKey()">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.7 12.3 21 2"/><path d="m16 7 3 3"/><path d="m19 4 2 2"/></svg>
+                <span>Genera una chiave nuova (solo la prima volta)</span>
+            </button>
+            <button class="settings-item settings-danger" onclick="removeDataKey()">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                <span>Rimuovi la chiave da questo dispositivo</span>
+            </button>
+        </div>
+        <div class="settings-section">
             <div class="settings-section-title">Token GitHub</div>
             <div class="settings-hint">Fine-grained, solo sul repository SGTRADER, permesso "Actions: Read and write". Resta solo su questo dispositivo. <span id="ghTokenState"></span></div>
             <div class="settings-field">
@@ -1235,6 +1253,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=161"></script>
+<script type="module" src="./src/main.js?v=162"></script>
 </body>
 </html>
