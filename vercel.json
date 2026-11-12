@@ -34,5 +34,6 @@
     "deploymentEnabled": {
       "claude/*": false
     }
-  }
+  },
+  "ignoreCommand": "git rev-parse -q --verify HEAD^ >/dev/null || exit 1; git diff --name-only HEAD^ HEAD | grep -qE '^(index\\.html|style\\.css|manifest\\.json|vercel\\.json|package\\.json|\\.vercelignore|src/|api/|icons/)' && exit 1 || exit 0"
 }

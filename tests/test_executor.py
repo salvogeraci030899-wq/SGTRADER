@@ -311,6 +311,47 @@ def test_lettura_conto_sola_lettura():
                 os.environ[k] = v
 
 
+def test_versamenti_non_sono_guadagni():
+    """Conto vuoto a inizio giornata, poi 16 USDT trasferiti nei futures e una posizione aperta:
+    la variazione di oggi è il PnL, non il versamento."""
+    import tempfile
+    saved = {k: os.environ.get(k) for k in ("BITGET_API_KEY", "BITGET_API_SECRET", "BITGET_API_PASSPHRASE")}
+    for k in saved:
+        os.environ[k] = "x"
+    try:
+        class Acc:
+            demo = False
+            def __init__(self, total, pos=None):
+                self.total, self.pos = total, pos or {}
+            def positions(self):
+                return {k: dict(v) for k, v in self.pos.items()}
+            def equity(self):
+                return self.total
+            def tpsl_orders(self, symbol):
+                return []
+            def all_balances_usdt(self):
+                return {"futures": self.total}
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "live.json")
+            json.dump({"positions": {}, "day": {}, "halted": False, "events": []}, open(path, "w"))
+            a = ex.account_snapshot(path, Acc(0.0), NOW)
+            assert a["day_start_total"] == 0.0 and a["day_change"] == 0.0
+            a = ex.account_snapshot(path, Acc(15.98), NOW)                                     # versamento, nessuna posizione
+            assert a["day_start_total"] == 15.98 and a["day_change"] == 0.0, a
+            pos = {"SOLUSDT": {"side": "short", "size": 0.1, "entry": 83.7, "mark": 83.5, "upl": 0.02, "leverage": 3, "margin": 2.79, "liq": 111.0}}
+            a = ex.account_snapshot(path, Acc(16.0, pos), NOW)                                 # posizione aperta: il resto è PnL
+            assert a["day_start_total"] == 15.98 and a["day_change"] == 0.02, a
+            a = ex.account_snapshot(path, Acc(15.9), NOW)                                      # chiusa in perdita: resta nel giorno
+            assert a["day_change"] == -0.08, a
+            a = ex.account_snapshot(path, Acc(25.9), NOW)                                      # altro versamento senza posizioni
+            assert a["day_start_total"] == 25.98 and a["day_change"] == -0.08, a
+    finally:
+        for k, v in saved.items():
+            os.environ.pop(k, None)
+            if v is not None:
+                os.environ[k] = v
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in tests:

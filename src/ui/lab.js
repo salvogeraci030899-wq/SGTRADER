@@ -1,4 +1,4 @@
-import { $, escapeHtml, fmtIt } from '../utils/helpers.js';
+import { $, escapeHtml, fmtIt, fetchData } from '../utils/helpers.js';
 
 // --- LABORATORIO STRATEGIE (lab_summary.json, scritto dal workflow "Laboratorio strategie") ---
 // Classifica delle strategie provate sullo storico, per timeframe, ordinata per risultato "oltre il
@@ -25,11 +25,11 @@ async function load() {
     if (loading) return;
     loading = true;
     try {
-        const r = await fetch('./lab_summary.json?t=' + Date.now());
+        const r = await fetchData('lab_summary.json');
         summary = r.ok ? await r.json() : null;
     } catch (e) { summary = null; }
     try {
-        const r = await fetch('./paper_trades.json?t=' + Date.now());
+        const r = await fetchData('paper_trades.json');
         paperLedger = r.ok ? await r.json() : null;
     } catch (e) { paperLedger = null; }
     loaded = true;

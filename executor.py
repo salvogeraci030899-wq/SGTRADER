@@ -344,8 +344,17 @@ def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
         today = (now or datetime.now(timezone.utc)).strftime("%Y-%m-%d")
         same_day = previous.get("day") == today and previous.get("day_start_total") is not None
         account["day"] = today
-        account["day_start_total"] = previous["day_start_total"] if same_day else account["total_usdt"]
-        account["day_change"] = round(account["total_usdt"] - account["day_start_total"], 2)
+        start = previous["day_start_total"] if same_day else account["total_usdt"]
+        # Versamenti e trasferimenti non sono guadagni: si spostano nella base del giorno.
+        # - conto vuoto a inizio giornata e poi finanziato: la base diventa il saldo senza il PnL aperto;
+        # - nessuna posizione né prima né ora: il saldo può cambiare solo per un trasferimento.
+        if same_day and start <= 0.01 and account["total_usdt"] > 0.01:
+            start = round(account["total_usdt"] - (account.get("upl") or 0), 2)
+        elif (same_day and not previous.get("positions") and not account.get("positions")
+              and previous.get("total_usdt") is not None):
+            start = round(start + account["total_usdt"] - previous["total_usdt"], 2)
+        account["day_start_total"] = start
+        account["day_change"] = round(account["total_usdt"] - start, 2)
     if notify and keys and previous.get("connected") and not account["connected"]:
         notify(f"⚠️ Bitget non risponde alla lettura del conto: {account.get('reason')}. "
                "Se la chiave è scaduta, creane una nuova e aggiorna i segreti BITGET_*.")

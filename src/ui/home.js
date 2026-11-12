@@ -1,5 +1,5 @@
 import { State } from '../core/state.js';
-import { $, SYM, fetchT, calcPnl, escapeHtml, fmtIt, fmtPrice } from '../utils/helpers.js';
+import { $, SYM, fetchT, calcPnl, escapeHtml, fmtIt, fmtPrice, fetchData } from '../utils/helpers.js';
 import { aggregateCellSignals } from './signals.js';
 import { bitgetAccountText, isRemovingAlert } from './automation.js';
 import { updateModePills, tradingMode } from './account.js';
@@ -127,7 +127,7 @@ function renderAccount() {
 // ---------- Automazione ----------
 async function getJson(name) {
     try {
-        const r = await fetch(`./${name}?t=${Date.now()}`);
+        const r = await fetchData(name);
         return r.ok ? await r.json() : null;
     } catch (e) { return null; }
 }

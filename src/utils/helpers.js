@@ -52,7 +52,8 @@ export function commandMode() {
     return 'none';
 }
 
-export async function apiPost(path, body) {
+// opts.silent: richiesta automatica (non chiesta dall'utente): con 401 non apre la richiesta della chiave
+export async function apiPost(path, body, opts = {}) {
     if (commandMode() === 'github' && (path === '/api/command' || path === '/api/trigger')) {
         const fn = path === '/api/command' ? ghCommand : ghTrigger;
         const { status, body: out } = await fn(body, { GH_TOKEN: getGhToken() }, (u, o) => fetch(u, o));
@@ -70,7 +71,7 @@ export async function apiPost(path, body) {
         return fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
     };
     let res = await send();
-    if (res.status === 401) {
+    if (res.status === 401 && !opts.silent) {
         const key = (window.prompt('Inserisci la chiave app (APP_SECRET del server comandi):') || '').trim();
         if (!key) return res;
         try { localStorage.setItem(APP_KEY_STORAGE, key); } catch (e) {}
@@ -109,6 +110,22 @@ export const fmtUsd = v => '$' + Number(v).toLocaleString('en-US', { minimumFrac
 // Formato italiano con il punto delle migliaia sempre presente (Intl lo omette sotto 10.000)
 export const fmtIt = (v, d = 2) => { const n = Number(v); const [i, f] = Math.abs(n).toFixed(d).split('.'); return (n < 0 ? '-' : '') + i.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + (d > 0 ? ',' + f : ''); };
 export const fmtUsdt = v => fmtIt(v) + ' USDT';
+
+// File di dati pubblicati dal bot. Su Vercel si leggono da GitHub (sempre aggiornati), altrove dal sito stesso;
+// se la fonte non risponde si prova la successiva, per ultima la copia locale.
+export async function fetchData(name) {
+    const t = `?t=${Date.now()}`;
+    const sources = location.hostname.endsWith('vercel.app') ? [...CONFIG.DATA_SOURCES, './'] : ['./'];
+    let last = null;
+    for (const base of sources) {
+        try {
+            const r = await fetch(base + name + t, { cache: 'no-store' });
+            if (r.ok) return r;
+            last = r;
+        } catch (e) { /* rete o CORS: provo la fonte successiva */ }
+    }
+    return last || new Response('null', { status: 503 });
+}
 // prezzo all'italiana senza zeri inutili, separatore delle migliaia sempre (72.000 · 3.000,5 · 0,1234)
 export const fmtPrice = v => fmtIt(v, Number(v) >= 1000 ? 1 : 4).replace(/,?0+$/, '');
 

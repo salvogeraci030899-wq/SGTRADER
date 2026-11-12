@@ -2,6 +2,10 @@ export const CONFIG = {
     TAX_RATE: 0.33,
     // Server su Cloudflare (ha la chiave Groq): l'analisi AI passa da qui quando non c'è un altro server
     AI_SERVER: 'https://sgtrader-server.salvogeraci030899.workers.dev',
+    // Dati del bot (dashboard.json, live_trades.json, ...) per la copia su Vercel: lì il sito si
+    // ripubblica solo quando cambia il codice (piano gratuito: 100 pubblicazioni al giorno), mentre
+    // GitHub Pages si aggiorna a ogni salvataggio del bot. Riserva: i file grezzi del repository.
+    DATA_SOURCES: ['https://salvogeraci030899-wq.github.io/SGTRADER/', 'https://raw.githubusercontent.com/salvogeraci030899-wq/SGTRADER/main/'],
     FEE_RATE: 0.001,
     REFRESH_MAX_WAIT: 900,
     SIGNAL_SCAN_INTERVAL_MS: 600000,
