@@ -8,6 +8,9 @@ anche a mano:
     python automation.py resume           # sblocca (le strategie restano spente: vanno riaccese una a una)
     python automation.py risk risk_per_trade_pct 0.5    # limiti di rischio dell'esecutore
     python automation.py trading on       # interruttore generale degli ordini veri (servono anche le chiavi Bitget)
+    python automation.py agent autonomy live    # agente: off | paper | live (vedi agent.py)
+    python automation.py agent profile prudente # profilo di rischio: imposta tutti i limiti insieme
+    python automation.py agent style giornaliero    # timeframe su cui l'agente sceglie: swing | giornaliero | misto
 
 Regole che il codice fa rispettare, qualunque cosa arrivi dall'app:
 - si possono attivare solo strategie che esistono nel laboratorio, su timeframe su cui sono state provate;
@@ -163,6 +166,67 @@ def set_trading(cfg, value):
             if value == "on" else "Ordini veri disabilitati: l'esecutore resta in simulazione.")
 
 
+# --- Agente (agent.py): autonomia, profilo di rischio, stile ---
+AGENT_DEFAULT = {"autonomy": "paper", "profile": "bilanciato", "style": "swing"}
+AUTONOMY = ("off", "paper", "live")
+# Ogni profilo imposta tutti i limiti dell'esecutore insieme (restano modificabili uno per uno)
+PROFILES = {
+    "prudente":   {"risk_per_trade_pct": 0.25, "max_leverage": 2, "max_exposure_x": 1.0, "max_open_positions": 2, "max_daily_loss_pct": 2.0, "daily_target_pct": 1.0},
+    "bilanciato": {"risk_per_trade_pct": 0.5,  "max_leverage": 3, "max_exposure_x": 1.5, "max_open_positions": 3, "max_daily_loss_pct": 3.0, "daily_target_pct": 2.0},
+    "aggressivo": {"risk_per_trade_pct": 1.0,  "max_leverage": 5, "max_exposure_x": 2.5, "max_open_positions": 4, "max_daily_loss_pct": 5.0, "daily_target_pct": 3.0},
+}
+STYLES = {"swing": ("1d",), "giornaliero": ("4h", "1h"), "misto": ("1d", "4h", "1h")}
+
+
+def agent_config(cfg):
+    return {**AGENT_DEFAULT, **(cfg.get("agent") or {})}
+
+
+def agent_live_keys(cfg):
+    """Strategie che l'agente ha portato al reale (dal registro) e che sono ancora reali."""
+    keys = set()
+    for h in cfg.get("history", []):
+        if h.get("cmd") == "set" and h.get("by") == "agent":
+            if h.get("to") == "live":
+                keys.add(h["key"])
+            elif h.get("from") == "live":
+                keys.discard(h["key"])
+    return {k for k in keys if cfg.get("strategies", {}).get(k) == "live"}
+
+
+def set_agent(cfg, field, value):
+    ag = agent_config(cfg)
+    if field == "autonomy":
+        if value not in AUTONOMY:
+            raise CommandError(f"Autonomia ammessa: {', '.join(AUTONOMY)}.")
+        if value == "live" and cfg["emergency"]:
+            raise CommandError("Emergenza attiva: prima va sbloccata.")
+        extra = ""
+        if value != "live":
+            # niente più soldi veri decisi dall'agente: le strategie che lui aveva portato al reale tornano su carta
+            back = sorted(agent_live_keys(cfg))
+            for k in back:
+                cfg["strategies"][k] = "paper"
+                cfg["history"].append({"at": _now(), "cmd": "set", "key": k, "from": "live", "to": "paper", "by": "agent", "why": "autonomia ridotta"})
+            if back:
+                extra = f" Tornate su carta: {', '.join(back)}."
+    elif field == "profile":
+        if value not in PROFILES:
+            raise CommandError(f"Profilo ammesso: {', '.join(PROFILES)}.")
+        cfg.setdefault("risk", {}).update(PROFILES[value])
+        extra = " Limiti: " + ", ".join(f"{k} {v}" for k, v in PROFILES[value].items()) + "."
+    elif field == "style":
+        if value not in STYLES:
+            raise CommandError(f"Stile ammesso: {', '.join(STYLES)}.")
+        extra = ""
+    else:
+        raise CommandError(f"Impostazione dell'agente sconosciuta: {field}.")
+    before = ag[field]
+    cfg["agent"] = {**ag, field: value}
+    cfg["history"].append({"at": _now(), "cmd": "agent", "field": field, "from": before, "to": value})
+    return f"Agente, {field}: {before} -> {value}.{extra}"
+
+
 def alert(cfg, op, arg, alerts_state_path=ALERTS_STATE_PATH):
     """Avvisi di prezzo (price_alerts.py): add BTCUSDT:above:75000 | del <id> | clear"""
     # avvisi già scattati: quelli del controllo rapido (quick_state.json) e quelli di prima (alerts_state.json)
@@ -204,6 +268,8 @@ def run(argv, path=CONFIG_PATH, summary_path=SUMMARY_PATH, state_path=executor.S
         msg = set_risk(cfg, argv[1], argv[2])
     elif cmd == "trading" and len(argv) == 2:
         msg = set_trading(cfg, argv[1])
+    elif cmd == "agent" and len(argv) == 3:
+        msg = set_agent(cfg, argv[1], argv[2])
     elif cmd == "alert" and len(argv) >= 2:
         msg = alert(cfg, argv[1], argv[2] if len(argv) > 2 else "", alerts_state_path)
     else:
