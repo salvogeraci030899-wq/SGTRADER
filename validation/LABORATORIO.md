@@ -1,6 +1,6 @@
 # Laboratorio strategie
 
-Generato il 2026-11-12T16:07:56+00:00 · 56 prove in questa esecuzione, 56 registrate in tutto.
+Generato il 2026-11-12T17:34:05+00:00 · 56 prove in questa esecuzione, 56 registrate in tutto.
 
 - **Ricerca** solo sullo storico prima del 2025-11-11; da lì in poi è **sigillato** per la prova finale.
 - **Costi** (scenario principale: futures, ordini a mercato): 0.11% per lato più funding. "Netto" = dopo questi costi, tasse escluse.
@@ -103,7 +103,7 @@ Generato il 2026-11-12T16:07:56+00:00 · 56 prove in questa esecuzione, 56 regis
 - **rsi2_pullback** (ritorno alla media): Sopra la media a 200: long se RSI(2) < 10. Sotto: short se RSI(2) > 90. Tenuta 5 candele, stop 3 ATR.
 - **bollinger_revert** (ritorno alla media): Long se la chiusura è sotto la banda inferiore di Bollinger (20, 2) ma sopra la media a 200; short speculare. Tenuta 5 candele, stop 3 ATR.
 - **big_candle** (volatilità): Segue la direzione di una candela il cui corpo supera 1,5 volte l'ATR precedente. Tenuta 5 candele, stop 1,5 ATR, target 3 ATR.
-- **app_breakout_trail** (trend): La regola Breakout della pagina Segnali (rottura a 20 candele con volume, RSI e EMA200), ma lasciata correre: stop 2 ATR, stop che segue a 3 ATR, massimo 60 candele.
+- **app_breakout_trail** (trend): La regola Breakout di Mercato → Segnali (rottura a 20 candele con volume, RSI e EMA200), ma lasciata correre: stop 2 ATR, stop che segue a 3 ATR, massimo 60 candele.
 - **donchian20_regime** (trend): donchian20 con filtro di regime: long solo sopra la media a 200, short solo sotto. Stesse uscite di donchian20.
 - **donchian20_turtle** (trend): Ingressi di donchian20, uscita classica 'a canale': si esce quando la chiusura rompe il minimo (long) o il massimo (short) delle 10 candele precedenti. Stop 2 ATR, massimo 120 candele.
 - **big_candle_trail** (volatilità): Ingressi di big_candle ma lasciati correre: stop 1,5 ATR, stop che segue a 3 ATR, massimo 20 candele.
