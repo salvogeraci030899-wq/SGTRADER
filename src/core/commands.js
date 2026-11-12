@@ -524,7 +524,7 @@ export async function handle(method, path, body, headers, env, fetchFn) {
     // bot Telegram: autenticato dal segreto del webhook e dalla chat, non dalla chiave app (src/core/telegram.js)
     if (route === '/api/telegram') {
         if (method !== 'POST') return json(405, { error: 'Metodo non consentito' });
-        const r = await telegramWebhook(body, headers, env, fetchFn);
+        const r = await telegramWebhook(body, headers, env, fetchFn, b => command(b, env, fetchFn));
         return json(r.status, r.body);
     }
     const routes = { '/api/trigger': [trigger, false], '/api/analyze': [analyze, false], '/api/assistant': [assistant, false], '/api/transcribe': [transcribe, false], '/api/command': [command, true] };

@@ -366,6 +366,19 @@ test('bot Telegram: solo con il segreto del webhook e dalla tua chat', async () 
     assert.equal(sent.length, 0);                                                  // altra chat: nessuna risposta
     assert.equal((await handle('POST', '/api/telegram', msg(42), h, tenv, f)).status, 200);
     assert.equal(sent.length, 1); assert.equal(sent[0].chat_id, '42'); assert.match(sent[0].text, /STATO/);
+    // emergenza: senza CONFERMA solo spiegazione; con CONFERMA il comando parte (workflow automation, emergency)
+    const disp = [];
+    const f2 = async (url, opts = {}) => {
+        if (url.includes('api.telegram.org')) { sent.push(JSON.parse(opts.body)); return { ok: true, status: 200 }; }
+        if (url.includes('/dispatches')) { disp.push(JSON.parse(opts.body)); return { ok: true, status: 204 }; }
+        return { ok: true, status: 200, json: async () => ({}) };
+    };
+    await handle('POST', '/api/telegram', msg(42, '/emergenza'), h, tenv, f2);
+    assert.equal(disp.length, 0); assert.match(sent.at(-1).text, /CONFERMA/);
+    await handle('POST', '/api/telegram', msg(99, '/emergenza CONFERMA'), h, tenv, f2);
+    assert.equal(disp.length, 0);                                                  // altra chat: niente
+    await handle('POST', '/api/telegram', msg(42, '/emergenza conferma'), h, tenv, f2);
+    assert.equal(disp.length, 1); assert.equal(disp[0].inputs.action, 'emergency'); assert.match(sent.at(-1).text, /Emergenza inviata/);
     assert.equal((await handle('POST', '/api/telegram', msg(42), h, { ...env }, f)).status, 503);   // non configurato
     assert.equal((await handle('GET', '/api/telegram', {}, h, tenv, f)).status, 405);
 });

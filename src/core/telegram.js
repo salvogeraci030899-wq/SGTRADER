@@ -3,8 +3,9 @@
 //   1. l'header "X-Telegram-Bot-Api-Secret-Token" coincide con TELEGRAM_WEBHOOK_SECRET (lo imposta il
 //      workflow "Pubblica server comandi" quando registra il webhook);
 //   2. il messaggio arriva dalla tua chat (TELEGRAM_CHAT_ID).
-// I dati sono gli stessi file pubblici che legge l'app (GitHub Pages). Nessun comando cambia qualcosa:
-// ordini, strategie ed emergenza restano nell'app, dietro la conferma.
+// I dati sono gli stessi file pubblici che legge l'app (GitHub Pages). L'unico comando che cambia qualcosa è
+// "/emergenza CONFERMA": spegne tutte le strategie e chiude le posizioni dell'esecutore (come il tasto
+// Emergenza dell'app). Va solo nella direzione che riduce il rischio; sbloccare si fa dall'app.
 import { CONFIG } from './config.js';
 
 const COMMANDS = {
@@ -13,6 +14,7 @@ const COMMANDS = {
     '/agente': 'impostazioni, ultime decisioni, proposte',
     '/carta': 'come vanno le strategie su carta',
     '/avvisi': 'avvisi di prezzo attivi',
+    '/emergenza': 'spegne tutto (serve la parola CONFERMA)',
     '/aiuto': 'questo elenco'
 };
 const FILES = ['automation.json', 'live_trades.json', 'paper_trades.json', 'agent_state.json', 'alerts_state.json', 'quick_state.json'];
@@ -25,7 +27,7 @@ const AG = { autonomy: { off: 'spento', paper: 'simulato', live: 'REALE' }, def:
 
 function help() {
     return '🤖 SGTRADER: comandi (sola lettura)\n' + Object.entries(COMMANDS).map(([c, t]) => `${c} · ${t}`).join('\n')
-        + '\nOrdini e impostazioni si cambiano dall\'app, con la conferma.';
+        + '\nOrdini e impostazioni si cambiano dall\'app, con la conferma. Da qui si può solo fermare tutto.';
 }
 
 function stato(d) {
@@ -137,14 +139,28 @@ const eq = (a, b) => {
     return x === 0;
 };
 
-export async function telegramWebhook(body, headers, env, fetchFn) {
+const EMERGENCY_HELP = '⛔ EMERGENZA\nSpegne tutte le strategie, chiude le posizioni aperte dall\'esecutore e blocca l\'automazione '
+    + '(le posizioni aperte a mano restano). Per confermare scrivi:\n/emergenza CONFERMA\nPer ripartire: app, Segnali → Auto → Sblocca.';
+
+// command: funzione che invia un comando come l'app (commands.js), passata da handle()
+export async function telegramWebhook(body, headers, env, fetchFn, command = null) {
     const ok = { status: 200, body: { ok: true } };
     if (!env.TELEGRAM_TOKEN || !env.TELEGRAM_CHAT_ID || !env.TELEGRAM_WEBHOOK_SECRET) return { status: 503, body: { error: 'Bot Telegram non configurato' } };
     if (!eq(headers['x-telegram-bot-api-secret-token'], env.TELEGRAM_WEBHOOK_SECRET)) return { status: 401, body: { error: 'non autorizzato' } };
     const msg = (body && (body.message || body.edited_message)) || null;
     // altre chat o messaggi senza testo: nessuna risposta (200, così Telegram non riprova)
     if (!msg || !msg.text || String(msg.chat && msg.chat.id) !== String(env.TELEGRAM_CHAT_ID)) return ok;
-    const answer = telegramAnswer(msg.text, await loadData(env, fetchFn));
+    const words = String(msg.text).trim().split(/\s+/);
+    let answer;
+    if (words[0].split('@')[0].toLowerCase() === '/emergenza') {
+        if ((words[1] || '').toUpperCase() !== 'CONFERMA' || !command) answer = EMERGENCY_HELP;
+        else {
+            const r = await command({ type: 'emergency' });
+            answer = r && r.status === 200
+                ? '⛔ Emergenza inviata. Entro 1-2 minuti strategie spente; al giro successivo del bot (entro 15 minuti) l\'esecutore chiude le sue posizioni e lo scrive qui. Le posizioni aperte a mano restano: controlla su Bitget.'
+                : `Emergenza NON inviata (${(r && r.body && r.body.error) || 'errore'}). Usa l'app o chiudi direttamente su Bitget.`;
+        }
+    } else answer = telegramAnswer(msg.text, await loadData(env, fetchFn));
     try {
         await fetchFn(`https://api.telegram.org/bot${env.TELEGRAM_TOKEN}/sendMessage`, {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
