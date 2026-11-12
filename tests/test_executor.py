@@ -398,6 +398,22 @@ def test_avviso_posizione_chiusa():
     assert not ex._notify_closed(st, {"connected": True, "history": [dict(h1, id="9")]}, None, now)        # rilettura dall'app: niente
 
 
+def test_spot_round_trips_average_cost():
+    import executor as e
+    fills = [
+        {"side": "buy", "size": "0.1", "priceAvg": "80", "cTime": "1", "feeDetail": {"totalFee": "-0.008", "feeCoin": "USDT"}},
+        {"side": "buy", "size": "0.1", "priceAvg": "90", "cTime": "2", "feeDetail": {"totalFee": "-0.0001", "feeCoin": "SOL"}},
+        {"side": "sell", "size": "0.15", "priceAvg": "100", "cTime": "3", "tradeId": "x", "feeDetail": {"totalFee": "-0.015", "feeCoin": "USDT"}},
+        {"side": "sell", "size": "0.5", "priceAvg": "110", "cTime": "4", "tradeId": "y"},   # vende solo i 0.05 rimasti
+        {"side": "sell", "size": "1", "priceAvg": "120", "cTime": "5", "tradeId": "z"},     # niente costo noto: fuori
+    ]
+    out = e.spot_round_trips(fills, "SOLUSDT")
+    assert [o["id"] for o in out] == ["spot-x", "spot-y"]
+    assert out[0]["market"] == "spot" and abs(out[0]["entry"] - 85.085) < 1e-9
+    assert abs(out[0]["net"] - 2.22225) < 1e-6
+    assert abs(out[1]["size"] - 0.05) < 1e-9 and abs(out[1]["entry"] - 85.085) < 1e-9
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in tests:

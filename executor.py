@@ -301,6 +301,56 @@ def _spot_value(client):
     return {"spot_usdt": round(total, 2), "spot_coins": coins[:10]}
 
 
+def spot_round_trips(fills, symbol):
+    """Vendite spot come trade chiusi, con il costo medio degli acquisti precedenti (commissioni comprese).
+    fills: eseguiti di Bitget di una coppia (qualunque ordine). Le vendite di coin comprate prima della
+    finestra dello storico (90 giorni) non hanno un costo noto: restano fuori."""
+    def num(v):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return 0.0
+    def fee_usdt(f, price):
+        fd = f.get("feeDetail") or {}
+        fee = abs(num(fd.get("totalFee") or fd.get("totalDeductionFee") or f.get("fee")))
+        coin = str(fd.get("feeCoin") or "USDT").upper()
+        return fee if coin in ("USDT", "") else fee * price          # commissione pagata in coin: valore in USDT
+    rows = sorted(fills or [], key=lambda f: int(num(f.get("cTime"))))
+    qty, cost, first_buy, out = 0.0, 0.0, None, []
+    for f in rows:
+        size, price = num(f.get("size")), num(f.get("priceAvg") or f.get("price"))
+        if size <= 0 or price <= 0:
+            continue
+        fee, t = fee_usdt(f, price), int(num(f.get("cTime")))
+        if str(f.get("side")).lower() == "buy":
+            if qty <= 1e-12:
+                first_buy = t
+            qty += size
+            cost += size * price + fee
+        elif qty > 1e-12:
+            sold = min(size, qty)
+            avg = cost / qty
+            gross = (price - avg) * sold
+            out.append({"id": f"spot-{f.get('tradeId') or f.get('orderId') or t}", "symbol": symbol, "side": "long", "market": "spot",
+                        "size": round(sold, 8), "entry": round(avg, 8), "exit": price, "pnl": round(gross, 6), "fees": round(fee, 6),
+                        "funding": 0.0, "net": round(gross - fee, 6), "opened_at": first_buy, "closed_at": t})
+            cost -= avg * sold
+            qty -= sold
+    return out
+
+
+def _spot_history(client, limit=30):
+    out = []
+    if not hasattr(client, "spot_fills_raw"):
+        return out
+    for sym in ("BTCUSDT", "ETHUSDT", "SOLUSDT"):
+        try:
+            out += spot_round_trips(client.spot_fills_raw(sym, 100), sym)
+        except Exception as e:
+            print(f"Eseguiti spot {sym} non letti: {e}")
+    return sorted(out, key=lambda h: -(h.get("closed_at") or 0))[:limit]
+
+
 def _spot_detail(client, coins):
     out = []
     if not hasattr(client, "spot_plan_orders"):
@@ -365,7 +415,7 @@ def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
             # Posizioni chiuse (Diario dell'app in modalità Reale): un errore qui tiene lo storico precedente
             if hasattr(client, "closed_positions"):
                 try:
-                    account["history"] = client.closed_positions(30)
+                    account["history"] = client.closed_positions(30) + _spot_history(client)
                 except Exception as e:
                     account["history_error"] = str(e)[:120]
         except Exception as e:
