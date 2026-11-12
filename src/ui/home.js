@@ -1,7 +1,7 @@
 import { State } from '../core/state.js';
 import { $, SYM, fetchT, calcPnl, escapeHtml, fmtIt, fmtPrice, fetchData } from '../utils/helpers.js';
 import { aggregateCellSignals } from './signals.js';
-import { bitgetAccountText, isRemovingAlert } from './automation.js';
+import { bitgetAccountText, isRemovingAlert, paperPerformance } from './automation.js';
 import { updateModePills, tradingMode } from './account.js';
 import { liveUpl, hasLiveMarks } from './trade.js';
 import { realPositions } from './history.js';
@@ -142,8 +142,8 @@ async function refreshBotFiles() {
     if (botInFlight) return;
     botInFlight = true;
     try {
-        const [cfg, ledger, live, alerts, quick] = await Promise.all([getJson('automation.json'), getJson('paper_trades.json'), getJson('live_trades.json'), getJson('alerts_state.json'), getJson('quick_state.json')]);
-        bot = { cfg, ledger, live, fired: [...((alerts && alerts._price_alerts_fired) || []), ...((quick && quick._price_alerts_fired) || [])] };
+        const [cfg, ledger, live, alerts, quick, agent] = await Promise.all([getJson('automation.json'), getJson('paper_trades.json'), getJson('live_trades.json'), getJson('alerts_state.json'), getJson('quick_state.json'), getJson('agent_state.json')]);
+        bot = { cfg, ledger, live, agent, fired: [...((alerts && alerts._price_alerts_fired) || []), ...((quick && quick._price_alerts_fired) || [])] };
     } finally { botInFlight = false; }
     renderAutomationCard();
     renderAccount();
@@ -175,6 +175,14 @@ function renderAutomationCard() {
     const al = ((cfg && cfg.price_alerts) || []).filter(a => a && !bot.fired.includes(a.id) && !isRemovingAlert(a.id));
     const fmtA = a => `${a.symbol.replace('USDT', '')} ${a.side === 'above' ? '≥' : '≤'} ${fmtPrice(a.price >= 1000 ? Math.round(a.price) : a.price)}`;
     setLine('homeAlerts', al.length ? (al.length <= 2 ? al.map(fmtA).join(' · ') : `${al.length} attivi · ${fmtA(al[0])}…`) : 'nessuno', al.length ? 'text-ui' : '');
+    // Agente: autonomia, rendimento della carta (in % del patrimonio, come in Segnali → Agente), proposte
+    const ag = { autonomy: 'paper', ...((cfg && cfg.agent) || {}) };
+    const perf = paperPerformance(ledger, Number(cfg && cfg.risk && cfg.risk.risk_per_trade_pct) || 0.5);
+    const props = ((bot.agent && bot.agent.proposals) || []).length;
+    const agText = [{ off: 'spento', paper: 'simulato', live: 'REALE' }[ag.autonomy] || ag.autonomy,
+        perf.n ? `carta ${perf.ret >= 0 ? '+' : ''}${fmtIt(perf.ret, 2)}% (${perf.n} trade)` : 'carta: ancora nessun trade chiuso',
+        props ? `${props} ${props === 1 ? 'proposta' : 'proposte'}` : ''].filter(Boolean).join(' · ');
+    setLine('homeAgent', agText, props || ag.autonomy === 'live' ? 'text-warning' : 'text-ui');
     const trading = !!(cfg && cfg.risk && cfg.risk.trading_enabled);
     setLine('homeAutoOrders', trading ? 'abilitati' : 'spenti', trading ? 'text-warning' : '');
     const acc = bitgetAccountText(live && live.account);
