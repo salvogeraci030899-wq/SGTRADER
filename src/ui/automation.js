@@ -405,7 +405,7 @@ export function toggleEmergency() {
 }
 
 export function runAutoJob(type) {
-    const text = { run_lab: 'Laboratorio strategie avviato: risultati in circa 10 minuti (Backtest → Lab).',
+    const text = { run_lab: 'Laboratorio strategie avviato: risultati in circa 10 minuti (Agente → Laboratorio).',
                    run_validation: 'Validazione di Kronos avviata: circa 6 ore (Grafici → Validazione storica).' }[type];
     if (text) send({ type }, text);
 }

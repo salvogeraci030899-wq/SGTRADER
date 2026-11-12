@@ -51,46 +51,46 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=154">
-    <meta name="app-version" content="154">
+    <link rel="stylesheet" href="./style.css?v=155">
+    <meta name="app-version" content="155">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=154",
-            "./src/core/commands.js": "./src/core/commands.js?v=154",
-            "./src/core/config.js": "./src/core/config.js?v=154",
-            "./src/core/labEngine.js": "./src/core/labEngine.js?v=154",
-            "./src/core/logger.js": "./src/core/logger.js?v=154",
-            "./src/core/rules.js": "./src/core/rules.js?v=154",
-            "./src/core/state.js": "./src/core/state.js?v=154",
-            "./src/core/telegram.js": "./src/core/telegram.js?v=154",
-            "./src/core/theme.js": "./src/core/theme.js?v=154",
-            "./src/main.js": "./src/main.js?v=154",
-            "./src/ui/account.js": "./src/ui/account.js?v=154",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=154",
-            "./src/ui/assistant.js": "./src/ui/assistant.js?v=154",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=154",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=154",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=154",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=154",
-            "./src/ui/history.js": "./src/ui/history.js?v=154",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=154",
-            "./src/ui/home.js": "./src/ui/home.js?v=154",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=154",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=154",
-            "./src/ui/lock.js": "./src/ui/lock.js?v=154",
-            "./src/ui/log.js": "./src/ui/log.js?v=154",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=154",
-            "./src/ui/market.js": "./src/ui/market.js?v=154",
-            "./src/ui/orders.js": "./src/ui/orders.js?v=154",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=154",
-            "./src/ui/results.js": "./src/ui/results.js?v=154",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=154",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=154",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=154",
-            "./src/ui/windows.js": "./src/ui/windows.js?v=154",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=154"
+            "./src/core/backup.js": "./src/core/backup.js?v=155",
+            "./src/core/commands.js": "./src/core/commands.js?v=155",
+            "./src/core/config.js": "./src/core/config.js?v=155",
+            "./src/core/labEngine.js": "./src/core/labEngine.js?v=155",
+            "./src/core/logger.js": "./src/core/logger.js?v=155",
+            "./src/core/rules.js": "./src/core/rules.js?v=155",
+            "./src/core/state.js": "./src/core/state.js?v=155",
+            "./src/core/telegram.js": "./src/core/telegram.js?v=155",
+            "./src/core/theme.js": "./src/core/theme.js?v=155",
+            "./src/main.js": "./src/main.js?v=155",
+            "./src/ui/account.js": "./src/ui/account.js?v=155",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=155",
+            "./src/ui/assistant.js": "./src/ui/assistant.js?v=155",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=155",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=155",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=155",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=155",
+            "./src/ui/history.js": "./src/ui/history.js?v=155",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=155",
+            "./src/ui/home.js": "./src/ui/home.js?v=155",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=155",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=155",
+            "./src/ui/lock.js": "./src/ui/lock.js?v=155",
+            "./src/ui/log.js": "./src/ui/log.js?v=155",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=155",
+            "./src/ui/market.js": "./src/ui/market.js?v=155",
+            "./src/ui/orders.js": "./src/ui/orders.js?v=155",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=155",
+            "./src/ui/results.js": "./src/ui/results.js?v=155",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=155",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=155",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=155",
+            "./src/ui/windows.js": "./src/ui/windows.js?v=155",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=155"
         }
     }
     </script>
@@ -151,7 +151,7 @@
 
                 <!-- 3. Automazione: strategie, ordini veri, conto Bitget (dati scritti dal bot) -->
                 <div class="home-card clickable" onclick="openAutomation()">
-                    <div class="home-card-header"><span>Automazione</span><span class="home-card-link">Auto ›</span></div>
+                    <div class="home-card-header"><span>Automazione</span><span class="home-card-link">Agente ›</span></div>
                     <div class="home-line"><span>Strategie</span><b id="homeAutoStrategies">—</b></div>
                     <div class="home-line"><span>Agente</span><b id="homeAgent">—</b></div>
                     <div class="home-line"><span>Ordini veri</span><b id="homeAutoOrders">—</b></div>
@@ -1144,12 +1144,12 @@
 </div>
 
 <!-- ==================== MODALI ==================== -->
-<div class="modal-overlay" id="deleteModal" data-sub="Diario"><div class="modal-box"><h3 id="modalTitle">Elimina Trade?</h3><p id="modalText">Sei sicuro?</p><div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Annulla</button><button class="btn-confirm" id="modalConfirmBtn" onclick="confirmDelete()">Elimina</button></div></div></div>
+<div class="modal-overlay" id="deleteModal" data-sub="Risultati"><div class="modal-box"><h3 id="modalTitle">Elimina Trade?</h3><p id="modalText">Sei sicuro?</p><div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Annulla</button><button class="btn-confirm" id="modalConfirmBtn" onclick="confirmDelete()">Elimina</button></div></div></div>
 <div class="modal-overlay" id="closeTradeModal" data-sub="Posizione simulata"><div class="modal-box"><h3>Chiudi Posizione?</h3><p>Sei sicuro di voler chiudere questo trade al prezzo attuale di mercato?</p><div class="modal-actions"><button class="btn-cancel" onclick="closeCloseTradeModal()">Annulla</button><button class="btn-confirm" onclick="executeCloseTrade()">Conferma Chiusura</button></div></div></div>
 <div class="modal-overlay" id="capitalModal" data-sub="Conto simulato"><div class="modal-box"><h3>Capitale simulato</h3><p style="margin-bottom:12px;">Scegli + per depositare o − per prelevare, poi l'importo.</p><input type="hidden" id="capitalSign" value="+"><div class="cap-sign" id="capitalSignToggle"><button type="button" data-sign="+" class="active" onclick="setCapitalSign('+')">+ Deposita</button><button type="button" data-sign="-" onclick="setCapitalSign('-')">− Preleva</button></div><div style="margin-bottom:14px; text-align:left;"><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; margin-bottom:4px; display:block;">Importo (USDT)</label><input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" id="capitalChangeInput" placeholder="es. 500" style="width:100%; background:var(--field); border:1px solid var(--border); color:var(--text); padding:12px; border-radius:10px; font-size:16px; font-family:var(--mono);"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeCapitalModal()">Annulla</button><button class="btn-confirm" onclick="applyCapitalChange()">Applica</button></div></div></div>
 <div class="modal-overlay" id="alertModal" data-sub="SGTRADER"><div class="modal-box"><h3 id="alertTitle">Attenzione</h3><p id="alertMessage">Messaggio</p><div class="modal-actions"><button class="btn-confirm" style="background:var(--surface-hover); color:var(--text);" onclick="closeAlert()">OK</button></div></div></div>
 <div class="modal-overlay" id="forceTradeModal" data-sub="Trade"><div class="modal-box"><h3 style="color: var(--warning);">Trade Bloccato</h3><p id="forceTradeReason" style="margin-bottom: 20px;">Motivo del blocco</p><div class="modal-actions"><button class="btn-cancel" onclick="closeForceTradeModal()">Annulla</button><button class="btn-confirm" style="background: var(--warning); color: var(--on-accent);" onclick="confirmForceTrade()">Esegui comunque</button></div></div></div>
-<div class="modal-overlay" id="resetModal" data-sub="Diario"><div class="modal-box"><h3 style="color: var(--danger);">Reset Diario</h3><p>Sei sicuro di voler resettare il diario? Tutti i trade attivi e lo storico verranno eliminati definitivamente.</p><div class="modal-actions"><button class="btn-cancel" onclick="closeResetModal()">Annulla</button><button class="btn-confirm" style="background: var(--danger); color: #fff;" onclick="executeReset()">Reset</button></div></div></div>
+<div class="modal-overlay" id="resetModal" data-sub="Risultati"><div class="modal-box"><h3 style="color: var(--danger);">Reset dei trade simulati</h3><p>Sei sicuro di voler resettare il diario? Tutti i trade attivi e lo storico verranno eliminati definitivamente.</p><div class="modal-actions"><button class="btn-cancel" onclick="closeResetModal()">Annulla</button><button class="btn-confirm" style="background: var(--danger); color: #fff;" onclick="executeReset()">Reset</button></div></div></div>
 <div class="modal-overlay" id="aiAnalysisModal" data-sub="Analisi AI"><div class="modal-box" style="text-align: left; max-width: 380px;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;"><h3 id="aiAnalysisTitle" style="margin-bottom: 0; font-size: 16px; color: var(--text);">Analisi</h3><span class="be-badge neutral" id="aiAnalysisBadge">...</span></div><div id="aiAnalysisBody" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 24px; max-height: 50vh; overflow-y: auto;"></div><div class="modal-actions"><button class="btn-confirm" onclick="closeAIAnalysisModal()">Chiudi</button></div></div></div>
 <div class="modal-overlay assist-overlay" id="assistModal"><div class="assist-box">
     <div class="header-row assist-head">
@@ -1194,7 +1194,7 @@
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
-        <div class="settings-hint conn-warn">Servono solo per inviare comandi dall'app (Aggiorna, Segnali → Auto, Account). Le chiavi Bitget non stanno qui: sono segreti su GitHub e l'app non le vede mai.</div>
+        <div class="settings-hint conn-warn">Servono solo per inviare comandi dall'app (Aggiorna, Agente, Account). Le chiavi Bitget non stanno qui: sono segreti su GitHub e l'app non le vede mai.</div>
         <div class="settings-section">
             <div class="settings-section-title">Token GitHub</div>
             <div class="settings-hint">Fine-grained, solo sul repository SGTRADER, permesso "Actions: Read and write". Resta solo su questo dispositivo. <span id="ghTokenState"></span></div>
@@ -1225,6 +1225,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=154"></script>
+<script type="module" src="./src/main.js?v=155"></script>
 </body>
 </html>

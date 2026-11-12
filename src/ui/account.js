@@ -60,10 +60,10 @@ export function renderAccount() {
     const confirmed = (lab && lab.confirmed) || [];
     const liveKeys = Object.entries((cfg && cfg.strategies) || {}).filter(([, v]) => v === 'live').map(([k]) => k);
     let explain;
-    if (cfg && cfg.emergency) explain = 'Emergenza attiva: tutto fermo. Si sblocca da Segnali → Auto.';
+    if (cfg && cfg.emergency) explain = 'Emergenza attiva: tutto fermo. Si sblocca da Agente → Rischio.';
     else if (m.mode === 'off') explain = "Simulato: nessun ordine vero. Il bot segue le strategie su carta e l'esecutore simula gli ordini.";
     else if (!confirmed.length) explain = 'Reale, ma nessuna strategia è confermata dalla prova finale: per ora non parte nessun ordine.';
-    else if (!liveKeys.length) explain = 'Reale, ma nessuna strategia è su Reale: mettine una da Segnali → Auto.';
+    else if (!liveKeys.length) explain = 'Reale, ma nessuna strategia è su Reale: mettine una da Agente → Strategie.';
     else explain = `Reale: ordini veri su Bitget per ${liveKeys.join(', ')}, con i limiti qui sotto.`;
     set('accModeExplain', explain, 'acc-explain' + (m.mode === 'on' ? ' warn' : ''));
 

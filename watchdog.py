@@ -71,13 +71,31 @@ def archive_last_day(path="futures_archive/BTCUSDT_daily.csv"):
         return None
 
 
+# Tasti sotto i messaggi (li gestisce il server: src/core/telegram.js). Niente link che aprono Safari:
+# rispondono dentro Telegram. Gli avvisi di allarme hanno anche ⛔ Emergenza (con conferma Sì/No).
+INFO_ROW = [{"text": "📊 Stato", "callback_data": "stato"}, {"text": "📈 Posizioni", "callback_data": "posizioni"},
+            {"text": "🤖 Agente", "callback_data": "agente"}]
+ALARM_WORDS = ("⚠️", "BLOCCAT", "bloccato", "Perdita del giorno", "limite di perdita", "FALLITA", "NON riuscita", "non risponde",
+               "Tornata su carta", "CONTROLLO DI SALUTE")
+
+
+def keyboard_for(text):
+    """Tasti adatti al messaggio: allarme → ⛔ Emergenza + informazioni; il resto → solo informazioni.
+    Il messaggio che conferma un'emergenza già partita non ripropone il tasto."""
+    t = str(text or "")
+    alarm = any(w in t for w in ALARM_WORDS) and "Emergenza:" not in t and "EMERGENZA ATTIVA" not in t
+    rows = ([[{"text": "⛔ Emergenza", "callback_data": "emg"}]] if alarm else []) + [INFO_ROW]
+    return {"inline_keyboard": rows}
+
+
 def send(text):
     token, chat = os.environ.get("TELEGRAM_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
     if not token or not chat:
         print("Telegram non configurato: avviso solo nel log.")
         return False
     try:
-        r = requests.post(f"https://api.telegram.org/bot{token}/sendMessage", json={"chat_id": chat, "text": text}, timeout=10)
+        r = requests.post(f"https://api.telegram.org/bot{token}/sendMessage",
+                          json={"chat_id": chat, "text": text, "reply_markup": keyboard_for(text)}, timeout=10)
         return r.ok
     except Exception as e:
         print(f"Invio Telegram fallito: {e}")

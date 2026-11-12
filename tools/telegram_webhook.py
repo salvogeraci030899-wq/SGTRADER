@@ -29,7 +29,7 @@ def main():
         return 0
     api = f"https://api.telegram.org/bot{token}"
     try:
-        r = requests.post(f"{api}/setWebhook", json={"url": url, "secret_token": secret, "allowed_updates": ["message"]}, timeout=20).json()
+        r = requests.post(f"{api}/setWebhook", json={"url": url, "secret_token": secret, "allowed_updates": ["message", "callback_query"]}, timeout=20).json()
         print(f"Webhook: {'registrato' if r.get('ok') else 'NON registrato: ' + str(r.get('description'))}")
         c = requests.post(f"{api}/setMyCommands", json={"commands": [{"command": a, "description": b} for a, b in COMMANDS]}, timeout=20).json()
         print(f"Menu dei comandi: {'impostato' if c.get('ok') else 'non impostato: ' + str(c.get('description'))}")

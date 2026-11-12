@@ -379,6 +379,29 @@ test('bot Telegram: solo con il segreto del webhook e dalla tua chat', async () 
     assert.equal(disp.length, 0);                                                  // altra chat: niente
     await handle('POST', '/api/telegram', msg(42, '/emergenza conferma'), h, tenv, f2);
     assert.equal(disp.length, 1); assert.equal(disp[0].inputs.action, 'emergency'); assert.match(sent.at(-1).text, /Emergenza inviata/);
+    // tasti: Stato risponde in chat; Emergenza chiede conferma; Sì entro 2 minuti invia, scaduto no; altra chat ignorata
+    const cbq = (chat, data) => ({ callback_query: { id: 'c1', data, message: { chat: { id: chat } } } });
+    const answered = [];
+    const f3 = async (url, opts = {}) => {
+        if (url.includes('answerCallbackQuery')) { answered.push(1); return { ok: true, status: 200 }; }
+        return f2(url, opts);
+    };
+    const n0 = sent.length, d0 = disp.length;
+    await handle('POST', '/api/telegram', cbq(42, 'stato'), h, tenv, f3);
+    assert.match(sent.at(-1).text, /STATO/); assert.ok(sent.at(-1).reply_markup.inline_keyboard[0].length === 3); assert.equal(answered.length, 1);
+    await handle('POST', '/api/telegram', cbq(42, 'emg'), h, tenv, f3);
+    const yes = sent.at(-1).reply_markup.inline_keyboard[0][0].callback_data;
+    assert.match(sent.at(-1).text, /Confermi/); assert.match(yes, /^emg_yes:\d+$/); assert.equal(disp.length, d0);
+    await handle('POST', '/api/telegram', cbq(99, yes), h, tenv, f3);
+    assert.equal(disp.length, d0);                                                 // altra chat: niente
+    const t = Number(yes.split(':')[1]) * 1000;
+    const { telegramWebhook } = await import('../src/core/telegram.js');
+    await telegramWebhook(cbq(42, yes), h, tenv, f3, b => handle('POST', '/api/command', b, ok, env, f3).then(() => ({ status: 200, body: {} })), t + 200e3);
+    assert.match(sent.at(-1).text, /scaduta/); assert.equal(disp.length, d0);
+    await handle('POST', '/api/telegram', cbq(42, yes), h, tenv, f3);
+    assert.equal(disp.length, d0 + 1); assert.equal(disp.at(-1).inputs.action, 'emergency');
+    await handle('POST', '/api/telegram', cbq(42, 'emg_no'), h, tenv, f3);
+    assert.match(sent.at(-1).text, /annullata/); assert.ok(sent.length > n0);
     assert.equal((await handle('POST', '/api/telegram', msg(42), h, { ...env }, f)).status, 503);   // non configurato
     assert.equal((await handle('GET', '/api/telegram', {}, h, tenv, f)).status, 405);
 });
