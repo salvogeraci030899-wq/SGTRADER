@@ -1,7 +1,7 @@
 {
  "positions": {},
  "day": {
-  "date": "2026-11-11",
+  "date": "2026-11-12",
   "start_equity": 1000.0,
   "blocked": false
  },
@@ -29,7 +29,7 @@
   "spot_coins": [
    {
     "coin": "EUR",
-    "qty": 0.00584849,
+    "qty": 14.52584849,
     "usdt": null
    }
   ],
@@ -42,8 +42,8 @@
    "bots": 0.0,
    "margin": 0.0
   },
-  "checked_at": "2026-11-11T23:48:59+00:00",
-  "day": "2026-11-11",
+  "checked_at": "2026-11-12T00:13:41+00:00",
+  "day": "2026-11-12",
   "day_start_total": 0.0,
   "day_change": 0.0
  },
