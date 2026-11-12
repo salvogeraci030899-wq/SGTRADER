@@ -32,7 +32,67 @@
     "n": 0,
     "open": 0
    }
+  },
+  "big_candle:1d": {
+   "mode": "paper",
+   "trades": [],
+   "last_candle": {
+    "BTCUSDT": 1794326400,
+    "ETHUSDT": 1794326400,
+    "SOLUSDT": 1794326400
+   },
+   "stats": {
+    "n": 0,
+    "open": 0,
+    "vs_backtest": {
+     "bt_avg": 1.871,
+     "bt_n": 247,
+     "n": 0,
+     "verdict": "pochi_trade"
+    }
+   },
+   "since": 1794355200
+  },
+  "tsmom30:1d": {
+   "mode": "paper",
+   "trades": [],
+   "last_candle": {
+    "BTCUSDT": 1794326400,
+    "ETHUSDT": 1794326400,
+    "SOLUSDT": 1794326400
+   },
+   "stats": {
+    "n": 0,
+    "open": 0,
+    "vs_backtest": {
+     "bt_avg": 0.848,
+     "bt_n": 889,
+     "n": 0,
+     "verdict": "pochi_trade"
+    }
+   },
+   "since": 1794355200
+  },
+  "tsmom_combo:1d": {
+   "mode": "paper",
+   "trades": [],
+   "last_candle": {
+    "BTCUSDT": 1794326400,
+    "ETHUSDT": 1794326400,
+    "SOLUSDT": 1794326400
+   },
+   "stats": {
+    "n": 0,
+    "open": 0,
+    "vs_backtest": {
+     "bt_avg": 0.935,
+     "bt_n": 669,
+     "n": 0,
+     "verdict": "pochi_trade"
+    }
+   },
+   "since": 1794355200
   }
  },
- "updated_at": "2026-11-12T04:24:44+00:00"
+ "updated_at": "2026-11-12T09:48:23+00:00"
 }
