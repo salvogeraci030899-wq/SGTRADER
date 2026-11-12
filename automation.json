@@ -95,9 +95,14 @@
    "at": "2026-11-12T01:23:08+00:00",
    "cmd": "resume",
    "executor_unhalted": true
+  },
+  {
+   "at": "2026-11-12T01:43:47+00:00",
+   "cmd": "trading",
+   "to": "off"
   }
  ],
  "risk": {
-  "trading_enabled": true
+  "trading_enabled": false
  }
 }
