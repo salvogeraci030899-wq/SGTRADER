@@ -111,7 +111,7 @@ export function renderSettings() {
     const version = document.querySelector('meta[name="app-version"]')?.content || '—';
     set('settingsSubtitle', `SGTRADER · v${version}`);
     const mode = commandMode();
-    set('setConnVal', { server: 'server', github: 'token GitHub', site: 'questo sito', none: 'da impostare' }[mode]);
+    set('setConnVal', { server: 'server', github: 'token GitHub', site: 'questo sito', cloud: 'server Cloudflare', none: 'da impostare' }[mode]);
     updateModePills();
     if (!getAutoState().loaded) loadAutomation();
 }

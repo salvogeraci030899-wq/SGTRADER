@@ -210,7 +210,7 @@ export function renderAutomation() {
     const realText = !risk.trading_enabled ? 'spenti (esecutore simulato)'
         : (execMode === 'simulata' ? 'abilitati, ma senza chiavi Bitget o strategie confermate' : `abilitati (${execMode})`);
     const mode = commandMode();
-    const serverText = { server: 'server impostato', github: 'token GitHub', site: 'questo sito', none: 'non impostati' }[mode];
+    const serverText = { server: 'server impostato', github: 'token GitHub', site: 'questo sito', cloud: 'server Cloudflare', none: 'non impostati' }[mode];
     const onPaper = Object.values(cfg ? cfg.strategies : {}).filter(m => m !== 'off').length;
     const { text: accText, cls: accClass, detail: accDetail } = bitgetAccountText(live && live.account);
     const acc = live && live.account;
