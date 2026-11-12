@@ -173,6 +173,12 @@ window.runAutoJob = AutoUI.runAutoJob;
 window.openAutoAdd = AutoUI.openAutoAdd;
 window.closeAutoAdd = AutoUI.closeAutoAdd;
 window.openAlerts = AutoUI.openAlerts;
+window.openChartAlert = AutoUI.openChartAlert;
+window.closeChartAlert = AutoUI.closeChartAlert;
+window.chartAlertStep = AutoUI.chartAlertStep;
+window.caHint = AutoUI.caHint;
+window.confirmChartAlert = AutoUI.confirmChartAlert;
+window.chartAlertSignals = TerminalUI.chartAlertSignals;
 window.closeAlerts = AutoUI.closeAlerts;
 window.removePriceAlert = AutoUI.removePriceAlert;
 Object.assign(window, { lockKey: Lock.lockKey, lockFaceId: Lock.lockFaceId, lockForgot: Lock.lockForgot, lockCancel: Lock.lockCancel,

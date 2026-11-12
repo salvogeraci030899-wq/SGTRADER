@@ -113,13 +113,20 @@ export function renderOrders() {
     const box = $('ordersView');
     if (!box || view !== 'orders') return;
     const real = isRealMode();
-    box.innerHTML = real
+    const html = real
         ? section('In attesa su Bitget', realOrders(), 'Nessuno stop o target in attesa.')
           + section('Avvisi di prezzo', alertRows(), 'Nessun avviso. Chiedilo all\'assistente: «avvisami se BTC arriva a 75.000».')
           + section('Ultimi comandi', commandRows(), 'Ancora nessun comando dall\'app.')
         : section('Livelli dei trade simulati', simOrders(), 'Nessun trade simulato aperto.')
           + section('Avvisi di prezzo', alertRows(), 'Nessun avviso. Chiedilo all\'assistente: «avvisami se BTC arriva a 75.000».');
-    box.querySelectorAll('.ord-list').forEach(ordSync);
+    // Viene chiamata a ogni aggiornamento dei prezzi: ridisegnare sempre riportava ogni lista al primo
+    // elemento mentre la si scorreva. Si ridisegna solo se il contenuto cambia, e si tiene la posizione.
+    if (html === lastHtml && box.childElementCount) return;
+    const keep = [...box.querySelectorAll('.ord-list')].map(l => l.scrollLeft);
+    lastHtml = html;
+    box.innerHTML = html;
+    box.querySelectorAll('.ord-list').forEach((l, i) => { if (keep[i]) l.scrollLeft = keep[i]; ordSync(l); });
 }
+let lastHtml = '';
 
 export function initOrders() { applyView(); }

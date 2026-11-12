@@ -226,9 +226,6 @@ main {
 .btn-fullscreen { position: absolute; top: 10px; left: 10px; background: var(--overlay); border: 1px solid var(--border); color: var(--text-secondary); width: var(--touch-min); height: var(--touch-min); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
 .btn-fullscreen:active { background: var(--overlay-strong); color: var(--text); }
 
-.btn-snapshot-overlay { position: absolute; bottom: 10px; left: 10px; background: var(--overlay); border: 1px solid var(--border); color: var(--text-secondary); width: var(--touch-min); height: var(--touch-min); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-.btn-snapshot-overlay:active { background: var(--overlay-strong); color: var(--text); }
-.btn-snapshot-overlay:disabled { opacity: 0.5; }
 
 /* Schermo intero (Grafici e Home, stessa grafica): barra in alto con chiudi, coin e timeframe,
    grafico sotto a tutta altezza; rispetta le aree sicure anche in orizzontale */
@@ -245,10 +242,21 @@ main {
 .chart-container.fullscreen #chart,
 .home-chart-item.fullscreen .home-chart-canvas { flex: 1; width: 100%; height: auto; min-height: 0; }
 .chart-container.fullscreen .btn-fullscreen { display: none; }
-.chart-container.fullscreen .btn-snapshot-overlay { bottom: calc(env(safe-area-inset-bottom, 0px) + 30px); left: calc(env(safe-area-inset-left, 0px) + 10px); }
 
 body.chart-fullscreen .header-row, body.chart-fullscreen .asset-bar, body.chart-fullscreen .tf-bar, body.chart-fullscreen .last-update-bar, body.chart-fullscreen .dashboard-carousel-container, body.chart-fullscreen .controls-row, body.chart-fullscreen .nav-bar { display: none !important; }
-body.snapshot-mode .btn-fullscreen, body.snapshot-mode .btn-snapshot-overlay { visibility: hidden; }
+/* Avviso e Condividi: solo a schermo intero, in basso a sinistra (Segnali e Home) */
+.chart-fs-tools { display: none; }
+.chart-container.fullscreen .chart-fs-tools,
+.home-chart-item.fullscreen .chart-fs-tools { display: flex; gap: 8px; position: absolute; z-index: 10; bottom: calc(env(safe-area-inset-bottom, 0px) + 30px); left: calc(env(safe-area-inset-left, 0px) + 10px); }
+.chart-tool { background: var(--overlay); border: 1px solid var(--border); color: var(--text-secondary); width: var(--touch-min); height: var(--touch-min); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 0; }
+.chart-tool:active { background: var(--overlay-strong); color: var(--text); }
+.chart-tool:disabled { opacity: 0.5; }
+body.snapshot-mode .btn-fullscreen, body.snapshot-mode .chart-fs-tools, body.snapshot-mode .home-chart-fullscreen { visibility: hidden; }
+.ca-input { width: 100%; font-size: 22px; font-weight: 700; text-align: center; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--field); color: var(--text); font-family: var(--font); margin: 4px 0 8px; }
+.ca-steps { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+.ca-steps button { min-height: 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--field); color: var(--text); font-size: 12px; font-weight: 600; padding: 0; font-family: var(--font); }
+.ca-list { margin-top: 8px; color: var(--text-secondary); }
+.ca-hint { font-size: 12px; color: var(--text-secondary); margin-top: 8px; min-height: 32px; line-height: 1.35; }
 
 /* --- DASHBOARD CAROUSEL --- */
 .dashboard-carousel-container { flex-shrink: 0; margin-bottom: 8px; position: relative; }
