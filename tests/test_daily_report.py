@@ -19,7 +19,10 @@ def files(d, emergency=False, halted=False):
     json.dump({"strategies": {"big_candle_trail:1d": {"mode": "paper", "stats": {"n": 3, "open": 1, "win_rate": 66.7, "avg_net_pct": 1.234, "vs_backtest": {"verdict": "sotto"}}},
                               "donchian55:1d": {"mode": "off", "stats": {"n": 9, "open": 0}}}}, open(paths["paper"], "w"))
     json.dump({"mode": "simulata", "halted": halted, "positions": {"x": {"status": "open"}},
-               "account": {"connected": True, "demo": False, "equity": 500.0, "total_usdt": 1523.4, "day_change": -12.5, "positions": 1, "upl": 3.2}}, open(paths["live"], "w"))
+               "account": {"connected": True, "demo": False, "equity": 500.0, "total_usdt": 1523.4, "day_change": -12.5, "positions": 1, "upl": 3.2,
+                           "history": [{"id": "a", "net": 0.05, "closed_at": NOW.timestamp() * 1000 - 3600e3},
+                                       {"id": "b", "net": -0.02, "closed_at": NOW.timestamp() * 1000 - 5 * 3600e3},
+                                       {"id": "c", "net": 9.0, "closed_at": NOW.timestamp() * 1000 - 48 * 3600e3}]}}, open(paths["live"], "w"))
     json.dump({"emergency": emergency, "strategies": {"big_candle_trail:1d": "paper"}}, open(paths["automation"], "w"))
     json.dump({"confirmed": []}, open(paths["lab"], "w"))
     return paths
@@ -42,6 +45,7 @@ def test_contenuto():
         assert "donchian55" not in text                                                            # spenta: non è nella prova
         assert "Modalità ordini: simulato, nessun ordine vero" in text
         assert "Bitget (reale): saldo 1.523,40 USDT, variazione oggi -12,50, 1 posizioni (PnL aperto +3,20)" in text
+        assert "Trade reali chiusi nelle ultime 24 ore: 2 (1 in utile), netto +0,03 USDT" in text      # la chiusura di 2 giorni fa no
         assert "_" not in text and "*" not in text                                                 # Markdown di Telegram
         alarm = dr.build({}, NOW, files(d, emergency=True, halted=True))
         assert "EMERGENZA ATTIVA" in alarm and "BLOCCATO" in alarm
