@@ -84,17 +84,20 @@ export function refreshCapitalUI() {
     Calculator.syncCapital();
 }
 
+// Comandi attivi (regole, stop e target) in una striscia che scorre in orizzontale: una riga sola, qualunque numero
+const rulesStrip = items => (items.length ? `<div class="at-rules${items.length > 1 ? ' many' : ''}">${items.join('')}</div>` : '');
+
 // "Comandi attivi" di una posizione reale: TP e SL che stanno su Bitget (messi con Chat o Voce, o a mano
 // nell'app Bitget), ciascuno con ✕ per toglierlo; sotto, l'esito dell'ultimo comando dato dall'app.
 function realCommands(p, events) {
     const short = p.side === 'short';
     const row = (kind, price) => {
-        const label = kind === 'tp' ? `Take profit su Bitget: chiude a ${short ? '≤' : '≥'} ${fmtPrice(price)}` : `Stop loss su Bitget: chiude a ${short ? '≥' : '≤'} ${fmtPrice(price)}`;
+        const label = kind === 'tp' ? `Target Bitget ${short ? '≤' : '≥'} ${fmtPrice(price)}` : `Stop Bitget ${short ? '≥' : '≤'} ${fmtPrice(price)}`;
         return isRealOrderRemoving(p.symbol, kind)
             ? `<div class="at-rule"><span>${label} · in rimozione…</span></div>`
             : `<div class="at-rule"><span>${label}</span><button type="button" onclick="removeRealOrder('${p.symbol}','${p.side}','${kind}',${Number(price)})" title="Togli">✕</button></div>`;
     };
-    const rows = [p.sl ? row('sl', p.sl) : '', p.tp ? row('tp', p.tp) : ''].join('');
+    const rows = rulesStrip([p.sl ? row('sl', p.sl) : '', p.tp ? row('tp', p.tp) : ''].filter(Boolean));
     const ev = events.filter(e => e.symbol === p.symbol && e.side === p.side).pop();
     const recent = ev && Date.now() - Date.parse(ev.at) < 24 * 3600e3;
     const last = recent ? `<div class="at-meta at-last">Ultimo comando ${new Date(ev.at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}: <span class="${ev.ok === false ? 'text-danger' : 'text-accent'}">${ev.ok === false ? '✗' : '✓'}</span> ${escapeHtml(ev.msg || ev.action)}</div>` : '';
@@ -337,7 +340,7 @@ export function renderActiveTrades() {
                     <button class="close-btn" onclick="openCloseTradeModal('${t.id}')">CHIUDI</button>
                 </div>
                 <div class="at-meta">Aperto ${fmtDateTime(t.entryTime)}</div>
-                ${(t.rules || []).map(r => `<div class="at-rule"><span>Regola: chiude a ${r.side === 'above' ? '≥' : '≤'} ${r.price.toLocaleString('it-IT')} · ${escapeHtml(r.label)}</span><button type="button" onclick="removeRule('${t.id}','${r.id}')" title="Togli la regola">✕</button></div>`).join('')}
+                ${rulesStrip((t.rules || []).map(r => `<div class="at-rule"><span>Chiude a ${r.side === 'above' ? '≥' : '≤'} ${fmtPrice(r.price)} · ${escapeHtml(r.label)}</span><button type="button" onclick="removeRule('${t.id}','${r.id}')" title="Togli la regola">✕</button></div>`))}
                 <div class="at-body">
                     <div class="at-item"><span class="at-lbl">Entry</span><span class="at-val">${t.entryPrice.toFixed(2)}</span></div>
                     <div class="at-item"><span class="at-lbl">Corrente</span><span class="at-val" data-f="px">—</span></div>

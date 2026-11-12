@@ -26,6 +26,9 @@ from bitget_client import BitgetClient, BitgetError
 ACTIONS = ("close", "tp", "sl", "clear", "untp", "unsl")
 # "refresh": nessun ordine, solo il conto riletto (chiesto dall'app aperta in modalità Reale)
 REFRESH = "refresh"
+# "open": nuova posizione decisa da te nella pagina Trade (ordine a mercato con stop obbligatorio)
+OPEN = "open"
+CONFIG_PATH = "automation.json"
 # esito del comando, letto dal passo che salva lo stato (anche se il comando è fallito) e mostrato nell'app
 RESULT_PATH = os.environ.get("POSITION_RESULT", "position_result.json")
 SYMBOLS = ("BTCUSDT", "ETHUSDT", "SOLUSDT")
@@ -71,6 +74,61 @@ def clean_req(req):
     return req if isinstance(req, str) and re.fullmatch(r"[a-z0-9]{6,20}", req) else ""
 
 
+def mark_price(symbol):
+    """Prezzo mark dei futures (API pubblica di Bitget)."""
+    import requests
+    r = requests.get("https://api.bitget.com/api/v2/mix/market/ticker", params={"symbol": symbol, "productType": "USDT-FUTURES"}, timeout=10)
+    d = (r.json().get("data") or [{}])[0]
+    return float(d.get("markPrice") or d.get("lastPr") or 0)
+
+
+def validate_open(symbol, side, size, leverage, sl, tp, positions, mark, specs, cfg, equity):
+    """Controlli di un ordine manuale, qualunque cosa arrivi dall'app. Ritorna (quantità, stop, target, leva)."""
+    if symbol not in SYMBOLS or side not in ("long", "short"):
+        raise CommandError("Coin o direzione non valide.")
+    if cfg.get("emergency"):
+        raise CommandError("Emergenza attiva: niente nuovi ordini finché non la sblocchi.")
+    risk = executor.risk_config(cfg)
+    if not risk.get("trading_enabled"):
+        raise CommandError("La modalità Reale è spenta: accendila dall'app (Account) per mandare ordini veri.")
+    if symbol in positions:
+        raise CommandError(f"Su Bitget c'è già una posizione su {symbol.replace('USDT', '')}: gestiscila dalla pagina Posizioni.")
+    try:
+        lev = int(float(leverage))
+    except (TypeError, ValueError):
+        raise CommandError("Leva non valida.")
+    if not 1 <= lev <= risk["max_leverage"]:
+        raise CommandError(f"Leva fuori dai limiti: da 1 a {risk['max_leverage']}x (Impostazioni → Limiti di rischio).")
+    if not (mark and mark > 0):
+        raise CommandError("Prezzo attuale non disponibile: riprova.")
+    if sl is None or not sl > 0:
+        raise CommandError("Lo stop loss è obbligatorio.")
+    long = side == "long"
+    if (sl >= mark) if long else (sl <= mark):
+        raise CommandError(f"Lo stop di un {side.upper()} va {'sotto' if long else 'sopra'} il prezzo attuale ({_fmt(mark)}).")
+    if tp is not None and ((tp <= mark) if long else (tp >= mark)):
+        raise CommandError(f"Il target di un {side.upper()} va {'sopra' if long else 'sotto'} il prezzo attuale ({_fmt(mark)}).")
+    # con il margine isolato la liquidazione è circa a 1/leva dal prezzo: lo stop deve scattare prima
+    liq = mark * (1 - 0.9 / lev) if long else mark * (1 + 0.9 / lev)
+    if (sl <= liq) if long else (sl >= liq):
+        raise CommandError(f"Con leva {lev}x lo stop sarebbe oltre la liquidazione (circa {_fmt(liq)}): abbassa la leva o avvicina lo stop.")
+    from bitget_client import round_down
+    qty = round_down(float(size or 0), specs["volume_place"])
+    if qty < specs["min_size"]:
+        raise CommandError(f"Quantità troppo piccola: il minimo su {symbol.replace('USDT', '')} è {_fmt(specs['min_size'])}.")
+    notional = qty * mark
+    margin = notional / lev
+    if margin > equity * 0.9:
+        raise CommandError(f"Margine richiesto {_fmt(margin)} USDT: oltre il 90% del conto futures ({_fmt(equity)} USDT).")
+    loss = qty * abs(mark - sl) + notional * 0.0012          # allo stop, commissioni comprese
+    cap = equity * risk["max_daily_loss_pct"] / 100
+    if loss > cap:
+        raise CommandError(f"Allo stop perderesti circa {_fmt(loss)} USDT, oltre il limite di {_fmt(cap)} "
+                           f"({_fmt(risk['max_daily_loss_pct'])}% del conto, perdita massima del giorno).")
+    places = specs["price_place"]
+    return qty, round(sl, places), (round(tp, places) if tp else None), lev
+
+
 def sync_executor(symbol, side, action, state_path=executor.STATE_PATH, now=None, req="", ok=True, msg=""):
     """Una chiusura manuale toglie la posizione anche dallo stato dell'esecutore, che altrimenti al giro
     dopo la cercherebbe su Bitget e si bloccherebbe. Registra comunque l'evento, riuscito o no, con
@@ -100,6 +158,8 @@ def run(argv, client=None, notify=None, state_path=executor.STATE_PATH):
                 raise CommandError("Chiavi Bitget non impostate nei segreti di GitHub.")
             client = BitgetClient.from_env()
         return "Conto Bitget riletto." + ("" if refresh_if_changed(state_path, client) else " Nessun cambiamento.")
+    if action == OPEN:
+        return open_position(argv, client, notify, state_path)
     try:
         price = float(argv[3]) if len(argv) > 3 and argv[3] not in ("", "0") else None
     except ValueError:
@@ -175,6 +235,46 @@ def refresh_if_changed(state_path=executor.STATE_PATH, client=None):
         return False
     print("Conto cambiato: salvato.")
     return True
+
+
+def open_position(argv, client=None, notify=None, state_path=executor.STATE_PATH, config_path=CONFIG_PATH, mark_fn=None, specs_fn=None):
+    """open COIN DIREZIONE STOP QUANTITÀ LEVA [TARGET]: ordine a mercato con stop (e target) già sull'exchange."""
+    symbol, side = argv[1], argv[2]
+    def num(i):
+        try:
+            return float(argv[i]) if len(argv) > i and argv[i] not in ("", "0") else None
+        except ValueError:
+            raise CommandError(f"Valore non valido: {argv[i]}")
+    sl, size, lev, tp = num(3), num(4), num(5), num(6)
+    if client is None:
+        if not all(os.environ.get(k) for k in ("BITGET_API_KEY", "BITGET_API_SECRET", "BITGET_API_PASSPHRASE")):
+            raise CommandError("Chiavi Bitget non impostate nei segreti di GitHub.")
+        client = BitgetClient.from_env()
+    try:
+        with open(config_path) as f:
+            cfg = json.load(f)
+    except (OSError, ValueError):
+        cfg = {}
+    mark = (mark_fn or mark_price)(symbol)
+    specs = (specs_fn or executor.contract_specs)(symbol) or executor.DEFAULT_SPECS
+    qty, sl, tp, lev = validate_open(symbol, side, size, lev, sl, tp, client.positions(), mark, specs, cfg, client.equity())
+    try:
+        one_way = client.pos_mode(symbol) == "one_way_mode"
+    except Exception:
+        one_way = False
+    client.setup_symbol(symbol, lev, side)
+    client.open_position(symbol, side, qty, sl, take_price=tp, one_way=one_way)
+    name = f"{symbol.replace('USDT', '')} {side.upper()}"
+    msg = (f"Aperta {name} {_fmt(qty)} a mercato su Bitget (circa {_fmt(mark)}, leva {lev}x, margine isolato): "
+           f"stop {_fmt(sl)}" + (f", target {_fmt(tp)}" if tp else ", nessun target") + ".")
+    sync_executor(symbol, side, OPEN, state_path, msg=msg)
+    try:
+        executor.account_snapshot(state_path, client=client)
+    except Exception as e:
+        print(f"Conto non riletto: {e}")
+    if notify:
+        notify(f"🟢 ORDINE MANUALE · {'DEMO' if getattr(client, 'demo', False) else 'REALE'}\n{msg}")
+    return msg
 
 
 def sync_only(argv, state_path=executor.STATE_PATH, result_path=None):

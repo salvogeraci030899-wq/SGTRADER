@@ -48,6 +48,10 @@ def main():
         pos = client.positions()
         print("Posizioni aperte: " + (", ".join(f"{s} {p['side']} {p['size']}" for s, p in pos.items()) or "nessuna"))
         try:
+            print(f"Modalità delle posizioni: {client.pos_mode('BTCUSDT')}")
+        except Exception as e:
+            print(f"Modalità delle posizioni non leggibile: {e}")
+        try:
             raw = client.history_raw(5)
             # solo i NOMI dei campi della prima riga, per verificare il formato (nessun valore)
             print(f"Storico posizioni chiuse: {len(raw)} righe lette" + (f" · campi: {', '.join(sorted(raw[0].keys()))}" if raw else ""))

@@ -123,19 +123,33 @@ def test_riconciliazione_e_sblocco():
     with tempfile.TemporaryDirectory() as d:
         path, notes = os.path.join(d, "live.json"), []
         client = bg.DryRunClient(10_000)
-        client._positions = {"ETHUSDT": {"side": "long", "size": 1.0}}           # posizione aperta a mano su Bitget
+        sym = trade()["symbol"]
+        other = "ETHUSDT" if sym != "ETHUSDT" else "SOLUSDT"
+        # posizione aperta a mano su un'altra coin: non blocca, l'esecutore apre la sua
+        client._positions = {other: {"side": "long", "size": 1.0, "entry": 2000.0}}
         cfg, ledger = setup([trade()])
         go(cfg, ledger, path, client, notes=notes)
         st = json.load(open(path))
-        assert st["halted"] is True and st["positions"] == {} and "bloccato" in notes[-1]
-        assert not any(c[0] == "open" for c in client.calls)
-        # sistemato su Bitget e sbloccato dall'app: riparte
-        client._positions = {}
+        assert st["halted"] is False and st["manual"] == [other] and st["positions"][trade()["id"]]["status"] == "open"
+        # posizione manuale sulla stessa coin di un segnale nuovo: niente ingresso su quella coin
+        with tempfile.TemporaryDirectory() as d2:
+            p2, c2 = os.path.join(d2, "live.json"), bg.DryRunClient(10_000)
+            c2._positions = {sym: {"side": "short", "size": 0.1, "entry": 70000.0}}
+            go(cfg, ledger, p2, c2, notes=notes)
+            s2 = json.load(open(p2))
+            assert s2["halted"] is False and s2["positions"][trade()["id"]]["status"] == "skipped" and "a mano" in s2["positions"][trade()["id"]]["reason"]
+        # la posizione dell'esecutore sparisce da Bitget senza che l'abbia chiusa lui: blocco
+        client._positions.pop(sym)
+        go(cfg, ledger, path, client, notes=notes)
+        st = json.load(open(path))
+        assert st["halted"] is True and "bloccato" in notes[-1]
+        # sistemato e sbloccato dall'app: riparte
+        st["positions"][trade()["id"]]["status"] = "closed"
+        json.dump(st, open(path, "w"))
         cfg_file = os.path.join(d, "automation.json")
         json.dump({"strategies": {}, "emergency": False, "history": []}, open(cfg_file, "w"))
         au.run(["resume"], cfg_file, os.path.join(d, "none.json"), state_path=path)
-        go(cfg, ledger, path, client, notes=notes)
-        assert json.load(open(path))["positions"][trade()["id"]]["status"] == "open"
+        assert json.load(open(path))["halted"] is False
 
 
 def test_emergenza_chiude_tutto():
@@ -156,8 +170,9 @@ def test_emergenza_chiude_tutto():
         go(cfg, ledger, path, client)
         st = json.load(open(path))
         assert st["halted"] is False and st["events"][-1]["kind"] in ("unhalt", "skip") and client.positions() == {}
-        # il blocco per posizioni diverse dal previsto invece resta
-        client._positions["SOLUSDT"] = {"side": "long", "size": 1.0}
+        # il blocco per posizioni diverse dal previsto invece resta (una posizione dell'esecutore sparita da Bitget)
+        st["positions"]["x"] = {"key": "k", "symbol": "SOLUSDT", "side": "long", "size": 1.0, "entry": 100.0, "status": "open"}
+        json.dump(st, open(path, "w"))
         go(cfg, ledger, path, client)
         go(cfg, ledger, path, client)
         assert json.load(open(path))["halted"] is True and json.load(open(path))["halt_reason"] == "mismatch"

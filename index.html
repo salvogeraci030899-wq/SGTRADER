@@ -51,40 +51,40 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=121">
-    <meta name="app-version" content="121">
+    <link rel="stylesheet" href="./style.css?v=122">
+    <meta name="app-version" content="122">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=121",
-            "./src/core/commands.js": "./src/core/commands.js?v=121",
-            "./src/core/config.js": "./src/core/config.js?v=121",
-            "./src/core/labEngine.js": "./src/core/labEngine.js?v=121",
-            "./src/core/logger.js": "./src/core/logger.js?v=121",
-            "./src/core/rules.js": "./src/core/rules.js?v=121",
-            "./src/core/state.js": "./src/core/state.js?v=121",
-            "./src/core/theme.js": "./src/core/theme.js?v=121",
-            "./src/main.js": "./src/main.js?v=121",
-            "./src/ui/account.js": "./src/ui/account.js?v=121",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=121",
-            "./src/ui/assistant.js": "./src/ui/assistant.js?v=121",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=121",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=121",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=121",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=121",
-            "./src/ui/history.js": "./src/ui/history.js?v=121",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=121",
-            "./src/ui/home.js": "./src/ui/home.js?v=121",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=121",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=121",
-            "./src/ui/lock.js": "./src/ui/lock.js?v=121",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=121",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=121",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=121",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=121",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=121",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=121"
+            "./src/core/backup.js": "./src/core/backup.js?v=122",
+            "./src/core/commands.js": "./src/core/commands.js?v=122",
+            "./src/core/config.js": "./src/core/config.js?v=122",
+            "./src/core/labEngine.js": "./src/core/labEngine.js?v=122",
+            "./src/core/logger.js": "./src/core/logger.js?v=122",
+            "./src/core/rules.js": "./src/core/rules.js?v=122",
+            "./src/core/state.js": "./src/core/state.js?v=122",
+            "./src/core/theme.js": "./src/core/theme.js?v=122",
+            "./src/main.js": "./src/main.js?v=122",
+            "./src/ui/account.js": "./src/ui/account.js?v=122",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=122",
+            "./src/ui/assistant.js": "./src/ui/assistant.js?v=122",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=122",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=122",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=122",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=122",
+            "./src/ui/history.js": "./src/ui/history.js?v=122",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=122",
+            "./src/ui/home.js": "./src/ui/home.js?v=122",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=122",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=122",
+            "./src/ui/lock.js": "./src/ui/lock.js?v=122",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=122",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=122",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=122",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=122",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=122",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=122"
         }
     }
     </script>
@@ -394,8 +394,8 @@
         <section class="page" id="page-calculator">
             <div class="header-row">
                 <div class="header-title">
-                    <h1>Rischio</h1>
-                    <p>Calcolo posizione · <span id="calcCtx">—</span></p>
+                    <h1>Trade</h1>
+                    <p><span id="calcModeLbl">Simulato</span> · <span id="calcCtx">—</span></p>
                 </div>
                 <div class="market-toggle">
                     <button id="btn-market-spot" onclick="setMarket('SPOT')" class="active">Spot</button>
@@ -449,10 +449,11 @@
                 <div class="hint-box" id="beHint" style="display:none;"></div>
                 <div class="warning-box" id="calcWarning"></div>
                 <div class="error-box" id="calcError"></div>
-                <button class="btn-cta-primary" onclick="openTradeFromCalculator()">
+                <button class="btn-cta-primary" id="calcOpenBtn" onclick="openTradeFromCalculator()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    Apri Trade Simulato
+                    <span id="calcOpenLbl">Apri Trade Simulato</span>
                 </button>
+                <div class="order-status" id="orderStatus"></div>
             </div>
         </section>
 
@@ -679,7 +680,7 @@
                         <div class="rule-card-title default">Il Ciclo Operativo</div>
                         <div class="rule-step"><div class="content"><b>1. Segnale</b> → SGTRADER AI o Signal Engine ti avvertono</div></div>
                         <div class="rule-step"><div class="content"><b>2. Analisi</b> → Controlli coerenza tra timeframe e consensus</div></div>
-                        <div class="rule-step"><div class="content"><b>3. Rischio</b> → Calcoli size, R:R, fee, tasse nella Gestione Rischio</div></div>
+                        <div class="rule-step"><div class="content"><b>3. Trade</b> → Calcoli size, R:R, fee e tasse, poi apri il trade: simulato nell'app oppure, in modalità Reale, ordine vero su Bitget (con conferma)</div></div>
                         <div class="rule-step"><div class="content"><b>4. Apertura</b> → Trade simulato con prezzi reali</div></div>
                         <div class="rule-step"><div class="content"><b>5. Gestione</b> → TP/SL automatici, timer, monitoraggio PnL</div></div>
                         <div class="rule-step"><div class="content"><b>6. Chiusura</b> → Registro nel Diario, calcolo performance</div></div>
@@ -1039,9 +1040,9 @@
                     <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
                     Grafici
                 </div>
-                <div class="nav-item" onclick="switchTab('signals')" id="nav-signals">
-                    <svg viewBox="0 0 24 24"><path d="M4.93 4.93a10 10 0 0 1 14.14 0"/><path d="M7.76 7.76a6 6 0 0 1 8.48 0"/><path d="M10.59 10.59a2 2 0 0 1 2.82 0"/><circle cx="12" cy="18" r="1" fill="currentColor"/></svg>
-                    Segnali
+                <div class="nav-item" onclick="switchTab('calculator')" id="nav-calculator">
+                    <svg viewBox="0 0 24 24"><path d="M7 19V5"/><polyline points="3 9 7 5 11 9"/><path d="M17 5v14"/><polyline points="13 15 17 19 21 15"/></svg>
+                    Trade
                 </div>
                 <div class="nav-item" onclick="switchTab('trade')" id="nav-trade">
                     <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
@@ -1049,9 +1050,9 @@
                 </div>
             </div>
             <div class="nav-page">
-                <div class="nav-item" onclick="switchTab('calculator')" id="nav-calculator">
-                    <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16.01" y2="14"/><line x1="12" y1="14" x2="12.01" y2="14"/><line x1="8" y1="14" x2="8.01" y2="14"/><line x1="16" y1="18" x2="16.01" y2="18"/><line x1="12" y1="18" x2="12.01" y2="18"/><line x1="8" y1="18" x2="8.01" y2="18"/></svg>
-                    Rischio
+                <div class="nav-item" onclick="switchTab('signals')" id="nav-signals">
+                    <svg viewBox="0 0 24 24"><path d="M4.93 4.93a10 10 0 0 1 14.14 0"/><path d="M7.76 7.76a6 6 0 0 1 8.48 0"/><path d="M10.59 10.59a2 2 0 0 1 2.82 0"/><circle cx="12" cy="18" r="1" fill="currentColor"/></svg>
+                    Segnali
                 </div>
                 <div class="nav-item" onclick="switchTab('journal')" id="nav-journal">
                     <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
@@ -1065,6 +1066,8 @@
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                     Impostazioni
                 </div>
+            </div>
+        </div>
             </div>
         </div>
     </nav>
@@ -1143,6 +1146,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=121"></script>
+<script type="module" src="./src/main.js?v=122"></script>
 </body>
 </html>

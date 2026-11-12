@@ -256,7 +256,7 @@ function generalContext() {
 }
 
 const fmtPx = fmtPrice;
-const PAGE_NAMES = { home: 'Home', terminal: 'Grafici', signals: 'Segnali', trade: 'Posizioni', calculator: 'Rischio', journal: 'Diario', test: 'Backtest', settings: 'Impostazioni', account: 'Account' };
+const PAGE_NAMES = { home: 'Home', terminal: 'Grafici', signals: 'Segnali', trade: 'Posizioni', calculator: 'Trade', journal: 'Diario', test: 'Backtest', settings: 'Impostazioni', account: 'Account' };
 const label = k => k.replace(':', ' ').replace(/_/g, ' ');
 
 function planGeneral(a) {

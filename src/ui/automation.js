@@ -29,6 +29,7 @@ function onModeData() {
     if (window.renderStats) window.renderStats();
     if (window.renderBreakEven) window.renderBreakEven();
     if (window.refreshMarkers) window.refreshMarkers();
+    if (window.syncTradeMode) window.syncTradeMode();
     if (window.refreshCapitalUI) window.refreshCapitalUI();
     if (window.renderActiveTrades) window.renderActiveTrades();
     if (window.updateHome) window.updateHome();
@@ -445,7 +446,7 @@ export function setTradingMode(value) {
 
 // --- Conferma generica ---
 let confirmAction = null;
-function openAutoConfirm(title, msg, okText, action) {
+export function openAutoConfirm(title, msg, okText, action) {
     $('autoConfirmTitle').textContent = title;
     $('autoConfirmMsg').textContent = msg;
     $('autoConfirmOk').textContent = okText;

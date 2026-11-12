@@ -142,6 +142,59 @@ def test_rilettura_salvata_solo_se_cambia():
         assert pc.refresh_if_changed(path, c) and json.load(open(path))["account"]["positions"] == 0
 
 
+def test_ordine_manuale():
+    class C(Fake):
+        def __init__(self, positions, mode="one_way_mode"):
+            super().__init__(positions); self.mode = mode
+        def equity(self):
+            return 16.0
+        def pos_mode(self, symbol):
+            return self.mode
+        def setup_symbol(self, symbol, leverage, side=None):
+            self.calls.append(("setup", symbol, leverage, side))
+        def open_position(self, symbol, side, size, stop_price, client_oid=None, take_price=None, one_way=False):
+            self.calls.append(("open", symbol, side, size, stop_price, take_price, one_way))
+    specs = lambda s: {"volume_place": 1, "price_place": 3, "min_size": 0.1}
+    mark = lambda s: 84.0
+    with tempfile.TemporaryDirectory() as d:
+        path, cfgp = os.path.join(d, "live.json"), os.path.join(d, "auto.json")
+        json.dump({"positions": {}, "day": {}, "halted": False, "events": []}, open(path, "w"))
+        def go(argv, client, cfg={"risk": {"trading_enabled": True, "max_leverage": 3}}):
+            json.dump(cfg, open(cfgp, "w"))
+            return pc.open_position(argv, client, None, path, cfgp, mark, specs)
+        c = C({})
+        msg = go(["open", "SOLUSDT", "long", "82", "0.15", "3", "88"], c)
+        assert "Aperta SOL LONG 0,1 a mercato" in msg and "leva 3x" in msg and "target 88" in msg
+        assert c.calls == [("setup", "SOLUSDT", 3, "long"), ("open", "SOLUSDT", "long", 0.1, 82.0, 88.0, True)]   # quantità arrotondata al passo
+        assert json.load(open(path))["events"][-1]["action"] == "open"
+        def no(argv, text, client=None, cfg={"risk": {"trading_enabled": True, "max_leverage": 3}}):
+            client = client or C({})
+            try:
+                go(argv, client, cfg)
+            except pc.CommandError as e:
+                assert text in str(e), (str(e), text)
+                assert not any(x[0] == "open" for x in client.calls)
+                return
+            raise AssertionError(f"doveva essere rifiutato: {argv}")
+        no(["open", "SOLUSDT", "long", "82", "0.1", "3"], "modalità Reale è spenta", cfg={"risk": {"trading_enabled": False}})
+        no(["open", "SOLUSDT", "long", "82", "0.1", "3"], "Emergenza", cfg={"emergency": True, "risk": {"trading_enabled": True}})
+        no(["open", "SOLUSDT", "long", "82", "0.1", "3"], "già una posizione", client=C({"SOLUSDT": {"side": "short", "size": 0.1}}))
+        no(["open", "SOLUSDT", "long", "82", "0.1", "5"], "Leva fuori dai limiti")
+        no(["open", "SOLUSDT", "long", "", "0.1", "3"], "stop loss è obbligatorio")
+        no(["open", "SOLUSDT", "long", "85", "0.1", "3"], "va sotto il prezzo attuale")
+        no(["open", "SOLUSDT", "short", "83", "0.1", "3"], "va sopra il prezzo attuale")
+        no(["open", "SOLUSDT", "long", "82", "0.1", "3", "80"], "target di un LONG va sopra")
+        no(["open", "SOLUSDT", "long", "50", "0.1", "3"], "oltre la liquidazione")
+        no(["open", "SOLUSDT", "long", "82", "0.05", "3"], "Quantità troppo piccola")
+        no(["open", "SOLUSDT", "long", "82", "1", "1"], "oltre il 90% del conto")
+        no(["open", "SOLUSDT", "long", "70", "0.5", "3"], "oltre il limite")
+        no(["open", "DOGEUSDT", "long", "82", "0.1", "3"], "Coin o direzione")
+        # modalità hedge: l'ordine porta tradeSide (one_way False)
+        c = C({}, mode="hedge_mode")
+        go(["open", "SOLUSDT", "short", "86", "0.1", "2"], c)
+        assert c.calls[-1] == ("open", "SOLUSDT", "short", 0.1, 86.0, None, False)
+
+
 def test_client_tpsl_richieste():
     import bitget_client as bg
 
