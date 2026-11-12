@@ -195,6 +195,96 @@ def test_ordine_manuale():
         assert c.calls[-1] == ("open", "SOLUSDT", "short", 0.1, 86.0, None, False)
 
 
+class SpotFake:
+    """Bitget finto per lo spot: saldi, ordini IOC eseguiti al prezzo, ordini a scatto."""
+    demo = False
+
+    def __init__(self, usdt=50.0, sol=0.0, price=84.0, fill=True):
+        self.bal = {"USDT": usdt, "SOL": sol}
+        self.px, self.fill, self.plans, self.calls, self.n = price, fill, [], [], 0
+
+    def spot_symbol(self, symbol):
+        return {"qty_place": 3, "price_place": 2, "min_qty": 0.001, "min_usdt": 1.0}
+
+    def spot_price_usdt(self, coin):
+        return self.px if coin == "SOL" else 1.0
+
+    def spot_available(self, coin):
+        return self.bal.get(coin, 0.0)
+
+    def all_balances_usdt(self):
+        return {"spot": self.bal["USDT"] + self.bal["SOL"] * self.px, "futures": 16.0}
+
+    def spot_order(self, symbol, side, qty, limit_price, client_oid=None):
+        self.calls.append(("order", side, qty, limit_price))
+        if not self.fill:
+            return
+        if side == "buy":
+            self.bal["USDT"] -= qty * self.px; self.bal["SOL"] += qty
+        else:
+            self.bal["SOL"] -= qty; self.bal["USDT"] += qty * self.px
+
+    def spot_plan_orders(self, symbol):
+        return list(self.plans)
+
+    def spot_plan_sell(self, symbol, trigger_price, qty, client_oid=None):
+        self.n += 1
+        self.plans.append({"orderId": str(self.n), "side": "sell", "price": trigger_price, "size": qty})
+        self.calls.append(("plan", trigger_price, qty))
+
+    def spot_cancel_plan(self, order_id):
+        self.plans = [o for o in self.plans if o["orderId"] != order_id]
+        self.calls.append(("cancel", order_id))
+
+    def positions(self):
+        return {}
+
+    def equity(self):
+        return 16.0
+
+
+def test_spot():
+    on = {"risk": {"trading_enabled": True, "max_daily_loss_pct": 3.0}}
+    with tempfile.TemporaryDirectory() as d:
+        path = os.path.join(d, "live.json")
+        json.dump({"positions": {}, "day": {}, "halted": False, "events": []}, open(path, "w"))
+        c = SpotFake()
+        msg = pc.spot_command("open", "SOLUSDT", ["open", "SOLUSDT", "long", "82", "0.1", "", "90"], c, on, path)
+        assert "Comprati 0,1 SOL spot a circa 84" in msg and "stop 82" in msg and "target 90" in msg, msg
+        assert c.calls[0] == ("order", "buy", 0.1, 84.42)                                   # IOC con tetto +0,5%
+        assert [x for x in c.calls if x[0] == "plan"] == [("plan", 82.0, 0.1), ("plan", 90.0, 0.1)]
+        assert json.load(open(path))["spot_entries"]["SOLUSDT"]["entry"] == 84.0
+        # nuovo stop: sostituisce il vecchio
+        msg = pc.spot_command("sl", "SOLUSDT", ["sl", "SOLUSDT", "long", "80"], c, on, path)
+        assert "Stop di SOL spot impostato su Bitget a 80" in msg and sorted(o["price"] for o in c.plans) == [80.0, 90.0]
+        # togli il target
+        assert "Tolti 1" in pc.spot_command("untp", "SOLUSDT", ["untp", "SOLUSDT", "long"], c, on, path) and [o["price"] for o in c.plans] == [80.0]
+        # vendi tutto: annulla gli ordini a scatto e vende con un minimo -0,5%
+        msg = pc.spot_command("close", "SOLUSDT", ["close", "SOLUSDT", "long"], c, on, path)
+        assert "Venduti 0,1 SOL" in msg and c.plans == [] and c.calls[-1] == ("order", "sell", 0.1, 83.58)
+        assert "SOLUSDT" not in json.load(open(path))["spot_entries"]
+        # rifiuti
+        def no(argv, text, client=None, cfg=on):
+            try:
+                pc.spot_command(argv[0], "SOLUSDT", argv, client or SpotFake(), cfg, path)
+            except pc.CommandError as e:
+                assert text in str(e), (str(e), text)
+                return
+            raise AssertionError(argv)
+        no(["open", "SOLUSDT", "long", "82", "0.1"], "modalità Reale è spenta", cfg={"risk": {"trading_enabled": False}})
+        no(["open", "SOLUSDT", "long", "", "0.1"], "stop loss è obbligatorio")
+        no(["open", "SOLUSDT", "long", "86", "0.1"], "stop va sotto")
+        no(["open", "SOLUSDT", "long", "82", "0.1", "", "80"], "target va sopra")
+        no(["open", "SOLUSDT", "long", "82", "0.001"], "troppo piccolo")
+        no(["open", "SOLUSDT", "long", "82", "1"], "Trasferisci USDT", client=SpotFake(usdt=20))
+        no(["open", "SOLUSDT", "long", "60", "0.5"], "oltre il limite")
+        no(["close", "SOLUSDT", "long"], "non c'è SOL da vendere")
+        no(["sl", "SOLUSDT", "long", "80"], "niente da proteggere")
+        # prezzo mosso oltre lo 0,5%: nessun acquisto, nessuno stop
+        c2 = SpotFake(fill=False)
+        assert "NON eseguito" in pc.spot_command("open", "SOLUSDT", ["open", "SOLUSDT", "long", "82", "0.1"], c2, on, path) and c2.plans == []
+
+
 def test_client_tpsl_richieste():
     import bitget_client as bg
 

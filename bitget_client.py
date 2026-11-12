@@ -126,6 +126,44 @@ class BitgetClient:
         except Exception:
             return None
 
+    # ---------- spot (ordini veri: solo dopo conferma nell'app, controlli in position_cmd.py) ----------
+    def spot_symbol(self, symbol):
+        """Regole della coppia spot (API pubblica): decimali di quantità e prezzo, minimi."""
+        r = self.session.get(f"{BASE_URL}/api/v2/spot/public/symbols", params={"symbol": symbol}, timeout=10)
+        d = (r.json().get("data") or [{}])[0]
+        return {"qty_place": int(d.get("quantityPrecision") or 4), "price_place": int(d.get("pricePrecision") or 2),
+                "min_qty": float(d.get("minTradeAmount") or 0), "min_usdt": float(d.get("minTradeUSDT") or 1)}
+
+    def spot_available(self, coin):
+        """Quantità disponibile (non bloccata in ordini) di una coin nello spot."""
+        for row in self._request("GET", "/api/v2/spot/account/assets", {"coin": coin}) or []:
+            if str(row.get("coin", "")).upper() == coin.upper():
+                return float(row.get("available") or 0)
+        return 0.0
+
+    def spot_order(self, symbol, side, qty, limit_price, client_oid=None):
+        """Ordine limite "esegui subito o annulla" (IOC): la quantità è sempre in coin e il prezzo ha un tetto
+        (acquisto) o un minimo (vendita) vicino al mercato. Quello che non si esegue subito viene annullato."""
+        body = {"symbol": symbol, "side": side, "orderType": "limit", "force": "ioc", "price": str(limit_price),
+                "size": str(qty), "clientOid": client_oid or f"sgt{uuid.uuid4().hex[:24]}"}
+        return self._request("POST", "/api/v2/spot/trade/place-order", body=body)
+
+    def spot_plan_orders(self, symbol):
+        """Ordini a scatto spot in attesa (stop e target delle coin): [{orderId, side, triggerPrice, size}]."""
+        data = self._request("GET", "/api/v2/spot/trade/current-plan-order", {"symbol": symbol}) or {}
+        rows = data.get("orderList") if isinstance(data, dict) else data
+        return [{"orderId": r.get("orderId"), "side": r.get("side"), "price": float(r.get("triggerPrice") or 0),
+                 "size": float(r.get("size") or 0)} for r in rows or [] if r.get("symbol", symbol) == symbol]
+
+    def spot_plan_sell(self, symbol, trigger_price, qty, client_oid=None):
+        """Vendita a mercato quando il prezzo tocca il livello (stop o target di una coin)."""
+        body = {"symbol": symbol, "side": "sell", "triggerPrice": str(trigger_price), "orderType": "market", "planType": "amount",
+                "size": str(qty), "triggerType": "fill_price", "clientOid": client_oid or f"sgt{uuid.uuid4().hex[:24]}"}
+        return self._request("POST", "/api/v2/spot/trade/place-plan-order", body=body)
+
+    def spot_cancel_plan(self, order_id):
+        return self._request("POST", "/api/v2/spot/trade/cancel-plan-order", body={"orderId": str(order_id)})
+
     def pos_mode(self, symbol):
         """Modalità delle posizioni del conto futures: "one_way_mode" (una direzione per coin) o "hedge_mode"."""
         data = self._request("GET", "/api/v2/mix/account/account", {"symbol": symbol, "productType": PRODUCT_TYPE, "marginCoin": MARGIN_COIN}) or {}

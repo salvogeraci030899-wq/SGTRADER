@@ -83,15 +83,15 @@ export async function maybeRefreshAccount(soon = false) {
 // Togliere solo lo stop o solo il target di una posizione REALE (✕ nei "Comandi attivi" della scheda)
 const removingReal = new Set();
 export const isRealOrderRemoving = (symbol, kind) => removingReal.has(`${symbol}|${kind}`);
-export function removeRealOrder(symbol, side, kind, price) {
-    if (!['tp', 'sl'].includes(kind) || !['long', 'short'].includes(side)) return;
+export function removeRealOrder(symbol, side, kind, price, market = 'futures') {
+    if (!['tp', 'sl'].includes(kind) || !['long', 'short'].includes(side) || !['futures', 'spot'].includes(market)) return;
     const what = kind === 'tp' ? 'il take profit' : 'lo stop loss';
-    const name = `${symbol.replace('USDT', '')} ${side.toUpperCase()}`;
-    openAutoConfirm(`Togli ${what}`, `ORDINE VERO su Bitget: tolgo ${what} di ${name} (${fmtPrice(price)}). La posizione resta aperta${kind === 'sl' ? ' senza stop' : ''}.`, 'Togli', async () => {
-        const key = `${symbol}|${kind}`;
+    const name = market === 'spot' ? `${symbol.replace('USDT', '')} spot` : `${symbol.replace('USDT', '')} ${side.toUpperCase()}`;
+    openAutoConfirm(`Togli ${what}`, `ORDINE VERO su Bitget: tolgo ${what} di ${name} (${fmtPrice(price)}). ${market === 'spot' ? 'La coin resta' : 'La posizione resta aperta'}${kind === 'sl' ? ' senza stop' : ''}.`, 'Togli', async () => {
+        const key = `${market}:${symbol}|${kind}`;
         removingReal.add(key);
         if (window.renderActiveTrades) window.renderActiveTrades();
-        const ok = await send({ type: 'position', symbol, side, action: `un${kind}`, price: '' }, 'Inviato a Bitget: esito su Telegram e nella scheda entro 1-2 minuti.');
+        const ok = await send({ type: 'position', symbol, side, action: `un${kind}`, price: '', market }, 'Inviato a Bitget: esito su Telegram e nella scheda entro 1-2 minuti.');
         if (ok === false) removingReal.delete(key);
         else setTimeout(() => { removingReal.delete(key); loadAutomation(); }, 120_000);
         if (window.renderActiveTrades) window.renderActiveTrades();

@@ -34,6 +34,10 @@ on:
         description: 'open: take profit (facoltativo)'
         required: false
         default: ''
+      market:
+        description: 'futures (predefinito) o spot'
+        required: false
+        default: 'futures'
       req:
         description: "codice della richiesta dell'app (per mostrarne l'esito)"
         required: false
@@ -78,15 +82,17 @@ jobs:
           SIZE: ${{ inputs.size }}
           LEVERAGE: ${{ inputs.leverage }}
           TP: ${{ inputs.tp }}
+          MARKET: ${{ inputs.market }}
           POSITION_RESULT: ${{ runner.temp }}/position_result.json
         run: |
           set -o pipefail
-          python position_cmd.py "$ACTION" "$SYMBOL" "$SIDE" "$PRICE" "$SIZE" "$LEVERAGE" "$TP" | tee -a "$GITHUB_STEP_SUMMARY"
+          python position_cmd.py "$ACTION" "$SYMBOL" "$SIDE" "$PRICE" "$SIZE" "$LEVERAGE" "$TP" "$MARKET" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Salva lo stato
         # anche se il comando è fallito: l'app legge l'esito (e il motivo) da live_trades.json
         if: always()
         env:
           REQ: ${{ inputs.req }}
+          MARKET: ${{ inputs.market }}
           POSITION_RESULT: ${{ runner.temp }}/position_result.json
           ACTION: ${{ inputs.action }}
           SYMBOL: ${{ inputs.symbol }}

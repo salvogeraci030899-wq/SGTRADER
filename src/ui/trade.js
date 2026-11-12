@@ -7,6 +7,7 @@ import * as Calculator from './calculator.js';
 import * as AI from './ai.js';
 import { tradingMode } from './account.js';
 import { getAutoState, maybeRefreshAccount, isRealOrderRemoving, isRefreshingAccount } from './automation.js';
+import { realPositions } from './history.js';
 import { planAction, ruleHitPrice, ruleHitCandle } from '../core/rules.js';
 
 export function initTrade() {
@@ -21,7 +22,7 @@ export function onOpenTrade() { if (isReal()) maybeRefreshAccount(true); }
 // PnL e prezzo con il mark price pubblico dei futures (stessa base che usa Bitget per il PnL aperto).
 const markPx = {};
 let marksInFlight = false;
-const realList = () => { const acc = bitgetAccount(); return (acc && acc.connected && acc.positions_detail) || []; };
+const realList = () => realPositions();       // futures e coin spot (history.js)
 
 async function pollMarks() {
     if (marksInFlight || !isReal()) return;
@@ -47,6 +48,7 @@ async function pollMarks() {
 // PnL aperto stimato al prezzo mark attuale; senza mark resta quello letto dal bot
 export function liveUpl(p) {
     const m = markPx[p.symbol];
+    if (!p.entry) return p.upl ?? null;           // coin spot senza prezzo d'acquisto noto
     return m ? (p.side === 'short' ? -1 : 1) * (m - p.entry) * p.size : p.upl;
 }
 export const hasLiveMarks = () => realList().some(p => markPx[p.symbol]);
@@ -56,10 +58,13 @@ function updateRealLive() {
     if (!el) return;
     const n = (v, d = 2) => (v == null ? '—' : Number(v).toLocaleString('it-IT', { minimumFractionDigits: d, maximumFractionDigits: d }));
     for (const p of realList()) {
-        const card = el.querySelector(`.at-real[data-symbol="${p.symbol}"]`);
+        const card = el.querySelector(`.at-real[data-key="${p.key}"]`);
         const m = markPx[p.symbol];
         if (!card || !m) continue;
         const u = liveUpl(p);
+        const val = card.querySelector('[data-f="value"]');
+        if (val) val.textContent = n(m * p.size);
+        if (u == null) { const mk0 = card.querySelector('[data-f="mark"]'); if (mk0) mk0.textContent = n(m); continue; }
         const mk = card.querySelector('[data-f="mark"]'), up = card.querySelector('[data-f="upl"]'), lbl = card.querySelector('[data-f="upl-lbl"]');
         if (mk) mk.textContent = n(m);
         if (up) { up.textContent = (u >= 0 ? '+' : '') + n(u); up.style.color = u >= 0 ? 'var(--accent)' : 'var(--danger)'; }
@@ -93,20 +98,23 @@ function realCommands(p, events) {
     const short = p.side === 'short';
     const row = (kind, price) => {
         const label = kind === 'tp' ? `Target Bitget ${short ? '≤' : '≥'} ${fmtPrice(price)}` : `Stop Bitget ${short ? '≥' : '≤'} ${fmtPrice(price)}`;
-        return isRealOrderRemoving(p.symbol, kind)
+        return isRealOrderRemoving(`${p.market}:${p.symbol}`, kind)
             ? `<div class="at-rule"><span>${label} · in rimozione…</span></div>`
-            : `<div class="at-rule"><span>${label}</span><button type="button" onclick="removeRealOrder('${p.symbol}','${p.side}','${kind}',${Number(price)})" title="Togli">✕</button></div>`;
+            : `<div class="at-rule"><span>${label}</span><button type="button" onclick="removeRealOrder('${p.symbol}','${p.side}','${kind}',${Number(price)},'${p.market}')" title="Togli">✕</button></div>`;
     };
     const rows = rulesStrip([p.sl ? row('sl', p.sl) : '', p.tp ? row('tp', p.tp) : ''].filter(Boolean));
-    const ev = events.filter(e => e.symbol === p.symbol && e.side === p.side).pop();
+    const ev = events.filter(e => e.symbol === p.symbol && e.side === (p.market === 'spot' ? 'spot' : p.side)).pop();
     const recent = ev && Date.now() - Date.parse(ev.at) < 24 * 3600e3;
     const last = recent ? `<div class="at-meta at-last">Ultimo comando ${new Date(ev.at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}: <span class="${ev.ok === false ? 'text-danger' : 'text-accent'}">${ev.ok === false ? '✗' : '✓'}</span> ${escapeHtml(ev.msg || ev.action)}</div>` : '';
     const none = !p.sl && !p.tp ? `<div class="at-meta">Nessuno stop né target su Bitget: chiedili con Chat o Voce.</div>` : '';
     return rows + none + last;
 }
 
-export function requestAIAnalysisReal(symbol) {
-    const p = realList().find(x => x.symbol === symbol);
+export function requestAIAnalysisReal(key) {
+    const p = realList().find(x => x.key === key || x.symbol === key);
+    if (p) { const symbol = p.symbol; return analyzeReal(p, symbol); }
+}
+function analyzeReal(p, symbol) {
     if (!p) return;
     const trade = { symbol, type: p.side === 'short' ? 'SHORT' : 'LONG', entryPrice: p.entry, slPrice: p.sl || null, tpPrice: p.tp || null,
         leverage: p.leverage, size: p.size, currentPrice: markPx[symbol] || p.mark || p.entry, pnl: liveUpl(p) || 0, real: true };
@@ -115,10 +123,10 @@ export function requestAIAnalysisReal(symbol) {
 
 function renderRealPositions(el) {
     const acc = bitgetAccount();
-    const list = (acc && acc.positions_detail) || [];
+    const list = realList();
     const events = ((getAutoState().live || {}).events || []).filter(e => e && e.kind === 'manual');
     const lastEv = events[events.length - 1];
-    const sig = `real|${acc && acc.checked_at}|${list.map(p => `${p.symbol}${p.tp}/${p.sl}/${isRealOrderRemoving(p.symbol, 'tp')}${isRealOrderRemoving(p.symbol, 'sl')}`).join()}|${lastEv && lastEv.at}|${isRefreshingAccount()}|${State.simState.activeTrades.length}`;
+    const sig = `real|${acc && acc.checked_at}|${list.map(p => `${p.key}${p.tp}/${p.sl}/${isRealOrderRemoving(p.key, 'tp')}${isRealOrderRemoving(p.key, 'sl')}`).join()}|${lastEv && lastEv.at}|${isRefreshingAccount()}|${State.simState.activeTrades.length}`;
     if (sig === State.atSig) return;
     State.atSig = sig;
     const hidden = State.simState.activeTrades.length;
@@ -129,37 +137,40 @@ function renderRealPositions(el) {
         el.innerHTML = `<div class="at-empty">Conto Bitget non letto.${note}</div>`;
     } else if (!list.length) {
         el.classList.add('empty');
-        el.innerHTML = `<div class="at-empty">Nessuna posizione aperta su Bitget.${note}</div>`;
+        el.innerHTML = `<div class="at-empty">Nessuna posizione aperta su Bitget (futures) e nessuna coin spot.${note}</div>`;
     } else {
         el.classList.remove('empty');
         const n = (v, d = 2) => (v == null ? '—' : Number(v).toLocaleString('it-IT', { minimumFractionDigits: d, maximumFractionDigits: d }));
         el.innerHTML = list.map(p => `
-            <div class="active-trade-card at-real" data-symbol="${p.symbol}">
+            <div class="active-trade-card at-real" data-symbol="${p.symbol}" data-key="${p.key}">
                 <div class="at-header"><div class="at-title">
-                    <span class="at-coin">${SYM(p.symbol)} ${String(p.side || '').toUpperCase()}</span>
-                    <span class="at-market futures">FUTURES</span>${p.leverage ? `<span class="at-lev">${n(p.leverage, 0)}x</span>` : ''}
+                    <span class="at-coin">${SYM(p.symbol)} ${p.market === 'spot' ? '' : String(p.side || '').toUpperCase()}</span>
+                    ${p.market === 'spot' ? '<span class="at-market spot">SPOT</span>' : `<span class="at-market futures">FUTURES</span>${p.leverage ? `<span class="at-lev">${n(p.leverage, 0)}x</span>` : ''}`}
                 </div></div>
                 ${realCommands(p, events)}
                 <div class="at-body">
-                    <div class="at-item"><span class="at-lbl">Entry</span><span class="at-val">${n(p.entry)}</span></div>
-                    <div class="at-item"><span class="at-lbl">Mark</span><span class="at-val" data-f="mark">${n(p.mark)}</span></div>
+                    <div class="at-item"><span class="at-lbl">${p.market === 'spot' ? 'Acquisto' : 'Entry'}</span><span class="at-val">${n(p.entry)}</span></div>
+                    <div class="at-item"><span class="at-lbl">${p.market === 'spot' ? 'Prezzo' : 'Mark'}</span><span class="at-val" data-f="mark">${n(p.mark)}</span></div>
                     <div class="at-item"><span class="at-lbl">Quantità</span><span class="at-val">${n(p.size, 4)}</span></div>
-                    <div class="at-item"><span class="at-lbl">Margine</span><span class="at-val">${n(p.margin)}</span></div>
-                    <div class="at-item"><span class="at-lbl">Liquidazione</span><span class="at-val red">${n(p.liq)}</span></div>
+                    ${p.market === 'spot'
+                        ? `<div class="at-item"><span class="at-lbl">Valore</span><span class="at-val" data-f="value">${n(p.value)}</span></div>
+                    <div class="at-item"><span class="at-lbl">Mercato</span><span class="at-val">spot, 1x</span></div>`
+                        : `<div class="at-item"><span class="at-lbl">Margine</span><span class="at-val">${n(p.margin)}</span></div>
+                    <div class="at-item"><span class="at-lbl">Liquidazione</span><span class="at-val red">${n(p.liq)}</span></div>`}
                     <div class="at-item"><span class="at-lbl" data-f="upl-lbl">PnL aperto</span><span class="at-val" data-f="upl" style="color:${(p.upl || 0) >= 0 ? 'var(--accent)' : 'var(--danger)'}">${p.upl == null ? '—' : (p.upl >= 0 ? '+' : '') + n(p.upl)}</span></div>
                     <div class="at-item"><span class="at-lbl">Take profit</span><span class="at-val green">${p.tp ? fmtPrice(p.tp) : '—'}</span></div>
                     <div class="at-item"><span class="at-lbl">Stop loss</span><span class="at-val red">${p.sl ? fmtPrice(p.sl) : '—'}</span></div>
                 </div>
                 <div class="at-actions at-actions-3">
-                    <button class="btn-ai-analysis" onclick="requestAIAnalysisReal('${p.symbol}')" title="Analisi AI in tempo reale della posizione">
+                    <button class="btn-ai-analysis" onclick="requestAIAnalysisReal('${p.key}')" title="Analisi AI in tempo reale della posizione">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                         Analisi AI
                     </button>
-                    <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistantReal('${p.symbol}', false)" title="Chat con l'assistente (ordini veri su Bitget)">
+                    <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistantReal('${p.key}', false)" title="Chat con l'assistente (ordini veri su Bitget)">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                         Chat
                     </button>
-                    <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistantReal('${p.symbol}', true)" title="Parla con l'assistente (ordini veri su Bitget)">
+                    <button class="btn-ai-analysis btn-ai-alt" onclick="openAssistantReal('${p.key}', true)" title="Parla con l'assistente (ordini veri su Bitget)">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
                         Voce
                     </button>

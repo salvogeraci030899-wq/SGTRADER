@@ -138,12 +138,15 @@ export async function command(body, env, fetchFn) {
             if (['tp', 'sl', 'open'].includes(b.action) ? !num(price) : price !== '') {
                 return json(400, { error: 'Prezzo non valido' });
             }
+            // mercato: futures (predefinito) o spot; nello spot si compra e si vende soltanto (niente short né leva)
+            const market = b.market == null || b.market === '' ? 'futures' : String(b.market);
+            if (!['futures', 'spot'].includes(market) || (market === 'spot' && b.side !== 'long')) return json(400, { error: 'Mercato non valido' });
             // ordine manuale dalla pagina Trade: quantità, leva (1-5) e target facoltativo; stop = price
-            let extra = {};
+            let extra = market === 'spot' ? { market } : {};
             if (b.action === 'open') {
                 const size = String(b.size ?? ''), lev = String(b.leverage ?? ''), tp = b.tp == null || b.tp === '' ? '' : String(b.tp);
                 if (!num(size) || !/^[1-5]$/.test(lev) || (tp !== '' && !num(tp))) return json(400, { error: 'Ordine non valido' });
-                extra = { size, leverage: lev, tp };
+                extra = { ...extra, size, leverage: lev, tp };
             }
             // codice della richiesta (facoltativo): l'app lo ritrova in live_trades.json per mostrare l'esito
             const req = typeof b.req === 'string' && /^[a-z0-9]{6,20}$/.test(b.req) ? b.req : '';

@@ -48,6 +48,12 @@ def main():
         pos = client.positions()
         print("Posizioni aperte: " + (", ".join(f"{s} {p['side']} {p['size']}" for s, p in pos.items()) or "nessuna"))
         try:
+            for sym in ("BTCUSDT", "SOLUSDT"):
+                print(f"Spot {sym}: regole {client.spot_symbol(sym)} · ordini a scatto in attesa {len(client.spot_plan_orders(sym))}")
+            print(f"Spot SOL disponibile: {client.spot_available('SOL')}")
+        except Exception as e:
+            print(f"Lettura spot non riuscita: {e}")
+        try:
             print(f"Modalità delle posizioni: {client.pos_mode('BTCUSDT')}")
         except Exception as e:
             print(f"Modalità delle posizioni non leggibile: {e}")
