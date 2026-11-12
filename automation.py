@@ -140,7 +140,7 @@ def set_risk(cfg, field, value):
     try:
         v = float(value)
     except ValueError:
-        raise CommandError(f"Valore non numerico: {value}.")
+        raise CommandError(f"Valore non numerico: {value}.") from None
     lo, hi = executor.RISK_BOUNDS[field]
     if not lo <= v <= hi:
         raise CommandError(f"{field} deve essere tra {lo:g} e {hi:g}.")
@@ -248,7 +248,7 @@ def alert(cfg, op, arg, alerts_state_path=ALERTS_STATE_PATH):
         else:
             raise CommandError(f"Operazione sugli avvisi non valida: {op}")
     except price_alerts.AlertError as e:
-        raise CommandError(str(e))
+        raise CommandError(str(e)) from e
     cfg["history"].append({"at": _now(), "cmd": "alert", "op": op, "arg": arg})
     return msg
 

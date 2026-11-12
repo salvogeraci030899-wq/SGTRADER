@@ -55,7 +55,7 @@ def load_ledger(path=LEDGER_PATH):
                 entries.append(json.loads(line))
             except json.JSONDecodeError as e:
                 # Un registro illeggibile non va sovrascritto: fermo tutto
-                raise SystemExit(f"ERRORE: {path} riga {n} non leggibile ({e}). Interrompo per non perdere il track record.")
+                raise SystemExit(f"ERRORE: {path} riga {n} non leggibile ({e}). Interrompo per non perdere il track record.") from e
     return _dedupe(entries)
 
 
@@ -258,7 +258,7 @@ def build_summary(entries):
     pairs = sorted({f"{e['symbol']}_{e['tf']}" for e in entries})
     by_pair = {}
     for key in pairs:
-        f = lambda xs: [e for e in xs if f"{e['symbol']}_{e['tf']}" == key]
+        f = lambda xs, key=key: [e for e in xs if f"{e['symbol']}_{e['tf']}" == key]
         by_pair[key] = block(f(resolved), f(directional), f(tradeable))
         by_pair[key]["open"] = sum(1 for e in entries if f"{e['symbol']}_{e['tf']}" == key and e["status"] == "open")
 

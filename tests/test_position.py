@@ -159,15 +159,15 @@ def test_ordine_manuale():
     with tempfile.TemporaryDirectory() as d:
         path, cfgp = os.path.join(d, "live.json"), os.path.join(d, "auto.json")
         json.dump({"positions": {}, "day": {}, "halted": False, "events": []}, open(path, "w"))
-        def go(argv, client, cfg={"risk": {"trading_enabled": True, "max_leverage": 3}}):
-            json.dump(cfg, open(cfgp, "w"))
+        def go(argv, client, cfg=None):
+            json.dump(cfg or {"risk": {"trading_enabled": True, "max_leverage": 3}}, open(cfgp, "w"))
             return pc.open_position(argv, client, None, path, cfgp, mark, specs)
         c = C({})
         msg = go(["open", "SOLUSDT", "long", "82", "0.15", "3", "88"], c)
         assert "Aperta SOL LONG 0,1 a mercato" in msg and "leva 3x" in msg and "target 88" in msg
         assert c.calls == [("setup", "SOLUSDT", 3, "long"), ("open", "SOLUSDT", "long", 0.1, 82.0, 88.0, True)]   # quantità arrotondata al passo
         assert json.load(open(path))["events"][-1]["action"] == "open"
-        def no(argv, text, client=None, cfg={"risk": {"trading_enabled": True, "max_leverage": 3}}):
+        def no(argv, text, client=None, cfg=None):
             client = client or C({})
             try:
                 go(argv, client, cfg)

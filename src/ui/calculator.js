@@ -3,8 +3,7 @@ import { tradingMode } from './account.js';
 import { getAutoState, openAutoConfirm, riskCfg, loadAutomation } from './automation.js';
 import { journalTrades } from './history.js';
 import { CONFIG } from '../core/config.js';
-import { Logger } from '../core/logger.js';
-import { $, SYM, fetchT, fmtUsd, fmtUsdt, apiPost, fetchData } from '../utils/helpers.js';
+import { $, SYM, fetchT, apiPost, fetchData } from '../utils/helpers.js';
 import { findOutcome } from './assistant.js';
 import * as Terminal from './terminal.js';
 

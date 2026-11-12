@@ -133,7 +133,7 @@ def test_salvataggio_e_rilettura():
             f.write("{non json\n")
         try:
             tr.load_ledger(path)
-            assert False, "un registro corrotto deve fermare il bot"
+            raise AssertionError("un registro corrotto deve fermare il bot")
         except SystemExit:
             pass
 

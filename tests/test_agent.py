@@ -158,13 +158,13 @@ def test_impostazioni_agente():
     for f, v in (("autonomy", "boh"), ("profile", "folle"), ("style", "x"), ("colore", "blu")):
         try:
             automation.set_agent(cfg, f, v)
-            assert False
+            raise AssertionError()
         except automation.CommandError:
             pass
     cfg["emergency"] = True
     try:
         automation.set_agent(cfg, "autonomy", "live")
-        assert False
+        raise AssertionError()
     except automation.CommandError:
         pass
 

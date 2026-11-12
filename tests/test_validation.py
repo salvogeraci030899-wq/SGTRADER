@@ -206,7 +206,7 @@ def test_download_a_pagine_e_ripresa():
     # Bitget arrotonda endTime alla candela; a seconda dell'endpoint la candela di endTime è esclusa
     # o inclusa: in entrambi i casi lo storico scaricato non deve avere buchi tra una pagina e l'altra
     for inclusive in (False, True):
-        def fake_get(url, params=None, timeout=None):
+        def fake_get(url, params=None, timeout=None, inclusive=inclusive):
             calls.append(url)
             end = params["endTime"] // (H * 1000) * (H * 1000)
             page = [t for t in all_ts if t < end or (inclusive and t == end)][-params["limit"]:]

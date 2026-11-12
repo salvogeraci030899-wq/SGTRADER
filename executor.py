@@ -21,8 +21,9 @@ Limiti di rischio (automation.json -> risk), controllati prima di ogni ingresso:
 
 Sicurezza:
 - ogni posizione nasce con lo stop loss già sull'exchange: protetta anche se il bot si ferma;
-- riconciliazione a ogni giro: se su Bitget c'è qualcosa che l'esecutore non si aspetta (o manca
-  qualcosa che dovrebbe esserci) si blocca tutto e arriva un avviso;
+- riconciliazione a ogni giro: se su Bitget manca una posizione dell'esecutore senza che lo storico di
+  Bitget ne mostri la chiusura (stop scattato sull'exchange o chiusa a mano), o c'è con la direzione
+  sbagliata, si blocca tutto e arriva un avviso;
 - emergenza (dall'app): chiude le posizioni aperte dall'esecutore e blocca.
 Limite noto: lo stop che segue il prezzo e le uscite a tempo vengono eseguiti alla chiusura della
 candela (quando il trade su carta si chiude), non dentro la candela come nella simulazione.
@@ -187,8 +188,29 @@ def run(cfg, ledger, client=None, mode="simulata", state_path=STATE_PATH, now=No
         return _finish(state, before, state_path, client, mode)
     # Le posizioni dell'esecutore devono esserci, con la direzione giusta. Le altre posizioni su Bitget sono
     # manuali (aperte da te nell'app o su Bitget): non bloccano nulla, ma su quella coin l'esecutore non entra.
-    expected = {p["symbol"]: p["side"] for p in ours.values()}
     actual = {s: p["side"] for s, p in exchange.items()}
+    # Posizione dell'esecutore sparita da Bitget perché chiusa lì (stop scattato sull'exchange, o chiusa a mano):
+    # lo storico delle posizioni chiuse lo conferma, quindi non è un'anomalia. Il trade su carta si chiude alla
+    # fine della candela e l'esecutore non la riapre (resta registrata come chiusa).
+    gone = [(tid, p) for tid, p in ours.items() if p["symbol"] not in actual]
+    if gone and hasattr(client, "closed_positions"):
+        try:
+            closed = client.closed_positions(30)
+        except Exception as e:
+            closed = []
+            log("error", error=f"storico posizioni chiuse: {e}")
+        for tid, p in gone:
+            opened_ms = int(datetime.fromisoformat(p["opened_at"]).timestamp() * 1000) if p.get("opened_at") else 0
+            h = next((h for h in closed if h.get("symbol") == p["symbol"] and h.get("side") == p["side"]
+                      and (h.get("closed_at") or 0) >= opened_ms), None)
+            if h:
+                p.update(status="closed", closed_at=now.isoformat(timespec="seconds"), close_reason="CHIUSA SU BITGET",
+                         exit=h.get("exit"), net=h.get("net"))
+                log("close", id=tid, symbol=p["symbol"], reason="chiusa su Bitget")
+                say(f"{p['symbol']} {p['side'].upper()} ({p['key']}) chiusa su Bitget (stop o a mano)"
+                    + (f": netto {h['net']:+.2f} USDT." if isinstance(h.get("net"), (int, float)) else "."))
+        ours = {tid: p for tid, p in ours.items() if p["status"] == "open"}
+    expected = {p["symbol"]: p["side"] for p in ours.values()}
     missing = {s: v for s, v in expected.items() if actual.get(s) != v}
     manual = {s: p for s, p in exchange.items() if s not in expected}
     state["manual"] = sorted(manual)

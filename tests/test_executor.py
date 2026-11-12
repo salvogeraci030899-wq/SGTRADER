@@ -175,6 +175,42 @@ def test_riconciliazione_e_sblocco():
         assert json.load(open(path))["halted"] is False
 
 
+def test_stop_scattato_su_bitget_non_blocca():
+    """Lo stop sull'exchange chiude la posizione prima che il trade su carta si chiuda (fine candela):
+    lo storico di Bitget lo conferma, quindi niente blocco e niente riapertura."""
+    class WithHistory(bg.DryRunClient):
+        history = []
+        def closed_positions(self, limit=30):
+            return list(self.history)
+    with tempfile.TemporaryDirectory() as d:
+        path, notes = os.path.join(d, "live.json"), []
+        client = WithHistory(10_000)
+        cfg, ledger = setup([trade()])
+        go(cfg, ledger, path, client, notes=notes)
+        assert json.load(open(path))["positions"][trade()["id"]]["status"] == "open"
+        # stop scattato su Bitget: posizione sparita, storico con la chiusura
+        client._positions.pop("BTCUSDT")
+        later = NOW.replace(hour=5)
+        client.history = [{"symbol": "BTCUSDT", "side": "long", "net": -9.8, "exit": 98_000.0, "closed_at": int(later.timestamp() * 1000)}]
+        go(cfg, ledger, path, client, now=later, notes=notes)
+        st = json.load(open(path))
+        p = st["positions"][trade()["id"]]
+        assert st["halted"] is False and p["status"] == "closed" and p["close_reason"] == "CHIUSA SU BITGET", st
+        assert "chiusa su Bitget" in notes[-1] and "-9.80" in notes[-1]
+        # il trade su carta è ancora aperto (si chiude a fine candela): l'esecutore non lo riapre
+        go(cfg, ledger, path, client, now=later.replace(hour=6))
+        assert client.positions() == {} and json.load(open(path))["halted"] is False
+        # chiusura vecchia (prima dell'apertura) non conta: sparita senza spiegazione → blocco
+    with tempfile.TemporaryDirectory() as d:
+        path = os.path.join(d, "live.json")
+        client = WithHistory(10_000)
+        client.history = [{"symbol": "BTCUSDT", "side": "long", "closed_at": 1}]
+        go(cfg, ledger, path, client)
+        client._positions.pop("BTCUSDT")
+        go(cfg, ledger, path, client, now=NOW.replace(hour=5))
+        assert json.load(open(path))["halted"] is True
+
+
 def test_emergenza_chiude_tutto():
     with tempfile.TemporaryDirectory() as d:
         path, notes = os.path.join(d, "live.json"), []

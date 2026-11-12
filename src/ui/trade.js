@@ -1,7 +1,6 @@
 import { State } from '../core/state.js';
 import { CONFIG } from '../core/config.js';
-import { Logger } from '../core/logger.js';
-import { $, SYM, fetchT, apiPost, escapeHtml, fmtDateTime, fmtUsdt, calcPnl, fmtPrice } from '../utils/helpers.js';
+import { SYM, fetchT, escapeHtml, fmtDateTime, fmtUsdt, calcPnl, fmtPrice } from '../utils/helpers.js';
 import * as Terminal from './terminal.js';
 import * as Calculator from './calculator.js';
 import * as AI from './ai.js';
@@ -303,7 +302,6 @@ export function closeTrade(id, reason = 'MANUALE', exitPrice = 0, when = 0) {
     State.saveState();
     refreshCapitalUI();
     if (window.renderHistory) window.renderHistory();
-    if (window.renderStats) window.renderStats();
     Calculator.renderBreakEven();
     renderActiveTrades();
     if (State.simState.activeTrades.length === 0 && State.tradeTimerInterval) clearInterval(State.tradeTimerInterval);
@@ -429,7 +427,6 @@ export function applyCapitalChange() {
     State.simState.freeBalance += change;
     State.saveState();
     refreshCapitalUI();
-    if (window.renderStats) window.renderStats();
     Calculator.renderBreakEven();
     closeCapitalModal();
 }

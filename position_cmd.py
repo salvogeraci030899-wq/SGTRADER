@@ -96,7 +96,7 @@ def validate_open(symbol, side, size, leverage, sl, tp, positions, mark, specs, 
     try:
         lev = int(float(leverage))
     except (TypeError, ValueError):
-        raise CommandError("Leva non valida.")
+        raise CommandError("Leva non valida.") from None
     if not 1 <= lev <= risk["max_leverage"]:
         raise CommandError(f"Leva fuori dai limiti: da 1 a {risk['max_leverage']}x (Impostazioni → Limiti di rischio).")
     if not (mark and mark > 0):
@@ -169,7 +169,7 @@ def run(argv, client=None, notify=None, state_path=executor.STATE_PATH):
     try:
         price = float(argv[3]) if len(argv) > 3 and argv[3] not in ("", "0") else None
     except ValueError:
-        raise CommandError(f"Prezzo non valido: {argv[3]}")
+        raise CommandError(f"Prezzo non valido: {argv[3]}") from None
     if client is None:
         if not all(os.environ.get(k) for k in ("BITGET_API_KEY", "BITGET_API_SECRET", "BITGET_API_PASSPHRASE")):
             raise CommandError("Chiavi Bitget non impostate nei segreti di GitHub.")
@@ -301,7 +301,7 @@ def open_position(argv, client=None, notify=None, state_path=executor.STATE_PATH
         try:
             return float(argv[i]) if len(argv) > i and argv[i] not in ("", "0") else None
         except ValueError:
-            raise CommandError(f"Valore non valido: {argv[i]}")
+            raise CommandError(f"Valore non valido: {argv[i]}") from None
     sl, size, lev, tp = num(3), num(4), num(5), num(6)
     if client is None:
         if not all(os.environ.get(k) for k in ("BITGET_API_KEY", "BITGET_API_SECRET", "BITGET_API_PASSPHRASE")):
@@ -403,7 +403,7 @@ def spot_command(action, symbol, argv, client, cfg, state_path, now=None):
         try:
             return float(argv[i]) if len(argv) > i and argv[i] not in ("", "0") else None
         except ValueError:
-            raise CommandError(f"Valore non valido: {argv[i]}")
+            raise CommandError(f"Valore non valido: {argv[i]}") from None
     if action == OPEN:
         sl, qty, tp = num(3), num(4), num(6)
         totals = client.all_balances_usdt() if hasattr(client, "all_balances_usdt") else {}

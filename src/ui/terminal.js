@@ -2,13 +2,12 @@ import { State } from '../core/state.js';
 import { CONFIG } from '../core/config.js';
 import { Logger } from '../core/logger.js';
 import { journalTrades, isRealMode } from './history.js';
-import { $, SYM, fetchT, apiPost, fmtUsd, cleanData, analyzeTrend, buildRiskData, calcEMA, fmtDateTime, parseBitgetCandles, fetchData } from '../utils/helpers.js';
+import { $, SYM, fetchT, apiPost, fmtUsd, cleanData, analyzeTrend, buildRiskData, calcEMA, parseBitgetCandles, fetchData } from '../utils/helpers.js';
 import { createChart, setCandles, setForecast, setBands, setMarkers, setPriceLines } from './chart.js';
 
 const chartContainer = document.getElementById('chart');
 const mainChartContainer = document.getElementById('mainChartContainer');
 let chartHandle = null;
-let currentAtrPct = 0;
 let techData = { trend: null, riskData: null, ema20: 0, ema50: 0, ema200: 0, price: 0 };
 
 // --- TIMEFRAME HELPER ---
@@ -21,7 +20,9 @@ export function initTerminal() {
     try { initChart(); } catch (e) { Logger.log('ERROR', 'TERMINAL', 'Errore chart init', e); }
     loadData();
     startPricePoll();
-    setInterval(loadData, 60000);       // il bot pubblica ogni 15 minuti: l'app se ne accorge entro un minuto
+    // il bot pubblica ogni 15 minuti: l'app se ne accorge entro un minuto (solo in primo piano; al ritorno subito)
+    setInterval(() => { if (!document.hidden) loadData(); }, 60000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastDataAt > 30000) loadData(); });
     initRefreshState();
     loadTechData();
 }
@@ -267,7 +268,9 @@ export function renderFutures() {
     foot.textContent = `Bitget, ${when} · funding${every}: positivo = i long pagano gli short${oi}${pos} · solo informativi, non usati nei segnali`;
 }
 
+let lastDataAt = 0;
 export async function loadData() {
+    lastDataAt = Date.now();
     try {
         const res = await fetchData('dashboard.json');
         State.allData = await res.json();
@@ -496,7 +499,6 @@ export async function loadTechData() {
             riskData: buildRiskData(candles.slice(0, -1), price),
             ema20: calcEMA(closes, 20), ema50: calcEMA(closes, 50), ema200: calcEMA(closes, 200), price
         };
-        currentAtrPct = techData.riskData.atrPct;
         renderTechFilters();
         if (window.updateCalcHints) window.updateCalcHints();
     } catch(e) { Logger.log('ERROR', 'TERMINAL', 'Tech fetch error', e); }

@@ -17,7 +17,6 @@ const ICON_BELL = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" s
 
 const charts = {};
 let initialized = false;
-let candleInterval = null;
 
 function createChartCard(coin) {
     const card = document.createElement('div');
@@ -209,7 +208,7 @@ export function initHomeCharts() {
         loadCandles(c.symbol);
     });
 
-    candleInterval = setInterval(() => {
+    setInterval(() => {
         // solo con la Home in vista e l'app in primo piano
         if (document.hidden || !document.getElementById('page-home')?.classList.contains('active')) return;
         COINS.forEach(c => loadCandles(c.symbol));
