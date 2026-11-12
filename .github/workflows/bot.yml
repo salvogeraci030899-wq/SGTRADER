@@ -104,7 +104,8 @@ jobs:
           git add futures_data.json futures_history.jsonl 2>/dev/null || true
           git add paper_trades.json 2>/dev/null || true
           git add live_trades.json 2>/dev/null || true
-          git add equity_history.json events 2>/dev/null || true
+          # uno alla volta: se uno dei due non esiste ancora, l'altro va salvato lo stesso
+          for f in equity_history.json events; do if [ -e "$f" ]; then git add "$f"; fi; done
           git commit -m "chore: auto-update $(date -u +%Y-%m-%d_%H:%M)" || { echo "Nessuna modifica da salvare"; exit 0; }
           # Lo stato deve arrivare sul repo anche se un altro workflow ha salvato nel frattempo:
           # riallineamento sicuro (conflitti risolti, JSON controllati) in tools/push_state.sh

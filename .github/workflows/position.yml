@@ -110,7 +110,8 @@ jobs:
             git fetch -q origin "${GITHUB_REF_NAME}" && git reset -q --hard "origin/${GITHUB_REF_NAME}"
             python position_cmd.py sync "$ACTION" "$SYMBOL" "$SIDE"
             git add live_trades.json
-            git add equity_history.json events 2>/dev/null || true
+            # uno alla volta: se uno dei due non esiste ancora, l'altro va salvato lo stesso
+            for f in equity_history.json events; do if [ -e "$f" ]; then git add "$f"; fi; done
             git commit -q -m "Posizione: $ACTION $SYMBOL $SIDE" || exit 0
             git push -q origin "HEAD:${GITHUB_REF_NAME}" && exit 0
             echo "Salvataggio rifiutato (tentativo $i), riprovo..."; sleep $((i * 5))
