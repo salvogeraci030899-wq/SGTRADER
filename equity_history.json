@@ -1,0 +1,13 @@
+{
+ "days": {
+  "2026-11-12": {
+   "at": "2026-11-12T14:07:34+00:00",
+   "close": 16.06,
+   "demo": false,
+   "flows": 0.0,
+   "open": 15.98,
+   "pnl": 0.08
+  }
+ },
+ "note": "Patrimonio Bitget giorno per giorno (UTC), in USDT. pnl = close - open - flows."
+}
