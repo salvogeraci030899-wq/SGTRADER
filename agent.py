@@ -156,7 +156,8 @@ def ai_report(facts, key=None, post=requests.post, get=requests.get):
         prompt = ("Fatti della settimana dell'agente di trading (non aggiungerne altri):\n- " + "\n- ".join(facts) +
                   "\n\nScrivi in italiano un rapporto di massimo 120 parole per il proprietario: cosa è cambiato, come vanno le "
                   "strategie, se c'è qualcosa da decidere. Tono sobrio. Niente promesse di guadagno, niente consigli finanziari, "
-                  "niente numeri che non siano nei fatti.")
+                  "niente numeri che non siano nei fatti, niente piani, intenzioni o previsioni: solo ciò che è scritto nei fatti. "
+                  "Se non è cambiato niente, dillo in una o due frasi.")
         body = {"model": model, "messages": [{"role": "user", "content": prompt}], "temperature": 0.2,
                 "max_tokens": 1500 if any(x in model for x in ("gpt-oss", "qwen3")) else 500}
         if "gpt-oss" in model:
