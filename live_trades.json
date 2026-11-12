@@ -5,7 +5,7 @@
   "start_equity": 1000.0,
   "blocked": false
  },
- "halted": true,
+ "halted": false,
  "events": [
   {
    "at": "2026-11-11T15:25:04+00:00",
@@ -73,6 +73,10 @@
    "actual": {
     "SOLUSDT": "short"
    }
+  },
+  {
+   "at": "2026-11-12T03:51:25+00:00",
+   "kind": "unhalt"
   }
  ],
  "mode": "reale",
@@ -140,7 +144,7 @@
   "day_start_total": 15.98,
   "day_change": 0.02
  },
- "halt_reason": "mismatch",
+ "halt_reason": null,
  "closed_notified": [
   "1504568835275640835"
  ]
