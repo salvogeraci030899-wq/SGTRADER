@@ -220,6 +220,9 @@ test('avvisi di prezzo: comando e azione dell\'assistente validati', async () =>
     assert.deepEqual(sanitizeGeneralAction({ type: 'price_alert', symbol: 'ETHUSDT', price: '3000', extra: 1 }), { type: 'price_alert', symbol: 'ETHUSDT', price: 3000 });
     assert.equal(sanitizeGeneralAction({ type: 'price_alert', symbol: 'ETHUSDT', price: -1 }), null);
     assert.deepEqual(sanitizeGeneralAction({ type: 'clear_alerts' }), { type: 'clear_alerts' });
+    assert.deepEqual(sanitizeGeneralAction({ type: 'close_positions', filter: 'loss', x: 1 }), { type: 'close_positions', filter: 'loss' });
+    assert.equal(sanitizeGeneralAction({ type: 'close_positions', filter: 'tutte' }), null);
+    assert.deepEqual(sanitizeGeneralAction({ type: 'breakeven_all' }), { type: 'breakeven_all' });
     assert.deepEqual(sanitizeGeneralAction({ type: 'remove_alert', symbol: 'BTCUSDT', price: '75000' }), { type: 'remove_alert', symbol: 'BTCUSDT', price: 75000 });
     assert.deepEqual(sanitizeGeneralAction({ type: 'remove_alert', symbol: 'BTCUSDT', price: null }), { type: 'remove_alert', symbol: 'BTCUSDT', price: null });
     assert.equal(sanitizeGeneralAction({ type: 'remove_alert', symbol: 'BTCUSDT', price: 'x' }), null);

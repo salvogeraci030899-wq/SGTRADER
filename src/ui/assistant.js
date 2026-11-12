@@ -4,7 +4,7 @@ import * as Trade from './trade.js';
 import * as Auto from './automation.js';
 import { tradingMode } from './account.js';
 import { planAction } from '../core/rules.js';
-import { findRealPosition } from './history.js';
+import { findRealPosition, realPositions } from './history.js';
 
 // --- ASSISTENTE SULLA POSIZIONE: chat di testo e chat vocale ---
 // Testo o voce → il server (src/core/commands.js, Groq gratuito) risponde e propone al massimo UNA
@@ -78,22 +78,141 @@ export function openAssistant(id, voice, real) {
     const t = general || real ? null : State.simState.activeTrades.find(x => x.id === id);
     if (!general && !real && !t) return;
     tradeId = general || real ? null : id; history = []; speak = !!voice;
-    $('assistTitle').textContent = general ? 'Assistente SGTRADER'
-        : real ? `${voice ? 'Voce' : 'Chat'} · ${SYM(real.symbol)} ${real.side.toUpperCase()} · REALE` : `${voice ? 'Voce' : 'Chat'} · ${SYM(t.symbol)} ${t.type}`;
+    const realMode = tradingMode().mode === 'on';
+    $('assistTitle').textContent = general ? 'Assistente' : real
+        ? `${SYM(real.symbol)} ${real.market === 'spot' ? 'spot' : real.side.toUpperCase()}` : `${SYM(t.symbol)} ${t.type}`;
+    const sub = $('assistSub');
+    sub.textContent = general ? (realMode ? 'Conto Bitget · reale' : 'Conto simulato') : real ? `Bitget ${real.market === 'spot' ? 'spot' : 'futures'} · ORDINI VERI` : 'Posizione simulata';
+    sub.className = (real || (general && realMode)) ? 'real' : '';
+    renderCtx(real, t);
+    renderQuick(!!real);
     $('assistLog').innerHTML = '';
     addMsg('bot', real
-        ? 'Posizione REALE su Bitget. Dimmi cosa fare, per esempio: <i>«se arriva a 10 USDT di profitto chiudi»</i>, <i>«stop a pareggio»</i>, <i>«chiudi subito»</i>. Diventano ordini veri su Bitget (take profit, stop loss, chiusura), solo dopo la tua conferma.'
+        ? 'Dimmi cosa fare con questa posizione, scrivendo o con il microfono, oppure usa un comando rapido qui sotto. Diventa un ordine vero su Bitget solo dopo la tua conferma.'
         : general
-        ? 'Chiedimi del tool o dimmi cosa fare, per esempio: <i>«come va il bot?»</i>, <i>«metti donchian20 turtle 1d su carta»</i>, <i>«analizza ETH a 4 ore»</i>, <i>«passa a simulato»</i>. Ogni azione la confermi tu.'
-        : 'Dimmi cosa fare con questa posizione, per esempio: <i>«se arriva a 10 USDT di profitto chiudi»</i>, <i>«sposta lo stop a pareggio»</i>, <i>«come sta andando?»</i>. Ogni azione la confermi tu.');
+        ? 'Chiedimi del conto, delle posizioni o del tool, oppure usa un comando rapido qui sotto: puoi chiudere più posizioni insieme. Ogni azione la confermi tu.'
+        : 'Dimmi cosa fare con questa posizione, scrivendo o con il microfono, oppure usa un comando rapido qui sotto. Ogni azione la confermi tu.');
     $('assistInput').value = '';
     $('assistSpeak').classList.toggle('active', speak);
     status('');
-    $('assistFoot').textContent = real ? 'ORDINI VERI su Bitget, solo dopo «Conferma». Esito su Telegram entro 1-2 minuti.' : general ? 'Ogni azione parte solo dopo «Conferma».' : 'Ogni azione parte solo dopo «Conferma». Vale per le posizioni simulate.';
+    $('assistFoot').textContent = real ? 'Ordini veri su Bitget solo dopo «Conferma». Esito qui, in Posizioni → Ordini e su Telegram.' : 'Ogni azione parte solo dopo «Conferma».';
     $('assistModal').classList.add('active');
     if (general && !Auto.getAutoState().loaded) Auto.loadAutomation();
     if (voice) toggleRecording();
     else setTimeout(() => $('assistInput').focus(), 200);
+}
+
+// Riquadro con i dati principali della posizione (o del conto, nella chat generale)
+function renderCtx(real, t) {
+    const box = $('assistCtx');
+    const it = v => (v == null || !isFinite(v) ? '—' : fmtPrice(v));
+    const pnlTxt = v => (v == null || !isFinite(v) ? '—' : `${v >= 0 ? '+' : ''}${Number(v).toFixed(2).replace('.', ',')}`);
+    const cell = (k, v, cls = '') => `<div><small>${k}</small><b class="${cls}">${v}</b></div>`;
+    if (real) {
+        const u = Trade.liveUpl(real);
+        box.innerHTML = cell('Prezzo', it(State.livePx[real.symbol] || real.mark)) + cell('PnL', pnlTxt(u), u > 0 ? 'text-accent' : u < 0 ? 'text-danger' : '')
+            + cell('Stop', it(real.sl), real.sl ? '' : 'text-warning') + cell('Target', it(real.tp));
+    } else if (t) {
+        const px = State.livePx[t.symbol] || t.currentPrice || t.entryPrice, n = calcPnl(t, px).net;
+        box.innerHTML = cell('Prezzo', it(px)) + cell('PnL netto', pnlTxt(n), n > 0 ? 'text-accent' : n < 0 ? 'text-danger' : '') + cell('Stop', it(t.slPrice)) + cell('Target', it(t.tpPrice));
+    } else {
+        const list = allOpen();
+        const tot = list.reduce((a, x) => a + (x.pnl || 0), 0);
+        box.innerHTML = cell('Aperte', String(list.length)) + cell('Profitto', String(list.filter(x => x.pnl > 0).length), 'text-accent')
+            + cell('Perdita', String(list.filter(x => x.pnl < 0).length), 'text-danger') + cell('PnL', pnlTxt(tot), tot > 0 ? 'text-accent' : tot < 0 ? 'text-danger' : '');
+    }
+}
+
+// Comandi rapidi: le azioni più usate senza scrivere. Quelli "ask" fanno una domanda all'IA.
+const QUICK_POSITION = real => [
+    { label: 'Stop a pareggio', action: { type: 'stop_breakeven' } },
+    { label: 'Chiudi a +10 USDT', action: { type: 'close_at_pnl', value: 10, unit: 'usdt' } },
+    { label: real ? 'Togli stop e target' : 'Togli le regole', action: { type: 'clear_rules' } },
+    { label: 'Chiudi subito', action: { type: 'close_now' }, cls: 'danger' },
+    { label: 'Come va?', ask: 'Come sta andando questa posizione e cosa mi consigli adesso?', cls: 'ask' },
+];
+const QUICK_GENERAL = [
+    { label: 'Chiudi quelle in perdita', action: { type: 'close_positions', filter: 'loss' }, cls: 'danger' },
+    { label: 'Chiudi quelle in profitto', action: { type: 'close_positions', filter: 'profit' } },
+    { label: 'Stop a pareggio su tutte', action: { type: 'breakeven_all' } },
+    { label: 'Chiudi tutto', action: { type: 'close_positions', filter: 'all' }, cls: 'danger' },
+    { label: 'Riepilogo', ask: 'Fammi un riepilogo del conto, delle posizioni aperte e del bot.', cls: 'ask' },
+    { label: 'Avvisi attivi', ask: 'Quali avvisi di prezzo ho attivi?', cls: 'ask' },
+];
+let quickList = [];
+function renderQuick(real) {
+    quickList = general ? QUICK_GENERAL : QUICK_POSITION(real);
+    $('assistQuick').innerHTML = quickList.map((q, i) => `<button type="button" class="${q.cls || ''}" onclick="assistQuick(${i})">${escapeHtml(q.label)}</button>`).join('');
+}
+export function assistQuick(i) {
+    const q = quickList[i];
+    if (!q || busy) return;
+    if (q.ask) { sendAssist(q.ask); return; }
+    addMsg('user', escapeHtml(q.label));
+    (general ? showGeneralPlan : realSymbol ? showRealPlan : showPlan)(q.action);
+}
+
+// Tutte le posizioni aperte della modalità attiva, con il PnL attuale (null se non noto)
+function allOpen() {
+    if (tradingMode().mode === 'on') {
+        return realPositions().map(p => ({ real: p, name: `${SYM(p.symbol)} ${p.market === 'spot' ? 'spot' : p.side.toUpperCase()}`, pnl: Trade.liveUpl(p) }));
+    }
+    return State.simState.activeTrades.map(t => {
+        const px = State.livePx[t.symbol] || t.currentPrice || t.entryPrice;
+        return { sim: t, name: `${SYM(t.symbol)} ${t.type}`, pnl: calcPnl(t, px).net };
+    });
+}
+const pnlLabel = v => (v == null ? 'PnL non noto' : `${v >= 0 ? '+' : ''}${Number(v).toFixed(2).replace('.', ',')} USDT`);
+
+// Chiusura di più posizioni (in perdita, in profitto o tutte). In Reale: un comando a Bitget per posizione.
+function planCloseMany(filter) {
+    const all = allOpen();
+    const pick = all.filter(x => filter === 'all' || (filter === 'loss' ? x.pnl != null && x.pnl < 0 : x.pnl != null && x.pnl > 0));
+    const what = { loss: 'in perdita', profit: 'in profitto', all: 'aperte' }[filter];
+    if (!all.length) return { ok: false, error: 'Non ci sono posizioni aperte.' };
+    if (!pick.length) return { ok: false, error: `Nessuna posizione ${what} adesso.` };
+    const real = !!pick[0].real;
+    const list = pick.map(x => `${x.name} (${pnlLabel(x.pnl)})`).join(', ');
+    return { ok: true, real,
+        summary: `${real ? 'ORDINI VERI su Bitget: ' : ''}chiudo ${pick.length === 1 ? 'la posizione' : `le ${pick.length} posizioni`} ${what}: ${list}.`,
+        run: () => (real ? sendMany(pick.map(x => ({ p: x.real, action: 'close' }))) : closeSimMany(pick)) };
+}
+
+// Stop a pareggio (commissioni comprese) su tutte le posizioni in profitto che lo permettono
+function planBreakevenAll() {
+    const items = [], skipped = [];
+    for (const x of allOpen()) {
+        if (!(x.pnl > 0)) continue;
+        const t = x.real ? realTrade(x.real) : x.sim;
+        const px = x.real ? (State.livePx[x.real.symbol] || x.real.mark) : (State.livePx[t.symbol] || t.currentPrice || t.entryPrice);
+        const plan = planAction(t, { type: 'stop_breakeven' }, px);
+        if (plan.ok) items.push({ x, plan }); else skipped.push(x.name);
+    }
+    if (!items.length) return { ok: false, error: 'Nessuna posizione in profitto abbastanza da mettere lo stop a pareggio.' };
+    const real = !!items[0].x.real;
+    return { ok: true, real,
+        summary: `${real ? 'ORDINI VERI su Bitget: ' : ''}stop a pareggio su ${items.map(i => `${i.x.name} a ${fmtPrice(i.plan.price)}`).join(', ')}.${skipped.length ? ` Restano come sono: ${skipped.join(', ')}.` : ''}`,
+        run: () => (real ? sendMany(items.map(i => ({ p: i.x.real, action: 'sl', price: i.plan.price })))
+            : items.forEach(i => Trade.applyPlan(i.x.sim.id, i.plan))) };
+}
+
+function closeSimMany(pick) {
+    pick.forEach(x => Trade.closeTrade(x.sim.id, 'MANUALE'));
+    addMsg('bot', `Chiuse ${pick.length} posizioni simulate ✓`);
+}
+
+// Un comando a Bitget per posizione, uno dopo l'altro; gli esiti arrivano in Posizioni → Ordini e su Telegram
+async function sendMany(items) {
+    let sent = 0;
+    for (const it of items) {
+        try {
+            const r = await apiPost('/api/command', { type: 'position', symbol: it.p.symbol, side: it.p.side, action: it.action, price: it.price != null ? String(it.price) : '', market: it.p.market || 'futures', req: newReq() });
+            if (r.ok) sent++;
+            else { let o = {}; try { o = await r.json(); } catch (e) {} addMsg('bot error', `${SYM(it.p.symbol)}: non inviato (${escapeHtml(o.error || r.status)})`); }
+        } catch (e) { addMsg('bot error', `${SYM(it.p.symbol)}: server non raggiungibile.`); }
+    }
+    if (sent) { addMsg('bot', `Inviati ${sent} comandi a Bitget ✓ Esiti in Posizioni → Ordini e su Telegram entro 1-3 minuti.`); say('Comandi inviati a Bitget.'); }
+    setTimeout(() => Auto.loadAutomation(), 90_000);
 }
 
 export function closeAssistant() {
@@ -309,6 +428,10 @@ function planGeneral(a) {
             if (!match) return { ok: false, error: `Su ${SYM(a.symbol)} ci sono ${mine.length > 1 ? 'più avvisi' : 'avvisi diversi'}: ${mine.map(x => fmtPx(x.price)).join(', ')}. Dimmi quale togliere.` };
             return { ok: true, summary: `Tolgo l'avviso ${SYM(a.symbol)} ${match.side === 'above' ? '≥' : '≤'} ${fmtPx(match.price)}.`, run: () => Auto.removePriceAlert(match.id) };
         }
+        case 'close_positions':
+            return planCloseMany(['loss', 'profit', 'all'].includes(a.filter) ? a.filter : 'loss');
+        case 'breakeven_all':
+            return planBreakevenAll();
         case 'clear_alerts': {
             const n = Auto.priceAlerts().length;
             return n ? { ok: true, summary: `Tolgo ${n === 1 ? 'l\'avviso di prezzo attivo' : `tutti i ${n} avvisi di prezzo`}.`, run: () => Auto.sendAlertCommand({ op: 'clear' }, 'Avvisi tolti (entro 1-2 minuti).') }
