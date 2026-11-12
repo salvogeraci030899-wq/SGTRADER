@@ -29,6 +29,16 @@
    "actual": {
     "SOLUSDT": "short"
    }
+  },
+  {
+   "at": "2026-11-12T01:12:54+00:00",
+   "kind": "manual",
+   "action": "close",
+   "symbol": "SOLUSDT",
+   "side": "short",
+   "ok": true,
+   "req": "mwcus8j4yl0fk4",
+   "msg": "Chiusa a mercato SOL SHORT su Bitget."
   }
  ],
  "mode": "reale",
@@ -40,23 +50,9 @@
   "connected": true,
   "demo": false,
   "equity": 16.03,
-  "positions": 1,
-  "positions_detail": [
-   {
-    "symbol": "SOLUSDT",
-    "side": "short",
-    "size": 0.1,
-    "entry": 83.724,
-    "mark": 83.241,
-    "upl": 0.0483,
-    "leverage": 3.0,
-    "margin": 2.7908,
-    "liq": 111.010342,
-    "tp": 82.84,
-    "sl": 100.391
-   }
-  ],
-  "upl": 0.05,
+  "positions": 0,
+  "positions_detail": [],
+  "upl": 0,
   "spot_usdt": 0.0,
   "spot_coins": [
    {
@@ -74,7 +70,7 @@
    "bots": 0.0,
    "margin": 0.0
   },
-  "checked_at": "2026-11-12T01:08:35+00:00",
+  "checked_at": "2026-11-12T01:12:54+00:00",
   "day": "2026-11-12",
   "day_start_total": 15.98,
   "day_change": 0.05
