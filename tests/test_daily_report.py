@@ -47,6 +47,10 @@ def test_contenuto():
         assert "Bitget (reale): saldo 1.523,40 USDT, variazione oggi -12,50, 1 posizioni (PnL aperto +3,20)" in text
         assert "Trade reali chiusi nelle ultime 24 ore: 2 (1 in utile), netto +0,03 USDT" in text      # la chiusura di 2 giorni fa no
         assert "_" not in text and "*" not in text                                                 # Markdown di Telegram
+        assert "Agente: autonomia simulato, profilo bilanciato, stile swing" in text
+        json.dump({"proposals": [{"key": "big_candle_trail:1d"}]}, open(os.path.join(d, "agent_state.json"), "w"))
+        t2 = dr.build({}, NOW, {**files(d), "agent": os.path.join(d, "agent_state.json")})
+        assert "proposta per il reale: big candle trail:1d" in t2 and "_" not in t2
         alarm = dr.build({}, NOW, files(d, emergency=True, halted=True))
         assert "EMERGENZA ATTIVA" in alarm and "BLOCCATO" in alarm
     # senza file: riepilogo comunque leggibile, nessun errore
