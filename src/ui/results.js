@@ -5,6 +5,8 @@
 //   Simulato: i trade simulati dell'app (al netto di commissioni e tasse simulate).
 //   Carta:    le strategie su carta dell'agente, in % del patrimonio con il rischio per trade attuale.
 // Periodi: oggi, settimana (da lunedì), mese, anno, tutto. Elenchi a scorrimento orizzontale.
+// In Reale i trade si dividono in A mano e Agente: è dell'agente un trade chiuso su Bitget che corrisponde
+// (coin, lato, apertura entro 10 minuti) a una posizione aperta dall'esecutore (live_trades.json).
 import { State } from '../core/state.js';
 import { $, SYM, escapeHtml, fmtIt, fetchData } from '../utils/helpers.js';
 import { isRealMode, realHistory, realAccount } from './history.js';
@@ -12,7 +14,21 @@ import { getAutoState, loadAutomation } from './automation.js';
 
 const SRC = { real: 'Bitget · reale', sim: 'Trade simulati dell\'app', paper: 'Strategie su carta' };
 const PERIODS = { day: 'Oggi', week: 'Settimana', month: 'Mese', year: 'Anno', all: 'Tutto' };
-let src = null, period = 'month', equity = null, equityAt = 0;
+const WHO = { all: 'Tutti', manual: 'A mano', agent: 'Agente' };
+let src = null, period = 'month', who = 'all', equity = null, equityAt = 0;
+
+// Strategia dell'esecutore che ha aperto questo trade reale, o null se aperto a mano
+function agentKey(h) {
+    const { live } = getAutoState();
+    const opened = Number(h.entryTime) || 0;
+    if (!opened || h.market === 'SPOT') return null;
+    for (const p of Object.values((live && live.positions) || {})) {
+        if (!p || !p.opened_at || p.status === 'skipped' || p.status === 'error' || p.symbol !== h.symbol) continue;
+        if ((p.side === 'short' ? 'SHORT' : 'LONG') !== h.type) continue;
+        if (Math.abs(Date.parse(p.opened_at) - opened) <= 10 * 60e3) return p.key || 'agente';
+    }
+    return null;
+}
 
 function periodStart(p, now = new Date()) {
     const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -33,7 +49,8 @@ async function loadEquity() {
 
 // Trade chiusi della fonte, nello stesso formato: t (ms), symbol, pnl (USDT; in Carta: % del patrimonio), fees
 function trades(source) {
-    if (source === 'real') return realHistory().map(h => ({ t: h.closedAt, symbol: h.symbol, side: h.type, pnl: h.pnl, fees: h.fees || 0, entry: h.entry, exit: h.exit, market: h.market }));
+    if (source === 'real') return realHistory().map(h => { const k = agentKey(h); return { t: h.closedAt, symbol: h.symbol, side: h.type, pnl: h.pnl, fees: h.fees || 0, entry: h.entry, exit: h.exit, market: h.market, by: k ? 'agent' : 'manual', key: k || undefined }; })
+        .filter(x => who === 'all' || x.by === who);
     if (source === 'sim') return (State.simState.history || []).map(h => ({ t: h.closedAt || h.exitTime, symbol: h.symbol, side: h.type, pnl: Number(h.pnl) || 0, fees: (h.fees || 0) + (h.tax || 0), entry: h.entryPrice || h.entry, exit: h.exitPrice || h.exit, market: h.market, reason: h.reason }));
     const { ledger, cfg } = getAutoState();
     const risk = Number(cfg && cfg.risk && cfg.risk.risk_per_trade_pct) || 0.5;
@@ -53,7 +70,7 @@ function summary(source, p) {
     const list = trades(source).filter(x => x.t && x.t >= start).sort((a, b) => a.t - b.t);
     let total = list.reduce((s, x) => s + x.pnl, 0), base = null, curve = [];
     let usedEquity = false;
-    if (source === 'real' && equity && equity.days) {
+    if (source === 'real' && who === 'all' && equity && equity.days) {
         const from = new Date(start).toISOString().slice(0, 10);
         const days = Object.entries(equity.days).filter(([d]) => d >= from).sort(([a], [b]) => a.localeCompare(b));
         if (days.length) {
@@ -92,6 +109,7 @@ function spark(curve) {
 
 export function setResultsSource(s) { src = SRC[s] ? s : 'real'; renderResults(); }
 export function setResultsPeriod(p) { period = PERIODS[p] ? p : 'month'; renderResults(); }
+export function setResultsWho(w) { who = WHO[w] ? w : 'all'; renderResults(); }
 
 export async function renderResults() {
     const box = $('resBody');
@@ -108,12 +126,12 @@ export async function renderResults() {
     const pct = !paper && s.base > 0 ? s.total / s.base * 100 : null;
     const ddTxt = paper ? `−${fmtIt(s.dd, 2)}%` : s.base > 0 ? `−${fmtIt(s.dd / s.base * 100, 1)}%` : `−${fmtIt(s.dd, 2)}`;
     const note = paper ? 'in % del patrimonio, rischio per trade attuale · simulato'
-        : src === 'real' ? (s.usedEquity ? 'variazione del conto, al netto di versamenti e prelievi' : 'somma dei trade chiusi (storico del conto non ancora disponibile)')
+        : src === 'real' ? (who !== 'all' ? `solo trade ${who === 'agent' ? 'dell\'agente' : 'aperti a mano'}, somma dei chiusi` : s.usedEquity ? 'variazione del conto, al netto di versamenti e prelievi' : 'somma dei trade chiusi (storico del conto non ancora disponibile)')
         : 'al netto di commissioni e tasse simulate';
     const coinCards = Object.entries(s.coins).sort((a, b) => b[1].pnl - a[1].pnl)
         .map(([c, v]) => `<div class="res-mini"><b>${SYM(c)}</b><b class="${tone(v.pnl)}">${money(v.pnl)}${paper ? '%' : ''}</b><small>${v.n} trade</small></div>`).join('');
     const tradeCards = [...s.list].reverse().map(x => `<div class="res-trade"><div class="res-trade-h"><b>${SYM(x.symbol)} ${escapeHtml(x.side || '')}</b><small>${new Date(x.t).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' })}</small></div>`
-        + `<small>${x.entry ? fmtIt(x.entry, x.entry >= 1000 ? 0 : 2) : '—'} → ${x.exit ? fmtIt(x.exit, x.exit >= 1000 ? 0 : 2) : '—'}${x.key ? ' · ' + escapeHtml(x.key.replace(/_/g, ' ')) : x.reason ? ' · ' + escapeHtml(String(x.reason).toLowerCase()) : ''}</small>`
+        + `<small>${x.entry ? fmtIt(x.entry, x.entry >= 1000 ? 0 : 2) : '—'} → ${x.exit ? fmtIt(x.exit, x.exit >= 1000 ? 0 : 2) : '—'}${x.by === 'manual' ? ' · a mano' : x.key ? ' · ' + (x.by === 'agent' ? 'agente ' : '') + escapeHtml(String(x.key).replace(/_/g, ' ')) : x.reason ? ' · ' + escapeHtml(String(x.reason).toLowerCase()) : ''}</small>`
         + `<b class="${tone(x.pnl)}">${money(x.pnl)}${unit}</b></div>`).join('');
     box.innerHTML = `
         <div class="card-box res-big"><small>${escapeHtml(periodLabel(period))} · ${escapeHtml(note)}</small>
@@ -124,6 +142,6 @@ export async function renderResults() {
         <div class="section-title"><span>Da dove viene</span></div>
         <div class="res-hlist">${coinCards || '<div class="empty-hint">Nessun trade chiuso nel periodo.</div>'}</div>
         <div class="section-title"><span>Trade chiusi <small class="auto-count">${s.list.length || ''}</small></span>
-            <span class="section-actions">${src === 'sim' ? '<button class="btn-link-secondary" onclick="exportCSV()">Esporta CSV</button><button class="btn-link-secondary btn-link-danger" onclick="confirmReset()">Reset</button>' : ''}</span></div>
+            <span class="section-actions">${src === 'real' ? Object.entries(WHO).map(([k, l]) => `<button class="btn-link-secondary${k === who ? ' on' : ''}" onclick="setResultsWho('${k}')">${l}</button>`).join('') : ''}${src === 'sim' ? '<button class="btn-link-secondary" onclick="exportCSV()">Esporta CSV</button><button class="btn-link-secondary btn-link-danger" onclick="confirmReset()">Reset</button>' : ''}</span></div>
         <div class="res-hlist res-trades">${tradeCards || '<div class="empty-hint">Nessun trade chiuso nel periodo.</div>'}</div>`;
 }

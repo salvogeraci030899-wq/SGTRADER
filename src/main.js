@@ -121,6 +121,7 @@ window.setResultsSource = Results.setResultsSource;
 window.setLogFilter = Log.setLogFilter;
 window.logDay = Log.logDay;
 window.setResultsPeriod = Results.setResultsPeriod;
+window.setResultsWho = Results.setResultsWho;
 window.renderBreakEven = CalculatorUI.renderBreakEven;
 window.syncTradeMode = CalculatorUI.syncTradeMode;
 window.exportCSV = JournalUI.exportCSV;

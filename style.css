@@ -1340,3 +1340,4 @@ html.glass .signal-history-item, html.glass #tech-panel, html.glass #tr-panel, h
     -webkit-backdrop-filter: blur(18px) saturate(170%); backdrop-filter: blur(18px) saturate(170%); box-shadow: var(--glass-light); }
 html.glass .signal-cell, html.glass .auto-item, html.glass .bt-tile, html.glass .mode-pill, html.glass .assist-icon, html.glass .btn-generic,
 html.glass .signal-info-bar, html.glass .signal-legend, html.glass .assist-ctx div { box-shadow: var(--glass-light); }
+.btn-link-secondary.on { color: var(--ui); }
