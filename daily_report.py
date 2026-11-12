@@ -6,7 +6,8 @@ Una volta al giorno (al primo giro del bot dopo REPORT_HOUR_UTC) riassume:
 - prova su carta: trade aperti e chiusi per strategia;
 - conto Bitget (sola lettura): saldo, variazione del giorno, posizioni;
 - modalità ordini (Simulato/Reale), esecutore: posizioni aperte, blocchi;
-- automazione: emergenza, strategie attive, strategie confermate.
+- automazione: emergenza, strategie attive, strategie confermate;
+- agente: autonomia, profilo, stile, rendimento della carta in % del patrimonio, proposte per il reale.
 I dati sono quelli già scritti dal bot: niente chiamate esterne in più.
 Il testo evita i caratteri speciali del Markdown di Telegram (trattino basso, asterisco).
 """
@@ -41,10 +42,23 @@ def _pct(v, d=2):
     return "n/d" if v is None else _it(v, d, sign=True) + "%"
 
 
+def _paper_return(paper, risk_pct):
+    """Rendimento della carta in % del patrimonio, come nell'app e nell'agente (R x rischio per trade)."""
+    eq, n = 0.0, 0
+    for e in (paper.get("strategies") or {}).values():
+        for t in e.get("trades") or []:
+            if not t.get("open") and t.get("net") is not None and t.get("entry") and t.get("stop"):
+                stop_pct = abs(t["entry"] - t["stop"]) / t["entry"] * 100
+                if stop_pct > 0:
+                    eq += t["net"] / stop_pct * float(risk_pct)
+                    n += 1
+    return eq, n
+
+
 def build(frames, now, paths=None):
     """frames: {"SYMBOL_1d": DataFrame candele chiuse} del giro corrente (può mancare qualcosa)."""
     p = {"futures": "futures_data.json", "paper": "paper_trades.json", "live": "live_trades.json",
-         "automation": "automation.json", "lab": "lab_summary.json", **(paths or {})}
+         "automation": "automation.json", "lab": "lab_summary.json", "agent": "agent_state.json", **(paths or {})}
     lines = [f"📊 RIEPILOGO {now:%d/%m/%Y}"]
 
     prices = []
@@ -72,6 +86,17 @@ def build(frames, now, paths=None):
     if auto.get("emergency"):
         lines.append("⛔ EMERGENZA ATTIVA: automazione bloccata.")
     lines.append("Strategie attive: " + (", ".join(f"{k} ({'carta' if v == 'paper' else 'reale'})" for k, v in active.items()) or "nessuna"))
+
+    ag = {"autonomy": "paper", "profile": "bilanciato", "style": "swing", **(auto.get("agent") or {})}
+    ag_state = _read(p["agent"]) or {}
+    txt = f"Agente: autonomia {dict(off='spenta', paper='simulato', live='REALE').get(ag['autonomy'], ag['autonomy'])}, profilo {ag['profile']}, stile {ag['style']}"
+    ret, n = _paper_return(_read(p["paper"]) or {}, (auto.get("risk") or {}).get("risk_per_trade_pct") or 0.5)
+    if n:
+        txt += f" · carta in totale {_pct(ret)} in {n} trade"
+    props = [x.get("key") for x in ag_state.get("proposals") or [] if x.get("key")]
+    if props:
+        txt += " · 👉 proposta per il reale: " + ", ".join(props) + " (conferma in app)"
+    lines.append(txt)
 
     real = bool((auto.get("risk") or {}).get("trading_enabled"))
     lines.append("Modalità ordini: " + ("REALE (ordini veri solo per strategie confermate)" if real else "simulato, nessun ordine vero"))

@@ -592,7 +592,7 @@ export function renderAgentView() {
     const log = ((agentState && agentState.log) || []).slice().reverse();
     $('agentLogCount').textContent = log.length ? String(log.length) : '';
     $('agentLog').innerHTML = log.length
-        ? log.map(e => { const [icon, what, cls] = AG_KIND[e.kind] || ['•', e.kind, '']; return `<div class="agent-ev"><div class="agent-ev-head"><b class="${cls}">${icon} ${what}</b><small>${escapeHtml(day(e.at))}</small></div><b>${escapeHtml(label(e.key || ''))}</b><small>${escapeHtml(e.why || '')}</small></div>`; }).join('')
+        ? log.map(e => { const [icon, what, cls] = AG_KIND[e.kind] || ['•', e.kind, '']; return `<div class="agent-ev${e.kind === 'proposal' ? ' clickable' : ''}"${e.kind === 'proposal' ? ' onclick="openAgent()"' : ''}><div class="agent-ev-head"><b class="${cls}">${icon} ${what}</b><small>${escapeHtml(day(e.at))}</small></div><b>${escapeHtml(label(e.key || ''))}</b><small>${escapeHtml(e.why || '')}</small></div>`; }).join('')
         : '<div class="empty-hint">Ancora nessuna decisione. L\'agente decide ogni giorno alle 19:41 (ora italiana); la domenica rilancia anche il laboratorio.</div>';
     renderAgentPerf();
     $('agentNote').textContent = 'Ogni cambio arriva su Telegram. Il reale dell\'agente richiede autonomia Reale e interruttore degli ordini veri acceso (Account). Emergenza: Auto → Emergenza.';
