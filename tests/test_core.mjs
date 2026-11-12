@@ -215,7 +215,7 @@ test('avvisi di prezzo: comando e azione dell\'assistente validati', async () =>
     assert.deepEqual(calls[0].body.inputs, { action: 'alert', key: 'BTCUSDT:above:75000', mode: 'add' });
     r = await handle('POST', '/api/command', { type: 'alert', op: 'del', id: 'a1b2c3d4' }, ok, env, fakeFetch);
     assert.deepEqual(calls[1].body.inputs, { action: 'alert', key: 'a1b2c3d4', mode: 'del' });
-    for (const bad of [{ op: 'add', symbol: 'DOGEUSDT', side: 'above', price: '1' }, { op: 'add', symbol: 'BTCUSDT', side: 'up', price: '1' },
+    for (const bad of [{ op: 'add', symbol: 'PEPEUSDT', side: 'above', price: '1' }, { op: 'add', symbol: 'BTCUSDT', side: 'up', price: '1' },
                        { op: 'add', symbol: 'BTCUSDT', side: 'above', price: '1:2' }, { op: 'del', id: '../x' }, { op: 'boom' }]) {
         assert.equal((await handle('POST', '/api/command', { type: 'alert', ...bad }, ok, env, fakeFetch)).status, 400, JSON.stringify(bad));
     }
@@ -244,7 +244,7 @@ test('comando sulla posizione reale: solo azioni e prezzi validi', async () => {
     assert.equal(r.status, 200); assert.equal(calls[1].body.inputs.price, ''); assert.equal(calls[1].body.inputs.req, 'ab12cd34');
     r = await handle('POST', '/api/command', { type: 'position', action: 'close', symbol: 'ETHUSDT', side: 'short', req: '"; rm' }, ok, env, fakeFetch);
     assert.equal(r.status, 200); assert.equal(calls[2].body.inputs.req, undefined);                // codice non valido: ignorato
-    for (const bad of [{ action: 'buy', symbol: 'BTCUSDT', side: 'long' }, { action: 'tp', symbol: 'DOGEUSDT', side: 'long', price: '1' },
+    for (const bad of [{ action: 'buy', symbol: 'BTCUSDT', side: 'long' }, { action: 'tp', symbol: 'PEPEUSDT', side: 'long', price: '1' },
                        { action: 'sl', symbol: 'BTCUSDT', side: 'long', price: '1; rm -rf /' }, { action: 'tp', symbol: 'BTCUSDT', side: 'long' },
                        { action: 'close', symbol: 'BTCUSDT', side: 'long', price: '5' }]) {
         assert.equal((await handle('POST', '/api/command', { type: 'position', ...bad }, ok, env, fakeFetch)).status, 400, JSON.stringify(bad));

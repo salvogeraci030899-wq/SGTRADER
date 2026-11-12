@@ -31,7 +31,10 @@ FEE_PCT = 0.1        # commissione exchange per lato
 SLIPPAGE_PCT = 0.05  # slippage stimato per lato
 TAX_RATE = 0.33      # tassa sulle plusvalenze, applicata ai trade in utile (stima prudente)
 
-ALL_ASSETS = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
+ALL_ASSETS = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]          # Kronos (modello e dashboard): solo queste, è il lavoro più pesante
+# Coin delle strategie (laboratorio, prova su carta, esecutore, agente, avvisi): più mercati = più trade e più
+# conferme indipendenti. Futures USDT molto scambiati su Bitget, con storico dal 2020 e quantità minime piccole.
+TRADE_ASSETS = ALL_ASSETS + ["XRPUSDT", "DOGEUSDT", "BNBUSDT", "ADAUSDT", "LINKUSDT"]
 ALL_TIMEFRAMES = ["1d", "4h", "1h"]
 TF_DELTA = {"1d": pd.Timedelta(days=1), "4h": pd.Timedelta(hours=4), "1h": pd.Timedelta(hours=1)}
 

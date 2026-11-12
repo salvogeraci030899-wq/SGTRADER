@@ -39,7 +39,7 @@ import lab_strategies
 import strategies_validation as sv
 import validation as va
 import validation_stats as vs
-from kronos_core import ALL_ASSETS, ALL_TIMEFRAMES, ATR_PERIOD, FEE_PCT, SLIPPAGE_PCT, TAX_RATE, TF_DELTA
+from kronos_core import ALL_ASSETS, TRADE_ASSETS, ALL_TIMEFRAMES, ATR_PERIOD, FEE_PCT, SLIPPAGE_PCT, TAX_RATE, TF_DELTA
 
 HOLDOUT_START = "2025-11-11"     # da qui in poi lo storico è sigillato (deciso l'11/11/2026: ultimi 12 mesi)
 DEFAULT_START = "2018-01-01"
@@ -518,7 +518,7 @@ def to_markdown(s):
         for r in rows:
             p = "n/d" if r.get("excess_p") is None else f"{r['excess_p']:.4f}"
             halves = " / ".join("—" if hv["excess_avg_pct"] is None else f"{hv['excess_avg_pct']:+.2f}%" for hv in r["halves"])
-            coins = " / ".join(f"{r['excess_by_coin'][c]:+.2f}%" if c in r["excess_by_coin"] else "—" for c in ALL_ASSETS)
+            coins = " / ".join(f"{r['excess_by_coin'][c]:+.2f}%" if c in r["excess_by_coin"] else "—" for c in TRADE_ASSETS)
             verdict = ("**CONFERMATA**" if r["holdout"]["confirmed"] else "bocciata alla prova finale") if "holdout" in r else "**CANDIDATA**" if r["candidate"] else "significativa ma instabile" if r["significant"] else "campione piccolo" if r["n"] < MIN_TRADES else "no"
             out.append(f"| {r['strategy']} | {r['family']} | {r['n']} | {r['win_rate']}% | {r['avg_bars']} candele | {r['avg_net_pct']:+.3f}% | "
                        f"{_pf(r)} | {r['excess_avg_pct']:+.3f}% | {vs._ci(r['excess_ci'])} | {p} | {halves} | {coins} | {verdict} |")
@@ -570,7 +570,10 @@ def main(start, symbols, tfs, unseal=(), save_registry=True):
                 continue
             print(f"{symbol} {tf}: {len(df)} candele dal {df['time'].iloc[0]:%d/%m/%Y}")
             dfs[symbol] = df
-        peers = peer_table(dfs) if dfs else None
+        # forza relativa: dichiarata come confronto tra BTC, ETH e SOL (prima di vederne i risultati); resta così,
+        # le coin aggiunte dopo non entrano nel confronto e per loro quelle strategie non fanno trade
+        core = {s: d for s, d in dfs.items() if s in ALL_ASSETS}
+        peers = peer_table(core) if core else None
         for symbol, df in dfs.items():
             for name, spec in lab_strategies.STRATEGIES.items():
                 if spec["tfs"] is None or tf in spec["tfs"]:
@@ -593,7 +596,7 @@ def main(start, symbols, tfs, unseal=(), save_registry=True):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--start", default=DEFAULT_START)
-    parser.add_argument("--symbols", nargs="*", default=ALL_ASSETS, choices=ALL_ASSETS)
+    parser.add_argument("--symbols", nargs="*", default=TRADE_ASSETS, choices=TRADE_ASSETS)
     parser.add_argument("--tfs", nargs="*", default=ALL_TIMEFRAMES, choices=ALL_TIMEFRAMES)
     parser.add_argument("--unseal", nargs="*", default=[], help="prove da aprire sui mesi sigillati, es. donchian20:1d (registrato, una volta sola)")
     parser.add_argument("--no-registry", action="store_true", help="non aggiorna lab_registry.json (prove tecniche)")

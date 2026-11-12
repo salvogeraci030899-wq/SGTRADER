@@ -38,6 +38,7 @@ import requests
 
 import automation
 import lab_strategies
+from kronos_core import TRADE_ASSETS
 
 STATE_PATH = "agent_state.json"
 PAPER_PATH = "paper_trades.json"
@@ -154,7 +155,7 @@ def capital_check(cfg, live, paper, price_fn=None, specs_fn=None):
                    for t in (e.get("trades") or [])[-30:] if t.get("entry") and t.get("stop"))
     stop_pct = stops[len(stops) // 2] if stops else 5.0
     out = {"equity": round(float(equity), 2), "stop_pct": round(stop_pct, 2), "risk_pct": risk["risk_per_trade_pct"], "symbols": {}}
-    for sym in ("BTCUSDT", "ETHUSDT", "SOLUSDT"):
+    for sym in TRADE_ASSETS:
         specs, px = specs_fn(sym), price_fn(sym)
         if not specs or not px:
             continue

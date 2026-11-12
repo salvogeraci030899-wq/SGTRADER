@@ -1,5 +1,6 @@
 import { State } from '../core/state.js';
-import { $, escapeHtml, apiPost, getApiBase, setApiBase, clearAppKey, getGhToken, setGhToken, commandMode, fmtIt, fmtPrice, fetchData } from '../utils/helpers.js';
+import { $, escapeHtml, apiPost, getApiBase, setApiBase, clearAppKey, getGhToken, setGhToken, commandMode, fmtIt, fmtPrice, fetchData, fetchT } from '../utils/helpers.js';
+import { TRADE_SYMBOLS } from '../core/commands.js';
 
 // --- AUTOMAZIONE (pagina Segnali, vista "Auto") ---
 // Mostra e comanda le strategie automatiche: spenta, su carta (segnali seguiti senza ordini) o reale.
@@ -135,7 +136,7 @@ export function openChartAlert(symbol, px) {
     caSym = symbol;
     const daily = State.allData && State.allData[`${symbol}_1d`];
     caPx = px > 0 ? px : (State.livePx[symbol] || (daily && daily.current_price) || null);
-    $('caCoins').innerHTML = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'].map(s => `<button type="button" class="pill-btn${s === symbol ? ' active' : ''}" onclick="openChartAlert('${s}')">${s.replace('USDT', '')}</button>`).join('');
+    $('caCoins').innerHTML = TRADE_SYMBOLS.map(s => `<button type="button" class="pill-btn${s === symbol ? ' active' : ''}" onclick="openChartAlert('${s}')">${s.replace('USDT', '')}</button>`).join('');
     $('caTitle').textContent = `Avviso su ${symbol.replace('USDT', '')}`;
     $('caNow').textContent = caPx ? `Ora ${fmtPrice(caPx)} USDT` : 'Prezzo attuale non disponibile';
     $('caPrice').value = caPx ? String(Number(caPx.toPrecision(6))) : '';
@@ -144,6 +145,21 @@ export function openChartAlert(symbol, px) {
     $('caList').innerHTML = mine.length ? `<small>Attivi: ${mine.map(a => escapeHtml(fmtAlert(a).replace(/^\S+ /, ''))).join(' · ')}</small>` : '';
     caHint();
     $('chartAlertModal').classList.add('active');
+    if (!caPx) loadAlertPrice(symbol);
+}
+// Coin senza prezzo in memoria (quelle delle sole strategie): prezzo dei futures di Bitget, poi si aggiorna la finestra
+async function loadAlertPrice(symbol) {
+    try {
+        const r = await fetchT(`https://api.bitget.com/api/v2/mix/market/ticker?symbol=${symbol}&productType=USDT-FUTURES`);
+        const d = ((await r.json()).data || [])[0] || {};
+        const px = parseFloat(d.lastPr || d.markPrice);
+        if (!(px > 0) || caSym !== symbol) return;
+        caPx = px;
+        State.livePx[symbol] = px;
+        $('caNow').textContent = `Ora ${fmtPrice(px)} USDT`;
+        if (!$('caPrice').value) $('caPrice').value = String(Number(px.toPrecision(6)));
+        caHint();
+    } catch (e) { /* resta "Prezzo attuale non disponibile" */ }
 }
 export function closeChartAlert() { $('chartAlertModal').classList.remove('active'); }
 export function chartAlertStep(pct) {

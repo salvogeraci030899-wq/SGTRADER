@@ -188,7 +188,7 @@ def test_ordine_manuale():
         no(["open", "SOLUSDT", "long", "82", "0.05", "3"], "Quantità troppo piccola")
         no(["open", "SOLUSDT", "long", "82", "1", "1"], "oltre il 90% del conto")
         no(["open", "SOLUSDT", "long", "70", "0.5", "3"], "oltre il limite")
-        no(["open", "DOGEUSDT", "long", "82", "0.1", "3"], "Coin o direzione")
+        no(["open", "PEPEUSDT", "long", "82", "0.1", "3"], "Coin o direzione")
         # modalità hedge: l'ordine porta tradeSide (one_way False)
         c = C({}, mode="hedge_mode")
         go(["open", "SOLUSDT", "short", "86", "0.1", "2"], c)

@@ -15,7 +15,7 @@ T0_MS = 1_794_391_200_000  # 2026-11-11T10:00:00Z
 def test_aggiunta_e_regole():
     cfg = {}
     assert "BTC ≥ 75.000" in pa.add(cfg, "BTCUSDT:above:75000", now=T0)
-    for bad in ["DOGEUSDT:above:1", "BTCUSDT:sopra:1", "BTCUSDT:above:-5", "BTCUSDT:above", "x"]:
+    for bad in ["PEPEUSDT:above:1", "BTCUSDT:sopra:1", "BTCUSDT:above:-5", "BTCUSDT:above", "x"]:
         try:
             pa.add(cfg, bad)
             raise AssertionError(bad)

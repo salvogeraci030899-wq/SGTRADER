@@ -140,7 +140,7 @@ export async function command(body, env, fetchFn) {
         case 'position': {
             // posizione REALE su Bitget (assistente): chiusura, TP, SL, rimozione TP/SL. position_cmd.py ricontrolla tutto.
             const price = b.price == null || b.price === '' ? '' : String(b.price);
-            if (!['open', 'close', 'tp', 'sl', 'clear', 'untp', 'unsl'].includes(b.action) || !['BTCUSDT', 'ETHUSDT', 'SOLUSDT'].includes(b.symbol) || !['long', 'short'].includes(b.side)) {
+            if (!['open', 'close', 'tp', 'sl', 'clear', 'untp', 'unsl'].includes(b.action) || !ANALYZE_SYMBOLS.includes(b.symbol) || !['long', 'short'].includes(b.side)) {
                 return json(400, { error: 'Comando sulla posizione non valido' });
             }
             const num = v => /^\d{1,9}(\.\d{1,8})?$/.test(v) && Number(v) > 0;
@@ -166,7 +166,10 @@ export async function command(body, env, fetchFn) {
     }
 }
 
-const ANALYZE_SYMBOLS = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'];
+// Coin delle strategie (stessa lista di kronos_core.TRADE_ASSETS): posizioni, avvisi, analisi AI e assistente
+export const TRADE_SYMBOLS = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'XRPUSDT', 'DOGEUSDT', 'BNBUSDT', 'ADAUSDT', 'LINKUSDT'];
+const ANALYZE_SYMBOLS = TRADE_SYMBOLS;
+const SYMBOL_CHOICES = TRADE_SYMBOLS.map(s => `"${s}"`).join('|');
 const ANALYZE_TFS = ['1d', '4h', '1h'];
 const BIASES = ['LONG', 'SHORT', 'NEUTRO'];
 const CONSENSUS = ['LONG', 'SHORT', 'NEUTRAL'];
@@ -371,7 +374,7 @@ Regole automatiche attive: ${rules.length ? rules.join('; ') : 'nessuna'}.`;
 }
 
 // ---------- Assistente generale (Home): comanda il tool ----------
-const GENERAL_SYSTEM = `Sei l'assistente di SGTRADER, un'app personale di trading su BTC, ETH e SOL. Parli in italiano, in modo breve (massimo 70 parole).
+const GENERAL_SYSTEM = `Sei l'assistente di SGTRADER, un'app personale di trading: Kronos e i grafici su BTC, ETH e SOL, le strategie anche su XRP, DOGE, BNB, ADA e LINK. Parli in italiano, in modo breve (massimo 70 parole).
 Ricevi lo stato attuale del tool e un messaggio dell'utente. Rispondi SOLO con un oggetto JSON:
 {"reply": "testo per l'utente", "action": null oppure un'azione}
 Azioni possibili (usa SOLO queste, con questi campi):
@@ -380,9 +383,9 @@ Azioni possibili (usa SOLO queste, con questi campi):
 - {"type":"emergency"}: emergenza, spegne tutto
 - {"type":"resume"}: sblocca dopo l'emergenza
 - {"type":"run_lab"}: rilancia il laboratorio delle strategie
-- {"type":"analyze","symbol":"BTCUSDT"|"ETHUSDT"|"SOLUSDT","timeframe":"1d"|"4h"|"1h"}: apri l'analisi AI live
-- {"type":"price_alert","symbol":"BTCUSDT"|"ETHUSDT"|"SOLUSDT","price":numero}: avviso su Telegram quando il prezzo tocca quel livello (solo un messaggio, nessun ordine)
-- {"type":"remove_alert","symbol":"BTCUSDT"|"ETHUSDT"|"SOLUSDT","price":numero o null}: togli UN avviso di prezzo (price null se su quella coin ce n'è uno solo)
+- {"type":"analyze","symbol":${SYMBOL_CHOICES},"timeframe":"1d"|"4h"|"1h"}: apri l'analisi AI live
+- {"type":"price_alert","symbol":${SYMBOL_CHOICES},"price":numero}: avviso su Telegram quando il prezzo tocca quel livello (solo un messaggio, nessun ordine)
+- {"type":"remove_alert","symbol":${SYMBOL_CHOICES},"price":numero o null}: togli UN avviso di prezzo (price null se su quella coin ce n'è uno solo)
 - {"type":"clear_alerts"}: togli tutti gli avvisi di prezzo
 - {"type":"close_positions","filter":"loss"|"profit"|"all"}: chiudi le posizioni aperte in perdita, in profitto o tutte (nella modalità attiva: simulate o reali su Bitget)
 - {"type":"breakeven_all"}: stop a pareggio su tutte le posizioni in profitto
