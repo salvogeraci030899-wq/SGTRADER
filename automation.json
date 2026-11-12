@@ -2,7 +2,10 @@
  "note": "Stato di ogni strategia: off, paper (solo su carta) o live (ordini reali). 'live' è accettato solo per strategie confermate dalla prova finale: per le altre viene trattato come paper.",
  "paper_start": "2026-11-11",
  "strategies": {
-  "big_candle_trail:1d": "paper"
+  "big_candle_trail:1d": "paper",
+  "big_candle:1d": "paper",
+  "tsmom30:1d": "paper",
+  "tsmom_combo:1d": "paper"
  },
  "emergency": false,
  "history": [
@@ -134,6 +137,33 @@
    "at": "2026-11-12T05:35:44+00:00",
    "cmd": "trading",
    "to": "on"
+  },
+  {
+   "at": "2026-11-12T09:43:05+00:00",
+   "cmd": "set",
+   "key": "big_candle:1d",
+   "from": "off",
+   "to": "paper",
+   "by": "agent",
+   "why": "in osservazione: non candidata ma promettente sullo storico (247 trade, oltre il mercato 1.785% a trade). Solo carta, non andrà al reale"
+  },
+  {
+   "at": "2026-11-12T09:43:05+00:00",
+   "cmd": "set",
+   "key": "tsmom30:1d",
+   "from": "off",
+   "to": "paper",
+   "by": "agent",
+   "why": "in osservazione: non candidata ma promettente sullo storico (889 trade, oltre il mercato 0.759% a trade). Solo carta, non andrà al reale"
+  },
+  {
+   "at": "2026-11-12T09:43:05+00:00",
+   "cmd": "set",
+   "key": "tsmom_combo:1d",
+   "from": "off",
+   "to": "paper",
+   "by": "agent",
+   "why": "in osservazione: non candidata ma promettente sullo storico (669 trade, oltre il mercato 0.696% a trade). Solo carta, non andrà al reale"
   }
  ],
  "risk": {
