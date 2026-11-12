@@ -1301,7 +1301,7 @@ html.pwa-mode .nav-item { height: auto; }
 .ev-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor; margin-right: 6px; vertical-align: middle; position: relative; top: -1px; }
 .text-secondary { color: var(--text-secondary); }
 
-/* ===== Vetro (Impostazioni → Aspetto → Vetro), stile Liquid Glass. Barra in basso, tasti, barre delle schede
+/* ===== Vetro (Impostazioni → Aspetto → Vetro: No, Fermo, Animato), stile Liquid Glass. Barra in basso, tasti, barre delle schede
    e tutte le schede del contenuto.
    Se in app installata iOS fa sparire qualcosa, basta spegnerlo: torna tutto pieno. ===== */
 html.glass { --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04) 55%, rgba(255, 255, 255, 0.08));
@@ -1334,6 +1334,23 @@ html.glass[data-theme="light"] { --surface: rgba(255, 255, 255, 0.66); --surface
             radial-gradient(65% 45% at 20% 100%, rgba(191, 90, 242, 0.18), transparent 70%), #eef0f6; }
 html.glass body, html.glass #app, html.glass .assist-box, html.glass .lock-screen, html.glass .modal-overlay,
 html.glass .modal-overlay .modal-box { background: var(--wall); }
+/* Sfondo animato (Vetro → Animato): le luci si spostano piano su un livello a parte, mosso solo con transform
+   (lo muove la GPU, nessun ridisegno della pagina). Un giro dura 30 s. Si ferma se iOS chiede meno movimento. */
+html.glass-anim #app { background: transparent; position: relative; isolation: isolate; }
+html.glass-anim { --wall-anim: radial-gradient(32% 24% at 22% 20%, rgba(10, 132, 255, 0.34), transparent 70%),
+    radial-gradient(30% 22% at 78% 48%, rgba(48, 209, 88, 0.2), transparent 70%),
+    radial-gradient(36% 26% at 32% 80%, rgba(191, 90, 242, 0.26), transparent 70%), #000; }
+html.glass-anim[data-theme="light"] { --wall-anim: radial-gradient(32% 24% at 22% 20%, rgba(10, 132, 255, 0.26), transparent 70%),
+    radial-gradient(30% 22% at 78% 48%, rgba(48, 209, 88, 0.2), transparent 70%),
+    radial-gradient(36% 26% at 32% 80%, rgba(191, 90, 242, 0.22), transparent 70%), #eef0f6; }
+html.glass-anim #app::before { content: ''; position: absolute; inset: -25%; z-index: -1; pointer-events: none; background: var(--wall-anim);
+    will-change: transform; animation: sgt-wall 30s ease-in-out infinite alternate; }
+@keyframes sgt-wall {
+    0% { transform: translate3d(-6%, -4%, 0) rotate(0deg) scale(1); }
+    50% { transform: translate3d(5%, 3%, 0) rotate(8deg) scale(1.08); }
+    100% { transform: translate3d(-3%, 6%, 0) rotate(-6deg) scale(1.02); }
+}
+@media (prefers-reduced-motion: reduce) { html.glass-anim #app::before { animation: none; } }
 html.glass .card-box, html.glass .home-card, html.glass .home-tile, html.glass .home-chart-item, html.glass .chart-container,
 html.glass .set-group, html.glass .active-trade-card, html.glass .log-item, html.glass .be-card, html.glass .calc-card,
 html.glass .signal-history-item, html.glass #tech-panel, html.glass #tr-panel, html.glass #val-panel, html.glass #fut-panel, html.glass #ai-panel {
