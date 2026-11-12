@@ -1,18 +1,18 @@
 {
- "updated_at": "2026-11-12T04:15:34+00:00",
+ "updated_at": "2026-11-12T04:24:34+00:00",
  "product_type": "USDT-FUTURES",
  "symbols": {
   "BTCUSDT": {
    "symbol": "BTCUSDT",
-   "last": 73744.1,
-   "mark": 73744.1,
-   "index": 73774.21717391304,
-   "premium_pct": -0.0408,
+   "last": 73741.9,
+   "mark": 73741.9,
+   "index": 73770.44282608696,
+   "premium_pct": -0.0387,
    "funding_rate_pct": 0.01,
    "funding_interval_h": 8.0,
    "next_funding_ts": 1794470400,
-   "open_interest": 37664.9689,
-   "open_interest_usd": 2777569233.0,
+   "open_interest": 37687.438500000004,
+   "open_interest_usd": 2779143321.0,
    "long_accounts_pct": 77.97,
    "long_positions_pct": 49.37,
    "maker_fee_pct": 0.02,
@@ -80,20 +80,20 @@
      "mmr_pct": 60.0
     }
    ],
-   "t": 1794456934,
+   "t": 1794457474,
    "open_interest_change_24h_pct": null
   },
   "ETHUSDT": {
    "symbol": "ETHUSDT",
-   "last": 2052.85,
-   "mark": 2052.85,
-   "index": 2053.6897826086956,
-   "premium_pct": -0.0409,
-   "funding_rate_pct": 0.0053,
+   "last": 2053.52,
+   "mark": 2053.52,
+   "index": 2054.138913043478,
+   "premium_pct": -0.0301,
+   "funding_rate_pct": 0.0055,
    "funding_interval_h": 8.0,
    "next_funding_ts": 1794470400,
-   "open_interest": 769272.1699999998,
-   "open_interest_usd": 1579200374.0,
+   "open_interest": 769247.5299999998,
+   "open_interest_usd": 1579665188.0,
    "long_accounts_pct": 82.75,
    "long_positions_pct": 49.85,
    "maker_fee_pct": 0.02,
@@ -176,20 +176,20 @@
      "mmr_pct": 60.0
     }
    ],
-   "t": 1794456934,
+   "t": 1794457474,
    "open_interest_change_24h_pct": null
   },
   "SOLUSDT": {
    "symbol": "SOLUSDT",
-   "last": 83.064,
-   "mark": 83.064,
-   "index": 83.11391304347826,
-   "premium_pct": -0.0601,
-   "funding_rate_pct": -0.0039,
+   "last": 83.125,
+   "mark": 83.127,
+   "index": 83.17065217391304,
+   "premium_pct": -0.0525,
+   "funding_rate_pct": -0.0037,
    "funding_interval_h": 8.0,
    "next_funding_ts": 1794470400,
-   "open_interest": 4405404.099999961,
-   "open_interest_usd": 365930486.0,
+   "open_interest": 4405625.099999961,
+   "open_interest_usd": 366226398.0,
    "long_accounts_pct": 88.26,
    "long_positions_pct": 50.16,
    "maker_fee_pct": 0.02,
@@ -247,7 +247,7 @@
      "mmr_pct": 60.0
     }
    ],
-   "t": 1794456934,
+   "t": 1794457474,
    "open_interest_change_24h_pct": null
   }
  }
