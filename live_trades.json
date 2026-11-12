@@ -53,10 +53,24 @@
  "account": {
   "connected": true,
   "demo": false,
-  "equity": 16.03,
-  "positions": 0,
-  "positions_detail": [],
-  "upl": 0,
+  "equity": 16.02,
+  "positions": 1,
+  "positions_detail": [
+   {
+    "symbol": "SOLUSDT",
+    "side": "short",
+    "size": 0.1,
+    "entry": 83.026,
+    "mark": 83.085,
+    "upl": -0.0059,
+    "leverage": 3.0,
+    "margin": 2.767533,
+    "liq": 110.084858,
+    "tp": null,
+    "sl": null
+   }
+  ],
+  "upl": -0.01,
   "spot_usdt": 0.0,
   "spot_coins": [
    {
@@ -65,19 +79,19 @@
     "usdt": null
    }
   ],
-  "total_usdt": 16.03,
+  "total_usdt": 16.02,
   "accounts_usdt": {
    "spot": 0.0,
-   "futures": 16.03,
+   "futures": 16.02,
    "funding": 0.0,
    "earn": 0.0,
    "bots": 0.0,
    "margin": 0.0
   },
-  "checked_at": "2026-11-12T01:19:14+00:00",
+  "checked_at": "2026-11-12T01:29:57+00:00",
   "day": "2026-11-12",
   "day_start_total": 15.98,
-  "day_change": 0.05
+  "day_change": 0.04
  },
  "halt_reason": null
 }
