@@ -19,7 +19,7 @@ export function realHistory() {
         const gross = Number(h.pnl) || 0, fees = Math.abs(Number(h.fees) || 0), funding = Number(h.funding) || 0;
         return {
             id: `bg-${h.id}`, real: true, symbol: h.symbol, type: h.side === 'short' ? 'SHORT' : 'LONG',
-            granularity: '', market: 'FUTURES', entry: h.entry, exit: h.exit, size: h.size,
+            granularity: '', market: h.market === 'spot' ? 'SPOT' : 'FUTURES', entry: h.entry, exit: h.exit, size: h.size,
             capitalInvested: (h.size || 0) * h.entry, grossPnl: gross, fees, funding, tax: 0,
             pnl: h.net != null ? Number(h.net) : gross - fees + funding,
             entryTime: h.opened_at || null, closedAt: h.closed_at || null, exitTime: h.closed_at || null, reason: 'BITGET'

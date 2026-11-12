@@ -148,6 +148,11 @@ class BitgetClient:
                 "size": str(qty), "clientOid": client_oid or f"sgt{uuid.uuid4().hex[:24]}"}
         return self._request("POST", "/api/v2/spot/trade/place-order", body=body)
 
+    def spot_fills_raw(self, symbol, limit=100):
+        """Eseguiti spot (acquisti e vendite) di una coppia, così come arrivano (ultimi 90 giorni)."""
+        data = self._request("GET", "/api/v2/spot/trade/fills", {"symbol": symbol, "limit": str(limit)}) or []
+        return data.get("fillList") if isinstance(data, dict) else data
+
     def spot_plan_orders(self, symbol):
         """Ordini a scatto spot in attesa (stop e target delle coin): [{orderId, side, triggerPrice, size}]."""
         data = self._request("GET", "/api/v2/spot/trade/current-plan-order", {"symbol": symbol}) or {}
