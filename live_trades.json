@@ -106,7 +106,7 @@
    "msg": "Comando NON eseguito: Allo stop perderesti circa 0,8811 USDT, oltre il limite di 0,4805 (3% del conto, perdita massima del giorno)."
   }
  ],
- "mode": "reale",
+ "mode": "simulata",
  "simulated": {
   "equity": 1000.0,
   "positions": {}
@@ -114,7 +114,7 @@
  "account": {
   "connected": true,
   "demo": false,
-  "equity": 16.05,
+  "equity": 16.03,
   "positions": 1,
   "positions_detail": [
    {
@@ -122,8 +122,8 @@
     "side": "short",
     "size": 0.1,
     "entry": 83.026,
-    "mark": 82.728,
-    "upl": 0.0298,
+    "mark": 82.977,
+    "upl": 0.0049,
     "leverage": 3.0,
     "margin": 2.767533,
     "liq": 110.084858,
@@ -131,7 +131,7 @@
     "sl": 83.93
    }
   ],
-  "upl": 0.03,
+  "upl": 0.0,
   "spot_usdt": 0.0,
   "spot_coins": [
    {
@@ -140,10 +140,10 @@
     "usdt": null
    }
   ],
-  "total_usdt": 16.05,
+  "total_usdt": 16.03,
   "accounts_usdt": {
    "spot": 0.0,
-   "futures": 16.05,
+   "futures": 16.03,
    "funding": 0.0,
    "earn": 0.0,
    "bots": 0.0,
@@ -167,16 +167,14 @@
     "margin_mode": "isolated"
    }
   ],
-  "checked_at": "2026-11-12T05:18:27+00:00",
+  "checked_at": "2026-11-12T05:33:23+00:00",
   "day": "2026-11-12",
   "day_start_total": 15.98,
-  "day_change": 0.07
+  "day_change": 0.05
  },
  "halt_reason": "mismatch",
  "closed_notified": [
   "1504568835275640835"
  ],
- "manual": [
-  "SOLUSDT"
- ]
+ "manual": []
 }
