@@ -169,9 +169,28 @@
    "at": "2026-11-12T17:22:46+00:00",
    "cmd": "trading",
    "to": "off"
+  },
+  {
+   "at": "2026-11-12T17:24:59+00:00",
+   "cmd": "agent",
+   "field": "profile",
+   "from": "bilanciato",
+   "to": "aggressivo"
   }
  ],
  "risk": {
-  "trading_enabled": false
+  "trading_enabled": false,
+  "risk_per_trade_pct": 1.0,
+  "max_leverage": 5,
+  "max_exposure_x": 2.5,
+  "max_open_positions": 4,
+  "max_daily_loss_pct": 5.0,
+  "daily_target_pct": 3.0,
+  "max_strategy_dd_pct": 8.0
+ },
+ "agent": {
+  "autonomy": "paper",
+  "profile": "aggressivo",
+  "style": "swing"
  }
 }
