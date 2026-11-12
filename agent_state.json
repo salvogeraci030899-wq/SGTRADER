@@ -1,11 +1,12 @@
 {
- "last_run": "2026-11-12T09:00:11+00:00",
+ "last_run": "2026-11-12T09:19:25+00:00",
  "added": [],
  "proposals": [],
  "facts": [
-  "Stato big candle trail 1d (su carta): 0 trade chiusi, 0 aperti."
+  "Stato big candle trail 1d (su carta): 0 trade chiusi, 0 aperti.",
+  "Capitale 16.06 USDT, rischio 0.5% a trade, stop tipico 5.0%: troppo poco per i minimi di Bitget, ogni trade reale verrebbe saltato. Servono almeno ~73 USDT (BTC), oppure un profilo con più rischio."
  ],
- "report": "Rapporto settimanale – Agente di trading\n\nNella settimana corrente lo stato della strategia “big candle trail 1d” risulta invariato: non sono stati chiusi trade e non ne sono attivi. Non vi sono variazioni da segnalare né decisioni da prendere in merito a questa strategia.",
+ "report": "**Rapporto settimanale – Agente di trading**\n\n- Stato della strategia “big candle trail 1d” (su carta): 0 trade chiusi, 0 trade aperti.\n- Capitale disponibile: 16,06 USDT.\n- Parametri di rischio: 0,5 % per trade, stop tipico 5,0 %. Con il capitale attuale, il valore minimo richiesto da Bitget supera il margine disponibile; ogni trade reale verrebbe bloccato.\n- Necessità operative: per rispettare i parametri attuali occorre almeno circa 73 USDT (BTC) o, in alternativa, modificare il profilo di rischio.\n\nNessun cambiamento operativo è stato registrato rispetto alla settimana precedente.",
  "report_model": "openai/gpt-oss-120b",
  "log": [
   {
@@ -20,5 +21,28 @@
   "profile": "bilanciato",
   "style": "swing"
  },
- "report_at": "2026-11-12T09:00:11+00:00"
+ "report_at": "2026-11-12T09:19:25+00:00",
+ "capital": {
+  "equity": 16.06,
+  "stop_pct": 5.0,
+  "risk_pct": 0.5,
+  "symbols": {
+   "BTCUSDT": {
+    "min_usdt": 7.33,
+    "needed": 73.28,
+    "ok": false
+   },
+   "ETHUSDT": {
+    "min_usdt": 20.41,
+    "needed": 204.15,
+    "ok": false
+   },
+   "SOLUSDT": {
+    "min_usdt": 8.27,
+    "needed": 82.69,
+    "ok": false
+   }
+  }
+ },
+ "capital_warned": true
 }
