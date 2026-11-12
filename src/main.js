@@ -23,6 +23,7 @@ import * as Orders from './ui/orders.js';
 import { initPageFit } from './ui/page-fit.js';
 import { normalizeWindows } from './ui/windows.js';
 import * as Market from './ui/market.js';
+import * as Results from './ui/results.js';
 
 State.loadState();
 State.loadSignalState();
@@ -111,8 +112,11 @@ window.runCatchUp = TradeUI.runCatchUp;
 window.executeTradeOpen = TradeUI.executeTradeOpen;
 
 // Journal
-window.renderHistory = JournalUI.renderHistory;
-window.renderStats = JournalUI.renderStats;
+// trade chiusi o conto cambiati: si ridisegna la pagina Risultati (se è aperta)
+window.renderHistory = Results.renderResults;
+window.renderStats = () => {};
+window.setResultsSource = Results.setResultsSource;
+window.setResultsPeriod = Results.setResultsPeriod;
 window.renderBreakEven = CalculatorUI.renderBreakEven;
 window.syncTradeMode = CalculatorUI.syncTradeMode;
 window.exportCSV = JournalUI.exportCSV;
@@ -308,10 +312,7 @@ window.switchTab = (tabId) => {
         TradeUI.renderActiveTradeDots();
         setTimeout(TradeUI.renderActiveTradeDots, 50);
     } else if (tabId === 'journal') {
-        JournalUI.renderHistory();
-        JournalUI.renderStats();
-        CalculatorUI.renderBreakEven();
-        setTimeout(JournalUI.updateTradeLogDots, 50);
+        Results.renderResults();
     } else if (tabId === 'calculator') {
         CalculatorUI.setCtxLabel();
     } else if (tabId === 'account') {

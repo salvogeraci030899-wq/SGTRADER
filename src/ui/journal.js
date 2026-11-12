@@ -96,6 +96,7 @@ export function renderHistory() {
 }
 
 export function renderStats() {
+    if (!document.getElementById('statWinRate')) return;     // il Diario ora è la pagina Risultati
     const trades = journalTrades();
     const statWinRate = document.getElementById('statWinRate'), statPF = document.getElementById('statPF'),
           statAvgWin = document.getElementById('statAvgWin'), statAvgLoss = document.getElementById('statAvgLoss'),
@@ -205,8 +206,7 @@ export function executeReset() {
     State.capitalTouched = false;
     State.saveState();
     Trade.refreshCapitalUI();
-    renderHistory();
-    renderStats();
+    if (window.renderHistory) window.renderHistory();      // pagina Risultati
     Calculator.renderBreakEven();
     Trade.renderActiveTrades();
     if (window.refreshMarkers) window.refreshMarkers();
@@ -227,8 +227,7 @@ export function confirmDelete() {
             State.simState.freeBalance = State.simState.initialAccountBalance + total - locked;
             State.saveState();
             Trade.refreshCapitalUI();
-            renderHistory();
-            renderStats();
+            if (window.renderHistory) window.renderHistory();
             Calculator.renderBreakEven();
         }
         closeModal();
