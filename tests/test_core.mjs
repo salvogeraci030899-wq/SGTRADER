@@ -34,6 +34,13 @@ test('comandi: chiave obbligatoria', async () => {
     r = await handle('POST', '/api/trigger', {}, {}, { GH_TOKEN: 't' }, fakeFetch);
     assert.equal(r.status, 200);
     assert.equal(calls.length, 1);
+    // con APP_SECRET: avvio del bot e IA aperti all'app (origine), chiusi a chi non ha né origine né chiave
+    r = await handle('POST', '/api/trigger', {}, { origin: 'https://salvogeraci030899-wq.github.io' }, env, fakeFetch);
+    assert.equal(r.status, 200);
+    r = await handle('POST', '/api/trigger', {}, { origin: 'https://evil.example' }, env, fakeFetch);
+    assert.equal(r.status, 401);
+    r = await handle('POST', '/api/command', { type: 'emergency' }, { origin: 'https://salvogeraci030899-wq.github.io' }, env, fakeFetch);
+    assert.equal(r.status, 401);                                                                  // i comandi vogliono sempre la chiave
 });
 
 test('comandi ammessi e workflow giusti', async () => {
@@ -258,6 +265,13 @@ test('worker: CORS solo per le origini ammesse', async () => {
         assert.equal((await ai('https://evil.example')).status, 403);                        // altro sito
         assert.equal((await ai(null, 'segreto-lungo')).status, 200);                         // con la chiave app
         assert.equal((await ai('https://salvogeraci030899-wq.github.io', null, '2.2.2.2')).status, 200);
+        // con APP_SECRET impostata sul server l'IA resta aperta all'app (origine), senza chiave
+        const aiSecret = origin => worker.fetch(new Request('https://w.dev/api/analyze', { method: 'POST', headers: { ...(origin ? { Origin: origin } : {}), 'CF-Connecting-IP': '4.4.4.4', 'Content-Type': 'application/json' }, body: JSON.stringify({ symbol: 'BTCUSDT', timeframe: '1d', type: 'NONE' }) }), env);
+        assert.equal((await aiSecret('https://salvogeraci030899-wq.github.io')).status, 200);
+        assert.equal((await aiSecret('https://evil.example')).status, 403);
+        // e i comandi no: dall'app senza chiave restano rifiutati
+        const cmdNoKey = await worker.fetch(new Request('https://w.dev/api/command', { method: 'POST', headers: { Origin: 'https://salvogeraci030899-wq.github.io', 'Content-Type': 'application/json' }, body: '{"type":"resume"}' }), env);
+        assert.equal(cmdNoKey.status, 401);
         let last = 200;
         for (let i = 0; i < 31; i++) last = (await ai('https://salvogeraci030899-wq.github.io', null, '3.3.3.3')).status;
         assert.equal(last, 429);
