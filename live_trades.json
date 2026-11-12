@@ -151,6 +151,15 @@
    "ok": true,
    "req": "mwd5xr30759h09",
    "msg": "Stop loss di SOL SHORT impostato su Bitget a 83,93 (scatta sul prezzo mark, a mercato)."
+  },
+  {
+   "at": "2026-11-12T06:27:28+00:00",
+   "kind": "manual",
+   "action": "unsl",
+   "symbol": "SOLUSDT",
+   "side": "short",
+   "ok": true,
+   "msg": "Su Bitget SOL SHORT non aveva uno stop loss."
   }
  ],
  "mode": "reale",
@@ -169,16 +178,16 @@
     "side": "short",
     "size": 0.1,
     "entry": 83.026,
-    "mark": 83.184,
-    "upl": -0.0158,
+    "mark": 83.133,
+    "upl": -0.0107,
     "leverage": 3.0,
     "margin": 2.767533,
     "liq": 110.084858,
-    "tp": 81.93,
-    "sl": 83.93
+    "tp": null,
+    "sl": null
    }
   ],
-  "upl": -0.02,
+  "upl": -0.01,
   "spot_usdt": 0.0,
   "spot_coins": [
    {
@@ -214,7 +223,7 @@
     "margin_mode": "isolated"
    }
   ],
-  "checked_at": "2026-11-12T06:25:02+00:00",
+  "checked_at": "2026-11-12T06:27:28+00:00",
   "day": "2026-11-12",
   "day_start_total": 15.98,
   "day_change": 0.03
