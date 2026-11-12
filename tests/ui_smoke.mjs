@@ -1,6 +1,7 @@
 // Prova dell'interfaccia in un browser vero (Playwright, Chromium), su iPhone 15 Safari e iPhone 17 Pro installata:
 // ogni pagina e vista, in Simulato e in Reale, deve caricarsi senza errori JavaScript e senza scroll verticale
-// (regola dell'app: si scorre solo di lato). Dati: i file del repository; Bitget e GitHub simulati.
+// (regola dell'app: si scorre solo di lato); poi le azioni principali: assistente dalla scheda, grafico a
+// schermo intero con l'avviso, conferma prima dell'autonomia Reale. Dati: i file del repository; Bitget e GitHub simulati.
 //   node tests/ui_smoke.mjs                 (serve Playwright: npm i playwright && npx playwright install chromium)
 //   LWC_PATH=...lightweight-charts.js       facoltativo: libreria dei grafici da file invece che da unpkg
 import { spawn } from 'node:child_process';
@@ -33,7 +34,13 @@ try {
     for (const dev of DEVICES) for (const mode of ['sim', 'real']) {
         const ctx = await browser.newContext({ viewport: { width: dev.w, height: dev.h }, isMobile: true, hasTouch: true, colorScheme: 'dark' });
         await ctx.addInitScript(pwa => {
-            try { localStorage.setItem('kronos_gh_token', 'github_pat_' + 'x'.repeat(30)); } catch (e) {}
+            try {
+                localStorage.setItem('kronos_gh_token', 'github_pat_' + 'x'.repeat(30));
+                // un trade simulato aperto, per provare la scheda e l'assistente (in Simulato)
+                localStorage.setItem('kronos_state_v3', JSON.stringify({ initialAccountBalance: 2000, freeBalance: 1800, history: [], activeTrades: [
+                    { id: 'ui1', symbol: 'BTCUSDT', type: 'LONG', entryPrice: 70000, slPrice: 60000, tpPrice: 90000, capitalInvested: 200, margin: 200, size: 0.003,
+                      entryTime: Date.now() - 3600e3, timerSeconds: 86400 * 7, granularity: '1d', market: 'SPOT' }] }));
+            } catch (e) {}
             if (pwa) Object.defineProperty(navigator, 'standalone', { get: () => true });
         }, !!dev.pwa);
         const page = await ctx.newPage();
@@ -68,6 +75,35 @@ try {
             if (r.over < 0) problems.push(`${where}: pagina non trovata`);
             if (r.wide > 1) problems.push(`${where}: più larga dello schermo di ${r.wide}px`);
         }
+        // Azioni principali, come le farebbe una persona
+        const where = `${dev.n}, ${mode === 'real' ? 'Reale' : 'Simulato'}`;
+        const step = async (name, fn) => { try { if (!(await fn())) problems.push(`${where}: ${name}`); } catch (e) { problems.push(`${where}: ${name} (${e.message.split('\n')[0]})`); } };
+        if (mode === 'sim') {
+            await page.evaluate(() => { window.switchTab('trade'); window.setPosView('open'); });
+            await page.waitForTimeout(500);
+            await step('assistente: non si apre dalla scheda', async () => { await page.click('.at-assist'); await page.waitForTimeout(400); return page.evaluate(() => document.getElementById('assistModal').classList.contains('active')); });
+            await step('assistente: la X non chiude', async () => { await page.click('.assist-head [title="Chiudi"]'); await page.waitForTimeout(300); return page.evaluate(() => !document.getElementById('assistModal').classList.contains('active')); });
+        }
+        await page.evaluate(() => window.switchTab('terminal'));
+        await page.waitForTimeout(600);
+        await step('grafico: schermo intero senza tasti avviso e condividi', async () => {
+            await page.click('#btnFullscreen'); await page.waitForTimeout(500);
+            return page.evaluate(() => [...document.querySelectorAll('#mainChartContainer .chart-tool')].filter(b => b.offsetParent !== null).length === 2);
+        });
+        await step('grafico: la finestra dell\'avviso non si apre', async () => {
+            await page.click('#mainChartContainer .chart-tool >> nth=0'); await page.waitForTimeout(300);
+            const on = await page.evaluate(() => document.getElementById('chartAlertModal').classList.contains('active'));
+            await page.evaluate(() => window.closeChartAlert()); await page.click('#mainChartContainer .home-chart-fullscreen'); await page.waitForTimeout(300);
+            return on;
+        });
+        await page.evaluate(() => { window.switchTab('signals'); window.setSignalsView('agent'); });
+        await page.waitForTimeout(800);
+        await step('agente: Reale senza la conferma', async () => {
+            await page.click('#agentSettings .pill-btn:has-text("Reale")'); await page.waitForTimeout(300);
+            const on = await page.evaluate(() => document.getElementById('autoConfirmModal').classList.contains('active'));
+            await page.evaluate(() => window.closeAutoConfirm());
+            return on;
+        });
         for (const e of new Set(errors)) problems.push(`${dev.n}, ${mode}: errore JavaScript: ${e}`);
         console.log(`ok ${dev.n}, ${mode === 'real' ? 'Reale' : 'Simulato'}: ${pages.length} pagine`);
         await ctx.close();
