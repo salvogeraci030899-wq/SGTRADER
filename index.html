@@ -51,41 +51,41 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=134">
-    <meta name="app-version" content="134">
+    <link rel="stylesheet" href="./style.css?v=135">
+    <meta name="app-version" content="135">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=134",
-            "./src/core/commands.js": "./src/core/commands.js?v=134",
-            "./src/core/config.js": "./src/core/config.js?v=134",
-            "./src/core/labEngine.js": "./src/core/labEngine.js?v=134",
-            "./src/core/logger.js": "./src/core/logger.js?v=134",
-            "./src/core/rules.js": "./src/core/rules.js?v=134",
-            "./src/core/state.js": "./src/core/state.js?v=134",
-            "./src/core/theme.js": "./src/core/theme.js?v=134",
-            "./src/main.js": "./src/main.js?v=134",
-            "./src/ui/account.js": "./src/ui/account.js?v=134",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=134",
-            "./src/ui/assistant.js": "./src/ui/assistant.js?v=134",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=134",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=134",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=134",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=134",
-            "./src/ui/history.js": "./src/ui/history.js?v=134",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=134",
-            "./src/ui/home.js": "./src/ui/home.js?v=134",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=134",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=134",
-            "./src/ui/lock.js": "./src/ui/lock.js?v=134",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=134",
-            "./src/ui/orders.js": "./src/ui/orders.js?v=134",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=134",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=134",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=134",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=134",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=134"
+            "./src/core/backup.js": "./src/core/backup.js?v=135",
+            "./src/core/commands.js": "./src/core/commands.js?v=135",
+            "./src/core/config.js": "./src/core/config.js?v=135",
+            "./src/core/labEngine.js": "./src/core/labEngine.js?v=135",
+            "./src/core/logger.js": "./src/core/logger.js?v=135",
+            "./src/core/rules.js": "./src/core/rules.js?v=135",
+            "./src/core/state.js": "./src/core/state.js?v=135",
+            "./src/core/theme.js": "./src/core/theme.js?v=135",
+            "./src/main.js": "./src/main.js?v=135",
+            "./src/ui/account.js": "./src/ui/account.js?v=135",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=135",
+            "./src/ui/assistant.js": "./src/ui/assistant.js?v=135",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=135",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=135",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=135",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=135",
+            "./src/ui/history.js": "./src/ui/history.js?v=135",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=135",
+            "./src/ui/home.js": "./src/ui/home.js?v=135",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=135",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=135",
+            "./src/ui/lock.js": "./src/ui/lock.js?v=135",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=135",
+            "./src/ui/orders.js": "./src/ui/orders.js?v=135",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=135",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=135",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=135",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=135",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=135"
         }
     }
     </script>
@@ -995,15 +995,69 @@
                         <div class="rule-step"><div class="content"><b>"Esecutore BLOCCATO"</b> → apri Bitget e confronta le posizioni con Segnali → Auto. Chiudi a mano ciò che non torna, poi Segnali → Auto → Sblocca automazione.</div></div>
                         <div class="rule-step"><div class="content"><b>Qualcosa va storto con soldi veri</b> → Segnali → Auto → Emergenza: spegne tutte le strategie e chiude le posizioni aperte dall'esecutore. In caso di dubbio chiudi anche direttamente su Bitget.</div></div>
                         <div class="rule-step"><div class="content"><b>"Comando rifiutato" / "GitHub ha rifiutato il token"</b> → il token GitHub è scaduto o revocato: creane uno nuovo (solo SGTRADER, Actions: Read and write) e salvalo in Impostazioni → Altro → Connessioni.</div></div>
-                        <div class="rule-step"><div class="content"><b>L'app mostra un errore di caricamento</b> → ricarica la pagina; controlla la versione in Home, scheda Stato (es. v78). Su Vercel, se il deploy è in limite, usa la versione su GitHub Pages.</div></div>
+                        <div class="rule-step"><div class="content"><b>L'app mostra un errore di caricamento</b> → ricarica la pagina; controlla la versione in Home, scheda Stato (es. v135).</div></div>
                         <div class="rule-step"><div class="content"><b>Non arrivano messaggi Telegram</b> → controlla i segreti TELEGRAM_TOKEN e TELEGRAM_CHAT_ID su GitHub e che il bot su Telegram non sia stato bloccato.</div></div>
                     </div>
                     <div class="rule-card">
                         <div class="rule-card-title default">Manutenzione (tutto gratuito)</div>
                         <div class="rule-step"><div class="content"><b>Ogni giorno</b>: riepilogo su Telegram. Ogni 3 ore: controllo di salute (scrive solo se c'è un problema).</div></div>
-                        <div class="rule-step"><div class="content"><b>Ogni lunedì</b>: aggiornamento dell'archivio futures. Il laboratorio si rilancia da Segnali → Auto quando vuoi.</div></div>
+                        <div class="rule-step"><div class="content"><b>Ogni lunedì</b>: aggiornamento dell'archivio futures. Ogni domenica l'agente rilancia il laboratorio; puoi farlo anche da Segnali → Auto.</div></div>
                         <div class="rule-step"><div class="content"><b>Scadenze</b>: i token GitHub e Cloudflare scadono alla data che hai scelto creandoli: prima di allora creane di nuovi e aggiorna i segreti.</div></div>
                         <div class="rule-step"><div class="content"><b>Soldi veri</b>: solo con una strategia confermata, prima sul conto demo Bitget, poi con un importo piccolo. Non è consulenza finanziaria.</div></div>
+                    </div>
+                </div>
+                <!-- SLIDE: AGENTE -->
+                <div class="info-slide">
+                    <div class="rule-card">
+                        <div class="rule-card-title green">Agente — Lavora per te</div>
+                        <div class="rule-step"><div class="content"><b>Dove:</b> Segnali → Agente. Ogni giorno alle 19:41 (ora italiana) decide; la domenica prima rilancia il laboratorio sui dati nuovi.</div></div>
+                        <div class="rule-step"><div class="content"><b>Spento:</b> osserva e manda il rapporto, non cambia nulla.</div></div>
+                        <div class="rule-step"><div class="content"><b>Simulato:</b> sceglie da solo le strategie su carta (le candidate del laboratorio, massimo 6), spegne quelle che ha messo lui se su carta vanno peggio dello storico, e ti propone il reale.</div></div>
+                        <div class="rule-step"><div class="content"><b>Reale:</b> porta da solo al reale le strategie che hanno superato tutto e le riporta su carta se peggiorano. Lavora con soldi veri solo se è acceso anche l'interruttore degli ordini veri (Account). Tornando a Simulato o Spento, le strategie che aveva portato al reale tornano subito su carta.</div></div>
+                        <div class="rule-step"><div class="content"><b>Avvisi:</b> ogni decisione arriva subito su Telegram; la domenica il rapporto completo, scritto dall'AI a partire dai fatti. In app: stato, impostazioni e cronologia; Rapporto e Avvia ora.</div></div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title blue">Il percorso di una strategia</div>
+                        <div class="rule-step"><div class="content"><b>1. Candidata</b> → il laboratorio la trova migliore del mercato dopo i costi, e regge il controllo sulle prove multiple.</div></div>
+                        <div class="rule-step"><div class="content"><b>2. Su carta</b> → segue i segnali dal vivo senza soldi. Va peggio dello storico? Spenta.</div></div>
+                        <div class="rule-step"><div class="content"><b>3. Prova finale</b> → con almeno 20 trade su carta, guadagno medio positivo e in linea con lo storico, la domenica l'agente la prova sui 12 mesi sigillati. Una volta sola.</div></div>
+                        <div class="rule-step"><div class="content"><b>4. Reale</b> → confermata e buona su carta: proposta (Simulato) o reale (Reale).</div></div>
+                        <div class="rule-step"><div class="content"><b>5. Ritorno su carta</b> → se su carta va peggio dello storico, o se perde dal suo massimo più del limite del profilo.</div></div>
+                        <div class="highlight-box">"Si addestra da solo" vuol dire che ogni settimana rivaluta tutto sui dati nuovi, promuove e retrocede. Non inventa strategie e non cambia i parametri: ogni prova in più aumenta i risultati buoni per caso.</div>
+                    </div>
+                </div>
+                <!-- SLIDE: PROFILI -->
+                <div class="info-slide">
+                    <div class="rule-card">
+                        <div class="rule-card-title yellow">Profili di rischio</div>
+                        <div class="rule-step"><div class="content"><b>Prudente:</b> 0,25% del patrimonio a trade, leva 2x, massimo 2 posizioni, obiettivo +1% e limite −2% al giorno, ogni strategia reale torna su carta oltre −3% dal suo massimo.</div></div>
+                        <div class="rule-step"><div class="content"><b>Bilanciato:</b> 0,5% a trade, leva 3x, massimo 3 posizioni, obiettivo +2% e limite −3% al giorno, strategia su carta oltre −5%.</div></div>
+                        <div class="rule-step"><div class="content"><b>Aggressivo:</b> 1% a trade, leva 5x, massimo 4 posizioni, obiettivo +3% e limite −5% al giorno, strategia su carta oltre −8%.</div></div>
+                        <div class="rule-step"><div class="content"><b>Obiettivo e limite del giorno:</b> raggiunto uno dei due, l'esecutore non apre altro fino a domani. Le posizioni aperte restano con i loro stop. Non garantisce di guadagnare ogni giorno: serve a fermarsi.</div></div>
+                        <div class="rule-step"><div class="content"><b>Capitale:</b> l'agente controlla se il patrimonio basta per le quantità minime di Bitget con il profilo scelto. Se non basta, ogni trade reale verrebbe saltato: te lo dice in Segnali → Agente (riga Capitale) e su Telegram.</div></div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title blue">Stile</div>
+                        <div class="rule-step"><div class="content"><b>Swing:</b> strategie su candele da 1 giorno: pochi trade, tenuti giorni o settimane.</div></div>
+                        <div class="rule-step"><div class="content"><b>Giornaliero:</b> strategie su 4 ore e 1 ora. Oggi nessuna supera i controlli del laboratorio: l'agente resta fermo e lo dice.</div></div>
+                        <div class="rule-step"><div class="content"><b>Misto:</b> tutti i timeframe.</div></div>
+                    </div>
+                </div>
+                <!-- SLIDE: REALE E APP -->
+                <div class="info-slide">
+                    <div class="rule-card">
+                        <div class="rule-card-title green">Ordini a mano e posizioni reali</div>
+                        <div class="rule-step"><div class="content"><b>Trade:</b> in Simulato apre trade simulati; in Reale crea ordini veri su Bitget, futures o spot, con stop e target. Partono solo dopo la tua conferma.</div></div>
+                        <div class="rule-step"><div class="content"><b>Posizioni → Aperte:</b> le posizioni reali con USDT a stop, target e liquidazione. L'icona in alto a destra apre l'Assistente.</div></div>
+                        <div class="rule-step"><div class="content"><b>Posizioni → Ordini:</b> stop e target in attesa su Bitget, avvisi di prezzo e ultimi comandi, ognuno da togliere con ✕. Si scorre di lato o con le frecce.</div></div>
+                        <div class="rule-step"><div class="content"><b>Assistente:</b> scrivi o parla: stop a pareggio, chiudi a +10 USDT, chiudi in perdita/profitto, analisi AI, avvisi. Ogni azione parte solo dopo «Conferma».</div></div>
+                        <div class="rule-step"><div class="content"><b>Avvisi di prezzo:</b> dall'Assistente o dal tasto campanella nei grafici a schermo intero. Un messaggio Telegram, nessun ordine.</div></div>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-card-title default">Sicurezza</div>
+                        <div class="rule-step"><div class="content"><b>Blocco app:</b> codice di 6 cifre e Face ID (Impostazioni → Blocco app).</div></div>
+                        <div class="rule-step"><div class="content"><b>Diario:</b> Simulato e Reale separati, mai mescolati. In Reale: posizioni chiuse su Bitget e vendite spot.</div></div>
+                        <div class="rule-step"><div class="content"><b>Emergenza:</b> Segnali → Auto → Emergenza spegne tutto e chiude le posizioni aperte dall'esecutore.</div></div>
                     </div>
                 </div>
                 <!-- SLIDE 13 -->
@@ -1176,6 +1230,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=134"></script>
+<script type="module" src="./src/main.js?v=135"></script>
 </body>
 </html>
