@@ -95,10 +95,5 @@ jobs:
           git add "$FILE"
           git commit -m "Risultati Backtest ${SYMBOL} ${TIMEFRAME}" || { echo "Nessuna modifica da salvare"; exit 0; }
           # Nel frattempo il bot può aver fatto push: riallineo e riprovo
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
-            echo "Push fallito (tentativo $i), riprovo..."
-            sleep $((i * 5))
-          done
-          echo "Impossibile fare push dei risultati."
-          exit 1
+          # riallineamento sicuro se un altro workflow ha salvato nel frattempo (conflitti risolti, JSON controllati)
+          bash tools/push_state.sh
