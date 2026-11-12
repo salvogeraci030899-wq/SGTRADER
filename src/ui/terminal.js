@@ -1,6 +1,7 @@
 import { State } from '../core/state.js';
 import { CONFIG } from '../core/config.js';
 import { Logger } from '../core/logger.js';
+import { journalTrades, isRealMode } from './history.js';
 import { $, SYM, fetchT, apiPost, fmtUsd, cleanData, analyzeTrend, buildRiskData, calcEMA, fmtDateTime, parseBitgetCandles, fetchData } from '../utils/helpers.js';
 import { createChart, setCandles, setForecast, setBands, setMarkers, setPriceLines } from './chart.js';
 
@@ -348,11 +349,11 @@ export function refreshMarkers() {
     if (!chartHandle) return;
     const out = [];
     const add = (ts, m) => { const t = snap(ts); if (t !== null) out.push(Object.assign({ time: t }, m)); };
-    State.simState.history.filter(h => h.symbol === State.currentAsset).forEach(h => {
+    journalTrades().filter(h => h.symbol === State.currentAsset).forEach(h => {
         if (h.entryTime) add(h.entryTime, { position: 'belowBar', color: '#30d158', shape: 'arrowUp', text: 'In' });
         if (h.exitTime) add(h.exitTime, { position: 'aboveBar', color: '#ff453a', shape: 'circle', text: 'Out' });
     });
-    State.simState.activeTrades.filter(t => t.symbol === State.currentAsset).forEach(t => {
+    if (!isRealMode()) State.simState.activeTrades.filter(t => t.symbol === State.currentAsset).forEach(t => {
         if (t.entryTime) add(t.entryTime, { position: 'belowBar', color: '#0a84ff', shape: 'arrowUp', text: 'Open' });
     });
     out.sort((a, b) => a.time - b.time);

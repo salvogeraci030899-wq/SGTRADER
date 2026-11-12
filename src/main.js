@@ -109,6 +109,7 @@ window.executeTradeOpen = TradeUI.executeTradeOpen;
 // Journal
 window.renderHistory = JournalUI.renderHistory;
 window.renderStats = JournalUI.renderStats;
+window.renderBreakEven = CalculatorUI.renderBreakEven;
 window.exportCSV = JournalUI.exportCSV;
 window.confirmReset = JournalUI.confirmReset;
 window.closeResetModal = JournalUI.closeResetModal;

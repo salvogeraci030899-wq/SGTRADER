@@ -352,6 +352,18 @@ def test_versamenti_non_sono_guadagni():
                 os.environ[k] = v
 
 
+def test_storico_posizioni_chiuse():
+    """Formato dello storico di Bitget (campi verificati con la lettura reale): fee in valore assoluto, netto di Bitget."""
+    c = bg.BitgetClient("k", "s", "p", demo=False)
+    rows = {"list": [{"positionId": "123", "symbol": "SOLUSDT", "holdSide": "short", "openAvgPrice": "83.724", "closeAvgPrice": "83.16",
+                      "openTotalPos": "0.1", "closeTotalPos": "0.1", "pnl": "0.0564", "openFee": "-0.00502", "closeFee": "-0.00499",
+                      "totalFunding": "0", "netProfit": "0.04638696", "ctime": "1794447000000", "utime": "1794449000000", "marginMode": "isolated"}]}
+    c._request = lambda method, path, params=None, body=None: rows
+    h = c.closed_positions(5)[0]
+    assert h["id"] == "123" and h["side"] == "short" and h["size"] == 0.1 and h["entry"] == 83.724 and h["exit"] == 83.16
+    assert abs(h["fees"] - 0.01001) < 1e-9 and h["net"] == 0.04638696 and h["opened_at"] == 1794447000000 and h["closed_at"] == 1794449000000
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in tests:
