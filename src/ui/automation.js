@@ -674,7 +674,9 @@ function capitalRow() {
     const text = ok.length === Object.keys(c.symbols).length ? `${fmtIt(c.equity, 2)} USDT · basta per tutte le coin`
         : ok.length ? `${fmtIt(c.equity, 2)} USDT · solo ${ok.join(', ')}`
         : `${fmtIt(c.equity, 2)} USDT · troppo poco: servono ~${fmtIt(least[1].needed, 0)} (${least[0].replace('USDT', '')})`;
-    return `<div class="auto-row"><span>Capitale</span><b class="${ok.length ? '' : 'text-warning'}" title="Rischio ${c.risk_pct}% a trade, stop tipico ${c.stop_pct}%">${escapeHtml(text)}</b></div>`;
+    const f = c.paper_feasible || [0, 0];
+    const feas = f[1] ? `<div class="auto-row auto-sub"><span></span><b>della carta il conto avrebbe aperto ${f[0]} trade su ${f[1]}</b></div>` : '';
+    return `<div class="auto-row"><span>Capitale</span><b class="${ok.length ? '' : 'text-warning'}" title="Rischio ${c.risk_pct}% a trade, stop tipico ${c.stop_pct}%">${escapeHtml(text)}</b></div>${feas}`;
 }
 
 export function setAgent(field, value) {

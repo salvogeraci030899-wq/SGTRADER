@@ -222,6 +222,13 @@ def test_capitale_troppo_piccolo():
     assert cap["symbols"]["SOLUSDT"]["needed"] == 160.0 and not any(v["ok"] for v in cap["symbols"].values())
     f = agent.capital_facts(cap)
     assert len(f) == 1 and "troppo poco" in f[0] and "~100 USDT (BTC)" in f[0], f
+    # trade su carta: SOL con stop al 5% (16 USDT: posizione 1,6 USDT < 0,1 SOL) e BTC con stop all'1% (1000 USDT: sì)
+    paper = {"strategies": {A: {"trades": [{"symbol": "SOLUSDT", "t": 1, "entry": 160.0, "stop": 152.0}, {"symbol": "BTCUSDT", "t": 2, "entry": 100000.0, "stop": 99000.0}]}}}
+    assert agent.capital_check(cfg, live, paper, price_fn=prices.get, specs_fn=specs.get)["paper_feasible"] == [0, 2]
+    assert "ne avrebbe aperti 0" in agent.capital_facts(agent.capital_check(cfg, live, paper, price_fn=prices.get, specs_fn=specs.get))[0]
+    big = {"account": {"connected": True, "equity": 1000.0}}
+    c2 = agent.capital_check(cfg, big, paper, price_fn=prices.get, specs_fn=specs.get)
+    assert c2["paper_feasible"] == [2, 2]                     # 1000 USDT: SOL 0,416 e BTC 0,005 sopra i minimi
     live["account"]["equity"] = 1000.0
     assert agent.capital_facts(agent.capital_check(cfg, live, {"strategies": {}}, price_fn=prices.get, specs_fn=specs.get)) == []
     assert agent.capital_check(cfg, {"account": {"connected": False}}, {}) is None
