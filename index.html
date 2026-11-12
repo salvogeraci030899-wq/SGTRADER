@@ -51,44 +51,44 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=148">
-    <meta name="app-version" content="148">
+    <link rel="stylesheet" href="./style.css?v=149">
+    <meta name="app-version" content="149">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=148",
-            "./src/core/commands.js": "./src/core/commands.js?v=148",
-            "./src/core/config.js": "./src/core/config.js?v=148",
-            "./src/core/labEngine.js": "./src/core/labEngine.js?v=148",
-            "./src/core/logger.js": "./src/core/logger.js?v=148",
-            "./src/core/rules.js": "./src/core/rules.js?v=148",
-            "./src/core/state.js": "./src/core/state.js?v=148",
-            "./src/core/telegram.js": "./src/core/telegram.js?v=148",
-            "./src/core/theme.js": "./src/core/theme.js?v=148",
-            "./src/main.js": "./src/main.js?v=148",
-            "./src/ui/account.js": "./src/ui/account.js?v=148",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=148",
-            "./src/ui/assistant.js": "./src/ui/assistant.js?v=148",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=148",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=148",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=148",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=148",
-            "./src/ui/history.js": "./src/ui/history.js?v=148",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=148",
-            "./src/ui/home.js": "./src/ui/home.js?v=148",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=148",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=148",
-            "./src/ui/lock.js": "./src/ui/lock.js?v=148",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=148",
-            "./src/ui/market.js": "./src/ui/market.js?v=148",
-            "./src/ui/orders.js": "./src/ui/orders.js?v=148",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=148",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=148",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=148",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=148",
-            "./src/ui/windows.js": "./src/ui/windows.js?v=148",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=148"
+            "./src/core/backup.js": "./src/core/backup.js?v=149",
+            "./src/core/commands.js": "./src/core/commands.js?v=149",
+            "./src/core/config.js": "./src/core/config.js?v=149",
+            "./src/core/labEngine.js": "./src/core/labEngine.js?v=149",
+            "./src/core/logger.js": "./src/core/logger.js?v=149",
+            "./src/core/rules.js": "./src/core/rules.js?v=149",
+            "./src/core/state.js": "./src/core/state.js?v=149",
+            "./src/core/telegram.js": "./src/core/telegram.js?v=149",
+            "./src/core/theme.js": "./src/core/theme.js?v=149",
+            "./src/main.js": "./src/main.js?v=149",
+            "./src/ui/account.js": "./src/ui/account.js?v=149",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=149",
+            "./src/ui/assistant.js": "./src/ui/assistant.js?v=149",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=149",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=149",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=149",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=149",
+            "./src/ui/history.js": "./src/ui/history.js?v=149",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=149",
+            "./src/ui/home.js": "./src/ui/home.js?v=149",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=149",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=149",
+            "./src/ui/lock.js": "./src/ui/lock.js?v=149",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=149",
+            "./src/ui/market.js": "./src/ui/market.js?v=149",
+            "./src/ui/orders.js": "./src/ui/orders.js?v=149",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=149",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=149",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=149",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=149",
+            "./src/ui/windows.js": "./src/ui/windows.js?v=149",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=149"
         }
     }
     </script>
@@ -210,12 +210,6 @@
                         <button type="button" data-mode="on" onclick="setTradingMode('on')">Reale</button>
                     </div>
                     <div class="acc-explain" id="accModeExplain">—</div>
-                </div>
-                <div class="card-box acc-card">
-                    <div class="acc-head"><span>Limiti di rischio</span><button type="button" class="btn-link-secondary" onclick="openAutoRisk()">Modifica</button></div>
-                    <div class="acc-line"><span>Rischio per trade</span><b id="accRiskTrade">—</b></div>
-                    <div class="acc-line"><span>Leva massima · posizioni</span><b id="accRiskLev">—</b></div>
-                    <div class="acc-line"><span>Perdita massima al giorno</span><b id="accRiskDay">—</b></div>
                 </div>
                 <div class="card-box acc-card">
                     <div class="acc-head"><span>Conto simulato dell'app</span><button type="button" class="btn-link-secondary" onclick="openCapitalModal()">Deposita / preleva</button></div>
@@ -586,17 +580,43 @@
         </section>
 
         <!-- ==================== BACKTEST ==================== -->
-        <section class="page" id="page-test">
+
+        <!-- ==================== SEGNALI ==================== -->
+        <!-- ==================== AGENTE: lavora per te (ex Segnali → Auto/Agente e Backtest) ==================== -->
+        <section class="page" id="page-signals">
             <div class="header-row">
                 <div class="header-title">
-                    <h1>Backtest</h1>
-                    <p id="testSubtitle">3000 candele · train 70 / test 30</p>
+                    <h1>Agente</h1>
+                    <p id="signalsSubtitle">Lavora per te</p>
                 </div>
-                <div class="market-toggle">
-                    <button id="btn-view-bt" onclick="setTestView('bt')" class="active">Prova</button>
-                    <button id="btn-view-lab" onclick="setTestView('lab')">Lab</button>
-                </div>
+                <div class="header-actions"></div>
             </div>
+            <div class="page-tabs" id="agentTabs"><button type="button" id="agent-tab-agent" class="active" onclick="setSignalsView('agent')">Panoramica</button><button type="button" id="agent-tab-auto" onclick="setSignalsView('auto')">Strategie</button><button type="button" id="agent-tab-lab" onclick="setSignalsView('lab')">Laboratorio</button><button type="button" id="agent-tab-risk" onclick="setSignalsView('risk')">Rischio</button></div>
+            <input type="hidden" id="signalsView" value="agent">
+            <!-- Panoramica: stato, proposta, autonomia, decisioni e rendimento della carta -->
+            <div id="agentView" class="signals-view">
+                <div class="card-box auto-status" id="agentStatus"></div>
+                <div class="agent-settings" id="agentSettings"></div>
+                <div class="section-title"><span class="agent-tabs"><button type="button" id="agentTabLog" class="active" onclick="setAgentTab('log')">Attività <small class="auto-count" id="agentLogCount"></small></button><button type="button" id="agentTabPerf" onclick="setAgentTab('perf')">Rendimento</button></span>
+                    <span class="section-actions"><button class="btn-link-secondary" onclick="openAgent()">Rapporto</button><button class="btn-link-secondary" onclick="runAgent()">Avvia ora</button></span></div>
+                <div class="agent-log" id="agentLog"></div>
+                <div class="agent-perf" id="agentPerf" style="display:none"></div>
+                <div class="bt-note" id="agentNote"></div>
+            </div>
+            <!-- Strategie: stile e strategie accese (Spenta / Su carta / Reale) -->
+            <div id="autoView" class="signals-view" style="display:none;">
+                <div class="agent-settings" id="agentStyle"></div>
+                <div class="section-title">
+                    <span>Strategie <small class="auto-count" id="autoCount"></small></span>
+                    <span class="section-actions"><button class="btn-link-secondary" onclick="openAutoAdd()">Aggiungi</button></span>
+                </div>
+                <div class="auto-list" id="autoList"></div>
+                <div class="bt-note" id="autoNote"></div>
+            </div>
+            <!-- Laboratorio: classifica del laboratorio e prova di una strategia (ex Backtest) -->
+            <div id="labPage" class="signals-view" style="display:none;">
+                <div class="option-toggle compact lab-switch"><button type="button" class="pill-btn" id="btn-view-lab" onclick="setTestView('lab')">Classifica</button><button type="button" class="pill-btn active" id="btn-view-bt" onclick="setTestView('bt')">Prova una strategia</button></div>
+                <span id="testSubtitle" hidden></span>
             <input type="hidden" id="testView" value="bt">
             <div id="btView" class="test-view">
             <div class="card-box bt-controls">
@@ -649,45 +669,17 @@
                 </div>
                 <div id="labResults" class="bt-results"></div>
             </div>
-        </section>
-
-        <!-- ==================== SEGNALI ==================== -->
-        <section class="page" id="page-signals">
-            <div class="header-row">
-                <div class="header-title">
-                    <h1>Segnali</h1>
-                    <p id="signalsSubtitle">Strategie automatiche</p>
-                </div>
-                <div class="market-toggle">
-                    <button id="btn-view-auto" onclick="setSignalsView('auto')" class="active">Auto</button>
-                    <button id="btn-view-agent" onclick="setSignalsView('agent')">Agente</button>
-                </div>
-            </div>
-            <input type="hidden" id="signalsView" value="auto">
-            <div id="autoView" class="signals-view">
-                <div class="card-box auto-status" id="autoStatus"></div>
-                <div class="section-title">
-                    <span>Strategie <small class="auto-count" id="autoCount"></small></span>
-                    <span class="section-actions"><button class="btn-link-secondary" onclick="openAutoRisk()">Rischio</button><button class="btn-link-secondary" onclick="openAutoAdd()">Aggiungi</button></span>
-                </div>
-                <div class="auto-list" id="autoList"></div>
-                <div class="section-title"><span>Comandi</span></div>
-                <div class="signal-actions">
+                <div class="signal-actions lab-actions">
                     <button class="btn-generic" onclick="runAutoJob('run_lab')">Rilancia laboratorio</button>
                     <button class="btn-generic" onclick="runAutoJob('run_validation')">Rilancia Kronos</button>
                 </div>
-                <button class="btn-generic auto-emergency" id="autoEmergencyBtn" onclick="toggleEmergency()">Emergenza: spegni tutto</button>
-                <div class="bt-note" id="autoNote"></div>
             </div>
-            <!-- Agente gestore (agent.py): stato, impostazioni, cronologia. Niente scroll verticale: la cronologia scorre di lato -->
-            <div id="agentView" class="signals-view" style="display:none;">
-                <div class="card-box auto-status" id="agentStatus"></div>
-                <div class="agent-settings" id="agentSettings"></div>
-                <div class="section-title"><span class="agent-tabs"><button type="button" id="agentTabLog" class="active" onclick="setAgentTab('log')">Attività <small class="auto-count" id="agentLogCount"></small></button><button type="button" id="agentTabPerf" onclick="setAgentTab('perf')">Rendimento</button></span>
-                    <span class="section-actions"><button class="btn-link-secondary" onclick="openAgent()">Rapporto</button><button class="btn-link-secondary" onclick="runAgent()">Avvia ora</button></span></div>
-                <div class="agent-log" id="agentLog"></div>
-                <div class="agent-perf" id="agentPerf" style="display:none"></div>
-                <div class="bt-note" id="agentNote"></div>
+            <!-- Rischio e reale: profilo, limiti, ordini veri, emergenza -->
+            <div id="riskView" class="signals-view" style="display:none;">
+                <div class="agent-settings" id="agentProfile"></div>
+                <div class="card-box auto-status" id="autoStatus"></div>
+                <button class="btn-generic risk-edit" onclick="openAutoRisk()">Modifica i limiti uno per uno</button>
+                <button class="btn-generic auto-emergency" id="autoEmergencyBtn" onclick="toggleEmergency()">Emergenza: spegni tutto</button>
             </div>
         </section>
 
@@ -1148,16 +1140,12 @@
             </div>
             <div class="nav-page">
                 <div class="nav-item" onclick="switchTab('signals')" id="nav-signals">
-                    <svg viewBox="0 0 24 24"><path d="M4.93 4.93a10 10 0 0 1 14.14 0"/><path d="M7.76 7.76a6 6 0 0 1 8.48 0"/><path d="M10.59 10.59a2 2 0 0 1 2.82 0"/><circle cx="12" cy="18" r="1" fill="currentColor"/></svg>
-                    Segnali
+                    <svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 7V3"/><circle cx="9" cy="13" r="1.2"/><circle cx="15" cy="13" r="1.2"/><path d="M2 12v3M22 12v3"/></svg>
+                    Agente
                 </div>
                 <div class="nav-item" onclick="switchTab('journal')" id="nav-journal">
                     <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
                     Diario
-                </div>
-                <div class="nav-item" onclick="switchTab('test')" id="nav-test">
-                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
-                    Backtest
                 </div>
                 <div class="nav-item" onclick="switchTab('settings')" id="nav-settings">
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -1251,6 +1239,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=148"></script>
+<script type="module" src="./src/main.js?v=149"></script>
 </body>
 </html>

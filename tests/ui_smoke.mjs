@@ -16,7 +16,7 @@ const { chromium } = require('playwright');
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = 8800 + Math.floor(Math.random() * 100);
 const DEVICES = [{ n: 'iPhone 15 Safari', w: 393, h: 659 }, { n: 'iPhone 17 Pro app', w: 402, h: 874, pwa: true }];
-const VIEWS = { terminal: [['setMarketView', 'chart'], ['setMarketView', 'sig'], ['setMarketView', 'alerts']], trade: [['setPosView', 'open'], ['setPosView', 'orders']], signals: [['setSignalsView', 'auto'], ['setSignalsView', 'agent']], test: [['setTestView', 'bt'], ['setTestView', 'lab']] };
+const VIEWS = { terminal: [['setMarketView', 'chart'], ['setMarketView', 'sig'], ['setMarketView', 'alerts']], trade: [['setPosView', 'open'], ['setPosView', 'orders']], signals: [['setSignalsView', 'agent'], ['setSignalsView', 'auto'], ['setSignalsView', 'lab'], ['setTestView', 'bt'], ['setSignalsView', 'risk']] };
 
 const now = Date.now();
 const candles = (n = 200) => Array.from({ length: n }, (_, i) => {
@@ -64,6 +64,9 @@ try {
         await page.goto(`http://127.0.0.1:${PORT}/index.html`);
         await page.waitForTimeout(3500);
         const pages = await page.evaluate(() => [...document.querySelectorAll('section.page')].map(s => s.id.replace('page-', '')));
+        // identificativi doppi: il codice troverebbe l'elemento sbagliato
+        const dup = await page.evaluate(() => { const c = {}; document.querySelectorAll('[id]').forEach(e => { c[e.id] = (c[e.id] || 0) + 1; }); return Object.keys(c).filter(k => c[k] > 1); });
+        if (dup.length) problems.push(`${dev.n}, ${mode}: identificativi doppi: ${dup.join(', ')}`);
         for (const p of pages) for (const v of (VIEWS[p] || [[null]])) {
             await page.evaluate(t => window.switchTab(t), p);
             await page.waitForTimeout(400);

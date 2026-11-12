@@ -107,7 +107,7 @@ main {
 #page-journal.active { padding-bottom: calc(10px + var(--fit-extra-bottom-journal, 0px)); overflow-y: var(--fit-overflow-journal, hidden); }
 #page-journal.active > *:not(.header-row) { zoom: var(--fit-zoom-journal, 1); }
 #page-signals.active { padding-bottom: calc(10px + var(--fit-extra-bottom-signals, 0px)); overflow-y: var(--fit-overflow-signals, hidden); }
-#page-signals.active > *:not(.header-row) { zoom: var(--fit-zoom-signals, 1); }
+#page-signals.active > *:not(.header-row):not(.page-tabs) { zoom: var(--fit-zoom-signals, 1); }
 #page-test.active { padding-bottom: calc(10px + var(--fit-extra-bottom-test, 0px)); overflow-y: var(--fit-overflow-test, hidden); }
 #page-test.active > *:not(.header-row) { zoom: var(--fit-zoom-test, 1); }
 #page-account.active { padding-bottom: calc(10px + var(--fit-extra-bottom-account, 0px)); overflow-y: var(--fit-overflow-account, hidden); }
@@ -1220,3 +1220,15 @@ html.app-locked .lock-screen, .lock-screen.active { display: flex; }
 .mkt-new-alert { flex-shrink: 0; min-height: 48px; border: none; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font: 700 15px var(--font); margin-top: 10px; }
 .ca-coins { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
 .ca-coins .pill-btn { min-height: 38px; }
+
+/* Pagina Agente */
+.lab-switch { margin-bottom: 8px; }
+.lab-switch .pill-btn { min-height: 36px; font-size: 12px; }
+.lab-actions { margin-top: 8px; flex-shrink: 0; }
+.risk-edit { margin: 8px 0; flex-shrink: 0; }
+#riskView .auto-emergency { margin-top: auto; }
+.agent-hint-1 { grid-template-columns: 1fr; margin-bottom: 8px; }
+.agent-prop-inline { display: flex; align-items: center; gap: 10px; border: 1px solid var(--warning); background: var(--field); border-radius: 12px; padding: 8px 10px; margin-top: 6px; }
+.agent-prop-inline div { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.agent-prop-inline small { color: var(--text-secondary); font-size: 11px; }
+.agent-prop-inline button { background: var(--warning); color: #000; border: none; border-radius: 10px; font: 800 12px var(--font); padding: 8px 12px; }
