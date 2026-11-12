@@ -149,8 +149,8 @@
     "side": "short",
     "size": 0.1,
     "entry": 83.026,
-    "mark": 82.973,
-    "upl": 0.0053,
+    "mark": 83.005,
+    "upl": 0.0021,
     "leverage": 3.0,
     "margin": 2.767533,
     "liq": 110.084858,
@@ -158,7 +158,7 @@
     "sl": null
    }
   ],
-  "upl": 0.01,
+  "upl": 0.0,
   "spot_usdt": 0.0,
   "spot_coins": [
    {
@@ -194,7 +194,7 @@
     "margin_mode": "isolated"
    }
   ],
-  "checked_at": "2026-11-12T06:07:43+00:00",
+  "checked_at": "2026-11-12T06:18:28+00:00",
   "day": "2026-11-12",
   "day_start_total": 15.98,
   "day_change": 0.05
