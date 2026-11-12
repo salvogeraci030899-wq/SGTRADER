@@ -593,7 +593,75 @@ export function renderAgentView() {
     $('agentLog').innerHTML = log.length
         ? log.map(e => { const [icon, what, cls] = AG_KIND[e.kind] || ['•', e.kind, '']; return `<div class="agent-ev"><div class="agent-ev-head"><b class="${cls}">${icon} ${what}</b><small>${escapeHtml(day(e.at))}</small></div><b>${escapeHtml(label(e.key || ''))}</b><small>${escapeHtml(e.why || '')}</small></div>`; }).join('')
         : '<div class="empty-hint">Ancora nessuna decisione. L\'agente decide ogni giorno alle 19:41 (ora italiana); la domenica rilancia anche il laboratorio.</div>';
+    renderAgentPerf();
     $('agentNote').textContent = 'Ogni cambio arriva su Telegram. Il reale dell\'agente richiede autonomia Reale e interruttore degli ordini veri acceso (Account). Emergenza: Auto → Emergenza.';
+}
+
+// --- Rendimento su carta: tutte le strategie, in % del patrimonio con il rischio per trade attuale ---
+// Ogni trade chiuso vale R = netto / distanza dello stop (quante volte il rischio); in patrimonio R x rischio %.
+// È quello che avrebbe fatto il conto vero seguendo la carta con il profilo di oggi (stessa regola dell'esecutore).
+export function paperPerformance(led, riskPct) {
+    const trades = [];
+    for (const [key, e] of Object.entries((led && led.strategies) || {})) {
+        for (const t of (e.trades || [])) {
+            if (t.open || t.net == null || !t.entry || !t.stop) continue;
+            const stopPct = Math.abs(t.entry - t.stop) / t.entry * 100;
+            if (stopPct > 0) trades.push({ key, t: t.t_exit || t.t, r: t.net / stopPct });
+        }
+    }
+    trades.sort((a, b) => a.t - b.t);
+    let eq = 0, peak = 0, dd = 0, wins = 0;
+    const points = [[trades.length ? trades[0].t - 1 : 0, 0]];
+    for (const x of trades) {
+        eq += x.r * riskPct;
+        peak = Math.max(peak, eq); dd = Math.max(dd, peak - eq);
+        if (x.r > 0) wins++;
+        points.push([x.t, eq]);
+    }
+    return { n: trades.length, ret: eq, maxdd: dd, win: trades.length ? wins / trades.length * 100 : null, points };
+}
+
+function sparkline(points) {
+    const W = 300, H = 90, P = 4;
+    const xs = points.map(p => p[0]), ys = points.map(p => p[1]);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(0, ...ys), y1 = Math.max(0, ...ys);
+    const X = x => P + (x1 > x0 ? (x - x0) / (x1 - x0) : 1) * (W - 2 * P), Y = y => H - P - (y1 > y0 ? (y - y0) / (y1 - y0) : 0.5) * (H - 2 * P);
+    const line = points.map(p => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(' ');
+    const up = ys[ys.length - 1] >= 0;
+    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" class="agent-spark" role="img" aria-label="Andamento su carta">
+        <line x1="0" x2="${W}" y1="${Y(0).toFixed(1)}" y2="${Y(0).toFixed(1)}" class="zero"/>
+        <polyline points="${line}" class="${up ? 'up' : 'down'}"/></svg>`;
+}
+
+let agentTab = 'log';
+export function setAgentTab(tab) {
+    agentTab = tab === 'perf' ? 'perf' : 'log';
+    $('agentTabLog').classList.toggle('active', agentTab === 'log');
+    $('agentTabPerf').classList.toggle('active', agentTab === 'perf');
+    $('agentLog').style.display = agentTab === 'log' ? '' : 'none';
+    $('agentPerf').style.display = agentTab === 'perf' ? '' : 'none';
+    renderAgentPerf();
+}
+
+function renderAgentPerf() {
+    const box = $('agentPerf');
+    if (!box || agentTab !== 'perf') return;
+    const risk = riskCfg();
+    const p = paperPerformance(ledger, Number(risk.risk_per_trade_pct) || 0.5);
+    const since = day(ledger && ledger.started) || day(cfg && cfg.paper_start);
+    if (!p.n) {
+        box.innerHTML = `<div class="empty-hint">Nessun trade chiuso su carta finora (dal ${escapeHtml(since)}). Le strategie a 1 giorno fanno pochi trade: servono settimane.</div>`;
+        return;
+    }
+    const cls = v => (v > 0 ? 'text-accent' : v < 0 ? 'text-danger' : '');
+    box.innerHTML = `<div class="agent-perf-nums">
+            <div><small>Rendimento</small><b class="${cls(p.ret)}">${pct(p.ret)}</b></div>
+            <div><small>Trade</small><b>${p.n}</b></div>
+            <div><small>Vincenti</small><b>${fmtIt(p.win, 0)}%</b></div>
+            <div><small>Max calo</small><b class="${p.maxdd ? 'text-danger' : ''}">−${fmtIt(p.maxdd, 2)}%</b></div>
+        </div>
+        ${sparkline(p.points)}
+        <small class="agent-perf-note">Su carta dal ${escapeHtml(since)}, tutte le strategie, in % del patrimonio con ${fmtIt(risk.risk_per_trade_pct, 2)}% di rischio a trade. Costi compresi. Simulato: non è denaro vero.</small>`;
 }
 
 // Capitale rispetto ai minimi di Bitget (calcolato dall'agente con il profilo attuale)
