@@ -364,6 +364,25 @@ def test_storico_posizioni_chiuse():
     assert abs(h["fees"] - 0.01001) < 1e-9 and h["net"] == 0.04638696 and h["opened_at"] == 1794447000000 and h["closed_at"] == 1794449000000
 
 
+def test_avviso_posizione_chiusa():
+    """Telegram per ogni posizione reale chiusa su Bitget: una volta sola, solo dal giro del bot, mai alla prima lettura."""
+    st = {}
+    now = datetime(2026, 11, 12, 2, 0, tzinfo=timezone.utc)
+    ms = now.timestamp() * 1000
+    h1 = {"id": "1", "symbol": "SOLUSDT", "side": "short", "size": 0.1, "entry": 83.724, "exit": 83.16, "pnl": 0.0564, "fees": 0.01, "funding": 0, "net": 0.0464, "closed_at": ms - 3600e3}
+    acc = {"connected": True, "demo": False, "history": [h1]}
+    msgs = []
+    assert ex._notify_closed(st, acc, msgs.append, now) and msgs == [] and st["closed_notified"] == ["1"]       # prima lettura: nessun messaggio
+    h2 = dict(h1, id="2", side="long", entry=84.0, exit=83.0, pnl=-0.1, net=-0.11, closed_at=ms - 60e3)
+    old = dict(h1, id="0", closed_at=ms - 3 * 86400e3)
+    acc = {"connected": True, "demo": False, "history": [h2, h1, old]}
+    assert ex._notify_closed(st, acc, msgs.append, now)
+    assert len(msgs) == 1 and msgs[0].startswith("❌ POSIZIONE CHIUSA · Bitget reale") and "SOL LONG 0,1: entrata 84 → uscita 83" in msgs[0]
+    assert "Netto -0,11 USDT" in msgs[0] and "_" not in msgs[0] and "*" not in msgs[0]                     # la chiusura di 3 giorni fa: niente
+    assert not ex._notify_closed(st, acc, msgs.append, now) and len(msgs) == 1                             # già avvisata
+    assert not ex._notify_closed(st, {"connected": True, "history": [dict(h1, id="9")]}, None, now)        # rilettura dall'app: niente
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in tests:

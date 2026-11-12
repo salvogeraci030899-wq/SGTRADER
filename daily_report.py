@@ -103,6 +103,13 @@ def build(frames, now, paths=None):
         if acc.get("positions"):
             txt += f" (PnL aperto {_it(acc.get('upl', 0), sign=True)})"
         lines.append(txt)
+        # posizioni reali chiuse nelle ultime 24 ore (storico di Bitget)
+        since = now.timestamp() * 1000 - 24 * 3600e3
+        closed = [h for h in acc.get("history") or [] if (h.get("closed_at") or 0) >= since]
+        if closed:
+            net = sum((h.get("net") if h.get("net") is not None else 0) for h in closed)
+            wins = sum(1 for h in closed if (h.get("net") or 0) > 0)
+            lines.append(f"Trade reali chiusi nelle ultime 24 ore: {len(closed)} ({wins} in utile), netto {_it(net, sign=True)} USDT")
     elif acc.get("reason") and acc.get("reason") != "chiavi non impostate":
         lines.append(f"⚠️ Bitget: lettura del conto non riuscita ({acc['reason'][:80]}).")
     if live:

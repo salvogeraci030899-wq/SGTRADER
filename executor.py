@@ -366,10 +366,54 @@ def account_snapshot(state_path=STATE_PATH, client=None, now=None, notify=None):
     if notify and keys and previous.get("connected") and not account["connected"]:
         notify(f"⚠️ Bitget non risponde alla lettura del conto: {account.get('reason')}. "
                "Se la chiave è scaduta, creane una nuova e aggiorna i segreti BITGET_*.")
-    if account != previous:
+    changed = _notify_closed(state, account, notify, now or datetime.now(timezone.utc))
+    if account != previous or changed:
         state["account"] = account
         _save(state, state_path)
     return account
+
+
+def _num_it(v, d=2, sign=False):
+    s = f"{abs(v):,.{d}f}".replace(",", "§").replace(".", ",").replace("§", ".")
+    return ("+" if v > 0 and sign else "-" if v < 0 else "") + s
+
+
+def _price_it(v):
+    """Prezzo all'italiana senza zeri inutili: 72.000 · 83,724 · 0,12345"""
+    return _num_it(v, 1 if v >= 1000 else 3 if v >= 1 else 5).rstrip("0").rstrip(",")
+
+
+def _notify_closed(state, account, notify, now):
+    """Messaggio su Telegram per ogni posizione reale chiusa su Bitget (stop, target, a mano, liquidazione).
+    Solo dal giro del bot (notify): le riletture chieste dall'app non mandano messaggi, e gli id già
+    avvisati restano in state["closed_notified"], così nessuna chiusura viene avvisata due volte.
+    Alla prima lettura dello storico non si avvisa nulla (sarebbero chiusure vecchie)."""
+    hist = account.get("history")
+    if not notify or not account.get("connected") or hist is None:
+        return False
+    ids = [h.get("id") for h in hist if h.get("id")]
+    seen = state.get("closed_notified")
+    if seen is None:
+        state["closed_notified"] = ids[:60]
+        return True
+    new = [h for h in hist if h.get("id") and h["id"] not in seen]
+    if not new:
+        return False
+    recent = now.timestamp() * 1000 - 24 * 3600e3
+    for h in reversed(new):                       # dalla più vecchia
+        if (h.get("closed_at") or 0) < recent:
+            continue
+        net = h.get("net") if h.get("net") is not None else (h.get("pnl") or 0) - (h.get("fees") or 0)
+        name = f"{(h.get('symbol') or '').replace('USDT', '')} {(h.get('side') or '').upper()}"
+        try:
+            notify(f"{'✅' if net >= 0 else '❌'} POSIZIONE CHIUSA · Bitget {'demo' if account.get('demo') else 'reale'}\n"
+                   f"{name} {_num_it(h.get('size') or 0, 4).rstrip('0').rstrip(',')}: entrata {_price_it(h.get('entry') or 0)} → uscita {_price_it(h.get('exit') or 0)}\n"
+                   f"Netto {_num_it(net, sign=True)} USDT (lordo {_num_it(h.get('pnl') or 0, sign=True)}, commissioni {_num_it(h.get('fees') or 0)}, "
+                   f"funding {_num_it(h.get('funding') or 0, sign=True)})")
+        except Exception as e:
+            print(f"Avviso di chiusura non inviato: {e}")
+    state["closed_notified"] = (ids + [x for x in seen if x not in ids])[:60]
+    return True
 
 
 def unhalt(state_path=STATE_PATH):
