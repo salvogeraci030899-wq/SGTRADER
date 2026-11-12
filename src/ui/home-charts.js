@@ -210,6 +210,8 @@ export function initHomeCharts() {
     });
 
     candleInterval = setInterval(() => {
+        // solo con la Home in vista e l'app in primo piano
+        if (document.hidden || !document.getElementById('page-home')?.classList.contains('active')) return;
         COINS.forEach(c => loadCandles(c.symbol));
     }, 60000);
 

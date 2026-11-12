@@ -32,7 +32,7 @@ export function initHome() {
 }
 
 export function updateHome() {
-    if (!isActive()) return;
+    if (!isActive() || document.hidden) return;
     const now = Date.now();
     if (now - lastMarketAt >= MARKET_EVERY_MS) { lastMarketAt = now; refreshMarket(); }
     if (now - lastBotAt >= BOT_FILES_EVERY_MS) { lastBotAt = now; refreshBotFiles(); }
@@ -67,19 +67,23 @@ async function refreshMarket() {
 
 const fmtPx = v => '$' + Number(v).toLocaleString('en-US', v >= 1000 ? { maximumFractionDigits: 0 } : { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+// Scrive nel DOM solo se il valore cambia: la Home si aggiorna ogni 5 secondi
+const put = (el, text) => { if (el && el.textContent !== text) el.textContent = text; };
+const putCls = (el, c) => { if (el && el.className !== c) el.className = c; };
+
 function renderMarket() {
     document.querySelectorAll('#homeMarket .home-tile').forEach(tile => {
         const sym = tile.dataset.symbol;
         const fallback = State.allData && State.allData[`${sym}_1d`];
         const m = market[sym] || (fallback ? { px: fallback.current_price, chg: null } : null);
         const pxEl = tile.querySelector('.home-tile-px'), chgEl = tile.querySelector('.home-tile-chg');
-        pxEl.textContent = m && isFinite(m.px) ? fmtPx(m.px) : '—';
+        put(pxEl, m && isFinite(m.px) ? fmtPx(m.px) : '—');
         if (m && m.chg != null) {
-            chgEl.textContent = `${m.chg >= 0 ? '+' : ''}${fmtIt(m.chg)}% 24h`;
-            chgEl.className = 'home-tile-chg ' + (m.chg > 0 ? 'up' : m.chg < 0 ? 'down' : '');
+            put(chgEl, `${m.chg >= 0 ? '+' : ''}${fmtIt(m.chg)}% 24h`);
+            putCls(chgEl, 'home-tile-chg ' + (m.chg > 0 ? 'up' : m.chg < 0 ? 'down' : ''));
         } else {
-            chgEl.textContent = m ? 'dal bot' : '—';
-            chgEl.className = 'home-tile-chg';
+            put(chgEl, m ? 'dal bot' : '—');
+            putCls(chgEl, 'home-tile-chg');
         }
     });
 }
@@ -91,8 +95,8 @@ const tone = v => (v > 0 ? ' safe' : v < 0 ? ' danger' : '');
 // In modalità Reale la scheda mostra il conto Bitget (letto dal bot ogni 15 minuti), in Simulato
 // le posizioni aperte a mano nell'app. Il titolo dice sempre quale dei due si sta guardando.
 function renderAccount() {
-    const set = (id, text, cls) => { const el = $(id); if (el) { el.textContent = text; el.className = 'home-kpi-value' + (cls || ''); } };
-    const label = (id, text) => { const el = $(id); if (el) el.textContent = text; };
+    const set = (id, text, cls) => { const el = $(id); put(el, text); putCls(el, 'home-kpi-value' + (cls || '')); };
+    const label = (id, text) => put($(id), text);
     if (tradingMode().mode === 'on') {
         const acc = bot && bot.live && bot.live.account;
         label('homeAccTitle', 'Conto Bitget · reale');
@@ -109,7 +113,7 @@ function renderAccount() {
         const upl = all.reduce((s, p) => s + (liveUpl(p) || 0), 0);
         set('homeOpenPnl', n ? signed(upl) : '—', n ? tone(upl) : '');
         const lbl = $('homeOpenPnlLabel');
-        if (lbl) lbl.textContent = n && hasLiveMarks() ? 'PnL live' : 'PnL aperto';
+        put(lbl, n && hasLiveMarks() ? 'PnL live' : 'PnL aperto');
         return;
     }
     label('homeAccTitle', 'Conto simulato');
@@ -148,8 +152,8 @@ async function refreshBotFiles() {
 function setLine(id, text, cls = '') {
     const el = $(id);
     if (!el) return;
-    el.textContent = text;
-    el.className = cls;
+    put(el, text);
+    putCls(el, cls);
 }
 
 function renderAutomationCard() {
@@ -214,20 +218,20 @@ function renderStatus() {
     if (last) {
         const min = (Date.now() - last) / 60000;
         setLine('homeLastUpdate', `ultimo giro ${ago(min)}`);
-        if (dot) dot.className = 'home-dot ' + (min <= BOT_OK_MIN ? 'good' : min <= BOT_LATE_MIN ? 'warn' : 'bad');
+        putCls(dot, 'home-dot ' + (min <= BOT_OK_MIN ? 'good' : min <= BOT_LATE_MIN ? 'warn' : 'bad'));
     } else {
         setLine('homeLastUpdate', State.allData ? 'nessun dato' : 'in caricamento');
-        if (dot) dot.className = 'home-dot';
+        putCls(dot, 'home-dot');
     }
 
     const sig = topSignal();
     const asset = $('homeTopSignalAsset'), badge = $('homeTopSignalBadge');
-    if (asset) asset.textContent = sig ? `${SYM(sig.asset)} ${sig.tf}` : 'nessuno';
+    put(asset, sig ? `${SYM(sig.asset)} ${sig.tf}` : 'nessuno');
     if (badge) {
         badge.style.display = sig ? '' : 'none';
         if (sig) {
-            badge.textContent = `${sig.agg.consensus} ${sig.agg.agreement}/4`;
-            badge.className = `sc-badge ${escapeHtml(sig.agg.consensus.toLowerCase())}`;
+            put(badge, `${sig.agg.consensus} ${sig.agg.agreement}/4`);
+            putCls(badge, `sc-badge ${escapeHtml(sig.agg.consensus.toLowerCase())}`);
             badge.title = 'Non validato: indicazione tecnica, non un segnale provato sullo storico';
         }
     }

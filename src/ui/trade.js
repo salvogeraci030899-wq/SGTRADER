@@ -25,7 +25,7 @@ let marksInFlight = false;
 const realList = () => realPositions();       // futures e coin spot (history.js)
 
 async function pollMarks() {
-    if (marksInFlight || !isReal()) return;
+    if (marksInFlight || !isReal() || document.hidden) return;
     maybeRefreshAccount();
     const symbols = [...new Set(realList().map(p => p.symbol))];
     if (!symbols.length) return;
@@ -55,7 +55,7 @@ export const hasLiveMarks = () => realList().some(p => markPx[p.symbol]);
 
 function updateRealLive() {
     const el = document.getElementById('activeTradesList');
-    if (!el) return;
+    if (!el || !document.getElementById('page-trade')?.classList.contains('active')) return;
     const n = (v, d = 2) => (v == null ? '—' : Number(v).toLocaleString('it-IT', { minimumFractionDigits: d, maximumFractionDigits: d }));
     for (const p of realList()) {
         const card = el.querySelector(`.at-real[data-key="${p.key}"]`);
@@ -148,6 +148,7 @@ function renderRealPositions(el) {
         el.innerHTML = `<div class="at-empty">Nessuna posizione aperta su Bitget (futures) e nessuna coin spot.${note}</div>`;
     } else {
         el.classList.remove('empty');
+        setCardRows(el, list.length);
         const n = (v, d = 2) => (v == null ? '—' : Number(v).toLocaleString('it-IT', { minimumFractionDigits: d, maximumFractionDigits: d }));
         el.innerHTML = list.map(p => `
             <div class="active-trade-card at-real" data-symbol="${p.symbol}" data-key="${p.key}">
@@ -310,9 +311,19 @@ export function closeTrade(id, reason = 'MANUALE', exitPrice = 0, when = 0) {
     Terminal.updatePriceLines();
 }
 
+// Due schede una sopra l'altra solo se c'è spazio per entrambe a grandezza piena; altrimenti una alla volta
+// (scorrendo di lato). Con una sola scheda niente seconda riga vuota che costringe a rimpicciolire tutto.
+function setCardRows(el, count) {
+    const one = count <= 1 || window.innerHeight < 760;
+    if (el.classList.contains('one-row') !== one) el.classList.toggle('one-row', one);
+}
+
 export function renderActiveTrades() {
     const el = document.getElementById('activeTradesList');
     if (!el) return;
+    // Pagina Posizioni non visibile: niente da ridisegnare (lo fa switchTab all'apertura)
+    const pg = document.getElementById('page-trade');
+    if (pg && !pg.classList.contains('active')) return;
     if (window.renderOrders) window.renderOrders();       // vista Ordini, se è quella aperta
     if (isReal()) { renderRealPositions(el); return; }
     const sig = State.simState.activeTrades.map(t => `${t.id}|${t.granularity || ''}|${t.margin ?? ''}|${t.market || ''}|${t.leverage || ''}|${t.slPrice}|${t.tpPrice}|${(t.rules || []).map(r => r.id).join('.')}`).join(',');
@@ -327,6 +338,7 @@ export function renderActiveTrades() {
             return;
         }
         el.classList.remove('empty');
+        setCardRows(el, State.simState.activeTrades.length);
         el.innerHTML = State.simState.activeTrades.map(t => {
             const coinName = SYM(t.symbol);
             const tf = t.granularity || '--';
@@ -371,7 +383,9 @@ export function renderActiveTrades() {
         if (!card) return;
         const set = (f, txt, color) => {
             const n = card.querySelector(`[data-f="${f}"]`);
-            if (n) { n.textContent = txt; if (color) n.style.color = color; }
+            if (!n) return;                 // scrive solo se cambia: niente lavoro inutile ogni secondo
+            if (n.textContent !== txt) n.textContent = txt;
+            if (color && n.style.color !== color) n.style.color = color;
         };
         const px = t.currentPrice || t.entryPrice;
         const p = calcPnl(t, px);

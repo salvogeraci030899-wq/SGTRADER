@@ -75,7 +75,7 @@ export function setCtxLabel() {
     const el = document.getElementById('calcCtx');
     if (!el) return;
     const c = State.calcContext || { asset: State.currentAsset, tf: State.currentTF };
-    el.textContent = `${SYM(c.asset)} · ${c.tf}`;
+    el.textContent = SYM(c.asset);
 }
 
 export function syncCapital() {
