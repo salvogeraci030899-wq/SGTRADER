@@ -1300,3 +1300,23 @@ html.pwa-mode .nav-item { height: auto; }
 /* pallino colorato al posto delle icone (niente emoji nell'app) */
 .ev-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor; margin-right: 6px; vertical-align: middle; position: relative; top: -1px; }
 .text-secondary { color: var(--text-secondary); }
+
+/* ===== Vetro (Impostazioni → Aspetto → Vetro), stile Liquid Glass. Solo su elementi piccoli sopra il contenuto:
+   barra in basso, tasti tondi, barre delle schede, tasti dei grafici. Le schede con numeri restano piene (leggibilità).
+   Se in app installata iOS fa sparire qualcosa, basta spegnerlo: torna tutto pieno. ===== */
+html.glass { --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04) 55%, rgba(255, 255, 255, 0.08));
+    --glass-border: rgba(255, 255, 255, 0.18); --glass-light: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(255, 255, 255, 0.06); }
+html.glass[data-theme="light"] { --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.55) 55%, rgba(255, 255, 255, 0.7));
+    --glass-border: rgba(255, 255, 255, 0.9); --glass-light: inset 0 1px 0 rgba(255, 255, 255, 1), 0 1px 2px rgba(0, 0, 0, 0.06); }
+html.glass .nav-bar, html.glass .header-icon-btn, html.glass .page-tabs, html.glass .pos-views, html.glass .market-toggle,
+html.glass .chart-tool, html.glass .btn-fullscreen, html.glass .home-chart-fullscreen {
+    background: var(--glass-bg); border-color: var(--glass-border);
+    -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%); }
+html.glass .nav-bar { box-shadow: var(--glass-light), 0 10px 30px rgba(0, 0, 0, 0.4); }
+html.glass .header-icon-btn, html.glass .chart-tool, html.glass .btn-fullscreen, html.glass .home-chart-fullscreen { box-shadow: var(--glass-light); }
+html.glass .page-tabs, html.glass .pos-views, html.glass .market-toggle { box-shadow: var(--glass-light); }
+html.glass .nav-item.active, html.glass .page-tabs button.active, html.glass .pos-views button.active, html.glass .market-toggle button.active {
+    background: rgba(255, 255, 255, 0.14); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22); }
+html.glass[data-theme="light"] .nav-item.active, html.glass[data-theme="light"] .page-tabs button.active,
+html.glass[data-theme="light"] .pos-views button.active, html.glass[data-theme="light"] .market-toggle button.active { background: rgba(0, 0, 0, 0.06); }
+html.glass .header-icon-btn.acc-real { background: rgba(255, 159, 10, 0.22); border-color: var(--warning); }

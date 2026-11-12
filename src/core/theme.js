@@ -47,6 +47,16 @@ export function initTheme() {
 // Colore di una variabile CSS del tema (per i grafici, che non leggono il CSS da soli)
 export const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
+// Vetro (stile Liquid Glass) su barra, tasti e schede: 'on' | 'off', spento all'inizio
+const GLASS_KEY = 'sgt_glass';
+export function getGlassPref() {
+    try { return localStorage.getItem(GLASS_KEY) === 'on' ? 'on' : 'off'; } catch (e) { return 'off'; }
+}
+export function setGlassPref(pref) {
+    try { localStorage.setItem(GLASS_KEY, pref === 'on' ? 'on' : 'off'); } catch (e) {}
+    document.documentElement.classList.toggle('glass', pref === 'on');
+}
+
 export function getStatusBarPref() {
     try { return localStorage.getItem(BAR_KEY) === 'separate' ? 'separate' : 'integrated'; } catch (e) { return 'integrated'; }
 }

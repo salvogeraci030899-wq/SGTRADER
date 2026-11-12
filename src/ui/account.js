@@ -1,5 +1,5 @@
 import { State } from '../core/state.js';
-import { getThemePref, setThemePref, getStatusBarPref, setStatusBarPref } from '../core/theme.js';
+import { getThemePref, setThemePref, getStatusBarPref, setStatusBarPref, getGlassPref, setGlassPref } from '../core/theme.js';
 import { $, fmtUsdt, getApiBase, getGhToken, commandMode } from '../utils/helpers.js';
 import { getAutoState, riskCfg, loadAutomation, bitgetAccountText } from './automation.js';
 
@@ -113,7 +113,11 @@ export function setStatusBar(pref) {
     if (changed && window.showAlert) window.showAlert('Barra di stato', "Chiudi e riapri l'app dalla schermata Home per vedere il cambio. Nel tema chiaro la barra è sempre separata.");
 }
 
+export function setGlass(pref) { setGlassPref(pref); renderSettings(); }
+
 export function renderSettings() {
+    const glass = getGlassPref();
+    document.querySelectorAll('#glassToggle button').forEach(b => b.classList.toggle('active', b.dataset.glass === glass));
     const bar = getStatusBarPref();
     document.querySelectorAll('#statusBarToggle button').forEach(b => b.classList.toggle('active', b.dataset.bar === bar));
     const pref = getThemePref();
