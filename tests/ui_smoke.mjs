@@ -33,9 +33,12 @@ try {
         await new Promise(r => setTimeout(r, 200));
     }
     const browser = await chromium.launch();
-    for (const dev of DEVICES) for (const mode of ['sim', 'real']) {
-        const ctx = await browser.newContext({ viewport: { width: dev.w, height: dev.h }, isMobile: true, hasTouch: true, colorScheme: 'dark' });
-        await ctx.addInitScript(pwa => {
+    // ogni dispositivo in Simulato e Reale; l'app installata anche in Reale con il vetro e il tema chiaro
+    const RUNS = DEVICES.flatMap(dev => [{ dev, mode: 'sim' }, { dev, mode: 'real' }, ...(dev.pwa ? [{ dev, mode: 'real', glass: true }] : [])]);
+    for (const { dev, mode, glass } of RUNS) {
+        const tag = (mode === 'real' ? 'Reale' : 'Simulato') + (glass ? ', vetro chiaro' : '');
+        const ctx = await browser.newContext({ viewport: { width: dev.w, height: dev.h }, isMobile: true, hasTouch: true, colorScheme: glass ? 'light' : 'dark' });
+        await ctx.addInitScript(([pwa, glass]) => {
             try {
                 localStorage.setItem('kronos_gh_token', 'github_pat_' + 'x'.repeat(30));
                 // un trade simulato aperto, per provare la scheda e l'assistente (in Simulato)
@@ -44,7 +47,8 @@ try {
                       entryTime: Date.now() - 3600e3, timerSeconds: 86400 * 7, granularity: '1d', market: 'SPOT' }] }));
             } catch (e) {}
             if (pwa) Object.defineProperty(navigator, 'standalone', { get: () => true });
-        }, !!dev.pwa);
+            if (glass) try { localStorage.setItem('sgt_glass', 'on'); localStorage.setItem('sgt_theme', 'light'); } catch (e) {}
+        }, [!!dev.pwa, !!glass]);
         const page = await ctx.newPage();
         const errors = [];
         page.on('pageerror', e => errors.push(e.message));
@@ -72,10 +76,11 @@ try {
         // barra in basso: centrata, staccata dal fondo, stesso margine interno sopra (puntini) e sotto (voci)
         const nav = await page.evaluate(() => { const n = document.querySelector('.nav-bar').getBoundingClientRect(), d = document.querySelector('.nav-dots').getBoundingClientRect(), it = document.querySelector('.nav-item').getBoundingClientRect();
             return { l: Math.round(n.left), r: Math.round(innerWidth - n.right), b: Math.round(innerHeight - n.bottom), sopra: Math.round(d.top - n.top), sotto: Math.round(n.bottom - it.bottom) }; });
-        if (nav.l !== nav.r || nav.l < 4 || nav.b < 4 || nav.b > 60 || nav.sopra !== nav.sotto) problems.push(`${dev.n}, ${mode}: barra in basso fuori posto ${JSON.stringify(nav)}`);
+        if (glass && !(await page.evaluate(() => document.documentElement.classList.contains('glass')))) problems.push(`${dev.n}, ${tag}: il vetro non si accende`);
+        if (nav.l !== nav.r || nav.l < 4 || nav.b < 4 || nav.b > 60 || nav.sopra !== nav.sotto) problems.push(`${dev.n}, ${tag}: barra in basso fuori posto ${JSON.stringify(nav)}`);
         // identificativi doppi: il codice troverebbe l'elemento sbagliato
         const dup = await page.evaluate(() => { const c = {}; document.querySelectorAll('[id]').forEach(e => { c[e.id] = (c[e.id] || 0) + 1; }); return Object.keys(c).filter(k => c[k] > 1); });
-        if (dup.length) problems.push(`${dev.n}, ${mode}: identificativi doppi: ${dup.join(', ')}`);
+        if (dup.length) problems.push(`${dev.n}, ${tag}: identificativi doppi: ${dup.join(', ')}`);
         for (const p of pages) for (const v of (VIEWS[p] || [[null]])) {
             await page.evaluate(t => window.switchTab(t), p);
             await page.waitForTimeout(400);
@@ -85,7 +90,7 @@ try {
                 const emoji = pg ? (pg.innerText.match(/\p{Extended_Pictographic}/gu) || []).join('') : '';
                 return { over: pg ? pg.scrollHeight - pg.clientHeight : -1, wide: document.documentElement.scrollWidth - W, emoji };
             }, dev.w);
-            const where = `${dev.n}, ${mode === 'real' ? 'Reale' : 'Simulato'}, ${p}${v[1] ? '/' + v[1] : ''}`;
+            const where = `${dev.n}, ${tag}, ${p}${v[1] ? '/' + v[1] : ''}`;
             if (r.over > 1) problems.push(`${where}: la pagina scorre in verticale di ${r.over}px`);
             if (r.over < 0) problems.push(`${where}: pagina non trovata`);
             if (r.wide > 1) problems.push(`${where}: più larga dello schermo di ${r.wide}px`);
@@ -116,9 +121,9 @@ try {
             }
             return out;
         });
-        for (const w of wins) problems.push(`${dev.n}, ${mode === 'real' ? 'Reale' : 'Simulato'}: finestra ${w}`);
+        for (const w of wins) problems.push(`${dev.n}, ${tag}: finestra ${w}`);
         // Azioni principali, come le farebbe una persona
-        const where = `${dev.n}, ${mode === 'real' ? 'Reale' : 'Simulato'}`;
+        const where = `${dev.n}, ${tag}`;
         const step = async (name, fn) => { try { if (!(await fn())) problems.push(`${where}: ${name}`); } catch (e) { problems.push(`${where}: ${name} (${e.message.split('\n')[0]})`); } };
         if (mode === 'sim') {
             await page.evaluate(() => { window.switchTab('trade'); window.setPosView('open'); });
@@ -153,8 +158,8 @@ try {
             await page.evaluate(() => window.closeAutoConfirm());
             return on;
         });
-        for (const e of new Set(errors)) problems.push(`${dev.n}, ${mode}: errore JavaScript: ${e}`);
-        console.log(`ok ${dev.n}, ${mode === 'real' ? 'Reale' : 'Simulato'}: ${pages.length} pagine`);
+        for (const e of new Set(errors)) problems.push(`${dev.n}, ${tag}: errore JavaScript: ${e}`);
+        console.log(`ok ${dev.n}, ${tag}: ${pages.length} pagine`);
         await ctx.close();
     }
     await browser.close();

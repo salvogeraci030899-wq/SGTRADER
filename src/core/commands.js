@@ -386,11 +386,11 @@ Azioni possibili (usa SOLO queste, con questi campi):
 - {"type":"clear_alerts"}: togli tutti gli avvisi di prezzo
 - {"type":"close_positions","filter":"loss"|"profit"|"all"}: chiudi le posizioni aperte in perdita, in profitto o tutte (nella modalità attiva: simulate o reali su Bitget)
 - {"type":"breakeven_all"}: stop a pareggio su tutte le posizioni in profitto
-- {"type":"open_page","page":"home"|"terminal"|"signals"|"trade"|"calculator"|"journal"|"test"|"settings"|"account"}: apri una pagina
+- {"type":"open_page","page":"home"|"terminal"|"signals"|"trade"|"calculator"|"journal"|"log"|"test"|"settings"|"account"}: apri una pagina (terminal = Mercato, signals = Agente, trade = Posizioni, calculator = Trade, journal = Risultati, log = Registro, test = Agente → Laboratorio)
 Per le domande rispondi con i dati forniti e action null. Non inventare numeri. Se la richiesta non è chiara, chiedi di precisare.
 Quando proponi un'azione NON dire mai che è già fatta: scrivi cosa farai e chiudi con «Confermi?» (es. «Metto donchian55 1d su carta. Confermi?»). Nessuna strategia è confermata dalla prova finale finché l'elenco "confermate" è vuoto: dillo se l'utente chiede di andare in reale.`;
 
-const PAGES_OK = ['home', 'terminal', 'signals', 'trade', 'calculator', 'journal', 'test', 'settings', 'account'];
+const PAGES_OK = ['home', 'terminal', 'signals', 'trade', 'calculator', 'journal', 'log', 'test', 'settings', 'account'];
 export function sanitizeGeneralAction(a) {
     if (!a || typeof a !== 'object') return null;
     switch (a.type) {
