@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['worker/**', 'api/_core.js', 'src/core/commands.js', 'src/core/rules.js', '.github/workflows/deploy-server.yml']
+    paths: ['worker/**', 'api/_core.js', 'src/core/commands.js', 'src/core/rules.js', 'src/core/telegram.js', 'src/core/config.js', 'tools/telegram_webhook.py', '.github/workflows/deploy-server.yml']
 
 concurrency:
   group: deploy-server
@@ -70,3 +70,26 @@ jobs:
           url=$(grep -o 'https://[a-z0-9.-]*workers.dev' deploy.log | head -n 1)
           echo "Server pubblicato: ${url:-vedi il log}. Da ora il bot parte ogni 15 minuti da Cloudflare." | tee -a "$GITHUB_STEP_SUMMARY"
           if [ -n "$APP_SECRET" ]; then echo "Comandi dal server attivi: indirizzo da inserire in Impostazioni -> Comandi." | tee -a "$GITHUB_STEP_SUMMARY"; fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+        id: deploy
+      # Bot Telegram in sola lettura (/stato, /posizioni, /agente, /carta, /avvisi). Il server risponde solo alla
+      # tua chat e solo ai messaggi con il segreto del webhook, generato qui a ogni pubblicazione. Il token passa
+      # solo da variabili d'ambiente (wrangler lo legge dallo standard input, lo script Python dall'ambiente).
+      - name: Bot Telegram
+        if: steps.check.outputs.ready == 'true' && steps.deploy.outputs.url != ''
+        working-directory: worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WEBHOOK_URL: ${{ steps.deploy.outputs.url }}/api/telegram
+        run: |
+          if [ -z "$TELEGRAM_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then echo "Segreti Telegram assenti: bot non attivato."; exit 0; fi
+          WEBHOOK_SECRET="$(openssl rand -hex 24)"
+          export WEBHOOK_SECRET
+          printf '%s' "$TELEGRAM_TOKEN" | npx --yes wrangler@3.114.0 secret put TELEGRAM_TOKEN
+          printf '%s' "$TELEGRAM_CHAT_ID" | npx --yes wrangler@3.114.0 secret put TELEGRAM_CHAT_ID
+          printf '%s' "$WEBHOOK_SECRET" | npx --yes wrangler@3.114.0 secret put TELEGRAM_WEBHOOK_SECRET
+          pip install -q requests
+          python ../tools/telegram_webhook.py | tee -a "$GITHUB_STEP_SUMMARY"
