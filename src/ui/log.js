@@ -7,6 +7,8 @@ const FILTERS = { all: 'Tutto', ordini: 'Ordini', posizioni: 'Posizioni', agente
 const GROUP = { strategie: 'sistema', conto: 'sistema' };
 let events = null, loadedAt = 0, filter = 'all', dayIdx = 0;
 
+// niente emoji nell'app (su Telegram sì): si tolgono anche dai testi scritti dal bot
+const noEmoji = t => String(t).replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}]/gu, '').replace(/^\s+/, '');
 const monthKey = d => `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
 
 async function load(force = false) {
@@ -33,14 +35,14 @@ async function load(force = false) {
 }
 
 function look(e) {
-    if (e.kind === 'ordini') return e.ok === false ? ['✗ Ordine', 'text-danger'] : e.action === 'esecutore' ? ['🤖 Esecutore', 'text-ui'] : ['✓ Ordine', 'text-accent'];
-    if (e.kind === 'posizioni') return [(e.net || 0) >= 0 ? '✅ Posizione chiusa' : '❌ Posizione chiusa', (e.net || 0) >= 0 ? 'text-accent' : 'text-danger'];
-    if (e.kind === 'agente') return [e.action === 'promote' ? '▲ Agente' : e.action === 'demote' ? '▼ Agente' : '◎ Agente', e.action === 'promote' ? 'text-warning' : 'text-ui'];
-    if (e.kind === 'carta') return ['🧪 Carta', ''];
-    if (e.kind === 'avvisi') return ['🔔 Avviso', ''];
-    if (e.kind === 'conto') return ['💶 Conto', 'text-warning'];
-    if (e.kind === 'strategie') return ['⚙️ Strategie', ''];
-    return ['⚙️ Sistema', e.action === 'emergency' ? 'text-danger' : ''];
+    if (e.kind === 'ordini') return e.ok === false ? ['Ordine non eseguito', 'text-danger'] : e.action === 'esecutore' ? ['Esecutore', 'text-ui'] : ['Ordine', 'text-accent'];
+    if (e.kind === 'posizioni') return ['Posizione chiusa', (e.net || 0) >= 0 ? 'text-accent' : 'text-danger'];
+    if (e.kind === 'agente') return ['Agente', e.action === 'promote' ? 'text-warning' : e.action === 'demote' ? 'text-danger' : 'text-ui'];
+    if (e.kind === 'carta') return ['Carta', 'text-secondary'];
+    if (e.kind === 'avvisi') return ['Avviso di prezzo', 'text-ui'];
+    if (e.kind === 'conto') return ['Conto', 'text-warning'];
+    if (e.kind === 'strategie') return ['Strategie', 'text-secondary'];
+    return ['Sistema', e.action === 'emergency' ? 'text-danger' : 'text-secondary'];
 }
 
 const localDay = iso => { const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
@@ -75,7 +77,7 @@ export async function renderLog(force = false) {
     box.innerHTML = `<div class="log-cols">${todays.map(e => {
         const [title, cls] = look(e);
         const time = new Date(e.at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-        return `<div class="log-ev"><div class="log-ev-h"><b class="${cls}">${title}</b><small>${time}</small></div><span>${escapeHtml(e.text || '')}</span></div>`;
+        return `<div class="log-ev"><div class="log-ev-h"><b class="${cls}"><i class="ev-dot"></i>${title}</b><small>${time}</small></div><span>${escapeHtml(noEmoji(e.text || ''))}</span></div>`;
     }).join('')}</div>`;
     box.querySelector('.log-cols').scrollLeft = 0;
 }

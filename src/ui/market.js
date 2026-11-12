@@ -33,7 +33,7 @@ export function renderMarketAlerts() {
     const card = (a, fired) => {
         const px = State.livePx[a.symbol];
         const dist = px ? ` · ora ${fmtPrice(px)} (${((a.price / px - 1) * 100 >= 0 ? '+' : '')}${((a.price / px - 1) * 100).toLocaleString('it-IT', { maximumFractionDigits: 1 })}%)` : '';
-        return `<div class="ord-row"><div class="ord-main"><b>${fired ? '🔔 ' : ''}${coin(a.symbol)} ${a.side === 'above' ? '≥' : '≤'} ${fmtPrice(a.price)}</b>`
+        return `<div class="ord-row"><div class="ord-main"><b>${coin(a.symbol)} ${a.side === 'above' ? '≥' : '≤'} ${fmtPrice(a.price)}</b>`
             + `<small>${fired ? 'scattato: messaggio inviato su Telegram' : `${a.side === 'above' ? 'in salita' : 'in discesa'} · dal ${escapeHtml(day(a.created_at))}${dist}`}</small></div>`
             + `<button type="button" class="ord-x" title="Togli" onclick="removePriceAlert('${escapeHtml(a.id)}')">✕</button></div>`;
     };

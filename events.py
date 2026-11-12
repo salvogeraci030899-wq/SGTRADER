@@ -15,8 +15,11 @@ action (breve, per i filtri), text (frase in italiano, quella che si legge), pi�
 import hashlib
 import json
 import os
+import re
 from datetime import datetime, timezone
 
+# l'app non mostra emoji (Telegram sì): il testo del registro ne è privo
+NO_EMOJI = re.compile("[\U0001F300-\U0001FAFF\u2600-\u27BF\u2B00-\u2BFF\uFE0F\u2705\u274C]")
 KINDS = ("ordini", "posizioni", "agente", "carta", "avvisi", "strategie", "sistema", "conto")
 
 
@@ -36,7 +39,7 @@ def record(kind, action, text, at=None, **data):
             when = when.replace(tzinfo=timezone.utc)
         iso = when.astimezone(timezone.utc).isoformat(timespec="seconds")
         clean = {k: v for k, v in data.items() if v is not None}
-        ev = {"at": iso, "kind": kind, "action": action, "text": str(text)[:400], **clean}
+        ev = {"at": iso, "kind": kind, "action": action, "text": NO_EMOJI.sub("", str(text)).strip()[:400], **clean}
         ev["id"] = hashlib.sha1(json.dumps(ev, sort_keys=True, default=str).encode()).hexdigest()[:12]
         os.makedirs(folder, exist_ok=True)
         with open(os.path.join(folder, f"{iso[:7]}.jsonl"), "a") as f:
