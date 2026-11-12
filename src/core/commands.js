@@ -1,4 +1,5 @@
 import { sanitizeAction } from './rules.js';
+import { telegramWebhook } from './telegram.js';
 // Logica comune dei comandi: la usano l'app nel browser (utils/helpers.js), Vercel (api/*.js, tramite api/_core.js)
 // e Cloudflare Workers (worker/index.js).
 // Nessuna dipendenza da Node: solo fetch e JavaScript standard.
@@ -520,6 +521,12 @@ export async function transcribe(body, env, fetchFn) {
 // Instradamento unico: path, corpo già letto, header in minuscolo, variabili d'ambiente, fetch
 export async function handle(method, path, body, headers, env, fetchFn) {
     const route = path.replace(/\/+$/, '');
+    // bot Telegram: autenticato dal segreto del webhook e dalla chat, non dalla chiave app (src/core/telegram.js)
+    if (route === '/api/telegram') {
+        if (method !== 'POST') return json(405, { error: 'Metodo non consentito' });
+        const r = await telegramWebhook(body, headers, env, fetchFn);
+        return json(r.status, r.body);
+    }
     const routes = { '/api/trigger': [trigger, false], '/api/analyze': [analyze, false], '/api/assistant': [assistant, false], '/api/transcribe': [transcribe, false], '/api/command': [command, true] };
     if (!routes[route]) return json(404, { error: 'Endpoint sconosciuto' });
     if (method !== 'POST') return json(405, { error: 'Metodo non consentito' });
