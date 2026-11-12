@@ -19,7 +19,7 @@ const COMMANDS = {
     '/emergenza': 'spegne tutto (serve la parola CONFERMA)',
     '/aiuto': 'questo elenco'
 };
-const FILES = ['automation.json', 'live_trades.json', 'paper_trades.json', 'agent_state.json', 'alerts_state.json', 'quick_state.json'];
+const FILES = ['automation.json', 'live_trades.json', 'paper_trades.json', 'agent_state.json', 'alerts_state.json', 'quick_state.json', 'guard_state.json'];
 
 const n = (v, d = 2) => (v == null || !isFinite(v) ? '—' : Number(v).toLocaleString('it-IT', { minimumFractionDigits: d, maximumFractionDigits: d }));
 const sg = (v, d = 2) => (v == null || !isFinite(v) ? '—' : (v > 0 ? '+' : '') + n(v, d));
@@ -38,6 +38,8 @@ function stato(d) {
     const lines = ['📊 STATO'];
     if (cfg.emergency) lines.push('⛔ EMERGENZA ATTIVA: automazione ferma.');
     if (live.halted) lines.push('⚠️ Esecutore BLOCCATO: controlla Bitget e sblocca dall\'app.');
+    const g = d['guard_state.json'] || {};
+    if (g.pause_until && Date.parse(g.pause_until) > Date.now()) lines.push(`🛡️ Agente eventi: PAUSA dei nuovi ingressi fino alle ${new Date(g.pause_until).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Rome' })} (${g.reason || 'evento di rischio'}).`);
     if (acc.connected) {
         lines.push(`Bitget ${acc.demo ? 'demo' : 'reale'}: ${n(acc.total_usdt ?? acc.equity)} USDT${acc.day_change != null ? ` (oggi ${sg(acc.day_change)})` : ''}`);
         lines.push(`Posizioni: ${acc.positions || 0}${acc.positions ? ` · PnL aperto ${sg(acc.upl)} USDT` : ''}`);

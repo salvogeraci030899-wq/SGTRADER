@@ -97,6 +97,8 @@ jobs:
           BITGET_API_SECRET: ${{ secrets.BITGET_API_SECRET }}
           BITGET_API_PASSPHRASE: ${{ secrets.BITGET_API_PASSPHRASE }}
           BITGET_DEMO: ${{ vars.BITGET_DEMO || '1' }}
+          # agente eventi (solo difesa: pausa dei nuovi ingressi reali per notizie di rischio)
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: python run_bot.py
 
       - name: Commit and Sync updated JSON
@@ -109,7 +111,7 @@ jobs:
           git add paper_trades.json 2>/dev/null || true
           git add live_trades.json 2>/dev/null || true
           # uno alla volta: se uno dei due non esiste ancora, l'altro va salvato lo stesso
-          for f in equity_history.json events; do if [ -e "$f" ]; then git add "$f"; fi; done
+          for f in equity_history.json events guard_state.json; do if [ -e "$f" ]; then git add "$f"; fi; done
           git commit -m "chore: auto-update $(date -u +%Y-%m-%d_%H:%M)" || { echo "Nessuna modifica da salvare"; exit 0; }
           # Lo stato deve arrivare sul repo anche se un altro workflow ha salvato nel frattempo:
           # riallineamento sicuro (conflitti risolti, JSON controllati) in tools/push_state.sh

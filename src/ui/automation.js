@@ -192,6 +192,7 @@ export async function confirmChartAlert() {
     setTimeout(loadAutomation, 90000);
 }
 let agentState = null;     // agent_state.json: ultimo giro dell'agente, rapporto, proposte
+let guardState = null;     // guard_state.json: agente eventi (pausa dei nuovi ingressi per notizie di rischio)
 const observingKeys = () => new Set((agentState && agentState.observing) || []);
 let pendingTrading = null;   // 'on' / 'off' inviato ma non ancora visibile in automation.json
 const pending = {};   // comandi inviati ma non ancora visibili nei file pubblicati
@@ -236,7 +237,7 @@ export async function loadAutomation() {
     if (loading) return;
     loading = true;
     let alertsState, quickState;
-    [cfg, ledger, lab, live, alertsState, quickState, agentState] = await Promise.all([getJson('automation.json'), getJson('paper_trades.json'), getJson('lab_summary.json'), getJson('live_trades.json'), getJson('alerts_state.json'), getJson('quick_state.json'), getJson('agent_state.json')]);
+    [cfg, ledger, lab, live, alertsState, quickState, agentState, guardState] = await Promise.all([getJson('automation.json'), getJson('paper_trades.json'), getJson('lab_summary.json'), getJson('live_trades.json'), getJson('alerts_state.json'), getJson('quick_state.json'), getJson('agent_state.json'), getJson('guard_state.json')]);
     firedAlerts = [...((alertsState && alertsState._price_alerts_fired) || []), ...((quickState && quickState._price_alerts_fired) || [])];
     loaded = true;
     loading = false;
@@ -294,6 +295,7 @@ export function renderAutomation() {
         ${accDetail ? `<div class="auto-row auto-sub"><span></span><b>${escapeHtml(accDetail)}</b></div>` : ''}
         <div class="auto-row clickable" onclick="openAccount()"><span>Ordini veri</span><b class="${risk.trading_enabled ? 'text-warning' : ''}">${realText} ›</b></div>
         <div class="auto-row clickable" onclick="setSignalsView('agent')"><span>Agente</span><b class="${agentProposals().length ? 'text-warning' : 'text-ui'}">${escapeHtml(agentLine())} ›</b></div>
+        <div class="auto-row"><span>Agente eventi</span><b class="${guardLine().cls}" title="${escapeHtml(guardLine().title)}">${escapeHtml(guardLine().text)}</b></div>
         <div class="auto-row auto-row-risk"><span>Rischio</span><b>${risk.risk_per_trade_pct}% a trade · leva ${risk.max_leverage}x · max ${risk.max_open_positions} · −${risk.max_daily_loss_pct}%/giorno</b></div>`;
 
     const keys = shownKeys();
@@ -330,6 +332,17 @@ export function renderAutomation() {
     }
     const note = $('autoNote');
     if (note) note.textContent = `Su carta dal ${day(cfg && cfg.paper_start)}. I comandi passano da GitHub: l'effetto si vede qui dopo qualche minuto. Ordini veri solo con: strategia confermata in Reale, interruttore acceso e chiavi Bitget.`;
+}
+
+// Agente eventi: pausa dei nuovi ingressi reali per una notizia di rischio (event_guard.py)
+export function guardLine(now = Date.now()) {
+    const g = guardState || {};
+    const hhmm = iso => new Date(iso).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    if (g.pause_until && Date.parse(g.pause_until) > now)
+        return { text: `PAUSA nuovi ingressi fino alle ${hhmm(g.pause_until)}: ${g.reason || 'evento di rischio'}`, cls: 'text-warning', title: g.headline ? `${g.headline} (${g.source})` : '' };
+    if (!g.checked_at) return { text: 'in attesa del primo controllo', cls: '', title: '' };
+    const ok = g.status === 'normale' || g.status === 'pausa';
+    return { text: `${ok ? 'nessun rischio' : g.status} · controllato alle ${hhmm(g.checked_at)}`, cls: ok ? 'text-accent' : 'text-secondary', title: '' };
 }
 
 // --- Agente selezionatore (agent.py, ogni domenica): rapporto, scelte su carta, proposte per il reale ---
