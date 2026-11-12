@@ -23,6 +23,24 @@ for (const [name, ref] of Object.entries(fx.trades)) {
     n++;
     console.log('ok', name, got.length, 'trade');
 }
+// forza relativa: tre coin, una delle quali parte più tardi (come SOL)
+const rel = JSON.parse(readFileSync(new URL('./fixtures/lab_parity_rel.json', import.meta.url)));
+const peers = Object.fromEntries(Object.entries(rel.coins).map(([s, rows]) => [s, rows.map(([ts, open, high, low, close]) => ({ ts, open, high, low, close }))]));
+const names = new Set();
+for (const [key, ref] of Object.entries(rel.trades)) {
+    const [name, sym] = key.split('|');
+    const got = simulate(peers[sym], 86400e3, LAB[name], { symbol: sym, peers });
+    assert.equal(got.length, ref.length, `${key}: numero di trade`);
+    got.forEach((t, k) => {
+        const r = ref[k];
+        assert.equal(peers[sym][t.i].ts, r.t, `${key} #${k}: ingresso`);
+        assert.equal(t.bars, r.bars); assert.equal(t.dir, r.dir); assert.equal(t.reason, r.reason);
+        assert.ok(Math.abs(t.gross - r.gross) < 1e-9, `${key} #${k}: lordo`);
+    });
+    if (!names.has(name)) n++;
+    names.add(name);
+    console.log('ok', key, got.length, 'trade');
+}
 assert.equal(n, Object.keys(LAB).length, 'tutte le strategie dell\'app sono confrontate con Python');
 // costi: 0,11% per lato; funding prudente solo sui long (0,01% ogni 8 ore)
 assert.ok(Math.abs(netPct({ gross: 1, bars: 6, dir: 1 }, tfMs) - (1 - 0.22 - 0.03)) < 1e-12);

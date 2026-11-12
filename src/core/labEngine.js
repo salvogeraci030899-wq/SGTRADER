@@ -2,8 +2,8 @@
 // Stesse strategie, stessi indicatori e stesse regole di uscita di lab_strategies.py e strategy_lab.simulate,
 // per provarle nel Backtest su una coin e un timeframe qualsiasi con le candele di Bitget.
 // Modulo puro (nessun DOM): lo usano l'app e il test di parità con Python (tests/test_lab_engine.mjs).
-// Non ci sono le strategie che servono dati che l'app non ha: forza relativa (tutte e tre le coin nello
-// stesso istante) e funding/open interest (archivio di Binance). Quelle restano solo nel Laboratorio.
+// La forza relativa usa le candele di tutte e tre le coin (ctx.peers). Non ci sono le strategie che servono
+// dati che l'app non ha (funding, open interest, posizioni dei trader): restano solo nel Laboratorio.
 
 export const ATR_PERIOD = 14;
 export const WARMUP = 300;
@@ -37,7 +37,31 @@ function ewm(arr, alpha, minPeriods) {         // adjust=False, come pandas
     return out;
 }
 
-export function indicators(c) {        // c: [{open, high, low, close, volume}]
+// Forza relativa (come strategy_lab.indicators.rank_ret): rendimenti a p candele di tutte le coin sulla
+// stessa griglia di tempi (unione dei tempi, NaN dove una coin manca); +1 se la coin è la più forte, -1 se
+// la più debole, 0 se manca anche una sola coin in quell'istante.
+function rankRet(ts, symbol, peers, p) {
+    const syms = Object.keys(peers || {});
+    if (syms.length < 3 || !peers[symbol]) return new Array(ts.length).fill(0);
+    const grid = [...new Set(syms.flatMap(s => peers[s].map(k => k.ts)))].sort((a, b) => a - b);
+    const pos = new Map(grid.map((t, k) => [t, k]));
+    const ret = {};
+    for (const s of syms) {
+        const v = new Array(grid.length).fill(NaN);
+        peers[s].forEach(k => { v[pos.get(k.ts)] = k.close; });
+        ret[s] = v.map((x, k) => (k >= p ? x / v[k - p] - 1 : NaN));
+    }
+    return ts.map(t => {
+        const k = pos.get(t);
+        if (k === undefined) return 0;
+        const row = syms.map(s => ret[s][k]);
+        if (row.some(x => !Number.isFinite(x))) return 0;
+        const mine = ret[symbol][k], best = mine >= Math.max(...row), worst = mine <= Math.min(...row);
+        return best && !worst ? 1 : worst && !best ? -1 : 0;
+    });
+}
+
+export function indicators(c, ctx = {}) {        // c: [{ts, open, high, low, close}]; ctx: {symbol, peers: {SYM: candles}}
     const o = c.map(x => x.open), h = c.map(x => x.high), l = c.map(x => x.low), cl = c.map(x => x.close);
     const tr = c.map((x, i) => i === 0 ? x.high - x.low : Math.max(x.high - x.low, Math.abs(x.high - cl[i - 1]), Math.abs(x.low - cl[i - 1])));
     const atr = rolling(tr, ATR_PERIOD, mean);
@@ -59,6 +83,7 @@ export function indicators(c) {        // c: [{open, high, low, close, volume}]
         high_max: p => memo(`hh${p}`, () => shift1(rolling(h, p, w => Math.max(...w)))),
         low_min: p => memo(`ll${p}`, () => shift1(rolling(l, p, w => Math.min(...w)))),
         median: (arr, p) => rolling(arr, p, w => { const s = [...w].sort((a, b) => a - b), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }),
+        rank_ret: p => memo(`rank${p}`, () => rankRet(c.map(k => k.ts), ctx.symbol, ctx.peers, p)),
     };
 }
 
@@ -66,6 +91,7 @@ export function indicators(c) {        // c: [{open, high, low, close, volume}]
 const TREND_EXIT = { stop_atr: 2.0, target_atr: null, trail_atr: 3.0, max_hold: 60 };
 const MOM_EXIT = { stop_atr: 3.0, target_atr: null, trail_atr: null, max_hold: 7 };
 const REV_EXIT = { stop_atr: 3.0, target_atr: null, trail_atr: null, max_hold: 5 };
+const REL_EXIT = { stop_atr: 3.0, target_atr: null, trail_atr: null, max_hold: 7 };
 const sel = (n, f) => Array.from({ length: n }, (_, i) => f(i));
 const gt = (a, b) => Number.isFinite(a) && Number.isFinite(b) && a > b;     // confronti con NaN: falso, come numpy
 const lt = (a, b) => gt(b, a);
@@ -111,19 +137,24 @@ export const LAB = {
         desc: 'donchian20 solo a favore del regime: long sopra la media a 200, short sotto.' },
     donchian20_turtle: { family: 'trend', exit: { stop_atr: 2.0, target_atr: null, trail_atr: null, channel_exit: 10, max_hold: 120 }, tfs: ['1d', '4h'], fn: x => donchian(x, 20),
         desc: 'Ingressi di donchian20, uscita a canale: chiusura oltre il minimo/massimo delle 10 candele precedenti. Stop 2 ATR, massimo 120 candele.' },
+    // forza relativa: servono le candele di tutte e tre le coin (l'app le scarica)
+    relstrength30: { family: 'forza relativa', exit: REL_EXIT, tfs: ['1d', '4h'], peers: true, fn: x => x.rank_ret(30),
+        desc: 'Long se la coin ha il rendimento a 30 candele più alto delle tre, short se il più basso. Tenuta 7 candele, stop 3 ATR.' },
+    relstrength90: { family: 'forza relativa', exit: REL_EXIT, tfs: ['1d', '4h'], peers: true, fn: x => x.rank_ret(90),
+        desc: 'Come relstrength30 sul rendimento a 90 candele.' },
+    relstrength30_long: { family: 'forza relativa', exit: REL_EXIT, tfs: ['1d', '4h'], peers: true, fn: x => x.rank_ret(30).map(v => (v > 0 ? 1 : 0)),
+        desc: 'Solo long sulla coin più forte delle tre (rendimento a 30 candele).' },
 };
 // Strategie del laboratorio che l'app non può ricalcolare, con il motivo
 export const LAB_ONLY = {
     app_breakout_trail: 'usa la regola Breakout del bot in Python',
-    relstrength30: 'confronta le tre coin nello stesso istante', relstrength90: 'confronta le tre coin nello stesso istante',
-    relstrength30_long: 'confronta le tre coin nello stesso istante',
     funding_fade: 'usa lo storico del funding', donchian20_oi: 'usa lo storico dell\'open interest', crowd_fade: 'usa le posizioni dei trader',
 };
 
 // ---------- simulazione, come strategy_lab.simulate ----------
 // candles: [{ts (ms, apertura), open, high, low, close}], tfMs: durata della candela.
-export function simulate(candles, tfMs, spec) {
-    const x = indicators(candles);
+export function simulate(candles, tfMs, spec, ctx = {}) {
+    const x = indicators(candles, ctx);
     const sig = spec.fn(x), ex = spec.exit;
     const { open: o, high: h, low: l, close: c, atr } = x;
     const ts = candles.map(k => k.ts);

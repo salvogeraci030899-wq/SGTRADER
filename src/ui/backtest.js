@@ -35,7 +35,16 @@ const PAGE_LIMIT = 1000;
 // Storico Bitget a blocchi da 1000, andando indietro nel tempo. Ogni blocco chiede le candele
 // precedenti alla più vecchia già ricevuta (qualunque sia l'ordine della risposta); ci si ferma
 // quando non arrivano candele più vecchie. Solo candele chiuse, in ordine cronologico, senza doppioni.
+// Candele già scaricate (stessa coin e timeframe) riusate per 10 minuti: la forza relativa ne chiede tre serie
+const histCache = new Map();
 async function fetchHistory(asset, tf, onProgress) {
+    const key = `${asset}|${tf}`, hit = histCache.get(key);
+    if (hit && Date.now() - hit.at < 10 * 60_000) return hit.candles;
+    const candles = await fetchHistoryRaw(asset, tf, onProgress);
+    histCache.set(key, { at: Date.now(), candles });
+    return candles;
+}
+async function fetchHistoryRaw(asset, tf, onProgress) {
     const gran = tf === '1d' ? '1day' : tf;
     const byTs = new Map();
     let endTime = Date.now();
@@ -75,7 +84,7 @@ function isSignal(strategy, slice, price) {
 
 const STRATEGY_LABEL = { breakout: 'Breakout', mean_reversion: 'Mean Rev.', ma_crossover: 'MA Cross' };
 const APP_DESC = { breakout: 'Rottura a 20 candele con volume, RSI ed EMA200 (pagina Segnali).', mean_reversion: 'RSI sotto 35 vicino alla media a 200.', ma_crossover: 'EMA20 sopra EMA50 sopra EMA200.' };
-const FAMILY_ORDER = ['trend', 'momentum', 'ritorno alla media', 'volatilità'];
+const FAMILY_ORDER = ['trend', 'momentum', 'ritorno alla media', 'volatilità', 'forza relativa'];
 const isLab = v => v.startsWith('lab:');
 const labName = v => v.slice(4);
 const stratLabel = v => (isLab(v) ? labName(v).replace(/_/g, ' ') : STRATEGY_LABEL[v] || v);
@@ -222,10 +231,19 @@ async function runLabBacktest() {
     try {
         const candles = await fetchHistory(asset, tf, n => { btn.textContent = `Download dati... ${n}`; });
         if (candles.length < 600) throw new Error(`Dati insufficienti (${candles.length} candele): servono almeno 600 (300 per gli indicatori).`);
+        // forza relativa: servono anche le altre due coin, sugli stessi tempi
+        let ctx = {};
+        if (spec.peers) {
+            const peers = { [asset]: candles };
+            for (const other of ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'].filter(s2 => s2 !== asset)) {
+                peers[other] = await fetchHistory(other, tf, n => { btn.textContent = `Download ${SYM(other)}... ${n}`; });
+            }
+            ctx = { symbol: asset, peers };
+        }
         btn.textContent = 'Analisi in corso...';
         await new Promise(res => setTimeout(res, 20));
         await loadLabSummary();
-        const raw = labSimulate(candles, tfMs, spec);
+        const raw = labSimulate(candles, tfMs, spec, ctx);
         // "oltre il mercato": a ogni trade si toglie quanto avrebbe reso la sola esposizione (come nel Laboratorio)
         const cl = candles.map(c => c.close);
         let mu = 0; for (let k = 301; k < cl.length; k++) mu += (cl[k] / cl[k - 1] - 1) * 100;
