@@ -1,5 +1,5 @@
 {
- "last_run": "2026-11-12T16:08:20+00:00",
+ "last_run": "2026-11-12T17:34:27+00:00",
  "added": [
   "big_candle:1d",
   "tsmom30:1d",
@@ -11,9 +11,9 @@
   "Stato big candle trail 1d (su carta): 0 trade chiusi, 0 aperti.",
   "Stato tsmom30 1d (su carta): 0 trade chiusi, 0 aperti.",
   "Stato tsmom combo 1d (su carta): 0 trade chiusi, 0 aperti.",
-  "Capitale 16.06 USDT, rischio 0.5% a trade, stop tipico 5.0%: troppo poco per i minimi di Bitget, ogni trade reale verrebbe saltato. Servono almeno ~72 USDT (BTC), oppure un profilo con più rischio."
+  "Capitale 16.06 USDT, rischio 1.0% a trade, stop tipico 5.0%: troppo poco per i minimi di Bitget, ogni trade reale verrebbe saltato. Servono almeno ~36 USDT (BTC), oppure un profilo con più rischio."
  ],
- "report": "Rapporto settimanale:\n\n- Stato delle strategie su carta (big candle 1d, big candle trail 1d, tsmom30 1d, tsmom combo 1d): 0 trade chiusi, 0 trade aperti per tutte.\n- Capitale disponibile: 16,06 USDT.\n- Rischio impostato: 0,5 % per trade con stop tipico del 5,0 %. Con il capitale attuale il valore minimo richiesto da Bitget (circa 72 USDT per BTC) supera di gran lunga la disponibilità, perciò ogni trade reale verrebbe automaticamente scartato.\n- Nessuna variazione operativa rispetto alla settimana precedente. È necessario valutare l’aumento del capitale o la modifica del profilo di rischio per rendere operative le strategie.",
+ "report": "Settimana di trading: tutte le strategie (big candle 1d, big candle trail 1d, tsmom30 1d, tsmom combo 1d) hanno mostrato 0 trade chiusi e 0 trade aperti. Il capitale disponibile è di 16,06 USDT. Con un rischio impostato all’1 % per trade e uno stop tipico del 5 %, il valore minimo richiesto per aprire una posizione su Bitget è di circa 36 USDT (BTC), quindi nessuna operazione verrebbe eseguita con i parametri attuali. È necessario aumentare il capitale disponibile o rivedere il profilo di rischio per consentire l’attivazione delle strategie. Nessun altro cambiamento è stato registrato.",
  "report_model": "openai/gpt-oss-120b",
  "log": [
   {
@@ -43,30 +43,30 @@
  ],
  "settings": {
   "autonomy": "paper",
-  "profile": "bilanciato",
+  "profile": "aggressivo",
   "style": "swing"
  },
- "report_at": "2026-11-12T16:08:20+00:00",
+ "report_at": "2026-11-12T17:34:27+00:00",
  "capital": {
   "equity": 16.06,
   "stop_pct": 5.0,
-  "risk_pct": 0.5,
+  "risk_pct": 1.0,
   "symbols": {
    "BTCUSDT": {
-    "min_usdt": 7.2,
-    "needed": 72.03,
+    "min_usdt": 7.19,
+    "needed": 35.95,
     "ok": false,
     "min_size": 0.0001
    },
    "ETHUSDT": {
-    "min_usdt": 20.22,
-    "needed": 202.21,
+    "min_usdt": 20.12,
+    "needed": 100.6,
     "ok": false,
     "min_size": 0.01
    },
    "SOLUSDT": {
-    "min_usdt": 8.21,
-    "needed": 82.1,
+    "min_usdt": 8.15,
+    "needed": 40.74,
     "ok": false,
     "min_size": 0.1
    }
