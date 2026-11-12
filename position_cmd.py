@@ -4,6 +4,7 @@
     python position_cmd.py tp    BTCUSDT long 72000    # take profit della posizione sull'exchange
     python position_cmd.py sl    BTCUSDT long 69500    # stop loss della posizione sull'exchange
     python position_cmd.py clear BTCUSDT long          # toglie TP e SL della posizione
+    python position_cmd.py unsl  BTCUSDT long          # toglie solo lo stop loss (untp: solo il take profit)
 
 Regole fatte rispettare qui, qualunque cosa arrivi dall'app:
 - la posizione deve esistere su Bitget con quella direzione;
@@ -22,7 +23,7 @@ from datetime import datetime, timezone
 import executor
 from bitget_client import BitgetClient, BitgetError
 
-ACTIONS = ("close", "tp", "sl", "clear")
+ACTIONS = ("close", "tp", "sl", "clear", "untp", "unsl")
 # "refresh": nessun ordine, solo il conto riletto (chiesto dall'app aperta in modalità Reale)
 REFRESH = "refresh"
 # esito del comando, letto dal passo che salva lo stato (anche se il comando è fallito) e mostrato nell'app
@@ -46,7 +47,7 @@ def validate(action, symbol, side, price, position):
         raise CommandError("Coin o direzione non valide.")
     if not position or position.get("side") != side:
         raise CommandError(f"Su Bitget non c'è una posizione {side.upper()} su {symbol}.")
-    if action in ("close", "clear"):
+    if action in ("close", "clear", "untp", "unsl"):
         return None
     if price is None or not price > 0:
         raise CommandError("Prezzo mancante o non valido.")
@@ -116,6 +117,11 @@ def run(argv, client=None, notify=None, state_path=executor.STATE_PATH):
     elif action == "clear":
         n = client.cancel_all_tpsl(symbol)
         msg = f"Tolti {n} ordini TP/SL di {name} su Bitget."
+    elif action in ("untp", "unsl"):
+        kind = action[2:]
+        n = client.cancel_all_tpsl(symbol, only=kind)
+        the, a = ("il take profit", "un take profit") if kind == "tp" else ("lo stop loss", "uno stop loss")
+        msg = f"Tolto {the} di {name} su Bitget." if n else f"Su Bitget {name} non aveva {a}."
     else:
         client.set_tpsl(symbol, side, action, price)
         msg = f"{'Take profit' if action == 'tp' else 'Stop loss'} di {name} impostato su Bitget a {_fmt(price)} (scatta sul prezzo mark, a mercato)."

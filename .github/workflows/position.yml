@@ -6,10 +6,10 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: 'close, tp, sl, clear o refresh (solo rilettura del conto)'
+        description: 'close, tp, sl, clear, untp/unsl (toglie solo TP o SL) o refresh (solo rilettura del conto)'
         required: true
         type: choice
-        options: [close, tp, sl, clear, refresh]
+        options: [close, tp, sl, clear, untp, unsl, refresh]
       symbol:
         required: true
         type: choice
