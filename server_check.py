@@ -50,6 +50,14 @@ def main():
     print(f"1) IA senza origine dell'app: HTTP {status} {'(rifiutata, giusto)' if status == 403 else '(ATTESO 403)'}")
     ok &= status == 403
 
+    # Comandi senza chiave: devono essere rifiutati perché manca la chiave, non perché il server non ha APP_SECRET.
+    # Nessun comando viene eseguito (la richiesta si ferma al controllo della chiave).
+    status, body = post("/api/command", {"type": "alert", "op": "clear"})
+    err = (body or {}).get("error", "") if isinstance(body, dict) else ""
+    active = status == 401 and "non configurata" not in err
+    print(f"1b) Comando senza chiave app: HTTP {status} {err!r} {'(comandi attivi e protetti, giusto)' if active else '(ATTESO 401 con APP_SECRET configurata)'}")
+    ok &= active
+
     cs = candles()
     price = cs["1h"][-1][4] if cs["1h"] else 70000
     position = {"symbol": "BTCUSDT", "type": "LONG", "market": "FUTURES", "leverage": 2, "timeframe": "4h",
