@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-11T12:29:52+00:00",
+ "generated_at": "2026-11-12T08:40:18+00:00",
  "holdout_start": "2025-11-11",
  "trials_registered": 56,
  "fdr": 0.1,
@@ -74,7 +74,7 @@
     -1.4065,
     5.089
    ],
-   "excess_p": 0.15970666924952998,
+   "excess_p": 0.15970666924952995,
    "excess_by_coin": {
     "BTCUSDT": 0.607,
     "ETHUSDT": 2.051,
@@ -921,7 +921,7 @@
     -1.0557,
     8.0607
    ],
-   "excess_p": 0.10938874183607183,
+   "excess_p": 0.10938874183607185,
    "excess_by_coin": {
     "BTCUSDT": 1.478,
     "ETHUSDT": 3.611,
@@ -1444,7 +1444,7 @@
     -2.2133,
     5.9903
    ],
-   "excess_p": 0.18395261688897302,
+   "excess_p": 0.18395261688897305,
    "excess_by_coin": {
     "BTCUSDT": -0.409,
     "ETHUSDT": 4.35,
@@ -2524,7 +2524,7 @@
     -1.4998,
     6.9202
    ],
-   "p_value": 0.15450108612927743,
+   "p_value": 0.15450108612927746,
    "avg_bars": 22.4,
    "net_per_year_per_coin_pct": 18.0,
    "after_tax_per_year_per_coin_pct": 12.1,
@@ -3239,7 +3239,7 @@
     0.0244,
     1.6575
    ],
-   "p_value": 0.023125466691855154,
+   "p_value": 0.02312546669185515,
    "avg_bars": 6.8,
    "net_per_year_per_coin_pct": 38.8,
    "after_tax_per_year_per_coin_pct": 26.0,
@@ -3253,7 +3253,7 @@
     -0.0658,
     1.5703
    ],
-   "excess_p": 0.03625591100384025,
+   "excess_p": 0.036255911003840256,
    "excess_by_coin": {
     "BTCUSDT": 0.579,
     "ETHUSDT": 0.826,
@@ -4210,7 +4210,7 @@
     -0.6362,
     1.0518
    ],
-   "p_value": 0.33763834026297,
+   "p_value": 0.33763834026297007,
    "avg_bars": 6.7,
    "net_per_year_per_coin_pct": 8.4,
    "after_tax_per_year_per_coin_pct": 5.6,
@@ -9945,7 +9945,7 @@
     -1.0458,
     13.7352
    ],
-   "excess_p": 0.11172072544853329,
+   "excess_p": 0.1117207254485333,
    "excess_by_coin": {
     "BTCUSDT": 2.698,
     "ETHUSDT": 7.465,
@@ -10726,7 +10726,7 @@
     1.489,
     6.5113
    ],
-   "p_value": 0.0013009621670606356,
+   "p_value": 0.0013009621670606354,
    "avg_bars": 12.0,
    "net_per_year_per_coin_pct": 37.7,
    "after_tax_per_year_per_coin_pct": 25.3,
@@ -10740,7 +10740,7 @@
     1.4789,
     6.2055
    ],
-   "excess_p": 0.0013975289662340124,
+   "excess_p": 0.0013975289662340122,
    "excess_by_coin": {
     "BTCUSDT": 1.854,
     "ETHUSDT": 5.311,
@@ -11546,38 +11546,38 @@
    "holdout": {
     "n": 33,
     "win_rate": 36.4,
-    "avg_gross_pct": 1.299,
-    "avg_net_pct": 0.988,
+    "avg_gross_pct": 1.117,
+    "avg_net_pct": 0.808,
     "avg_net_ci": [
-     -4.4983,
-     7.6541
+     -4.6223,
+     7.4163
     ],
-    "p_value": 0.37824968802227976,
-    "avg_bars": 10.0,
-    "net_per_year_per_coin_pct": 11.2,
-    "after_tax_per_year_per_coin_pct": 7.5,
+    "p_value": 0.39946919354421323,
+    "avg_bars": 10.1,
+    "net_per_year_per_coin_pct": 9.1,
+    "after_tax_per_year_per_coin_pct": 6.1,
     "by_coin": {
-     "BTCUSDT": -0.232,
-     "ETHUSDT": -0.602,
-     "SOLUSDT": 5.449
+     "BTCUSDT": -0.323,
+     "ETHUSDT": -0.765,
+     "SOLUSDT": 5.114
     },
-    "excess_avg_pct": 0.982,
+    "excess_avg_pct": 0.793,
     "excess_ci": [
-     -4.297,
-     7.3441
+     -4.4587,
+     7.2036
     ],
-    "excess_p": 0.37615933794623446,
+    "excess_p": 0.39904585904621015,
     "excess_by_coin": {
-     "BTCUSDT": -0.181,
-     "ETHUSDT": -0.535,
-     "SOLUSDT": 5.236
+     "BTCUSDT": -0.28,
+     "ETHUSDT": -0.709,
+     "SOLUSDT": 4.9
     },
     "portfolio": {
      "n": 33,
      "skipped": 0,
-     "final_equity": 107.82,
-     "total_return_pct": 7.8,
-     "annual_return_pct": 8.1,
+     "final_equity": 107.33,
+     "total_return_pct": 7.3,
+     "annual_return_pct": 7.5,
      "max_drawdown_pct": -4.1,
      "years": 1.0,
      "curve": [
@@ -11702,16 +11702,16 @@
        105.62
       ],
       [
-       1794326400,
-       106.626
+       1794412800,
+       106.422
       ],
       [
-       1794326400,
-       107.033
+       1794412800,
+       106.716
       ],
       [
-       1794326400,
-       107.823
+       1794412800,
+       107.326
       ]
      ]
     },
@@ -11728,7 +11728,7 @@
     -0.0658,
     1.9489
    ],
-   "p_value": 0.035341180556337955,
+   "p_value": 0.03534118055633795,
    "avg_bars": 6.7,
    "net_per_year_per_coin_pct": 32.2,
    "after_tax_per_year_per_coin_pct": 21.6,
@@ -17023,7 +17023,7 @@
     -1.0591,
     7.7503
    ],
-   "p_value": 0.06995892448342389,
+   "p_value": 0.0699589244834239,
    "avg_bars": 18.9,
    "net_per_year_per_coin_pct": 22.6,
    "after_tax_per_year_per_coin_pct": 15.1,
@@ -26714,7 +26714,7 @@
     -0.5547,
     0.068
    ],
-   "excess_p": 0.9377109996005877,
+   "excess_p": 0.9377109996005878,
    "excess_by_coin": {
     "BTCUSDT": -0.372,
     "ETHUSDT": -0.3,
@@ -27761,7 +27761,7 @@
     0.0432,
     0.4392
    ],
-   "excess_p": 0.008589272314967129,
+   "excess_p": 0.00858927231496713,
    "excess_by_coin": {
     "BTCUSDT": 0.2,
     "ETHUSDT": 0.219,
@@ -28692,7 +28692,7 @@
     -0.0209,
     1.9232
    ],
-   "excess_p": 0.02627527192069041,
+   "excess_p": 0.026275271920690412,
    "excess_by_coin": {
     "BTCUSDT": 1.879,
     "ETHUSDT": 0.166,
@@ -30173,7 +30173,7 @@
     0.1807,
     1.3168
    ],
-   "p_value": 0.005569497682287789,
+   "p_value": 0.005569497682287788,
    "avg_bars": 20.8,
    "net_per_year_per_coin_pct": 32.7,
    "after_tax_per_year_per_coin_pct": 21.9,
@@ -31202,7 +31202,7 @@
     -0.1826,
     0.9514
    ],
-   "excess_p": 0.09444814188205036,
+   "excess_p": 0.09444814188205035,
    "excess_by_coin": {
     "BTCUSDT": 0.344,
     "ETHUSDT": 0.299,
@@ -34846,7 +34846,7 @@
     -0.1559,
     0.0645
    ],
-   "excess_p": 0.80267883984692,
+   "excess_p": 0.8026788398469199,
    "excess_by_coin": {
     "BTCUSDT": -0.234,
     "ETHUSDT": -0.029,
@@ -42033,7 +42033,7 @@
     -0.1388,
     0.1999
    ],
-   "p_value": 0.4012231575479088,
+   "p_value": 0.4012231575479089,
    "avg_bars": 21.3,
    "net_per_year_per_coin_pct": 2.6,
    "after_tax_per_year_per_coin_pct": 1.7,
@@ -42928,7 +42928,7 @@
     -0.1856,
     0.0686
    ],
-   "p_value": 0.8281608035512111,
+   "p_value": 0.8281608035512112,
    "avg_bars": 17.9,
    "net_per_year_per_coin_pct": -8.6,
    "after_tax_per_year_per_coin_pct": -8.6,
