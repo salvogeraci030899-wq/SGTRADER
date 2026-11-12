@@ -165,9 +165,9 @@ export function bitgetAccountText(acc) {
 export async function loadAutomation() {
     if (loading) return;
     loading = true;
-    let alertsState;
-    [cfg, ledger, lab, live, alertsState] = await Promise.all([getJson('automation.json'), getJson('paper_trades.json'), getJson('lab_summary.json'), getJson('live_trades.json'), getJson('alerts_state.json')]);
-    firedAlerts = (alertsState && alertsState._price_alerts_fired) || [];
+    let alertsState, quickState;
+    [cfg, ledger, lab, live, alertsState, quickState] = await Promise.all([getJson('automation.json'), getJson('paper_trades.json'), getJson('lab_summary.json'), getJson('live_trades.json'), getJson('alerts_state.json'), getJson('quick_state.json')]);
+    firedAlerts = [...((alertsState && alertsState._price_alerts_fired) || []), ...((quickState && quickState._price_alerts_fired) || [])];
     loaded = true;
     loading = false;
     for (const [key, mode] of Object.entries(pending)) if (currentMode(key, true) === mode) delete pending[key];

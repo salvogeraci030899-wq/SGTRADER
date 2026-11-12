@@ -165,11 +165,15 @@ def set_trading(cfg, value):
 
 def alert(cfg, op, arg, alerts_state_path=ALERTS_STATE_PATH):
     """Avvisi di prezzo (price_alerts.py): add BTCUSDT:above:75000 | del <id> | clear"""
-    try:
-        with open(alerts_state_path) as f:
-            fired_state = json.load(f)
-    except (OSError, ValueError):
-        fired_state = {}
+    # avvisi già scattati: quelli del controllo rapido (quick_state.json) e quelli di prima (alerts_state.json)
+    fired = []
+    for path in (alerts_state_path, os.path.join(os.path.dirname(alerts_state_path) or ".", "quick_state.json")):
+        try:
+            with open(path) as f:
+                fired += json.load(f).get(price_alerts.FIRED_KEY, [])
+        except (OSError, ValueError, AttributeError):
+            pass
+    fired_state = {price_alerts.FIRED_KEY: fired}
     try:
         if op == "add":
             msg = price_alerts.add(cfg, arg, fired_state)

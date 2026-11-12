@@ -75,6 +75,11 @@ export async function trigger(body, env, fetchFn) {
     return dispatch(env, fetchFn, 'bot.yml', { symbol, timeframe, force });
 }
 
+// Controllo rapido ogni 5 minuti (quick.yml): avvisi di prezzo e chiusure su Bitget, senza parametri
+export function quickCheck(env, fetchFn) {
+    return dispatch(env, fetchFn, 'quick.yml', {});
+}
+
 // Ogni comando ammesso, con i soli parametri che può ricevere
 export async function command(body, env, fetchFn) {
     const b = body || {};

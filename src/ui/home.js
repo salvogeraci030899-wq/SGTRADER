@@ -10,12 +10,12 @@ import { liveUpl, hasLiveMarks } from './trade.js';
 // Ogni blocco ha una sola fonte:
 //   mercato        ticker spot Bitget (ogni 10 s, solo con la Home aperta); di riserva dashboard.json
 //   conto simulato State.simState (posizioni aperte a mano dall'app)
-//   automazione    automation.json, paper_trades.json, live_trades.json pubblicati dal bot (ogni 60 s)
+//   automazione    automation.json, paper_trades.json, live_trades.json pubblicati dal bot (ogni 30 s)
 //   stato          ora dell'ultimo giro del bot (dashboard.json) e consenso tecnico della pagina Segnali
 
 const COINS = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'];
 const MARKET_EVERY_MS = 10_000;
-const BOT_FILES_EVERY_MS = 60_000;
+const BOT_FILES_EVERY_MS = 30_000;
 // Il bot parte ogni 15 minuti (Cloudflare): verde fino a 30 min, giallo fino a 2 h (soglia del
 // controllo di salute), poi rosso.
 const BOT_OK_MIN = 30, BOT_LATE_MIN = 120;
@@ -136,8 +136,8 @@ async function refreshBotFiles() {
     if (botInFlight) return;
     botInFlight = true;
     try {
-        const [cfg, ledger, live, alerts] = await Promise.all([getJson('automation.json'), getJson('paper_trades.json'), getJson('live_trades.json'), getJson('alerts_state.json')]);
-        bot = { cfg, ledger, live, fired: (alerts && alerts._price_alerts_fired) || [] };
+        const [cfg, ledger, live, alerts, quick] = await Promise.all([getJson('automation.json'), getJson('paper_trades.json'), getJson('live_trades.json'), getJson('alerts_state.json'), getJson('quick_state.json')]);
+        bot = { cfg, ledger, live, fired: [...((alerts && alerts._price_alerts_fired) || []), ...((quick && quick._price_alerts_fired) || [])] };
     } finally { botInFlight = false; }
     renderAutomationCard();
     renderAccount();
