@@ -4,9 +4,9 @@ name: Test
 on:
   push:
     branches: [main]
-    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', 'src/core/**', '.github/workflows/tests.yml']
+    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', 'src/**', 'index.html', 'style.css', '.github/workflows/tests.yml']
   pull_request:
-    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', 'src/core/**', '.github/workflows/tests.yml']
+    paths: ['**.py', 'tests/**', 'api/**', 'worker/**', 'src/**', 'index.html', 'style.css', '.github/workflows/tests.yml']
 
 permissions:
   contents: read
@@ -46,3 +46,20 @@ jobs:
       # Chiamate vere a Bitget futures: fallisce se mancano prezzo mark, funding o open interest
       - name: Dati futures veri
         run: python futures_data.py --check
+
+  # Interfaccia in un browser vero: ogni pagina su iPhone 15 e 17 Pro, Simulato e Reale,
+  # senza errori JavaScript e senza scroll verticale (tests/ui_smoke.mjs)
+  ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      - name: Installa Playwright e Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.49.1
+          npx playwright install --with-deps chromium
+      - name: Prova dell'interfaccia
+        run: node tests/ui_smoke.mjs
