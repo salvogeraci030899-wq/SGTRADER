@@ -17,6 +17,7 @@ COMMANDS = [
     ("agente", "Agente: decisioni e proposte"),
     ("carta", "Strategie su carta"),
     ("avvisi", "Avvisi di prezzo attivi"),
+    ("emergenza", "Spegne tutto (con CONFERMA)"),
     ("aiuto", "Elenco dei comandi"),
 ]
 
