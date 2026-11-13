@@ -1322,3 +1322,12 @@ html.pwa-mode .nav-bar { margin: 0 var(--nav-inset) var(--nav-inset); }
 #page-settings .theme-toggle button { min-height: 28px; }
 .pill-btn { border-radius: var(--r-pill); }
 .home-tf-btn { border-radius: 6px; }
+/* Vetro: anche campi, riquadri interni e selettori (che usano --field) diventano vetro invece di restare neri pieni.
+   Velo chiaro leggero sopra la scheda: il campo resta riconoscibile e si vedono le luci dello sfondo. */
+html.glass { --field: rgba(255, 255, 255, 0.05); }
+html.glass[data-theme="light"] { --field: rgba(255, 255, 255, 0.5); }
+html.glass input, html.glass select, html.glass textarea, html.glass .results-box, html.glass .theme-toggle, html.glass .mode-switch {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06); }
+html.glass[data-theme="light"] input, html.glass[data-theme="light"] select, html.glass[data-theme="light"] textarea,
+html.glass[data-theme="light"] .results-box, html.glass[data-theme="light"] .theme-toggle, html.glass[data-theme="light"] .mode-switch {
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05); }
