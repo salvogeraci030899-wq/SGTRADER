@@ -22,7 +22,6 @@ export function setMarketView(v) {
     if (view === 'sig' && window.orderSignalAssets) { window.orderSignalAssets(); if (window.renderSignalGrid) window.renderSignalGrid(); }
     if (view === 'alerts') { renderMarketAlerts(); if (!getAutoState().loaded) loadAutomation(); }
 }
-export const marketView = () => view;
 
 const day = iso => (iso ? new Date(iso).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' }) : '—');
 const coin = s => String(s || '').replace('USDT', '');
