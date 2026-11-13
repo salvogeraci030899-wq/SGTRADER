@@ -1,0 +1,18 @@
+name: Esperimento uscite
+# Temporaneo: gira solo sulla pull request dell'esperimento, non va unito
+on:
+  pull_request:
+    paths: ['tools/exit_experiment.py', '.github/workflows/exit-experiment.yml']
+permissions:
+  contents: read
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - run: pip install "pandas>=2.2.2" numpy requests
+      - run: python tools/exit_experiment.py
