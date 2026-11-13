@@ -101,6 +101,22 @@ def test_ingressi_rifiutati():
         assert sum("NON aperta" in n for n in notes) == 3
 
 
+def test_massimo_nello_stesso_verso():
+    # quattro short insieme (le coin scendono insieme): con il limite a 2 se ne aprono solo due
+    with tempfile.TemporaryDirectory() as d:
+        path = os.path.join(d, "live.json")
+        shorts = [trade("BTCUSDT", -1, 100_000, 102_000), trade("ETHUSDT", -1, 3000, 3060), trade("SOLUSDT", -1, 150, 153), trade("XRPUSDT", -1, 1.0, 1.02)]
+        cfg, ledger = setup(shorts + [trade("DOGEUSDT", 1, 0.1, 0.098)], cfg_extra={"risk": {"dry_run_equity": 10_000, "max_open_positions": 6}})
+        go(cfg, ledger, path)
+        pos = json.load(open(path))["positions"]
+        opened = [p for p in pos.values() if p["status"] == "open"]
+        assert sum(p["side"] == "short" for p in opened) == 2
+        assert sum(p["side"] == "long" for p in opened) == 1                    # un long passa ancora
+        assert sum("stesso verso" in (p.get("reason") or "") for p in pos.values()) == 2
+    assert ex.risk_config({})["max_same_direction"] == 2
+    assert au.PROFILES["prudente"]["max_same_direction"] == 1
+
+
 def test_perdita_giornaliera():
     with tempfile.TemporaryDirectory() as d:
         path = os.path.join(d, "live.json")
