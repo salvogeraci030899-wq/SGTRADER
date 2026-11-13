@@ -1303,8 +1303,9 @@ html.pwa-mode .nav-bar { margin: 0 var(--nav-inset) var(--nav-inset); }
 .page-tabs button, .pos-views button, .market-toggle button, .theme-toggle button, .mode-switch button { border-radius: var(--r-pill); min-height: 0; }
 .market-toggle button { padding: 0 12px; }
 .mode-switch button { min-height: 44px; }
-/* tasti tondi come quelli di sistema */
-.header-icon-btn, .btn-fullscreen, .chart-tool, .home-chart-fullscreen, .settings-close { border-radius: 50%; }
+/* tasti con icona (in alto a destra, chiudi, tasti dei grafici) e timeframe dei grafici: angoli come prima, non tondi */
+.header-icon-btn { border-radius: 12px; }
+.btn-fullscreen, .chart-tool, .home-chart-fullscreen, .settings-close { border-radius: 8px; }
 /* tasti d'azione a capsula */
 .btn-cta-primary, .btn-generic, .btn-calc, .modal-actions button, .modal-box .modal-actions button, .win-body .btn-confirm, .win-body .btn-cancel,
 .cap-sign button, .assist-plan-actions button, .agent-prop-inline button, .mkt-new-alert, .ai-live-btn, .alert-del { border-radius: var(--r-pill); }
@@ -1315,4 +1316,4 @@ html.pwa-mode .nav-bar { margin: 0 var(--nav-inset) var(--nav-inset); }
 .market-toggle button, .theme-toggle button { min-height: 30px; }
 #page-settings .theme-toggle button { min-height: 28px; }
 .pill-btn { border-radius: var(--r-pill); }
-.home-tf-btn { border-radius: var(--r-pill); }
+.home-tf-btn { border-radius: 6px; }
