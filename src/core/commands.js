@@ -49,8 +49,11 @@ async function dispatch(env, fetchFn, workflow, inputs) {
     if (!token) return json(500, { error: 'Token GitHub non configurato sul server' });
     const repo = String(env.GH_REPO || CONFIG.GH_REPO).trim();
     const ref = String(env.GH_REF || 'main').trim();
+    // con il numero del repository (passato dalla pubblicazione del server) i comandi funzionano anche se il nome cambia
+    const id = String(env.GH_REPO_ID || '').trim();
+    const api = /^\d+$/.test(id) ? `https://api.github.com/repositories/${id}` : `https://api.github.com/repos/${repo}`;
     try {
-        const r = await fetchFn(`https://api.github.com/repos/${repo}/actions/workflows/${workflow}/dispatches`, {
+        const r = await fetchFn(`${api}/actions/workflows/${workflow}/dispatches`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/vnd.github+json',
