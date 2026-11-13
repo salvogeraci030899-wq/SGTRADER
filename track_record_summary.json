@@ -1,10 +1,10 @@
 {
- "generated_at": "2026-11-13T17:07:11+00:00",
+ "generated_at": "2026-11-13T18:08:35+00:00",
  "since": "2026-11-10T15:36:54+00:00",
  "counts": {
-  "total": 243,
+  "total": 246,
   "open": 54,
-  "resolved": 189,
+  "resolved": 192,
   "expired": 0
  },
  "costs": {
@@ -16,11 +16,11 @@
  "horizon_candles": 7,
  "overall": {
   "predictions": {
-   "n": 189,
-   "direction_hit_rate": 29.8,
-   "base_rate_up_pct": 28.6,
-   "brier": 0.5142,
-   "brier_baseline": 0.2041,
+   "n": 192,
+   "direction_hit_rate": 29.3,
+   "base_rate_up_pct": 28.1,
+   "brier": 0.5185,
+   "brier_baseline": 0.2021,
    "calibration": [
     {
      "range": "30-40",
@@ -48,9 +48,9 @@
     },
     {
      "range": "70-80",
-     "n": 23,
-     "predicted_up_pct": 74.7,
-     "realized_up_pct": 13.0
+     "n": 24,
+     "predicted_up_pct": 74.8,
+     "realized_up_pct": 12.5
     },
     {
      "range": "80-90",
@@ -60,18 +60,18 @@
     },
     {
      "range": "90-100",
-     "n": 92,
+     "n": 94,
      "predicted_up_pct": 95.0,
-     "realized_up_pct": 40.2
+     "realized_up_pct": 39.4
     }
    ]
   },
   "directional_signals": {
-   "n": 144,
-   "win_rate": 36.8,
-   "avg_net_pct": -0.533,
-   "total_net_pct": -76.76,
-   "total_after_tax_pct": -76.76,
+   "n": 146,
+   "win_rate": 37.0,
+   "avg_net_pct": -0.529,
+   "total_net_pct": -77.17,
+   "total_after_tax_pct": -77.17,
    "profit_factor": 0.4,
    "max_drawdown_pct": -103.21
   },
@@ -100,11 +100,11 @@
   },
   "BTCUSDT_1h": {
    "predictions": {
-    "n": 52,
-    "direction_hit_rate": 27.5,
-    "base_rate_up_pct": 25.0,
-    "brier": 0.577,
-    "brier_baseline": 0.1875,
+    "n": 53,
+    "direction_hit_rate": 26.9,
+    "base_rate_up_pct": 24.5,
+    "brier": 0.5828,
+    "brier_baseline": 0.1851,
     "calibration": [
      {
       "range": "30-40",
@@ -138,19 +138,19 @@
      },
      {
       "range": "90-100",
-      "n": 35,
-      "predicted_up_pct": 96.0,
-      "realized_up_pct": 31.4
+      "n": 36,
+      "predicted_up_pct": 95.9,
+      "realized_up_pct": 30.6
      }
     ]
    },
    "directional_signals": {
-    "n": 42,
-    "win_rate": 28.6,
-    "avg_net_pct": -0.583,
-    "total_net_pct": -24.49,
-    "total_after_tax_pct": -24.49,
-    "profit_factor": 0.26,
+    "n": 43,
+    "win_rate": 27.9,
+    "avg_net_pct": -0.613,
+    "total_net_pct": -26.38,
+    "total_after_tax_pct": -26.38,
+    "profit_factor": 0.25,
     "max_drawdown_pct": -31.49
    },
    "tradeable_signals": {
@@ -226,11 +226,11 @@
   },
   "ETHUSDT_1h": {
    "predictions": {
-    "n": 52,
-    "direction_hit_rate": 36.5,
-    "base_rate_up_pct": 34.6,
-    "brier": 0.4188,
-    "brier_baseline": 0.2263,
+    "n": 53,
+    "direction_hit_rate": 35.8,
+    "base_rate_up_pct": 34.0,
+    "brier": 0.4276,
+    "brier_baseline": 0.2243,
     "calibration": [
      {
       "range": "40-50",
@@ -264,19 +264,19 @@
      },
      {
       "range": "90-100",
-      "n": 19,
-      "predicted_up_pct": 95.2,
-      "realized_up_pct": 52.6
+      "n": 20,
+      "predicted_up_pct": 95.1,
+      "realized_up_pct": 50.0
      }
     ]
    },
    "directional_signals": {
-    "n": 35,
-    "win_rate": 45.7,
-    "avg_net_pct": -0.213,
-    "total_net_pct": -7.45,
-    "total_after_tax_pct": -7.45,
-    "profit_factor": 0.69,
+    "n": 36,
+    "win_rate": 47.2,
+    "avg_net_pct": -0.166,
+    "total_net_pct": -5.97,
+    "total_after_tax_pct": -5.97,
+    "profit_factor": 0.75,
     "max_drawdown_pct": -22.25
    },
    "tradeable_signals": {
@@ -352,11 +352,11 @@
   },
   "SOLUSDT_1h": {
    "predictions": {
-    "n": 52,
-    "direction_hit_rate": 30.8,
-    "base_rate_up_pct": 30.8,
-    "brier": 0.5076,
-    "brier_baseline": 0.213,
+    "n": 53,
+    "direction_hit_rate": 30.2,
+    "base_rate_up_pct": 30.2,
+    "brier": 0.5095,
+    "brier_baseline": 0.2108,
     "calibration": [
      {
       "range": "50-60",
@@ -372,9 +372,9 @@
      },
      {
       "range": "70-80",
-      "n": 5,
-      "predicted_up_pct": 75.6,
-      "realized_up_pct": 20.0
+      "n": 6,
+      "predicted_up_pct": 76.0,
+      "realized_up_pct": 16.7
      },
      {
       "range": "80-90",
