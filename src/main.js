@@ -214,6 +214,7 @@ normalizeWindows();          // finestre a schermo intero con l'intestazione del
 watchWalls();                // sfondo dinamico: luci allineate tra app, finestre, Assistente e blocco
 Lock.initLock();
 window.setPosView = Orders.setPosView;
+window.openBotPaper = () => { window.switchTab('trade'); Orders.setPosView('bot'); };
 window.updateCoinFade = TerminalUI.updateCoinFade;
 window.orderSignalAssets = SignalsUI.orderSignalAssets;
 window.renderSignalGrid = SignalsUI.renderSignalGrid;
@@ -317,7 +318,7 @@ window.switchTab = (tabId) => {
         const top = HomeUI.topCoins()[0];
         if (top && top !== State.currentAsset) TerminalUI.setAsset(top, false);
     }
-    if (tabId === 'trade' && !Helpers.chosenRecently('posView')) Orders.setPosView('open', false);
+    if (tabId === 'trade' && !Helpers.chosenRecently('posView')) Orders.autoPosView();
     if (tabId === 'journal') Results.autoResultsSource();
     if (tabId === 'home') {
         HomeUI.updateHome();
