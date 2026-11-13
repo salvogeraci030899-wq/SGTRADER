@@ -98,15 +98,20 @@ function openSymbols() {
     for (const e of Object.values((ledger && ledger.strategies) || {})) for (const t of e.trades || []) if (t.open) out.add(t.symbol);
     return out;
 }
+// Quanto conta una coin adesso per te: posizione aperta (3), avviso entro il 3% (2-3), movimento 24h (0-1).
+// Lo usano la Home (3 coin in alto), il Mercato (coin all'apertura) e i Segnali (ordine delle pagine).
+export function coinRelevance(sym, open = openSymbols()) {
+    const m = market[sym], px = (m && m.px) || State.livePx[sym];
+    let v = open.has(sym) ? 3 : 0;
+    const near = px ? Math.min(...priceAlerts().filter(a => a.symbol === sym).map(a => Math.abs(a.price / px - 1)), Infinity) : Infinity;
+    if (near <= 0.03) v += 2 + (1 - near / 0.03);
+    return v + Math.min(1, Math.abs((m && m.chg) || 0) / 20);
+}
+export const topCoins = () => shown.slice();
+
 export function pickCoins() {
     const open = openSymbols();
-    const score = sym => {
-        const m = market[sym], px = m && m.px;
-        let v = open.has(sym) ? 3 : 0;
-        const near = px ? Math.min(...priceAlerts().filter(a => a.symbol === sym).map(a => Math.abs(a.price / px - 1)), Infinity) : Infinity;
-        if (near <= 0.03) v += 2 + (1 - near / 0.03);
-        return v + Math.min(1, Math.abs((m && m.chg) || 0) / 20);           // movimento 24h: conta poco, ordina il resto
-    };
+    const score = sym => coinRelevance(sym, open);
     const best = COINS.map(s => [s, score(s)]).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([s]) => s);
     // ordine stabile: le coin che restano tengono il loro posto, le nuove prendono quelli liberi
     const next = shown.filter(s => best.includes(s));

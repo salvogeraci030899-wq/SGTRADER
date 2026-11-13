@@ -19,6 +19,7 @@ export function setMarketView(v) {
     $('mktSub').style.display = view === 'chart' ? 'none' : '';
     $('mktSub').textContent = SUB[view] || '';
     if (view === 'chart' && window.resizeChart) requestAnimationFrame(window.resizeChart);
+    if (view === 'sig' && window.orderSignalAssets) { window.orderSignalAssets(); if (window.renderSignalGrid) window.renderSignalGrid(); }
     if (view === 'alerts') { renderMarketAlerts(); if (!getAutoState().loaded) loadAutomation(); }
 }
 export const marketView = () => view;
@@ -37,7 +38,9 @@ export function renderMarketAlerts() {
             + `<small>${fired ? 'scattato: messaggio inviato su Telegram' : `${a.side === 'above' ? 'in salita' : 'in discesa'} · dal ${escapeHtml(day(a.created_at))}${dist}`}</small></div>`
             + `<button type="button" class="ord-x" title="Togli" onclick="removePriceAlert('${escapeHtml(a.id)}')">✕</button></div>`;
     };
-    const active = priceAlerts(), fired = firedPriceAlerts().slice(-6).reverse();
+    // i più vicini a scattare in cima (senza prezzo in fondo)
+    const dist = a => (State.livePx[a.symbol] ? Math.abs(a.price / State.livePx[a.symbol] - 1) : Infinity);
+    const active = priceAlerts().slice().sort((a, b) => dist(a) - dist(b)), fired = firedPriceAlerts().slice(-6).reverse();
     const section = (title, rows, empty) => `<div class="ord-sec"><div class="ord-title">${title}${rows.length > 1 ? ` <span class="ord-count">${rows.length}</span>` : ''}</div>`
         + `<div class="ord-list${rows.length > 1 ? ' many' : ''}">${rows.length ? rows.join('') : `<div class="ord-empty">${empty}</div>`}</div></div>`;
     box.innerHTML = section('Attivi', active.map(a => card(a, false)), 'Nessun avviso attivo. Crealo qui sotto, dal grafico (campanella a schermo intero) o dall\'assistente.')

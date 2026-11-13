@@ -4,7 +4,7 @@
 // Comandi inviati ed esiti stanno nel Registro; gli avvisi di prezzo in Mercato → Avvisi.
 // Gli ordini si creano dalla pagina Trade o con l'assistente; qui si vedono e si tolgono.
 import { State } from '../core/state.js';
-import { $, SYM, escapeHtml, fmtPrice } from '../utils/helpers.js';
+import { $, SYM, escapeHtml, fmtPrice, markChosen } from '../utils/helpers.js';
 import { isRealMode, realPositions } from './history.js';
 import { isRealOrderRemoving } from './automation.js';
 
@@ -12,7 +12,8 @@ const VIEW_KEY = 'sg_pos_view';
 let view = 'open';
 try { view = localStorage.getItem(VIEW_KEY) === 'orders' ? 'orders' : 'open'; } catch (e) {}
 
-export function setPosView(v) {
+export function setPosView(v, manual = true) {
+    if (manual) markChosen('posView');
     view = v === 'orders' ? 'orders' : 'open';
     try { localStorage.setItem(VIEW_KEY, view); } catch (e) {}
     applyView();

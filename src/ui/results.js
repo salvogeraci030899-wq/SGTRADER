@@ -8,7 +8,7 @@
 // In Reale i trade si dividono in A mano e Agente: è dell'agente un trade chiuso su Bitget che corrisponde
 // (coin, lato, apertura entro 10 minuti) a una posizione aperta dall'esecutore (live_trades.json).
 import { State } from '../core/state.js';
-import { $, SYM, escapeHtml, fmtIt, fetchData } from '../utils/helpers.js';
+import { $, SYM, escapeHtml, fmtIt, fetchData, markChosen, chosenRecently } from '../utils/helpers.js';
 import { isRealMode, realHistory, realAccount } from './history.js';
 import { getAutoState, loadAutomation } from './automation.js';
 
@@ -111,14 +111,33 @@ function spark(curve) {
     return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" class="agent-spark"><line x1="0" x2="${W}" y1="${Y(0).toFixed(1)}" y2="${Y(0).toFixed(1)}" class="zero"/><polyline points="${pts}" class="${curve[curve.length - 1][1] >= 0 ? 'up' : 'down'}"/></svg>`;
 }
 
-export function setResultsSource(s) { src = SRC[s] ? s : 'real'; renderResults(); }
+export function setResultsSource(s) { markChosen('resSrc'); src = SRC[s] ? s : 'real'; renderResults(); }
+
+// All'apertura della pagina (se non hai scelto tu negli ultimi 30 minuti): la fonte che ha dati nel periodo,
+// nell'ordine Reale, Carta, Simulato; se nessuna ne ha, quella della modalità attiva
+export function autoResultsSource() { if (!chosenRecently('resSrc')) src = null; }
+function pickSource() {
+    const start = periodStart(period).getTime();
+    const has = s => trades(s).some(x => x.t && x.t >= start);
+    const from = new Date(start).toISOString().slice(0, 10);
+    const realDays = equity && equity.days && Object.entries(equity.days).some(([d, r]) => d >= from && r.pnl);
+    if (realDays || has('real')) return 'real';
+    if (has('paper')) return 'paper';
+    if (has('sim')) return 'sim';
+    return isRealMode() ? 'real' : 'sim';
+}
 export function setResultsPeriod(p) { period = PERIODS[p] ? p : 'month'; renderResults(); }
 export function setResultsWho(w) { who = WHO[w] ? w : 'all'; renderResults(); }
 
 export async function renderResults() {
     const box = $('resBody');
     if (!box || !$('page-journal').classList.contains('active')) return;
-    if (!src) src = isRealMode() ? 'real' : 'sim';
+    if (!src) {
+        box.innerHTML = '<div class="empty-hint">Caricamento…</div>';
+        if (!getAutoState().loaded) await loadAutomation();
+        await loadEquity();
+        src = pickSource();
+    }
     for (const k of Object.keys(SRC)) $(`res-src-${k}`).classList.toggle('active', k === src);
     for (const k of Object.keys(PERIODS)) $(`res-per-${k}`).classList.toggle('active', k === period);
     $('journalSubtitle').textContent = SRC[src];

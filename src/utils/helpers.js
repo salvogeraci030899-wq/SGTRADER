@@ -34,6 +34,12 @@ export function clearAppKey() {
 // repository, permesso "Actions: Read and write") salvato su questo dispositivo. L'app avvia i
 // workflow direttamente con la stessa logica e gli stessi controlli del server (api/_core.js).
 // Il token può solo avviare workflow: non legge i segreti e non modifica il codice.
+// Scelte fatte a mano (coin del Mercato, scheda dell'Agente, fonte dei Risultati...): per 30 minuti le pagine
+// non le cambiano da sole quando le riapri
+const chosenAt = {};
+export const markChosen = key => { chosenAt[key] = Date.now(); };
+export const chosenRecently = (key, ms = 30 * 60e3) => Date.now() - (chosenAt[key] || 0) < ms;
+
 // Chiave dei dati: apre i file personali che il bot salva cifrati nel repository pubblico (tools/datacrypt.py).
 // Resta solo su questo dispositivo; al server va solo una prova derivata (header x-sgt-proof).
 const DATA_KEY_STORAGE = 'sgt_data_key';
