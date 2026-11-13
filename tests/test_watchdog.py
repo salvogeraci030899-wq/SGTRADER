@@ -35,7 +35,7 @@ def test_tasti_sotto_i_messaggi():
     assert kb("✅ POSIZIONE CHIUSA · Bitget reale") == ["stato", "posizioni", "agente"]
     assert kb("🤖 ESECUTORE (REALE)\nPosizioni diverse dal previsto. Esecutore bloccato: controlla su Bitget")[0] == "emg"
     assert kb("Perdita del giorno -3,20% oltre il limite (3%)")[0] == "emg"
-    assert kb("🩺 SGTRADER, CONTROLLO DI SALUTE\n- Il bot non parte da 3 ore")[0] == "emg"
+    assert kb("🩺 PinscherTrade, CONTROLLO DI SALUTE\n- Il bot non parte da 3 ore")[0] == "emg"
     assert kb("Emergenza: chiuse 2 posizioni.") == ["stato", "posizioni", "agente"]          # già in emergenza
     assert all(b.get("callback_data") and not b.get("url") for row in wd.keyboard_for("⚠️")["inline_keyboard"] for b in row)   # niente link
 

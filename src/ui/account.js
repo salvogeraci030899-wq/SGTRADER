@@ -124,7 +124,7 @@ export function renderSettings() {
     const pref = getThemePref();
     document.querySelectorAll('#themeToggle button').forEach(b => b.classList.toggle('active', b.dataset.pref === pref));
     const version = document.querySelector('meta[name="app-version"]')?.content || '—';
-    set('settingsSubtitle', `SGTRADER · v${version}`);
+    set('settingsSubtitle', `PinscherTrade · v${version}`);
     const mode = commandMode();
     set('setConnVal', { server: 'server', github: 'token GitHub', site: 'questo sito', cloud: 'server Cloudflare', none: 'da impostare' }[mode]);
     updateModePills();

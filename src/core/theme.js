@@ -1,10 +1,10 @@
 // --- TEMA: chiaro, scuro o automatico (segue iOS) ---
 // La preferenza resta su questo dispositivo (localStorage). Il primo frame lo imposta lo script in
 // <head> di index.html; qui si gestiscono il cambio dalle Impostazioni e il cambio di iOS mentre
-// l'app è aperta. Chi deve ridisegnarsi (i grafici) ascolta l'evento "sgt-theme".
+// l'app è aperta. Chi deve ridisegnarsi (i grafici) ascolta l'evento "pt-theme".
 
-const KEY = 'sgt_theme';
-const BAR_KEY = 'sgt_statusbar';     // 'integrated' | 'separate'
+const KEY = 'pt_theme';
+const BAR_KEY = 'pt_statusbar';     // 'integrated' | 'separate'
 const MODES = ['auto', 'light', 'dark'];
 const media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
 
@@ -25,7 +25,7 @@ export function applyTheme() {
     if (meta) meta.setAttribute('content', theme === 'light' ? '#f2f2f7' : '#000000');
     const bar = document.getElementById('metaStatusBar');
     if (bar) bar.setAttribute('content', theme === 'light' ? 'default' : (getStatusBarPref() === 'separate' ? 'black' : 'black-translucent'));
-    window.dispatchEvent(new CustomEvent('sgt-theme', { detail: theme }));
+    window.dispatchEvent(new CustomEvent('pt-theme', { detail: theme }));
     return theme;
 }
 
@@ -48,7 +48,7 @@ export function initTheme() {
 export const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 // Vetro (stile Liquid Glass) su barra, tasti e schede: 'off' | 'on' (sfondo fermo) | 'anim' (sfondo che si muove piano), spento all'inizio
-const GLASS_KEY = 'sgt_glass';
+const GLASS_KEY = 'pt_glass';
 const GLASS = ['off', 'on', 'anim'];
 export function getGlassPref() {
     try { const v = localStorage.getItem(GLASS_KEY); return GLASS.includes(v) ? v : 'off'; } catch (e) { return 'off'; }

@@ -40,14 +40,14 @@ try {
         const ctx = await browser.newContext({ viewport: { width: dev.w, height: dev.h }, isMobile: true, hasTouch: true, colorScheme: glass ? 'light' : 'dark' });
         await ctx.addInitScript(([pwa, glass]) => {
             try {
-                localStorage.setItem('kronos_gh_token', 'github_pat_' + 'x'.repeat(30));
+                localStorage.setItem('pt_gh_token', 'github_pat_' + 'x'.repeat(30));
                 // un trade simulato aperto, per provare la scheda e l'assistente (in Simulato)
-                localStorage.setItem('kronos_state_v3', JSON.stringify({ initialAccountBalance: 2000, freeBalance: 1800, history: [], activeTrades: [
+                localStorage.setItem('pt_state_v3', JSON.stringify({ initialAccountBalance: 2000, freeBalance: 1800, history: [], activeTrades: [
                     { id: 'ui1', symbol: 'BTCUSDT', type: 'LONG', entryPrice: 70000, slPrice: 60000, tpPrice: 90000, capitalInvested: 200, margin: 200, size: 0.003,
                       entryTime: Date.now() - 3600e3, timerSeconds: 86400 * 7, granularity: '1d', market: 'SPOT' }] }));
             } catch (e) {}
             if (pwa) Object.defineProperty(navigator, 'standalone', { get: () => true });
-            if (glass) try { localStorage.setItem('sgt_glass', 'anim'); localStorage.setItem('sgt_theme', 'light'); } catch (e) {}
+            if (glass) try { localStorage.setItem('pt_glass', 'anim'); localStorage.setItem('pt_theme', 'light'); } catch (e) {}
         }, [!!dev.pwa, !!glass]);
         const page = await ctx.newPage();
         const errors = [];

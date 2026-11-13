@@ -1,4 +1,5 @@
 import { sanitizeAction } from './rules.js';
+import { CONFIG } from './config.js';
 import { telegramWebhook } from './telegram.js';
 // Logica comune dei comandi: la usano l'app nel browser (utils/helpers.js), Vercel (api/*.js, tramite api/_core.js)
 // e Cloudflare Workers (worker/index.js).
@@ -31,7 +32,7 @@ export function safeEqual(a, b) {
 // IA e avvio del bot (required = false) restano aperti all'app anche con APP_SECRET impostata: basta
 // l'origine dell'app (il browser la manda sempre) oppure la chiave. Sul server Cloudflare c'è in più il
 // limite di richieste al minuto (worker/index.js).
-export const DEFAULT_ORIGINS = 'https://salvogeraci030899-wq.github.io,https://sgtrader.vercel.app';
+export const DEFAULT_ORIGINS = 'https://salvogeraci030899-wq.github.io,https://sgtrader.vercel.app,https://pinschertrade.vercel.app';
 export function isAuthorized(headers, env, required = false) {
     const secret = String(env.APP_SECRET || '').trim();
     if (!secret) return !required;
@@ -46,7 +47,7 @@ const json = (status, body) => ({ status, body });
 async function dispatch(env, fetchFn, workflow, inputs) {
     const token = env.GH_TOKEN;
     if (!token) return json(500, { error: 'Token GitHub non configurato sul server' });
-    const repo = String(env.GH_REPO || 'salvogeraci030899-wq/SGTRADER').trim();
+    const repo = String(env.GH_REPO || CONFIG.GH_REPO).trim();
     const ref = String(env.GH_REF || 'main').trim();
     try {
         const r = await fetchFn(`https://api.github.com/repos/${repo}/actions/workflows/${workflow}/dispatches`, {
@@ -56,13 +57,13 @@ async function dispatch(env, fetchFn, workflow, inputs) {
                 'Authorization': `Bearer ${token}`,
                 'X-GitHub-Api-Version': '2022-11-28',
                 'Content-Type': 'application/json',
-                'User-Agent': 'SGTRADER-server'
+                'User-Agent': 'PinscherTrade-server'
             },
             body: JSON.stringify({ ref, inputs })
         });
         if (r.ok) return json(200, { status: 'started', workflow });
         if ([401, 403, 404].includes(r.status)) {
-            return json(502, { error: 'GitHub ha rifiutato il token: deve essere valido, sul repository SGTRADER, con permesso "Actions: Read and write".', status: r.status });
+            return json(502, { error: 'GitHub ha rifiutato il token: deve essere valido, sul repository dell\'app (pinschertrade), con permesso "Actions: Read and write".', status: r.status });
         }
         return json(502, { error: 'Errore GitHub', status: r.status });
     } catch (e) {
@@ -345,7 +346,7 @@ export async function analyze(body, env, fetchFn) {
 // ---------- Assistente sulle posizioni (chat e voce) ----------
 // Risponde in breve e, se l'utente chiede qualcosa da fare, propone UNA azione strutturata scelta da
 // un elenco chiuso. L'app la ricontrolla (src/core/rules.js) e la applica solo dopo conferma.
-const ASSISTANT_SYSTEM = `Sei l'assistente di trading di SGTRADER e parli in italiano, in modo breve (massimo 60 parole).
+const ASSISTANT_SYSTEM = `Sei l'assistente di trading di PinscherTrade e parli in italiano, in modo breve (massimo 60 parole).
 Ricevi i dati di UNA posizione (simulata dell'app oppure REALE su Bitget) e un messaggio dell'utente. Rispondi SOLO con un oggetto JSON:
 {"reply": "testo per l'utente", "action": null oppure un'azione}
 Azioni possibili (usa SOLO queste, con questi campi):
@@ -374,7 +375,7 @@ Regole automatiche attive: ${rules.length ? rules.join('; ') : 'nessuna'}.`;
 }
 
 // ---------- Assistente generale (Home): comanda il tool ----------
-const GENERAL_SYSTEM = `Sei l'assistente di SGTRADER, un'app personale di trading: Kronos e i grafici su BTC, ETH e SOL, le strategie anche su XRP, DOGE, BNB, ADA e LINK. Parli in italiano, in modo breve (massimo 70 parole).
+const GENERAL_SYSTEM = `Sei l'assistente di PinscherTrade, un'app personale di trading: Kronos e i grafici su BTC, ETH e SOL, le strategie anche su XRP, DOGE, BNB, ADA e LINK. Parli in italiano, in modo breve (massimo 70 parole).
 Ricevi lo stato attuale del tool e un messaggio dell'utente. Rispondi SOLO con un oggetto JSON:
 {"reply": "testo per l'utente", "action": null oppure un'azione}
 Azioni possibili (usa SOLO queste, con questi campi):

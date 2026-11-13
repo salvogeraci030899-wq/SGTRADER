@@ -51,7 +51,7 @@ export const priceAlerts = () => ((cfg && cfg.price_alerts) || []).filter(a => a
 // Dopo la richiesta (il workflow impiega circa 30-60 s, la pubblicazione dei dati altri 30-60 s) l'app controlla i dati
 // ogni 10 secondi per 4 minuti e mostra il cambiamento appena arriva. Il bot salva solo se le posizioni cambiano.
 const REFRESH_GAP_MS = 60_000, REFRESH_EVERY_MS = 3 * 60_000, WATCH_EVERY_MS = 10_000, WATCH_FIRST_MS = 30_000, WATCH_MAX_MS = 4 * 60_000;
-const REFRESH_KEY = 'sg_account_refresh_at';
+const REFRESH_KEY = 'pt_account_refresh_at';
 let refreshing = false;
 export const isRefreshingAccount = () => refreshing;
 const posSig = acc => JSON.stringify(((acc && acc.positions_detail) || []).map(p => [p.symbol, p.side, p.size, p.tp, p.sl]));

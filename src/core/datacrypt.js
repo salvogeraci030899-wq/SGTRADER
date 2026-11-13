@@ -42,7 +42,7 @@ export async function decryptText(text, key) {
     return new TextDecoder().decode(plain);
 }
 
-// Prova di possesso della chiave per il server (header x-sgt-proof): derivata, non rivela la chiave
+// Prova di possesso della chiave per il server (header x-pt-proof): derivata, non rivela la chiave
 export async function aiProof(key) {
     return (await derived(key)).proof;
 }

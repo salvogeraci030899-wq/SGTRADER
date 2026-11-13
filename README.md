@@ -1,6 +1,6 @@
-# SGTRADER
+# PinscherTrade
 
-App personale di trading su BTC, ETH e SOL (Bitget, futures e spot) con un bot che lavora da solo su GitHub Actions.
+App personale di trading (sulla schermata Home: «Pinscher») su 8 crypto (BTC, ETH, SOL, XRP, DOGE, BNB, ADA, LINK; Bitget, futures e spot) con un bot che lavora da solo su GitHub Actions.
 Non è un consiglio finanziario: nessuna strategia ha un vantaggio garantito.
 
 ## Com'è fatta

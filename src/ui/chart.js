@@ -1,12 +1,12 @@
 // src/ui/chart.js
-// Factory unica per i grafici Kronos/SGTRADER.
+// Factory unica per i grafici dell'app (Kronos e candele).
 // Usata da ui/terminal.js (candele + forecast + bande + markers + priceLines)
 // e da ui/home-charts.js (candele + volume).
 
 import { Logger } from '../core/logger.js';
 import { cssVar } from '../core/theme.js';
 
-// Grafici creati: al cambio di tema (evento "sgt-theme") prendono i colori nuovi
+// Grafici creati: al cambio di tema (evento "pt-theme") prendono i colori nuovi
 const ALL = new Set();
 function themeColors(transparent) {
     return {
@@ -24,7 +24,7 @@ function paint(handle) {
         timeScale: { borderColor: c.grid }
     });
 }
-window.addEventListener('sgt-theme', () => ALL.forEach(h => { try { paint(h); } catch (e) {} }));
+window.addEventListener('pt-theme', () => ALL.forEach(h => { try { paint(h); } catch (e) {} }));
 
 const DEFAULTS = {
     bgColor: '#0a0a0a',

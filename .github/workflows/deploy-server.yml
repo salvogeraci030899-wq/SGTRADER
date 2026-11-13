@@ -64,7 +64,9 @@ jobs:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           DATA_KEY: ${{ secrets.DATA_KEY }}
         run: |
-          npx --yes wrangler@3.114.0 deploy 2>&1 | tee deploy.log
+          # repository e indirizzo dei dati letti dal repository stesso: dopo un cambio di nome basta ripubblicare
+          REPO="${{ github.repository }}"; PAGES="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          npx --yes wrangler@3.114.0 deploy --var "GH_REPO:$REPO" --var "DATA_BASE:$PAGES" 2>&1 | tee deploy.log
           if [ -n "$APP_SECRET" ]; then printf '%s' "$APP_SECRET" | npx --yes wrangler@3.114.0 secret put APP_SECRET; fi
           printf '%s' "$GH_TOKEN_S" | npx --yes wrangler@3.114.0 secret put GH_TOKEN
           if [ -n "$GROQ_API_KEY" ]; then printf '%s' "$GROQ_API_KEY" | npx --yes wrangler@3.114.0 secret put GROQ_API_KEY; fi

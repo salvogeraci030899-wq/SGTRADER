@@ -8,7 +8,7 @@
 //   (come il ripristino di un telefono). Bitget, GitHub e i server non vengono toccati.
 // È una protezione contro chi prende in mano il telefono, non una cifratura dei dati.
 
-const KEY = 'sg_lock';
+const KEY = 'pt_lock';
 const PIN_LEN = 6, ITER = 150_000;
 const DELAYS = { now: 0, '1m': 60_000, '5m': 300_000 };
 
@@ -39,8 +39,8 @@ export async function faceIdAvailable() {
 }
 async function enrollFaceId() {
     const cred = await navigator.credentials.create({ publicKey: {
-        rp: { name: 'SGTRADER' },   // dominio: quello del sito (GitHub Pages e Vercel hanno passkey separate)
-        user: { id: crypto.getRandomValues(new Uint8Array(16)), name: 'sgtrader', displayName: 'SGTRADER' },
+        rp: { name: 'PinscherTrade' },   // dominio: quello del sito (GitHub Pages e Vercel hanno passkey separate)
+        user: { id: crypto.getRandomValues(new Uint8Array(16)), name: 'pinschertrade', displayName: 'PinscherTrade' },
         challenge: crypto.getRandomValues(new Uint8Array(32)),
         pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
         authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'discouraged' },

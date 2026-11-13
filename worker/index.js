@@ -10,19 +10,19 @@
 //   GROQ_API_KEY     facoltativa, per l'analisi AI
 //   ALLOWED_ORIGINS  origini ammesse, separate da virgola
 //   DATA_KEY         facoltativa: chiave dei dati cifrati (bot Telegram); con questa l'IA risponde solo a chi
-//                    ha la chiave sul dispositivo (header x-sgt-proof, una prova derivata, non la chiave)
+//                    ha la chiave sul dispositivo (header x-pt-proof, una prova derivata, non la chiave)
 import { handle, trigger, quickCheck } from '../api/_core.js';
 import { aiProof } from '../src/core/datacrypt.js';
 import { safeEqual } from '../src/core/commands.js';
 
-const DEFAULT_ORIGINS = 'https://salvogeraci030899-wq.github.io,https://sgtrader.vercel.app';
+const DEFAULT_ORIGINS = 'https://salvogeraci030899-wq.github.io,https://sgtrader.vercel.app,https://pinschertrade.vercel.app';
 
 function cors(request, env) {
     const origin = request.headers.get('Origin') || '';
     const allowed = String(env.ALLOWED_ORIGINS || DEFAULT_ORIGINS).split(',').map(s => s.trim()).filter(Boolean);
     const h = {
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, x-app-key, x-sgt-proof',
+        'Access-Control-Allow-Headers': 'Content-Type, x-app-key, x-pt-proof',
         'Access-Control-Max-Age': '86400',
         'Vary': 'Origin'
     };
@@ -60,10 +60,10 @@ async function aiGate(request, env, path) {
     if (secret && request.headers.get('x-app-key') === secret) return null;
     const origin = request.headers.get('Origin') || '';
     const allowed = String(env.ALLOWED_ORIGINS || DEFAULT_ORIGINS).split(',').map(x => x.trim()).filter(Boolean);
-    if (!allowed.includes(origin)) return { status: 403, error: "Richiesta non ammessa: l'IA risponde solo all'app SGTRADER." };
+    if (!allowed.includes(origin)) return { status: 403, error: "Richiesta non ammessa: l'IA risponde solo all'app PinscherTrade." };
     // con i dati cifrati l'IA risponde solo a chi ha la chiave dei dati: chi apre il link senza chiave non usa la tua quota
     const dataKey = String(env.DATA_KEY || '').trim();
-    if (dataKey && !safeEqual(request.headers.get('x-sgt-proof') || '', await aiProof(dataKey)))
+    if (dataKey && !safeEqual(request.headers.get('x-pt-proof') || '', await aiProof(dataKey)))
         return { status: 403, error: "Serve la chiave dei dati: inseriscila nell'app (Impostazioni → Connessioni)." };
     const ip = request.headers.get('CF-Connecting-IP') || 'ip';
     const now = Date.now(), recent = (hits.get(ip) || []).filter(t => now - t < 60000);

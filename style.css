@@ -1253,8 +1253,8 @@ html.glass-anim[data-theme="light"] { --wall-anim: radial-gradient(32% 24% at 22
     radial-gradient(30% 22% at 78% 48%, rgba(48, 209, 88, 0.2), transparent 70%),
     radial-gradient(36% 26% at 32% 80%, rgba(191, 90, 242, 0.22), transparent 70%), #eef0f6; }
 html.glass-anim #app::before { content: ''; position: absolute; inset: -25%; z-index: -1; pointer-events: none; background: var(--wall-anim);
-    will-change: transform; animation: sgt-wall 30s ease-in-out infinite alternate; }
-@keyframes sgt-wall {
+    will-change: transform; animation: pt-wall 30s ease-in-out infinite alternate; }
+@keyframes pt-wall {
     0% { transform: translate3d(-6%, -4%, 0) rotate(0deg) scale(1); }
     50% { transform: translate3d(5%, 3%, 0) rotate(8deg) scale(1.08); }
     100% { transform: translate3d(-3%, 6%, 0) rotate(-6deg) scale(1.02); }

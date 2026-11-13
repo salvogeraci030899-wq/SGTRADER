@@ -431,12 +431,12 @@ test('dati cifrati: stesso formato di tools/datacrypt.py, bot Telegram e IA solo
     globalThis.fetch = fakeFetch;
     try {
         const kenv = { ...env, APP_SECRET: '', DATA_KEY: KEY };
-        const ai = (proof, ip) => worker.fetch(new Request('https://w.dev/api/analyze', { method: 'POST', headers: { Origin: 'https://salvogeraci030899-wq.github.io', 'CF-Connecting-IP': ip, 'Content-Type': 'application/json', ...(proof ? { 'x-sgt-proof': proof } : {}) }, body: JSON.stringify({ symbol: 'BTCUSDT', timeframe: '1d', type: 'NONE' }) }), kenv);
+        const ai = (proof, ip) => worker.fetch(new Request('https://w.dev/api/analyze', { method: 'POST', headers: { Origin: 'https://salvogeraci030899-wq.github.io', 'CF-Connecting-IP': ip, 'Content-Type': 'application/json', ...(proof ? { 'x-pt-proof': proof } : {}) }, body: JSON.stringify({ symbol: 'BTCUSDT', timeframe: '1d', type: 'NONE' }) }), kenv);
         assert.equal((await ai(null, '5.5.5.1')).status, 403);                     // link aperto senza chiave
         assert.equal((await ai('0'.repeat(64), '5.5.5.2')).status, 403);          // prova sbagliata
         assert.equal((await ai(await aiProof(KEY), '5.5.5.3')).status, 200);      // l'app con la chiave
         const pre = await worker.fetch(new Request('https://w.dev/api/analyze', { method: 'OPTIONS', headers: { Origin: 'https://salvogeraci030899-wq.github.io' } }), kenv);
-        assert.match(pre.headers.get('Access-Control-Allow-Headers'), /x-sgt-proof/);
+        assert.match(pre.headers.get('Access-Control-Allow-Headers'), /x-pt-proof/);
     } finally {
         globalThis.fetch = origFetch;
     }

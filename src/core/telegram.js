@@ -28,7 +28,7 @@ const lab = k => String(k || '').replace(/_/g, ' ').replace(':', ' ');
 const AG = { autonomy: { off: 'spento', paper: 'simulato', live: 'REALE' }, def: { autonomy: 'paper', profile: 'bilanciato', style: 'swing' } };
 
 function help() {
-    return '🤖 SGTRADER: comandi (sola lettura)\n' + Object.entries(COMMANDS).map(([c, t]) => `${c} · ${t}`).join('\n')
+    return '🤖 PinscherTrade: comandi (sola lettura)\n' + Object.entries(COMMANDS).map(([c, t]) => `${c} · ${t}`).join('\n')
         + '\nOrdini e impostazioni si cambiano dall\'app, con la conferma. Da qui si può solo fermare tutto.';
 }
 

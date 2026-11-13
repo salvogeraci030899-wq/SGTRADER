@@ -15,12 +15,12 @@ NOW = datetime(2026, 11, 20, 10, 0, tzinfo=timezone.utc)
 
 def _with_dir():
     d = tempfile.mkdtemp()
-    os.environ["SGT_EVENTS_DIR"] = os.path.join(d, "events")
+    os.environ["PT_EVENTS_DIR"] = os.path.join(d, "events")
     return d
 
 
 def test_spento_senza_variabile():
-    os.environ.pop("SGT_EVENTS_DIR", None)
+    os.environ.pop("PT_EVENTS_DIR", None)
     assert events.record("sistema", "prova", "niente") is None
 
 
@@ -37,7 +37,7 @@ def test_scrive_per_mese_e_toglie_i_doppioni():
     got = events.read("2026-11")
     assert len(got) == 1 and got[0]["text"] == "BTC ha toccato 75.000"
     assert len(events.read("2026-12")) == 1 and events.read("2030-01") == []
-    os.environ.pop("SGT_EVENTS_DIR")
+    os.environ.pop("PT_EVENTS_DIR")
 
 
 def test_comando_dall_app_nel_registro():
@@ -49,7 +49,7 @@ def test_comando_dall_app_nel_registro():
     got = events.read(month)
     assert [(e["kind"], e["action"]) for e in got] == [("agente", "agent"), ("sistema", "emergency")]
     assert "prudente" in got[0]["text"]
-    os.environ.pop("SGT_EVENTS_DIR")
+    os.environ.pop("PT_EVENTS_DIR")
 
 
 def test_storico_del_patrimonio_e_versamenti():
@@ -65,7 +65,7 @@ def test_storico_del_patrimonio_e_versamenti():
     assert row == {"open": 16.0, "close": 66.7, "flows": 50.0, "pnl": 0.7, "demo": False, "at": NOW.isoformat(timespec="seconds")}
     ev = events.read("2026-11")
     assert len(ev) == 1 and ev[0]["kind"] == "conto" and ev[0]["action"] == "versamento" and ev[0]["usdt"] == 50.0
-    os.environ.pop("SGT_EVENTS_DIR")
+    os.environ.pop("PT_EVENTS_DIR")
 
 
 if __name__ == "__main__":
