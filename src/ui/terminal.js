@@ -4,6 +4,7 @@ import { Logger } from '../core/logger.js';
 import { journalTrades, isRealMode } from './history.js';
 import { $, SYM, fetchT, apiPost, fmtUsd, cleanData, analyzeTrend, buildRiskData, calcEMA, parseBitgetCandles, fetchData } from '../utils/helpers.js';
 import { createChart, setCandles, setForecast, setBands, setMarkers, setPriceLines } from './chart.js';
+import { TRADE_SYMBOLS } from '../core/commands.js';
 
 const chartContainer = document.getElementById('chart');
 const mainChartContainer = document.getElementById('mainChartContainer');
@@ -292,6 +293,7 @@ export function updateChart() {
     renderFutures();
     if (!State.allData) return;
     const data = State.allData[`${State.currentAsset}_${State.currentTF}`];
+    if (!data && !KRONOS_ASSETS.includes(State.currentAsset)) { liveChart(); return; }
     if (!data) {
         State.lastHeaderPrice = null;
         $('live-price').textContent = "N/D";
@@ -345,6 +347,41 @@ export function updateChart() {
     }
     refreshMarkers();
     updatePriceLines();
+}
+
+// Coin senza Kronos (quelle delle sole strategie): candele vere di Bitget, niente previsione né Piano IA
+const KRONOS_ASSETS = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'];
+let liveSeq = 0;
+async function liveChart() {
+    const asset = State.currentAsset, tf = State.currentTF, seq = ++liveSeq;
+    // al posto del Piano IA (Kronos): cosa manca e come avere un'analisi di questa coin
+    $('ai-panel').style.display = 'block';
+    State.currentAIPlan = null;
+    $('ai-bias').textContent = '—';
+    $('ai-bias').style.color = 'var(--text-secondary)';
+    ['ai-entry', 'ai-sl', 'ai-tp'].forEach(id => { $(id).textContent = '—'; });
+    $('ai-reason').textContent = `La previsione di Kronos gira solo su BTC, ETH e SOL. Per ${asset.replace('USDT', '')} premi Analisi AI live: prezzo, candele, funding e livelli del momento.`;
+    updateCalcBtnUI();
+    $('last-update-footer').textContent = 'Prezzi dal vivo da Bitget · previsione Kronos solo su BTC, ETH e SOL';
+    if (State.livePx[asset]) setHeaderPrice(State.livePx[asset]);
+    else { State.lastHeaderPrice = null; $('live-price').textContent = '…'; }
+    try {
+        const gran = tf === '1d' ? '1day' : tf;
+        const r = await fetchT(`https://api.bitget.com/api/v2/spot/market/candles?symbol=${asset}&granularity=${gran}&limit=300`);
+        const j = r.ok ? await r.json() : null;
+        if (seq !== liveSeq || !j || j.code !== '00000') return;          // cambiata coin o timeframe nel frattempo
+        const hist = parseBitgetCandles(j.data || []).map(c => ({ time: Math.floor(c.ts / 1000), open: c.open, high: c.high, low: c.low, close: c.close }));
+        if (chartHandle) {
+            setCandles(chartHandle, hist);
+            setForecast(chartHandle, []);
+            setBands(chartHandle, [], []);
+            chartHandle.chart.timeScale().fitContent();
+        }
+        State.candleTimes = hist.map(d => d.time);
+        if (!State.livePx[asset] && hist.length) setHeaderPrice(hist[hist.length - 1].close);
+        refreshMarkers();
+        updatePriceLines();
+    } catch (e) { if (seq === liveSeq) $('live-price').textContent = 'N/D'; }
 }
 
 // --- MARKERS & LINES ---
@@ -416,7 +453,7 @@ export function setHeaderPrice(px) {
         void el.offsetWidth;
         el.classList.add(cls);
     }
-    el.textContent = fmtUsd(px);
+    el.textContent = px >= 1 ? fmtUsd(px) : '$' + px.toFixed(px >= 0.01 ? 4 : 6);      // coin sotto 1 dollaro: più decimali
     State.lastHeaderPrice = px;
 }
 
@@ -465,7 +502,9 @@ export function startPricePoll() {
 export function setAsset(asset) {
     State.currentAsset = asset;
     State.lastHeaderPrice = null;
-    ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'].forEach(a => document.getElementById(`btn-${a}`).classList.toggle('active', a === asset));
+    TRADE_SYMBOLS.forEach(a => { const b = document.getElementById(`btn-${a}`); if (b) b.classList.toggle('active', a === asset); });
+    const active = document.getElementById(`btn-${asset}`);
+    if (active) active.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
     document.getElementById('current-asset-label').textContent = `${asset.replace('USDT', '')} / USDT · ${getTFLabel(State.currentTF)}`;
     syncFsHeader();
     updateChart();

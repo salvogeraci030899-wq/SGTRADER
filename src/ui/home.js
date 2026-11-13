@@ -2,7 +2,9 @@ import { State } from '../core/state.js';
 import { CONFIG } from '../core/config.js';
 import { $, SYM, fetchT, calcPnl, escapeHtml, fmtIt, fmtPrice, fetchData, getGhToken } from '../utils/helpers.js';
 import { aggregateCellSignals } from './signals.js';
-import { bitgetAccountText, isRemovingAlert, paperPerformance } from './automation.js';
+import { bitgetAccountText, isRemovingAlert, paperPerformance, priceAlerts, getAutoState } from './automation.js';
+import { TRADE_SYMBOLS } from '../core/commands.js';
+import { setHomeChartCoins } from './home-charts.js';
 import { updateModePills, tradingMode } from './account.js';
 import { liveUpl, hasLiveMarks } from './trade.js';
 import { realPositions } from './history.js';
@@ -16,8 +18,13 @@ import { realPositions } from './history.js';
 //   stato          ultimo e prossimo giro di bot, controllo rapido e agente (API pubblica di GitHub, ogni 2 min;
 //                  di riserva l'ora del dashboard.json per il bot) e consenso tecnico della pagina Segnali
 
-const COINS = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'];
-const MARKET_EVERY_MS = 10_000;
+// Le 3 coin in alto (e nei grafici sotto) tra le 8 delle strategie, scelte ogni minuto: prima quelle con una
+// posizione aperta (vera, simulata o su carta), poi quelle con un avviso di prezzo vicino (entro il 3%), poi le
+// altre per movimento delle 24 ore. Prezzi delle 8 coin ogni 15 secondi con la Home aperta.
+const COINS = TRADE_SYMBOLS;
+let shown = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'], lastPickAt = 0;
+const PICK_EVERY_MS = 60_000;
+const MARKET_EVERY_MS = 15_000;
 const BOT_FILES_EVERY_MS = 30_000;
 // Lavori automatici: quando partono (orari del server Cloudflare, worker/wrangler.toml, e dell'agente,
 // .github/workflows/agent.yml, in UTC) e oltre quanti minuti dall'ultimo giro il pallino diventa giallo o rosso.
@@ -47,6 +54,7 @@ export function updateHome() {
     if (now - lastMarketAt >= MARKET_EVERY_MS) { lastMarketAt = now; refreshMarket(); }
     if (now - lastBotAt >= BOT_FILES_EVERY_MS) { lastBotAt = now; refreshBotFiles(); }
     if (now - lastRunsAt >= RUNS_EVERY_MS) { lastRunsAt = now; refreshRuns(); }
+    if (now - lastPickAt >= PICK_EVERY_MS && Object.keys(market).length >= 3) { lastPickAt = now; pickCoins(); }
     renderMarket();
     renderAccount();
     renderAutomationCard();
@@ -76,11 +84,44 @@ async function refreshMarket() {
     renderMarket();
 }
 
-const fmtPx = v => '$' + Number(v).toLocaleString('en-US', v >= 1000 ? { maximumFractionDigits: 0 } : { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtPx = v => '$' + Number(v).toLocaleString('en-US', v >= 1000 ? { maximumFractionDigits: 0 } : v >= 1 ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : { minimumFractionDigits: 4, maximumFractionDigits: 4 });
 
 // Scrive nel DOM solo se il valore cambia: la Home si aggiorna ogni 5 secondi
 const put = (el, text) => { if (el && el.textContent !== text) el.textContent = text; };
 const putCls = (el, c) => { if (el && el.className !== c) el.className = c; };
+
+function openSymbols() {
+    const out = new Set();
+    for (const p of realPositions()) out.add(p.symbol);
+    for (const t of State.simState.activeTrades || []) out.add(t.symbol);
+    const { ledger } = getAutoState();
+    for (const e of Object.values((ledger && ledger.strategies) || {})) for (const t of e.trades || []) if (t.open) out.add(t.symbol);
+    return out;
+}
+export function pickCoins() {
+    const open = openSymbols();
+    const score = sym => {
+        const m = market[sym], px = m && m.px;
+        let v = open.has(sym) ? 3 : 0;
+        const near = px ? Math.min(...priceAlerts().filter(a => a.symbol === sym).map(a => Math.abs(a.price / px - 1)), Infinity) : Infinity;
+        if (near <= 0.03) v += 2 + (1 - near / 0.03);
+        return v + Math.min(1, Math.abs((m && m.chg) || 0) / 20);           // movimento 24h: conta poco, ordina il resto
+    };
+    const best = COINS.map(s => [s, score(s)]).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([s]) => s);
+    // ordine stabile: le coin che restano tengono il loro posto, le nuove prendono quelli liberi
+    const next = shown.filter(s => best.includes(s));
+    for (const s of best) if (!next.includes(s)) next.push(s);
+    if (next.join() === shown.join()) return;
+    shown = next;
+    const tiles = document.querySelectorAll('#homeMarket .home-tile');
+    shown.forEach((sym, i) => {
+        const t = tiles[i];
+        if (!t) return;
+        t.dataset.symbol = sym;
+        put(t.querySelector('.home-tile-sym'), SYM(sym));
+    });
+    setHomeChartCoins(shown);
+}
 
 function renderMarket() {
     document.querySelectorAll('#homeMarket .home-tile').forEach(tile => {

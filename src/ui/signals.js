@@ -180,7 +180,7 @@ export async function scanAllSignals(manual = false) {
 
     if (btn) { btn.disabled = false; btn.textContent = 'Scansiona Ora'; }
     if (status) {
-        if (errors === 9) { status.textContent = 'Errore'; status.className = 'be-badge bad'; }
+        if (errors === CONFIG.SIGNAL_ASSETS.length * CONFIG.SIGNAL_TFS.length) { status.textContent = 'Errore'; status.className = 'be-badge bad'; }
         else { status.textContent = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }); status.className = 'be-badge good'; }
     }
     State.signalScanInFlight = false;
@@ -209,38 +209,55 @@ export function startSignalAutoScan() {
 export function renderSignalGrid() {
     const grid = $('signalGrid');
     if (!grid) return;
+    // pagine da 3 coin (3 timeframe ciascuna) che scorrono di lato
+    const pages = [];
+    for (let i = 0; i < CONFIG.SIGNAL_ASSETS.length; i += 3) pages.push(CONFIG.SIGNAL_ASSETS.slice(i, i + 3));
+    const prevPage = grid.clientWidth ? Math.round(grid.scrollLeft / grid.clientWidth) : 0;
+    grid.innerHTML = pages.map(assets => `<div class="signal-page">${assets.map(cells).join('')}</div>`).join('');
+    grid.scrollLeft = prevPage * grid.clientWidth;
+    const dots = $('signalDots');
+    if (dots) dots.innerHTML = pages.map((_, i) => `<div class="info-dot${i === prevPage ? ' active' : ''}" onclick="goToSignalPage(${i})"></div>`).join('');
+}
+
+export function goToSignalPage(i) { const g = $('signalGrid'); if (g) g.scrollTo({ left: i * g.clientWidth, behavior: 'smooth' }); }
+export function updateSignalDots() {
+    const g = $('signalGrid');
+    if (!g || !g.clientWidth) return;
+    const i = Math.round(g.scrollLeft / g.clientWidth);
+    document.querySelectorAll('#signalDots .info-dot').forEach((d, k) => d.classList.toggle('active', k === i));
+}
+
+function cells(asset) {
     let html = '';
-    for (const asset of CONFIG.SIGNAL_ASSETS) {
-        for (const tf of CONFIG.SIGNAL_TFS) {
-            const agg = aggregateCellSignals(asset, tf);
-            const key = `${asset}_${tf}`;
-            if (!agg) {
-                html += `<div class="signal-cell loading"><div class="sc-head"><span class="sc-asset">${SYM(asset)}</span><span class="sc-tf">${tf}</span></div><div class="sc-badge neutral">—</div><div class="sc-foot"><div class="sc-agree">—</div></div></div>`;
-                continue;
-            }
-            const cls = agg.consensus.toLowerCase();
-            const m = State.signalMatrix[key];
-            const kSig = m.kronos?.signal || 'NEUTRAL';
-            const kDotCls = `kronos ${kSig !== 'NEUTRAL' ? 'on ' + kSig.toLowerCase() : ''}`;
-            const sDots = CONFIG.SIGNAL_STRATEGIES.map(s => {
-                const st = m[s];
-                const on = st && st.signal !== 'NEUTRAL';
-                const sideCls = st && st.signal === 'SHORT' ? 'short' : (st && st.signal === 'LONG' ? 'long' : '');
-                return `<span class="sc-agree-dot ${on ? 'on ' + sideCls : ''}"></span>`;
-            }).join('');
-            const kLabel = kSig === 'NEUTRAL' ? 'K:—' : (kSig === 'LONG' ? 'K:LONG' : 'K:SHORT');
-            const kLabelColor = kSig === 'LONG' ? 'var(--accent)' : (kSig === 'SHORT' ? 'var(--danger)' : 'var(--text-secondary)');
-            html += `<div class="signal-cell ${cls}" onclick="openSignalDetail('${asset}','${tf}')">
-                <div class="sc-head"><span class="sc-asset">${SYM(asset)}</span><span class="sc-tf">${tf}</span></div>
-                <div class="sc-badge ${cls}">${agg.consensus === 'NEUTRAL' ? '—' : agg.consensus + ' ' + agg.agreement + '/4'}</div>
-                <div class="sc-foot">
-                    <div class="sc-agree"><span class="sc-agree-dot ${kDotCls}"></span>${sDots}</div>
-                    <span class="sc-kronos-label" style="color:${kLabelColor};">${kLabel}</span>
-                </div>
-            </div>`;
+    for (const tf of CONFIG.SIGNAL_TFS) {
+        const agg = aggregateCellSignals(asset, tf);
+        const key = `${asset}_${tf}`;
+        if (!agg) {
+            html += `<div class="signal-cell loading"><div class="sc-head"><span class="sc-asset">${SYM(asset)}</span><span class="sc-tf">${tf}</span></div><div class="sc-badge neutral">—</div><div class="sc-foot"><div class="sc-agree">—</div></div></div>`;
+            continue;
         }
+        const cls = agg.consensus.toLowerCase();
+        const m = State.signalMatrix[key];
+        const kSig = m.kronos?.signal || 'NEUTRAL';
+        const kDotCls = `kronos ${kSig !== 'NEUTRAL' ? 'on ' + kSig.toLowerCase() : ''}`;
+        const sDots = CONFIG.SIGNAL_STRATEGIES.map(s => {
+            const st = m[s];
+            const on = st && st.signal !== 'NEUTRAL';
+            const sideCls = st && st.signal === 'SHORT' ? 'short' : (st && st.signal === 'LONG' ? 'long' : '');
+            return `<span class="sc-agree-dot ${on ? 'on ' + sideCls : ''}"></span>`;
+        }).join('');
+        const kLabel = kSig === 'NEUTRAL' ? 'K:—' : (kSig === 'LONG' ? 'K:LONG' : 'K:SHORT');
+        const kLabelColor = kSig === 'LONG' ? 'var(--accent)' : (kSig === 'SHORT' ? 'var(--danger)' : 'var(--text-secondary)');
+        html += `<div class="signal-cell ${cls}" onclick="openSignalDetail('${asset}','${tf}')">
+            <div class="sc-head"><span class="sc-asset">${SYM(asset)}</span><span class="sc-tf">${tf}</span></div>
+            <div class="sc-badge ${cls}">${agg.consensus === 'NEUTRAL' ? '—' : agg.consensus + ' ' + agg.agreement + '/4'}</div>
+            <div class="sc-foot">
+                <div class="sc-agree"><span class="sc-agree-dot ${kDotCls}"></span>${sDots}</div>
+                <span class="sc-kronos-label" style="color:${kLabelColor};">${kLabel}</span>
+            </div>
+        </div>`;
     }
-    grid.innerHTML = html;
+    return html;
 }
 
 export function renderSignalHistory() {
