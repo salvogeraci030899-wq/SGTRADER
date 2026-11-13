@@ -36,7 +36,7 @@ try {
     // ogni dispositivo in Simulato e Reale; l'app installata anche in Reale con il vetro e il tema chiaro
     const RUNS = DEVICES.flatMap(dev => [{ dev, mode: 'sim' }, { dev, mode: 'real' }, ...(dev.pwa ? [{ dev, mode: 'real', glass: true }] : [])]);
     for (const { dev, mode, glass } of RUNS) {
-        const tag = (mode === 'real' ? 'Reale' : 'Simulato') + (glass ? ', vetro animato chiaro' : '');
+        const tag = (mode === 'real' ? 'Reale' : 'Simulato') + (glass ? ', vetro dinamico chiaro' : '');
         const ctx = await browser.newContext({ viewport: { width: dev.w, height: dev.h }, isMobile: true, hasTouch: true, colorScheme: glass ? 'light' : 'dark' });
         await ctx.addInitScript(([pwa, glass]) => {
             try {

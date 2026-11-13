@@ -1243,23 +1243,30 @@ html.glass[data-theme="light"] { --surface: rgba(255, 255, 255, 0.66); --surface
             radial-gradient(65% 45% at 20% 100%, rgba(191, 90, 242, 0.18), transparent 70%), #eef0f6; }
 html.glass body, html.glass #app, html.glass .assist-box, html.glass .lock-screen, html.glass .modal-overlay,
 html.glass .modal-overlay .modal-box { background: var(--wall); }
-/* Sfondo animato (Vetro → Animato): le luci si spostano piano su un livello a parte, mosso solo con transform
-   (lo muove la GPU, nessun ridisegno della pagina). Un giro dura 30 s. Si ferma se iOS chiede meno movimento. */
+/* Sfondo dinamico (Vetro → Dinamico): quattro luci colorate, ognuna su un livello a parte, che si spostano per tutto lo
+   schermo e si accendono e spengono con giri lunghi e diversi tra loro (55-89 s): i colori cambiano piano e non si ripetono
+   mai uguali. Solo transform e opacità (lavoro della GPU, nessun ridisegno). Si ferma se iOS chiede meno movimento. */
+.wall-anim { display: none; }
 html.glass-anim #app { background: transparent; position: relative; isolation: isolate; }
-html.glass-anim { --wall-anim: radial-gradient(32% 24% at 22% 20%, rgba(10, 132, 255, 0.34), transparent 70%),
-    radial-gradient(30% 22% at 78% 48%, rgba(48, 209, 88, 0.2), transparent 70%),
-    radial-gradient(36% 26% at 32% 80%, rgba(191, 90, 242, 0.26), transparent 70%), #000; }
-html.glass-anim[data-theme="light"] { --wall-anim: radial-gradient(32% 24% at 22% 20%, rgba(10, 132, 255, 0.26), transparent 70%),
-    radial-gradient(30% 22% at 78% 48%, rgba(48, 209, 88, 0.2), transparent 70%),
-    radial-gradient(36% 26% at 32% 80%, rgba(191, 90, 242, 0.22), transparent 70%), #eef0f6; }
-html.glass-anim #app::before { content: ''; position: absolute; inset: -25%; z-index: -1; pointer-events: none; background: var(--wall-anim);
-    will-change: transform; animation: pt-wall 30s ease-in-out infinite alternate; }
-@keyframes pt-wall {
-    0% { transform: translate3d(-6%, -4%, 0) rotate(0deg) scale(1); }
-    50% { transform: translate3d(5%, 3%, 0) rotate(8deg) scale(1.08); }
-    100% { transform: translate3d(-3%, 6%, 0) rotate(-6deg) scale(1.02); }
-}
-@media (prefers-reduced-motion: reduce) { html.glass-anim #app::before { animation: none; } }
+html.glass-anim .wall-anim { display: block; position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: #000; }
+html.glass-anim[data-theme="light"] .wall-anim { background: #eef0f6; }
+.wall-anim i { position: absolute; left: 50%; top: 50%; width: 120vmax; height: 120vmax; margin: -60vmax 0 0 -60vmax; border-radius: 50%;
+    background: radial-gradient(closest-side, var(--c), transparent); will-change: transform, opacity;
+    animation: pt-wall-a 67s ease-in-out infinite alternate, pt-wall-fade 41s ease-in-out infinite alternate; }
+.wall-anim i:nth-child(1) { --c: rgba(10, 132, 255, 0.42); animation-duration: 67s, 41s; animation-delay: -10s, -5s; }
+.wall-anim i:nth-child(2) { --c: rgba(191, 90, 242, 0.36); animation-name: pt-wall-b, pt-wall-fade; animation-duration: 79s, 53s; animation-delay: -40s, -30s; }
+.wall-anim i:nth-child(3) { --c: rgba(48, 209, 88, 0.26); animation-name: pt-wall-c, pt-wall-fade; animation-duration: 89s, 47s; animation-delay: -25s, -12s; }
+.wall-anim i:nth-child(4) { --c: rgba(255, 159, 10, 0.24); animation-name: pt-wall-d, pt-wall-fade; animation-duration: 73s, 59s; animation-delay: -55s, -44s; }
+html.glass-anim[data-theme="light"] .wall-anim i:nth-child(1) { --c: rgba(10, 132, 255, 0.30); }
+html.glass-anim[data-theme="light"] .wall-anim i:nth-child(2) { --c: rgba(191, 90, 242, 0.26); }
+html.glass-anim[data-theme="light"] .wall-anim i:nth-child(3) { --c: rgba(48, 209, 88, 0.22); }
+html.glass-anim[data-theme="light"] .wall-anim i:nth-child(4) { --c: rgba(255, 159, 10, 0.22); }
+@keyframes pt-wall-a { 0% { transform: translate3d(-38vw, -36vh, 0) scale(0.8); } 50% { transform: translate3d(30vw, -10vh, 0) scale(1); } 100% { transform: translate3d(-10vw, 30vh, 0) scale(0.9); } }
+@keyframes pt-wall-b { 0% { transform: translate3d(36vw, 34vh, 0) scale(0.9); } 50% { transform: translate3d(-32vw, 8vh, 0) scale(0.75); } 100% { transform: translate3d(20vw, -34vh, 0) scale(1); } }
+@keyframes pt-wall-c { 0% { transform: translate3d(34vw, -30vh, 0) scale(0.7); } 50% { transform: translate3d(-24vw, 32vh, 0) scale(0.9); } 100% { transform: translate3d(-36vw, -20vh, 0) scale(0.8); } }
+@keyframes pt-wall-d { 0% { transform: translate3d(-30vw, 36vh, 0) scale(0.75); } 50% { transform: translate3d(10vw, -30vh, 0) scale(0.9); } 100% { transform: translate3d(36vw, 20vh, 0) scale(0.7); } }
+@keyframes pt-wall-fade { 0% { opacity: 0.35; } 50% { opacity: 1; } 100% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) { .wall-anim i { animation: none; } }
 html.glass .card-box, html.glass .home-card, html.glass .home-tile, html.glass .home-chart-item, html.glass .chart-container,
 html.glass .set-group, html.glass .active-trade-card, html.glass .log-item, html.glass .calc-card,
 html.glass .signal-history-item, html.glass #tech-panel, html.glass #tr-panel, html.glass #val-panel, html.glass #fut-panel, html.glass #ai-panel {
