@@ -2,7 +2,7 @@ import { State } from '../core/state.js';
 import { CONFIG } from '../core/config.js';
 import { Logger } from '../core/logger.js';
 import { journalTrades, isRealMode } from './history.js';
-import { $, SYM, fetchT, apiPost, fmtUsd, cleanData, analyzeTrend, buildRiskData, calcEMA, parseBitgetCandles, fetchData } from '../utils/helpers.js';
+import { $, SYM, fetchT, apiPost, fmtUsd, cleanData, analyzeTrend, buildRiskData, calcEMA, parseBitgetCandles, fetchData, markChosen } from '../utils/helpers.js';
 import { createChart, setCandles, setForecast, setBands, setMarkers, setPriceLines } from './chart.js';
 import { TRADE_SYMBOLS } from '../core/commands.js';
 
@@ -499,7 +499,8 @@ export function startPricePoll() {
 }
 
 // --- ASSET / TF SWITCH ---
-export function setAsset(asset) {
+export function setAsset(asset, manual = true) {
+    if (manual) markChosen('asset');
     State.currentAsset = asset;
     State.lastHeaderPrice = null;
     TRADE_SYMBOLS.forEach(a => { const b = document.getElementById(`btn-${a}`); if (b) b.classList.toggle('active', a === asset); });

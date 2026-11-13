@@ -1,5 +1,5 @@
 import { State } from '../core/state.js';
-import { $, escapeHtml, apiPost, getApiBase, setApiBase, clearAppKey, getGhToken, setGhToken, commandMode, fmtIt, fmtPrice, fetchData, fetchT } from '../utils/helpers.js';
+import { $, escapeHtml, apiPost, getApiBase, setApiBase, clearAppKey, getGhToken, setGhToken, commandMode, fmtIt, fmtPrice, fetchData, fetchT, markChosen, chosenRecently } from '../utils/helpers.js';
 import { TRADE_SYMBOLS } from '../core/commands.js';
 
 // --- AUTOMAZIONE (pagina Segnali, vista "Auto") ---
@@ -589,7 +589,17 @@ export function okAutoConfirm() { const a = confirmAction; closeAutoConfirm(); i
 // Passa tra i segnali e l'automazione (stessa pagina, tasti in alto a destra)
 // Pagina Agente: schede Panoramica (agent) · Strategie (auto) · Laboratorio (lab) · Rischio (risk)
 const AGENT_PAGES = { agent: ['agentView', 'Lavora per te'], auto: ['autoView', 'Strategie'], lab: ['labPage', 'Laboratorio'], risk: ['riskView', 'Rischio e reale'] };
-export function setSignalsView(view) {
+// All'apertura della pagina Agente: Rischio se c'è un'emergenza, un blocco dell'esecutore o una pausa dell'agente
+// eventi; altrimenti Panoramica. Se hai scelto tu una scheda negli ultimi 30 minuti, resta quella.
+export function autoSignalsView() {
+    if (chosenRecently('agentView')) return $('signalsView').value || 'agent';
+    const g = guardState || {};
+    const paused = g.pause_until && Date.parse(g.pause_until) > Date.now();
+    return (cfg && cfg.emergency) || (live && live.halted) || paused ? 'risk' : 'agent';
+}
+
+export function setSignalsView(view, manual = true) {
+    if (manual) markChosen('agentView');
     // la griglia dei segnali tecnici ora sta in Mercato → Segnali
     if (view === 'sig') { window.switchTab('terminal'); window.setMarketView && window.setMarketView('sig'); return; }
     if (!AGENT_PAGES[view]) view = 'agent';

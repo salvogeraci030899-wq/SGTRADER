@@ -213,6 +213,9 @@ Object.assign(window, { lockKey: Lock.lockKey, lockFaceId: Lock.lockFaceId, lock
 normalizeWindows();          // finestre a schermo intero con l'intestazione delle pagine
 Lock.initLock();
 window.setPosView = Orders.setPosView;
+window.orderSignalAssets = SignalsUI.orderSignalAssets;
+window.renderSignalGrid = SignalsUI.renderSignalGrid;
+window.coinRelevance = HomeUI.coinRelevance;
 window.renderOrders = Orders.renderOrders;
 window.ordStep = Orders.ordStep;
 window.ordSync = Orders.ordSync;
@@ -305,6 +308,13 @@ window.switchTab = (tabId) => {
     }
 
     if (tabId === 'trade') TradeUI.onOpenTrade();
+    // pagine che si sistemano da sole all'apertura (mai mentre le guardi; una scelta tua vale 30 minuti)
+    if (tabId === 'terminal' && !Helpers.chosenRecently('asset')) {
+        const top = HomeUI.topCoins()[0];
+        if (top && top !== State.currentAsset) TerminalUI.setAsset(top, false);
+    }
+    if (tabId === 'trade' && !Helpers.chosenRecently('posView')) Orders.setPosView('open', false);
+    if (tabId === 'journal') Results.autoResultsSource();
     if (tabId === 'home') {
         HomeUI.updateHome();
         if (typeof HomeCharts.refresh === 'function') {
@@ -332,8 +342,8 @@ window.switchTab = (tabId) => {
     } else if (tabId === 'settings') {
         AccountUI.renderSettings();
     } else if (tabId === 'signals') {
-        // pagina Agente: riapre la scheda in uso
-        AutoUI.setSignalsView(document.getElementById('signalsView').value || 'agent');
+        // pagina Agente: Rischio se c'è un blocco o una pausa, altrimenti Panoramica (o la scheda scelta da poco)
+        AutoUI.setSignalsView(AutoUI.autoSignalsView(), false);
     }
     if (tabId === 'terminal') {
         // Mercato → Segnali: griglia e storico dei segnali tecnici

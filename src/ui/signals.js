@@ -184,6 +184,8 @@ export async function scanAllSignals(manual = false) {
         else { status.textContent = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }); status.className = 'be-badge good'; }
     }
     State.signalScanInFlight = false;
+    const sigVisible = $('mktSig') && $('mktSig').style.display !== 'none' && $('page-terminal').classList.contains('active');
+    if (!sigVisible) orderSignalAssets();
     renderSignalGrid();
     renderSignalHistory();
     if (manual && fired.length === 0) window.showAlert('Scansione completata', 'Nessun nuovo segnale forte rilevato.');
@@ -211,12 +213,26 @@ export function renderSignalGrid() {
     if (!grid) return;
     // pagine da 3 coin (3 timeframe ciascuna) che scorrono di lato
     const pages = [];
-    for (let i = 0; i < CONFIG.SIGNAL_ASSETS.length; i += 3) pages.push(CONFIG.SIGNAL_ASSETS.slice(i, i + 3));
+    for (let i = 0; i < signalOrder.length; i += 3) pages.push(signalOrder.slice(i, i + 3));
     const prevPage = grid.clientWidth ? Math.round(grid.scrollLeft / grid.clientWidth) : 0;
     grid.innerHTML = pages.map(assets => `<div class="signal-page">${assets.map(cells).join('')}</div>`).join('');
     grid.scrollLeft = prevPage * grid.clientWidth;
     const dots = $('signalDots');
     if (dots) dots.innerHTML = pages.map((_, i) => `<div class="info-dot${i === prevPage ? ' active' : ''}" onclick="goToSignalPage(${i})"></div>`).join('');
+}
+
+// Ordine delle coin nelle pagine: prima quelle con il segnale più forte, poi posizione aperta o avviso vicino.
+// Si decide quando si apre la scheda Segnali (e dopo una scansione se la scheda non è in vista), mai mentre la guardi.
+let signalOrder = CONFIG.SIGNAL_ASSETS.slice();
+export function orderSignalAssets() {
+    const strength = asset => Math.max(0, ...CONFIG.SIGNAL_TFS.map(tf => {
+        const agg = aggregateCellSignals(asset, tf);
+        return agg && agg.consensus !== 'NEUTRAL' ? agg.agreement * 10 + (agg.avgStrength || 0) / 10 : 0;
+    }));
+    const rel = asset => (window.coinRelevance ? window.coinRelevance(asset) : 0);
+    signalOrder = CONFIG.SIGNAL_ASSETS.slice().sort((a, b) => (strength(b) + rel(b) * 5) - (strength(a) + rel(a) * 5));
+    const g = $('signalGrid');
+    if (g) g.scrollLeft = 0;
 }
 
 export function goToSignalPage(i) { const g = $('signalGrid'); if (g) g.scrollTo({ left: i * g.clientWidth, behavior: 'smooth' }); }
