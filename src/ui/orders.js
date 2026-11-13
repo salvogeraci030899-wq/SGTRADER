@@ -19,7 +19,6 @@ export function setPosView(v, manual = true) {
     applyView();
     if (view === 'orders') renderOrders();
 }
-export const ordersVisible = () => view === 'orders';
 
 function applyView() {
     const open = $('activeTradesList'), dots = $('activeTradeDots'), orders = $('ordersView');
