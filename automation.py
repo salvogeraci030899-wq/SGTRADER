@@ -144,7 +144,7 @@ def set_risk(cfg, field, value):
     lo, hi = executor.RISK_BOUNDS[field]
     if not lo <= v <= hi:
         raise CommandError(f"{field} deve essere tra {lo:g} e {hi:g}.")
-    if field in ("max_leverage", "max_open_positions"):
+    if field in ("max_leverage", "max_open_positions", "max_same_direction"):
         if v != int(v):
             raise CommandError(f"{field} deve essere un numero intero.")
         v = int(v)
@@ -171,9 +171,9 @@ AGENT_DEFAULT = {"autonomy": "paper", "profile": "bilanciato", "style": "swing"}
 AUTONOMY = ("off", "paper", "live")
 # Ogni profilo imposta tutti i limiti dell'esecutore insieme (restano modificabili uno per uno)
 PROFILES = {
-    "prudente":   {"risk_per_trade_pct": 0.25, "max_leverage": 2, "max_exposure_x": 1.0, "max_open_positions": 2, "max_daily_loss_pct": 2.0, "daily_target_pct": 1.0, "max_strategy_dd_pct": 3.0},
-    "bilanciato": {"risk_per_trade_pct": 0.5,  "max_leverage": 3, "max_exposure_x": 1.5, "max_open_positions": 3, "max_daily_loss_pct": 3.0, "daily_target_pct": 2.0, "max_strategy_dd_pct": 5.0},
-    "aggressivo": {"risk_per_trade_pct": 1.0,  "max_leverage": 5, "max_exposure_x": 2.5, "max_open_positions": 4, "max_daily_loss_pct": 5.0, "daily_target_pct": 3.0, "max_strategy_dd_pct": 8.0},
+    "prudente":   {"risk_per_trade_pct": 0.25, "max_leverage": 2, "max_exposure_x": 1.0, "max_open_positions": 2, "max_same_direction": 1, "max_daily_loss_pct": 2.0, "daily_target_pct": 1.0, "max_strategy_dd_pct": 3.0},
+    "bilanciato": {"risk_per_trade_pct": 0.5,  "max_leverage": 3, "max_exposure_x": 1.5, "max_open_positions": 3, "max_same_direction": 2, "max_daily_loss_pct": 3.0, "daily_target_pct": 2.0, "max_strategy_dd_pct": 5.0},
+    "aggressivo": {"risk_per_trade_pct": 1.0,  "max_leverage": 5, "max_exposure_x": 2.5, "max_open_positions": 4, "max_same_direction": 2, "max_daily_loss_pct": 5.0, "daily_target_pct": 3.0, "max_strategy_dd_pct": 8.0},
 }
 STYLES = {"swing": ("1d",), "giornaliero": ("4h", "1h"), "misto": ("1d", "4h", "1h")}
 

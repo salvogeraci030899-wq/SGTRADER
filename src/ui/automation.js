@@ -13,12 +13,13 @@ const MAX_ACTIVE = 6;      // stesso limite di automation.py
 const PER_PAGE = 3;        // strategie per pagina nella lista (scorrimento orizzontale)
 let cfg = null, ledger = null, lab = null, live = null, loaded = false, loading = false;
 // Limiti di rischio dell'esecutore: stessi valori predefiniti e intervalli di executor.py
-const DEFAULT_RISK = { trading_enabled: false, risk_per_trade_pct: 0.5, max_leverage: 3, max_exposure_x: 1.5, max_open_positions: 3, max_daily_loss_pct: 3, dry_run_equity: 1000 };
+const DEFAULT_RISK = { trading_enabled: false, risk_per_trade_pct: 0.5, max_leverage: 3, max_exposure_x: 1.5, max_open_positions: 3, max_same_direction: 2, max_daily_loss_pct: 3, dry_run_equity: 1000 };
 const RISK_FIELDS = [
     ['risk_per_trade_pct', 'Rischio per trade (%)', 0.1, 2, 0.1],
     ['max_leverage', 'Leva massima (x)', 1, 5, 1],
     ['max_exposure_x', 'Esposizione totale (x patrimonio)', 0.5, 3, 0.1],
     ['max_open_positions', 'Posizioni aperte al massimo', 1, 6, 1],
+    ['max_same_direction', 'Nello stesso verso al massimo (tutte long o tutte short)', 1, 6, 1],
     ['max_daily_loss_pct', 'Perdita massima al giorno (%)', 1, 10, 0.5],
 ];
 export const riskCfg = () => ({ ...DEFAULT_RISK, ...((cfg && cfg.risk) || {}) });

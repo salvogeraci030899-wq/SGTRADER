@@ -308,7 +308,9 @@ def portfolio(trades, nets, risk=None):
         close_until(start)
         if equity <= 0:
             break
-        if any(p["symbol"] == t["symbol"] for p in open_pos) or len(open_pos) >= risk["max_open_positions"]:
+        same_dir = sum(1 for p in open_pos if p["dir"] == t["dir"])
+        if (any(p["symbol"] == t["symbol"] for p in open_pos) or len(open_pos) >= risk["max_open_positions"]
+                or same_dir >= risk.get("max_same_direction", executor.DEFAULT_RISK["max_same_direction"])):
             skipped += 1
             continue
         stop = t.get("stop0", t.get("stop"))
@@ -317,7 +319,7 @@ def portfolio(trades, nets, risk=None):
         if not size:
             skipped += 1
             continue
-        open_pos.append({"symbol": t["symbol"], "t_exit": t["t_exit"], "notional": size * t["entry"], "net": net})
+        open_pos.append({"symbol": t["symbol"], "dir": t["dir"], "t_exit": t["t_exit"], "notional": size * t["entry"], "net": net})
         taken += 1
     close_until(float("inf"))
     years = max((rows[-1][0]["t_exit"] - rows[0][0].get("t_entry", rows[0][0]["t"])) / (365.25 * 86400), 1e-9)

@@ -16,6 +16,8 @@ Limiti di rischio (automation.json -> risk), controllati prima di ogni ingresso:
 - max_exposure_x: esposizione totale massima (somma dei nominali) in multipli del patrimonio,
   perché BTC, ETH e SOL si muovono insieme: tre posizioni sono quasi una sola scommessa;
 - max_open_positions: posizioni aperte contemporaneamente;
+- max_same_direction: posizioni nello stesso verso (tutte long o tutte short) al massimo: le crypto si muovono
+  insieme, quindi più short (o più long) aperti insieme sono di fatto la stessa scommessa;
 - max_daily_loss_pct: se la perdita del giorno (UTC) supera questa soglia, niente nuovi ingressi fino a domani;
 - daily_target_pct: se il guadagno del giorno raggiunge l'obiettivo, niente nuovi ingressi fino a domani (0 = nessuno);
 - agente eventi (event_guard.py): con una pausa in corso per una notizia di rischio, niente nuovi ingressi.
@@ -48,6 +50,7 @@ DEFAULT_RISK = {
     "max_leverage": 3,
     "max_exposure_x": 1.5,
     "max_open_positions": 3,
+    "max_same_direction": 2,        # posizioni nello stesso verso al massimo (le coin si muovono insieme)
     "max_daily_loss_pct": 3.0,
     "daily_target_pct": 0.0,        # obiettivo del giorno: raggiunto, niente nuovi ingressi fino a domani (0 = nessuno)
     "max_strategy_dd_pct": 5.0,     # perdita massima di una strategia reale dal suo massimo: oltre, l'agente la riporta su carta
@@ -59,6 +62,7 @@ RISK_BOUNDS = {
     "max_leverage": (1, 5),
     "max_exposure_x": (0.5, 3.0),
     "max_open_positions": (1, 6),
+    "max_same_direction": (1, 6),
     "max_daily_loss_pct": (1.0, 10.0),
     "daily_target_pct": (0.0, 10.0),
     "max_strategy_dd_pct": (1.0, 20.0),
@@ -287,8 +291,12 @@ def run(cfg, ledger, client=None, mode="simulata", state_path=STATE_PATH, now=No
             skip = "già una posizione su questa coin" + (" (aperta a mano)" if t["symbol"] in manual else "")
         elif len(open_now) >= risk["max_open_positions"]:
             skip = "numero massimo di posizioni"
-        size, why = (0.0, "")
         side = "long" if t["dir"] > 0 else "short"
+        if not skip:
+            same = sum(1 for p in open_now.values() if p.get("side") == side) + sum(1 for p in manual.values() if p.get("side") == side)
+            if same >= risk["max_same_direction"]:
+                skip = f"già {same} posizioni {side} aperte (massimo nello stesso verso)"
+        size, why = (0.0, "")
         if not skip:
             specs = specs_fn(t["symbol"]) or DEFAULT_SPECS
             size, why = size_position(equity, t["entry"], t["stop"], risk, open_notional, specs)
