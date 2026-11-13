@@ -59,6 +59,7 @@ export function setGlassPref(pref) {
     document.documentElement.classList.toggle('glass', pref !== 'off');
     document.documentElement.classList.toggle('glass-anim', pref === 'anim');
     applyTheme();      // i grafici si ridipingono (sfondo trasparente col vetro)
+    requestAnimationFrame(syncWalls);
 }
 
 export function getStatusBarPref() {
@@ -67,4 +68,21 @@ export function getStatusBarPref() {
 export function setStatusBarPref(pref) {
     try { localStorage.setItem(BAR_KEY, pref === 'separate' ? 'separate' : 'integrated'); } catch (e) {}
     applyTheme();
+}
+
+// Sfondo dinamico: ogni schermata intera (app, finestre, Assistente, blocco) ha le sue luci. Tutte agganciate allo
+// stesso orologio della pagina, così aprendo una finestra le luci sono nello stesso punto (nessun salto).
+// Una schermata che ricompare fa ripartire le sue animazioni: per questo si riallinea a ogni apertura.
+export function syncWalls() {
+    if (!document.documentElement.classList.contains('glass-anim')) return;
+    document.querySelectorAll('.wall-anim i').forEach(i => {
+        try { i.getAnimations().forEach(a => { a.startTime = 0; }); } catch (e) {}
+    });
+}
+export function watchWalls() {
+    const later = () => requestAnimationFrame(syncWalls);
+    const mo = new MutationObserver(later);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    document.querySelectorAll('.modal-overlay, .lock-screen').forEach(el => mo.observe(el, { attributes: true, attributeFilter: ['class'] }));
+    later();
 }

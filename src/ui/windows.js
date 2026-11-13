@@ -48,6 +48,12 @@ export function normalizeWindows(root = document) {
         const dots = document.createElement('div');
         dots.className = 'win-dots';
         box.append(head, body, dots, ...actions);
+        // luci dello sfondo dinamico anche nella finestra (si vedono solo con Vetro → Dinamico)
+        const wall = document.createElement('div');
+        wall.className = 'wall-anim';
+        wall.setAttribute('aria-hidden', 'true');
+        wall.innerHTML = '<i></i><i></i><i></i>';
+        box.prepend(wall);
         // puntini delle pagine (solo se il contenuto è più lungo di una schermata), aggiornati scorrendo
         const update = () => {
             const pages = Math.max(1, Math.ceil((body.scrollWidth - 2) / (body.clientWidth + 32)));

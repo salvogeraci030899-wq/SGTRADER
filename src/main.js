@@ -15,7 +15,7 @@ import * as Backup from './core/backup.js';
 import * as LabUI from './ui/lab.js';
 import * as AutoUI from './ui/automation.js';
 import * as AccountUI from './ui/account.js';
-import { initTheme } from './core/theme.js';
+import { initTheme, watchWalls } from './core/theme.js';
 import { initManual } from './ui/manual.js';
 import * as Lock from './ui/lock.js';
 import * as Orders from './ui/orders.js';
@@ -211,6 +211,7 @@ Object.assign(window, { lockKey: Lock.lockKey, lockFaceId: Lock.lockFaceId, lock
     openLockSettings: Lock.openLockSettings, closeLockSettings: Lock.closeLockSettings, lockSetup: Lock.lockSetup, lockChange: Lock.lockChange,
     lockDisable: Lock.lockDisable, lockSetAfter: Lock.lockSetAfter, lockSetFace: Lock.lockSetFace });
 normalizeWindows();          // finestre a schermo intero con l'intestazione delle pagine
+watchWalls();                // sfondo dinamico: luci allineate tra app, finestre, Assistente e blocco
 Lock.initLock();
 window.setPosView = Orders.setPosView;
 window.updateCoinFade = TerminalUI.updateCoinFade;
