@@ -3,7 +3,7 @@ import { CONFIG } from '../core/config.js';
 import { Logger } from '../core/logger.js';
 import { journalTrades, isRealMode } from './history.js';
 import { $, SYM, fetchT, apiPost, fmtUsd, cleanData, analyzeTrend, buildRiskData, calcEMA, parseBitgetCandles, fetchData, markChosen } from '../utils/helpers.js';
-import { createChart, setCandles, setForecast, setBands, setMarkers, setPriceLines } from './chart.js';
+import { createChart, setCandles, setForecast, setBands, setMarkers, setPriceLines, relayout } from './chart.js';
 import { TRADE_SYMBOLS } from '../core/commands.js';
 
 const chartContainer = document.getElementById('chart');
@@ -53,18 +53,14 @@ function syncFsHeader() {
 
 export function toggleFullscreenChart() {
     syncFsHeader();
-    const isFullscreen = mainChartContainer.classList.toggle('fullscreen');
-    document.body.classList.toggle('chart-fullscreen', isFullscreen);
+    let isFullscreen = false;
+    relayout(chartHandle, document.getElementById('chart'), () => {
+        isFullscreen = mainChartContainer.classList.toggle('fullscreen');
+        document.body.classList.toggle('chart-fullscreen', isFullscreen);
+    });
     const btn = document.getElementById('btnFullscreen');
     if (isFullscreen) btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>`;
     else btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>`;
-    // due passaggi: iOS assesta le misure dopo il primo frame
-    [50, 300].forEach(ms => setTimeout(() => {
-        if (chartHandle) {
-            chartHandle.resize();
-            chartHandle.fitContent();
-        }
-    }, ms));
 }
 
 // Condividi: immagine del grafico a schermo intero (Segnali) o della pagina; target = elemento da fotografare
@@ -498,6 +494,14 @@ export function startPricePoll() {
     document.addEventListener('visibilitychange', () => { if (!document.hidden) pollPrices(); });
 }
 
+// Sfumature della riga delle coin: a sinistra se hai scorso, a destra se ci sono altre coin dopo
+export function updateCoinFade() {
+    const row = document.getElementById('mktCoins');
+    if (!row) return;
+    row.classList.toggle('more-left', row.scrollLeft > 4);
+    row.classList.toggle('more-right', row.scrollLeft + row.clientWidth < row.scrollWidth - 4);
+}
+
 // --- ASSET / TF SWITCH ---
 export function setAsset(asset, manual = true) {
     if (manual) markChosen('asset');
@@ -506,6 +510,7 @@ export function setAsset(asset, manual = true) {
     TRADE_SYMBOLS.forEach(a => { const b = document.getElementById(`btn-${a}`); if (b) b.classList.toggle('active', a === asset); });
     const active = document.getElementById(`btn-${asset}`);
     if (active) active.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
+    setTimeout(updateCoinFade, 400);
     document.getElementById('current-asset-label').textContent = `${asset.replace('USDT', '')} / USDT · ${getTFLabel(State.currentTF)}`;
     syncFsHeader();
     updateChart();
