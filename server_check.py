@@ -18,7 +18,7 @@ import time
 
 import requests
 
-SERVER = os.environ.get("SERVER_URL", "https://sgtrader-server.salvogeraci030899.workers.dev").rstrip("/")
+SERVER = os.environ.get("SERVER_URL", "https://pinschertrade-server.salvogeraci030899.workers.dev").rstrip("/")
 ORIGIN = os.environ.get("APP_ORIGIN", "https://salvogeraci030899-wq.github.io")
 
 

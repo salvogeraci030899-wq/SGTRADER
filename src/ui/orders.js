@@ -8,7 +8,7 @@ import { $, SYM, escapeHtml, fmtPrice, markChosen } from '../utils/helpers.js';
 import { isRealMode, realPositions } from './history.js';
 import { isRealOrderRemoving } from './automation.js';
 
-const VIEW_KEY = 'sg_pos_view';
+const VIEW_KEY = 'pt_pos_view';
 let view = 'open';
 try { view = localStorage.getItem(VIEW_KEY) === 'orders' ? 'orders' : 'open'; } catch (e) {}
 

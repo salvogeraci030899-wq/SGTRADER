@@ -31,7 +31,7 @@ export function normalizeWindows(root = document) {
         const h1 = head.querySelector('h1');
         h1.textContent = h3 ? h3.textContent : '';
         if (h3 && h3.id) { const id = h3.id; h3.removeAttribute('id'); h1.id = id; }
-        head.querySelector('p').textContent = ov.dataset.sub || 'SGTRADER';
+        head.querySelector('p').textContent = ov.dataset.sub || 'PinscherTrade';
         const x = head.querySelector('.win-x');
         x.innerHTML = X;
         x.addEventListener('click', close);

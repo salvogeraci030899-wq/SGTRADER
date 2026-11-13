@@ -1,7 +1,7 @@
 {
-  "name": "sgtrader",
+  "name": "pinschertrade",
   "version": "1.0.0",
-  "description": "SGTRADER - Trading Hub",
+  "description": "PinscherTrade - trading con agenti e gestione del rischio",
   "private": true,
   "engines": {
     "node": "26.0"

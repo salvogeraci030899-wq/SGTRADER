@@ -38,10 +38,10 @@ def setup_repo(path, keyfile):
     git(path, "config", "user.email", "t@t")
     git(path, "config", "user.name", "t")
     py = f"{sys.executable} {os.path.join(ROOT, 'tools', 'datacrypt.py')}"
-    git(path, "config", "filter.sgtenc.clean", f"{py} clean")
-    git(path, "config", "filter.sgtenc.smudge", f"{py} smudge")
-    git(path, "config", "filter.sgtenc.required", "true")
-    git(path, "config", "merge.sgtenc.driver", f"{py} merge %O %A %B %P")
+    git(path, "config", "filter.ptenc.clean", f"{py} clean")
+    git(path, "config", "filter.ptenc.smudge", f"{py} smudge")
+    git(path, "config", "filter.ptenc.required", "true")
+    git(path, "config", "merge.ptenc.driver", f"{py} merge %O %A %B %P")
 
 
 def test_repository():
@@ -50,7 +50,7 @@ def test_repository():
         keyfile = os.path.join(d, "key")
         with open(keyfile, "wb") as f:
             f.write(KEY)
-        os.environ["SGT_DATA_KEY_FILE"] = keyfile
+        os.environ["PT_DATA_KEY_FILE"] = keyfile
         origin, a, b = (os.path.join(d, n) for n in ("origin", "a", "b"))
         os.makedirs(origin)
         git(origin, "init", "-q", "--bare", "-b", "main")
@@ -112,7 +112,7 @@ def test_repository():
         assert git(b, "status", "--porcelain") == ""
         print("ok repository: cifrato nel repository, in chiaro nel lavoro, unione di due salvataggi")
     finally:
-        os.environ.pop("SGT_DATA_KEY_FILE", None)
+        os.environ.pop("PT_DATA_KEY_FILE", None)
         shutil.rmtree(d, ignore_errors=True)
 
 
@@ -132,7 +132,7 @@ def test_migrazione():
         keyfile = os.path.join(d, ".k")
         with open(keyfile, "wb") as f:
             f.write(KEY)
-        os.environ["SGT_DATA_KEY_FILE"] = keyfile
+        os.environ["PT_DATA_KEY_FILE"] = keyfile
         setup_repo(d, keyfile)
         git(d, "add", "--renormalize", "--", "live_trades.json")
         git(d, "commit", "-q", "-m", "cifrato")
@@ -141,7 +141,7 @@ def test_migrazione():
             assert json.load(f)["account"]["total_usdt"] == 16.06
         print("ok migrazione")
     finally:
-        os.environ.pop("SGT_DATA_KEY_FILE", None)
+        os.environ.pop("PT_DATA_KEY_FILE", None)
         shutil.rmtree(d, ignore_errors=True)
 
 

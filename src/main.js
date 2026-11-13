@@ -47,7 +47,7 @@ window.generateDataKey = AccountUI.generateDataKey;
 window.removeDataKey = AccountUI.removeDataKey;
 // dati cifrati senza chiave (o con quella sbagliata): un avviso solo, poi le pagine restano vuote
 let dataLockedShown = false;
-window.addEventListener('sgt-data-locked', e => {
+window.addEventListener('pt-data-locked', e => {
     if (dataLockedShown || !window.showAlert) return;
     dataLockedShown = true;
     window.showAlert('Dati cifrati', e.detail === 'wrong' ? 'La chiave dei dati salvata non apre i file: inseriscila di nuovo in Impostazioni → Connessioni.' : 'Saldo, posizioni e strategie sono cifrati. Inserisci la chiave dei dati in Impostazioni → Connessioni.');
@@ -261,6 +261,8 @@ window.updateHomeChartDots = HomeCharts.updateHomeChartDots;
 
 // Backup
 window.exportBackup = Backup.exportBackup;
+window.doExportBackup = Backup.doExportBackup;
+window.closeBackupModal = Backup.closeBackupModal;
 window.triggerImportBackup = Backup.triggerImportBackup;
 window.handleImportBackup = Backup.handleImportBackup;
 
@@ -357,7 +359,7 @@ window.switchTab = (tabId) => {
 initTheme();
 
 document.addEventListener('DOMContentLoaded', () => {
-    Logger.log('INFO', 'SYSTEM', 'SGTRADER avviato');
+    Logger.log('INFO', 'SYSTEM', 'PinscherTrade avviato');
 
     // Versione dell'app (da <meta name="app-version">, aggiornata da tools/bump_version.py):
     // serve a verificare sul telefono di avere davvero l'ultima versione e non una in cache

@@ -19,7 +19,7 @@ export function exportCSV() {
     });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-    a.download = `sgtrader_simulato_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `pinschertrade_simulato_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }

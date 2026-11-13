@@ -11,13 +11,25 @@
     <meta name="theme-color" content="#000000" id="metaThemeColor">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" id="metaStatusBar">
-    <meta name="apple-mobile-web-app-title" content="SGTRADER">
-    <title>SGTRADER</title>
+    <meta name="apple-mobile-web-app-title" content="Pinscher">
+    <title>PinscherTrade</title>
 
     <script>
+        // Nomi vecchi (SGTRADER) della memoria del telefono: passano ai nuovi una volta sola, prima di tutto il resto
+        (function() {
+            var map = { sg_lock: 'pt_lock', sgt_theme: 'pt_theme', sgt_statusbar: 'pt_statusbar', sgt_glass: 'pt_glass', sgt_data_key: 'pt_data_key',
+                sg_account_refresh_at: 'pt_account_refresh_at', sg_pos_view: 'pt_pos_view', kronos_state_v3: 'pt_state_v3', kronos_signals_v1: 'pt_signals_v1',
+                kronos_gh_token: 'pt_gh_token', kronos_app_key: 'pt_app_key', kronos_api_base: 'pt_api_base', kronos_refresh_start_ts: 'pt_refresh_start_ts' };
+            try {
+                for (var old in map) {
+                    var v = localStorage.getItem(old);
+                    if (v !== null) { if (localStorage.getItem(map[old]) === null) localStorage.setItem(map[old], v); localStorage.removeItem(old); }
+                }
+            } catch (e) {}
+        })();
         // Blocco app (src/ui/lock.js): se c'è un codice, l'app resta nascosta finché non viene sbloccata
         (function() {
-            try { var l = JSON.parse(localStorage.getItem('sg_lock') || 'null'); if (l && l.hash) document.documentElement.classList.add('app-locked'); } catch (e) {}
+            try { var l = JSON.parse(localStorage.getItem('pt_lock') || 'null'); if (l && l.hash) document.documentElement.classList.add('app-locked'); } catch (e) {}
         })();
         (function() {
             var standalone = (window.navigator.standalone === true) || window.matchMedia('(display-mode: standalone)').matches;
@@ -27,13 +39,13 @@
         // La logica completa è in src/core/theme.js; qui solo il minimo per il primo frame.
         (function() {
             var pref = 'auto';
-            try { pref = localStorage.getItem('sgt_theme') || 'auto'; } catch (e) {}
+            try { pref = localStorage.getItem('pt_theme') || 'auto'; } catch (e) {}
             var light = pref === 'light' || (pref === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
             var bar = 'integrated';
-            try { bar = localStorage.getItem('sgt_statusbar') || 'integrated'; } catch (e) {}
+            try { bar = localStorage.getItem('pt_statusbar') || 'integrated'; } catch (e) {}
             document.documentElement.setAttribute('data-theme', light ? 'light' : 'dark');
             // Vetro (Impostazioni → Aspetto): spento finché non lo accendi
-            try { var g = localStorage.getItem('sgt_glass'); if (g === 'on' || g === 'anim') document.documentElement.classList.add('glass'); if (g === 'anim') document.documentElement.classList.add('glass-anim'); } catch (e) {}
+            try { var g = localStorage.getItem('pt_glass'); if (g === 'on' || g === 'anim') document.documentElement.classList.add('glass'); if (g === 'anim') document.documentElement.classList.add('glass-anim'); } catch (e) {}
             if (light) document.getElementById('metaThemeColor').setAttribute('content', '#f2f2f7');
             // Barra di stato di iOS (rilette solo all'apertura dell'app):
             //   integrata: la pagina passa sotto l'ora e la batteria (black-translucent, testo bianco);
@@ -55,47 +67,47 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=170">
-    <meta name="app-version" content="170">
+    <link rel="stylesheet" href="./style.css?v=171">
+    <meta name="app-version" content="171">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=170",
-            "./src/core/commands.js": "./src/core/commands.js?v=170",
-            "./src/core/config.js": "./src/core/config.js?v=170",
-            "./src/core/datacrypt.js": "./src/core/datacrypt.js?v=170",
-            "./src/core/labEngine.js": "./src/core/labEngine.js?v=170",
-            "./src/core/logger.js": "./src/core/logger.js?v=170",
-            "./src/core/rules.js": "./src/core/rules.js?v=170",
-            "./src/core/state.js": "./src/core/state.js?v=170",
-            "./src/core/telegram.js": "./src/core/telegram.js?v=170",
-            "./src/core/theme.js": "./src/core/theme.js?v=170",
-            "./src/main.js": "./src/main.js?v=170",
-            "./src/ui/account.js": "./src/ui/account.js?v=170",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=170",
-            "./src/ui/assistant.js": "./src/ui/assistant.js?v=170",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=170",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=170",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=170",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=170",
-            "./src/ui/history.js": "./src/ui/history.js?v=170",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=170",
-            "./src/ui/home.js": "./src/ui/home.js?v=170",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=170",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=170",
-            "./src/ui/lock.js": "./src/ui/lock.js?v=170",
-            "./src/ui/log.js": "./src/ui/log.js?v=170",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=170",
-            "./src/ui/market.js": "./src/ui/market.js?v=170",
-            "./src/ui/orders.js": "./src/ui/orders.js?v=170",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=170",
-            "./src/ui/results.js": "./src/ui/results.js?v=170",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=170",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=170",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=170",
-            "./src/ui/windows.js": "./src/ui/windows.js?v=170",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=170"
+            "./src/core/backup.js": "./src/core/backup.js?v=171",
+            "./src/core/commands.js": "./src/core/commands.js?v=171",
+            "./src/core/config.js": "./src/core/config.js?v=171",
+            "./src/core/datacrypt.js": "./src/core/datacrypt.js?v=171",
+            "./src/core/labEngine.js": "./src/core/labEngine.js?v=171",
+            "./src/core/logger.js": "./src/core/logger.js?v=171",
+            "./src/core/rules.js": "./src/core/rules.js?v=171",
+            "./src/core/state.js": "./src/core/state.js?v=171",
+            "./src/core/telegram.js": "./src/core/telegram.js?v=171",
+            "./src/core/theme.js": "./src/core/theme.js?v=171",
+            "./src/main.js": "./src/main.js?v=171",
+            "./src/ui/account.js": "./src/ui/account.js?v=171",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=171",
+            "./src/ui/assistant.js": "./src/ui/assistant.js?v=171",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=171",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=171",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=171",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=171",
+            "./src/ui/history.js": "./src/ui/history.js?v=171",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=171",
+            "./src/ui/home.js": "./src/ui/home.js?v=171",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=171",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=171",
+            "./src/ui/lock.js": "./src/ui/lock.js?v=171",
+            "./src/ui/log.js": "./src/ui/log.js?v=171",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=171",
+            "./src/ui/market.js": "./src/ui/market.js?v=171",
+            "./src/ui/orders.js": "./src/ui/orders.js?v=171",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=171",
+            "./src/ui/results.js": "./src/ui/results.js?v=171",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=171",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=171",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=171",
+            "./src/ui/windows.js": "./src/ui/windows.js?v=171",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=171"
         }
     }
     </script>
@@ -107,7 +119,7 @@
     <div class="lock-top">
         <img src="./icons/icon-512.png?v=3" alt="" class="lock-icon lock-icon-dark">
         <img src="./icons/icon-light-512.png?v=3" alt="" class="lock-icon lock-icon-light">
-        <div class="lock-title">SGTRADER</div>
+        <div class="lock-title">PinscherTrade</div>
         <div class="lock-msg" id="lockMsg">Inserisci il codice</div>
         <div class="lock-dots" id="lockDots"></div>
     </div>
@@ -125,7 +137,7 @@
             <div class="header-row">
                 <div class="header-title">
                     <h1>Home</h1>
-                    <p>SGTRADER · Panoramica</p>
+                    <p>PinscherTrade · Panoramica</p>
                 </div>
                 <div class="header-actions">
                     <button type="button" class="mode-pill" id="homeModePill" onclick="openAccount()" title="Modalità ordini">—</button>
@@ -234,7 +246,7 @@
             <div class="header-row">
                 <div class="header-title">
                     <h1>Impostazioni</h1>
-                    <p id="settingsSubtitle">SGTRADER</p>
+                    <p id="settingsSubtitle">PinscherTrade</p>
                 </div>
             </div>
             <div class="set-wrap">
@@ -428,7 +440,7 @@
             <div id="mktSig" class="mkt-view" style="display:none">
             <div id="sigView" class="signals-view">
             <div class="signal-info-bar" id="signalInfoBar">
-                Scansione ogni 10 min · Consensus su <b>4 sorgenti</b>: SGTRADER AI + 3 strategie. Stato: <span class="be-badge neutral" id="signalScanStatus">—</span><br>
+                Scansione ogni 10 min · Consensus su <b>4 sorgenti</b>: Kronos AI + 3 strategie. Stato: <span class="be-badge neutral" id="signalScanStatus">—</span><br>
                 Notifiche: <span id="signalNotifStatus" class="badge-notif-off">OFF</span>
             </div>
             <div class="signal-actions">
@@ -438,7 +450,7 @@
             <div class="signal-grid" id="signalGrid" onscroll="updateSignalDots()"></div>
             <div class="info-dots signal-dots" id="signalDots"></div>
             <div class="signal-legend">
-                <span><span class="legend-dot k"></span>SGTRADER</span>
+                <span><span class="legend-dot k"></span>Kronos</span>
                 <span><span class="legend-dot long"></span>LONG</span>
                 <span><span class="legend-dot short"></span>SHORT</span>
                 <span><span class="legend-dot"></span>Neutro</span>
@@ -704,21 +716,21 @@
                 <!-- SLIDE 0 -->
                 <div class="info-slide">
                     <div class="rule-card rule-card-intro">
-                        <div class="rule-card-title green">SGTRADER</div>
+                        <div class="rule-card-title green">PinscherTrade</div>
                         <div class="intro-text">
                             Un sistema operativo completo per il trading algoritmico. Un hub che unisce <b>analisi AI</b>, <b>strategie tecniche</b>, <b>gestione del rischio</b>, <b>trade simulati</b>, <b>laboratorio</b>, <b>agente</b>, <b>risultati</b> e <b>registro</b>.
                         </div>
                     </div>
                     <div class="rule-card">
                         <div class="rule-card-title blue">La Filosofia</div>
-                        <div class="rule-step"><div class="content"><b>SGTRADER non indovina il futuro.</b> Analizza il momentum attuale, calcola probabilità statistiche basate su simulazioni Monte Carlo, e ti mostra condizioni in cui certe strategie funzionano meglio.</div></div>
+                        <div class="rule-step"><div class="content"><b>PinscherTrade non indovina il futuro.</b> Analizza il momentum attuale, calcola probabilità statistiche basate su simulazioni Monte Carlo, e ti mostra condizioni in cui certe strategie funzionano meglio.</div></div>
                         <div class="rule-step"><div class="content"><b>Il vero edge</b> non è predire con precisione. È operare solo in condizioni favorevoli, controllare il rischio, pagare meno quando sbagli.</div></div>
                         <div class="rule-step"><div class="content">Win rate del <b>50%</b> con R:R <b>1:2</b> produce profitto. Non devi vincere sempre. Devi perdere poco quando perdi.</div></div>
                         <div class="highlight-box"><b>Regola d'oro</b>: il 90% delle volte la risposta corretta a "quando entrare?" è <b>"Non ora"</b>.</div>
                     </div>
                     <div class="rule-card">
                         <div class="rule-card-title default">Il Ciclo Operativo</div>
-                        <div class="rule-step"><div class="content"><b>1. Segnale</b> → SGTRADER AI o Signal Engine ti avvertono</div></div>
+                        <div class="rule-step"><div class="content"><b>1. Segnale</b> → Kronos AI o Signal Engine ti avvertono</div></div>
                         <div class="rule-step"><div class="content"><b>2. Analisi</b> → Controlli coerenza tra timeframe e consensus</div></div>
                         <div class="rule-step"><div class="content"><b>3. Trade</b> → Calcoli size, R:R, fee e tasse, poi apri il trade: simulato nell'app oppure, in modalità Reale, ordine vero su Bitget (con conferma)</div></div>
                         <div class="rule-step"><div class="content"><b>4. Apertura</b> → Trade simulato con prezzi reali</div></div>
@@ -737,12 +749,12 @@
                         <div class="rule-step"><div class="content"><b>Comandi</b> (Aggiorna ora, Agente, Account): partono da GitHub con il token salvato sul telefono, oppure da un server comandi (Vercel o Cloudflare) protetto da <span class="mono">APP_SECRET</span>. Avviano solo workflow del repository, che ricontrollano ogni comando.</div></div>
                         <div class="rule-step"><div class="content"><b>Frontend PWA</b>: <span class="mono">index.html</span>, <span class="mono">style.css</span> e moduli JS in <span class="mono">src/</span>, Lightweight Charts 4.1.3, localStorage per persistenza, manifest e meta per comportamento nativo su iPhone.</div></div>
                         <div class="rule-step"><div class="content"><b>Bitget API</b>: prezzi, candele e dati futures pubblici. Le chiavi private servono solo all'esecutore per gli ordini veri, stanno nei segreti di GitHub e mai nell'app.</div></div>
-                        <div class="rule-step"><div class="content"><b>Persistenza locale</b> su due chiavi separate: <span class="mono">kronos_state_v3</span> (trades) e <span class="mono">kronos_signals_v1</span> (segnali + impostazioni notifiche).</div></div>
+                        <div class="rule-step"><div class="content"><b>Persistenza locale</b> su due chiavi separate: <span class="mono">pt_state_v3</span> (trades) e <span class="mono">pt_signals_v1</span> (segnali + impostazioni notifiche).</div></div>
                     </div>
                     <div class="rule-card">
                         <div class="rule-card-title default">Flusso Dati</div>
-                        <div class="rule-step"><div class="content"><b>GitHub Actions</b> (ogni 15 min, avviato da Cloudflare) → scarica dati → calcola → scrive <span class="mono">dashboard.json</span>, track record, dati futures, prova su carta ed esecutore → il sito li pubblica → SGTRADER li legge.</div></div>
-                        <div class="rule-step"><div class="content"><b>Signal Engine</b> (ogni 10 min) → chiama Bitget per candele fresche → calcola 3 strategie + SGTRADER AI → aggrega consensus → eventualmente notifica.</div></div>
+                        <div class="rule-step"><div class="content"><b>GitHub Actions</b> (ogni 15 min, avviato da Cloudflare) → scarica dati → calcola → scrive <span class="mono">dashboard.json</span>, track record, dati futures, prova su carta ed esecutore → il sito li pubblica → PinscherTrade li legge.</div></div>
+                        <div class="rule-step"><div class="content"><b>Signal Engine</b> (ogni 10 min) → chiama Bitget per candele fresche → calcola 3 strategie + Kronos AI → aggrega consensus → eventualmente notifica.</div></div>
                         <div class="rule-step"><div class="content"><b>Price Polling</b> (ogni 5 sec) → aggiorna prezzo header, PnL trade attivi, verifica chiusure TP/SL automatiche.</div></div>
                     </div>
                 </div>
@@ -777,14 +789,14 @@
                 <div class="info-slide">
                     <div class="rule-card">
                         <div class="rule-card-title blue">Signal Engine — Consensus</div>
-                        <div class="rule-step"><div class="content"><b>4 sorgenti</b> valutate su 9 celle (3 asset × 3 timeframe): <span class="lbl-blue">SGTRADER AI</span> + <span class="lbl-green">Breakout</span> + <span class="lbl-yellow">Mean Reversion</span> + <span class="lbl-red">MA Crossover</span>.</div></div>
+                        <div class="rule-step"><div class="content"><b>4 sorgenti</b> valutate su 9 celle (3 asset × 3 timeframe): <span class="lbl-blue">Kronos AI</span> + <span class="lbl-green">Breakout</span> + <span class="lbl-yellow">Mean Reversion</span> + <span class="lbl-red">MA Crossover</span>.</div></div>
                         <div class="rule-step"><div class="content"><b>Consensus</b>: serve almeno <b>2 sorgenti</b> concordi (LONG o SHORT) perché la cella mostri un segnale. Se solo una dice LONG e le altre 3 sono neutre, resta NEUTRO.</div></div>
                         <div class="rule-step"><div class="content"><b>Forza del segnale</b> = media delle strength delle sorgenti concordi. Più sorgenti e più strength = segnale più affidabile.</div></div>
                     </div>
                     <div class="rule-card">
                         <div class="rule-card-title green">Come leggere la griglia</div>
                         <div class="rule-step"><div class="content">Ogni cella mostra: <b>asset + timeframe</b>, badge con consensus e <b>N/4</b> (quante sorgenti sono d'accordo), 4 pallini indicatori, e label <b>K:LONG</b> o <b>K:SHORT</b> o <b>K:—</b>.</div></div>
-                        <div class="rule-step"><div class="content">Il <b>primo pallino ha bordo blu</b> = SGTRADER AI. Gli altri 3 = Breakout, Mean Reversion, MA Crossover nell'ordine.</div></div>
+                        <div class="rule-step"><div class="content">Il <b>primo pallino ha bordo blu</b> = Kronos AI. Gli altri 3 = Breakout, Mean Reversion, MA Crossover nell'ordine.</div></div>
                         <div class="rule-step"><div class="content">Pallino verde pieno = segnale LONG. Pallino rosso pieno = SHORT. Pallino grigio vuoto = neutro.</div></div>
                         <div class="rule-step"><div class="content">Tap su una cella apre il <b>dettaglio completo</b>: motivazione di ogni sorgente + consensus finale + pulsante "Apri sui Grafici". La griglia è in Mercato → Segnali.</div></div>
                     </div>
@@ -799,7 +811,7 @@
                 <!-- SLIDE 4 -->
                 <div class="info-slide">
                     <div class="rule-card">
-                        <div class="rule-card-title blue">SGTRADER AI — Il Modello</div>
+                        <div class="rule-card-title blue">Kronos AI — Il Modello</div>
                         <div class="rule-step"><div class="content">Il bot Python calcola <b>prob_up</b> = percentuale di simulazioni Monte Carlo che sono finite sopra il prezzo attuale dopo N passi.</div></div>
                         <div class="rule-step"><div class="content"><b>NON è "l'80% di probabilità che salga".</b> È: "su 100 scenari simulati, 80 sono finiti sopra". Misura il <em>momentum</em>, non è una predizione.</div></div>
                         <div class="rule-step"><div class="content">Il <b>Piano Operativo</b> include: bias (LONG/SHORT/NEUTRO), entry, stop loss, take profit, reasoning testuale, flag <b>tradeable</b>, min_rr.</div></div>
@@ -850,7 +862,7 @@
                         <div class="rule-step"><div class="content"><b>Timer automatico</b>: 1D = 168h, 4H = 48h, 1H = 24h. Allo scadere, il trade chiude al prezzo corrente (motivo <b>TEMPO</b>).</div></div>
                         <div class="rule-step"><div class="content"><b>Chiusura automatica</b>: TP, SL, o TEMPO. Vengono verificati ogni 5 secondi col prezzo live. La chiusura scatta nell'istante in cui il prezzo tocca la soglia.</div></div>
                         <div class="rule-step"><div class="content"><b>Chiusura manuale</b>: dal pulsante CHIUDI. Utile se vedi un'inversione prima del TP.</div></div>
-                        <div class="rule-step"><div class="content"><b>Catch-up su riapertura</b>: se chiudi l'app e la riapri dopo ore, SGTRADER scarica le candele 15min dal momento dell'apertura e applica tutti i TP/SL che sono stati toccati. Non perdi nulla.</div></div>
+                        <div class="rule-step"><div class="content"><b>Catch-up su riapertura</b>: se chiudi l'app e la riapri dopo ore, PinscherTrade scarica le candele 15min dal momento dell'apertura e applica tutti i TP/SL che sono stati toccati. Non perdi nulla.</div></div>
                     </div>
                     <div class="rule-card">
                         <div class="rule-card-title green">PnL Lordo vs Netto</div>
@@ -907,13 +919,13 @@
                         <div class="rule-step"><div class="content"><b>1. Crea il bot</b>: apri Telegram, cerca <b>@BotFather</b>, manda <span class="mono">/newbot</span>, scegli nome e username. Riceverai un <b>token</b> tipo <span class="mono">123456:ABC-DEF...</span>.</div></div>
                         <div class="rule-step"><div class="content"><b>2. Ottieni il Chat ID</b>: cerca <b>@userinfobot</b>, manda <span class="mono">/start</span>. Ti risponde con il tuo <b>chat_id</b> numerico (es. 987654321).</div></div>
                         <div class="rule-step"><div class="content"><b>3. Avvia il bot</b>: cerca il bot che hai creato e manda <span class="mono">/start</span>. Senza questo passaggio il bot non può scriverti.</div></div>
-                        <div class="rule-step"><div class="content"><b>4. Inserisci in SGTRADER</b>: apri Impostazioni (barra in basso) → Trading → Segnali, Telegram e webhook → incolla token e chat_id → Salva.</div></div>
+                        <div class="rule-step"><div class="content"><b>4. Inserisci in PinscherTrade</b>: apri Impostazioni (barra in basso) → Trading → Segnali, Telegram e webhook → incolla token e chat_id → Salva.</div></div>
                         <div class="rule-step"><div class="content"><b>5. Test</b>: premi "Invia Test Telegram". Se il messaggio arriva, sei a posto. Se non arriva, ricontrolla token/chat_id e che il bot sia avviato.</div></div>
                     </div>
                     <div class="rule-card">
                         <div class="rule-card-title yellow">Cosa ti arriva</div>
                         <div class="rule-step"><div class="content">Quando il Signal Engine rileva un cambio di consensus (es. BTC 4H passa a LONG con 3/4 sorgenti), ti invia un messaggio con:</div></div>
-                        <div class="rule-step"><div class="content">Asset + timeframe + consensus · forza · stato di ogni sorgente (SGTRADER, Breakout, Mean Rev, MA Cross) · prezzo · timestamp.</div></div>
+                        <div class="rule-step"><div class="content">Asset + timeframe + consensus · forza · stato di ogni sorgente (Kronos, Breakout, Mean Rev, MA Cross) · prezzo · timestamp.</div></div>
                         <div class="rule-step"><div class="content"><b>Non spam</b>: la notifica parte solo se il consensus <em>cambia</em> rispetto all'ultima scansione. Lo stesso LONG su BTC 4H non ti arriva 10 volte di fila.</div></div>
                         <div class="rule-step"><div class="content"><b>Comandi del bot</b>: /stato, /posizioni, /agente, /carta, /avvisi rispondono con i dati del momento, in sola lettura. Sotto i messaggi ci sono i tasti Stato, Posizioni e Agente, che rispondono dentro Telegram; negli allarmi c'è anche Emergenza, che chiede conferma (Sì/No, valida 2 minuti). /emergenza fa lo stesso. Rispondono solo alla tua chat.</div></div>
                     </div>
@@ -970,7 +982,7 @@
                     <div class="rule-card">
                         <div class="rule-card-title blue">Glossario</div>
                         <div class="rule-step"><div class="content"><b>ATR</b> · Average True Range. Misura la volatilità media. Usato per hint SL.</div></div>
-                        <div class="rule-step"><div class="content"><b>Consensus</b> · Accordo tra sorgenti (SGTRADER + 3 strategie). ≥ 2 = segnale valido.</div></div>
+                        <div class="rule-step"><div class="content"><b>Consensus</b> · Accordo tra sorgenti (Kronos + 3 strategie). ≥ 2 = segnale valido.</div></div>
                         <div class="rule-step"><div class="content"><b>EMA</b> · Exponential Moving Average. Media mobile esponenziale (20/50/200).</div></div>
                         <div class="rule-step"><div class="content"><b>Expectancy</b> · PnL medio per trade. Positivo = profittevole.</div></div>
                         <div class="rule-step"><div class="content"><b>Fee</b> · Commissione exchange (ingresso + uscita). 0.1% tipico spot.</div></div>
@@ -1003,7 +1015,7 @@
                         <div class="rule-step"><div class="content"><b>Bitget</b>: a ogni giro il bot legge patrimonio futures e posizioni, in sola lettura. "Lettura non riuscita" = chiave scaduta o errata (arriva anche un avviso su Telegram).</div></div>
                         <div class="rule-step"><div class="content"><b>Esecutore</b>: ogni posizione nasce con lo stop già su Bitget. A ogni giro confronta le posizioni su Bitget con quelle attese: se non coincidono si blocca e avvisa.</div></div>
                         <div class="rule-step"><div class="content"><b>Aspetto</b>: Impostazioni → Aspetto → Auto (segue iOS), Chiaro o Scuro. <b>Vetro</b>: Fermo o Animato rendono traslucidi schede, tasti e barra (stile Liquid Glass); Animato fa muovere piano le luci dello sfondo (consuma un po' più batteria); No li lascia pieni. <b>Barra di stato</b>: Integrata (la pagina passa sotto ora e batteria) o Separata (barra piena di iOS, utile se iOS sfoca la parte in alto). Valgono solo su questo dispositivo; la barra di stato cambia riaprendo l'app.</div></div>
-                        <div class="rule-step"><div class="content"><b>Primo avvio</b>: Impostazioni → Altro → Connessioni → token GitHub fine-grained, solo su SGTRADER, permesso "Actions: Read and write".</div></div>
+                        <div class="rule-step"><div class="content"><b>Primo avvio</b>: Impostazioni → Altro → Connessioni → token GitHub fine-grained, solo su PinscherTrade, permesso "Actions: Read and write".</div></div>
                     </div>
                 </div>
                 <!-- SLIDE: COSA FARE SE -->
@@ -1011,10 +1023,10 @@
                     <div class="rule-card">
                         <div class="rule-card-title yellow">Cosa fare se…</div>
                         <div class="rule-step"><div class="content"><b>Come capire se lavora</b> → Home, scheda Stato: Bot (ogni 15 minuti), Controllo rapido (ogni 5) e Agente (ogni giorno alle 19:41), ognuno con l'ultimo giro e il prossimo. Pallino verde: tutto regolare; giallo: in ritardo; rosso: fermo da oltre 2 ore o giro non riuscito. "In corso adesso" mentre gira.</div></div>
-                        <div class="rule-step"><div class="content"><b>"Il bot non parte da X ore"</b> (avviso del controllo di salute, dopo 2 ore senza giri) → il server Cloudflare non lo sta avviando: Cloudflare → Workers → sgtrader-server → scheda dei log, oppure rilancia il workflow "Pubblica server comandi". Per forzare subito un giro: Home → Stato → Aggiorna ora.</div></div>
+                        <div class="rule-step"><div class="content"><b>"Il bot non parte da X ore"</b> (avviso del controllo di salute, dopo 2 ore senza giri) → il server Cloudflare non lo sta avviando: Cloudflare → Workers → pinschertrade-server → scheda dei log, oppure rilancia il workflow "Pubblica server comandi". Per forzare subito un giro: Home → Stato → Aggiorna ora.</div></div>
                         <div class="rule-step"><div class="content"><b>"Esecutore BLOCCATO"</b> → apri Bitget e confronta le posizioni con Agente → Strategie. Chiudi a mano ciò che non torna, poi Agente → Rischio → Sblocca automazione.</div></div>
                         <div class="rule-step"><div class="content"><b>Qualcosa va storto con soldi veri</b> → Agente → Rischio → Emergenza (o il tasto Emergenza nei messaggi Telegram di allarme, o /emergenza): spegne tutte le strategie e chiude le posizioni aperte dall'esecutore. In caso di dubbio chiudi anche direttamente su Bitget.</div></div>
-                        <div class="rule-step"><div class="content"><b>"Comando rifiutato" / "GitHub ha rifiutato il token"</b> → il token GitHub è scaduto o revocato: creane uno nuovo (solo SGTRADER, Actions: Read and write) e salvalo in Impostazioni → Altro → Connessioni.</div></div>
+                        <div class="rule-step"><div class="content"><b>"Comando rifiutato" / "GitHub ha rifiutato il token"</b> → il token GitHub è scaduto o revocato: creane uno nuovo (solo il repository dell'app, Actions: Read and write) e salvalo in Impostazioni → Altro → Connessioni.</div></div>
                         <div class="rule-step"><div class="content"><b>L'app mostra un errore di caricamento</b> → ricarica la pagina; controlla la versione in Home, scheda Stato (es. v135).</div></div>
                         <div class="rule-step"><div class="content"><b>Non arrivano messaggi Telegram</b> → controlla i segreti TELEGRAM_TOKEN e TELEGRAM_CHAT_ID su GitHub e che il bot su Telegram non sia stato bloccato.</div></div>
                     </div>
@@ -1099,7 +1111,7 @@
                             Il trading è un gioco di attesa. Pochi trade di alta qualità battono cento trade mediocri.
                         </div>
                         <div class="final-footer">
-                            SGTRADER · Manuale Operativo<br>
+                            PinscherTrade · Manuale Operativo<br>
                             <span class="final-disclaimer">Questo non è un consiglio finanziario. Il trading comporta rischio di perdita del capitale.</span>
                         </div>
                     </div>
@@ -1179,13 +1191,14 @@
 <!-- ==================== MODALI ==================== -->
 <div class="modal-overlay" id="closeTradeModal" data-sub="Posizione simulata"><div class="modal-box"><h3>Chiudi Posizione?</h3><p>Sei sicuro di voler chiudere questo trade al prezzo attuale di mercato?</p><div class="modal-actions"><button class="btn-cancel" onclick="closeCloseTradeModal()">Annulla</button><button class="btn-confirm" onclick="executeCloseTrade()">Conferma Chiusura</button></div></div></div>
 <div class="modal-overlay" id="capitalModal" data-sub="Conto simulato"><div class="modal-box"><h3>Capitale simulato</h3><p style="margin-bottom:12px;">Scegli + per depositare o − per prelevare, poi l'importo.</p><input type="hidden" id="capitalSign" value="+"><div class="cap-sign" id="capitalSignToggle"><button type="button" data-sign="+" class="active" onclick="setCapitalSign('+')">+ Deposita</button><button type="button" data-sign="-" onclick="setCapitalSign('-')">− Preleva</button></div><div style="margin-bottom:14px; text-align:left;"><label style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; margin-bottom:4px; display:block;">Importo (USDT)</label><input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" id="capitalChangeInput" placeholder="es. 500" style="width:100%; background:var(--field); border:1px solid var(--border); color:var(--text); padding:12px; border-radius:10px; font-size:16px; font-family:var(--mono);"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeCapitalModal()">Annulla</button><button class="btn-confirm" onclick="applyCapitalChange()">Applica</button></div></div></div>
-<div class="modal-overlay" id="alertModal" data-sub="SGTRADER"><div class="modal-box"><h3 id="alertTitle">Attenzione</h3><p id="alertMessage">Messaggio</p><div class="modal-actions"><button class="btn-confirm" style="background:var(--surface-hover); color:var(--text);" onclick="closeAlert()">OK</button></div></div></div>
+<div class="modal-overlay" id="alertModal" data-sub="PinscherTrade"><div class="modal-box"><h3 id="alertTitle">Attenzione</h3><p id="alertMessage">Messaggio</p><div class="modal-actions"><button class="btn-confirm" style="background:var(--surface-hover); color:var(--text);" onclick="closeAlert()">OK</button></div></div></div>
 <div class="modal-overlay" id="forceTradeModal" data-sub="Trade"><div class="modal-box"><h3 style="color: var(--warning);">Trade Bloccato</h3><p id="forceTradeReason" style="margin-bottom: 20px;">Motivo del blocco</p><div class="modal-actions"><button class="btn-cancel" onclick="closeForceTradeModal()">Annulla</button><button class="btn-confirm" style="background: var(--warning); color: var(--on-accent);" onclick="confirmForceTrade()">Esegui comunque</button></div></div></div>
+<div class="modal-overlay" id="backupModal" data-sub="Impostazioni"><div class="modal-box"><h3>Esporta backup</h3><p>Trade simulati, segnali e tutte le impostazioni di questo dispositivo, in un file da salvare su iCloud e da importare dopo aver rimesso l'app. Il blocco con codice e Face ID va rifatto.</p><p>Con le chiavi il file contiene anche token GitHub e chiave dei dati: comodo per il ripristino, ma va tenuto al sicuro e cancellato dopo.</p><div class="modal-actions"><button class="btn-cancel" onclick="doExportBackup(false)">Solo impostazioni</button><button class="btn-confirm" onclick="doExportBackup(true)">Con le chiavi</button></div></div></div>
 <div class="modal-overlay" id="resetModal" data-sub="Risultati"><div class="modal-box"><h3 style="color: var(--danger);">Reset dei trade simulati</h3><p>Sei sicuro di voler resettare il diario? Tutti i trade attivi e lo storico verranno eliminati definitivamente.</p><div class="modal-actions"><button class="btn-cancel" onclick="closeResetModal()">Annulla</button><button class="btn-confirm" style="background: var(--danger); color: #fff;" onclick="executeReset()">Reset</button></div></div></div>
 <div class="modal-overlay" id="aiAnalysisModal" data-sub="Analisi AI"><div class="modal-box" style="text-align: left; max-width: 380px;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;"><h3 id="aiAnalysisTitle" style="margin-bottom: 0; font-size: 16px; color: var(--text);">Analisi</h3><span class="be-badge neutral" id="aiAnalysisBadge">...</span></div><div id="aiAnalysisBody" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 24px; max-height: 50vh; overflow-y: auto;"></div><div class="modal-actions"><button class="btn-confirm" onclick="closeAIAnalysisModal()">Chiudi</button></div></div></div>
 <div class="modal-overlay assist-overlay" id="assistModal"><div class="assist-box">
     <div class="header-row assist-head">
-        <div class="header-title"><h1 id="assistTitle">Assistente</h1><p id="assistSub">SGTRADER</p></div>
+        <div class="header-title"><h1 id="assistTitle">Assistente</h1><p id="assistSub">PinscherTrade</p></div>
         <div class="header-actions"><button type="button" class="header-icon-btn assist-speak" id="assistSpeak" onclick="toggleAssistSpeak()" title="Leggi le risposte ad alta voce" aria-label="Audio"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button><button type="button" class="header-icon-btn" onclick="closeAssistant()" title="Chiudi" aria-label="Chiudi"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     </div>
     <div class="assist-ctx" id="assistCtx"></div>
@@ -1245,7 +1258,7 @@
         </div>
         <div class="settings-section">
             <div class="settings-section-title">Token GitHub</div>
-            <div class="settings-hint">Fine-grained, solo sul repository SGTRADER, permesso "Actions: Read and write". Resta solo su questo dispositivo. <span id="ghTokenState"></span></div>
+            <div class="settings-hint">Fine-grained, solo sul repository dell'app (pinschertrade), permesso "Actions: Read and write". Resta solo su questo dispositivo. <span id="ghTokenState"></span></div>
             <div class="settings-field">
                 <input type="password" id="ghTokenInput" placeholder="github_pat_…" autocomplete="off" autocapitalize="off" spellcheck="false">
                 <button class="btn-generic btn-generic-tight" onclick="saveGhToken()">Salva</button>
@@ -1259,7 +1272,7 @@
             <div class="settings-section-title">Server comandi (alternativa)</div>
             <div class="settings-hint">Indirizzo di un server (es. Cloudflare): se impostato ha la precedenza sul token.</div>
             <div class="settings-field">
-                <input type="url" id="apiBaseInput" placeholder="https://sgtrader-server.….workers.dev" autocomplete="off" autocapitalize="off" spellcheck="false">
+                <input type="url" id="apiBaseInput" placeholder="https://pinschertrade-server.….workers.dev" autocomplete="off" autocapitalize="off" spellcheck="false">
                 <button class="btn-generic btn-generic-tight" onclick="saveServerSettings()">Salva</button>
             </div>
             <button class="settings-item" onclick="resetAppKey()">
@@ -1273,6 +1286,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=170"></script>
+<script type="module" src="./src/main.js?v=171"></script>
 </body>
 </html>

@@ -15,8 +15,8 @@ export const fetchT = (url, ms = 8000) => {
 // Il server è il sito stesso (Vercel) oppure quello indicato in Impostazioni → Server comandi
 // (es. Cloudflare Workers): su GitHub Pages /api non esiste.
 // La chiave viene chiesta una sola volta, al primo 401, e resta in localStorage su questo dispositivo.
-const APP_KEY_STORAGE = 'kronos_app_key';
-const API_BASE_STORAGE = 'kronos_api_base';
+const APP_KEY_STORAGE = 'pt_app_key';
+const API_BASE_STORAGE = 'pt_api_base';
 export function getApiBase() {
     try { return localStorage.getItem(API_BASE_STORAGE) || ''; } catch (e) { return ''; }
 }
@@ -41,8 +41,8 @@ export const markChosen = key => { chosenAt[key] = Date.now(); };
 export const chosenRecently = (key, ms = 30 * 60e3) => Date.now() - (chosenAt[key] || 0) < ms;
 
 // Chiave dei dati: apre i file personali che il bot salva cifrati nel repository pubblico (tools/datacrypt.py).
-// Resta solo su questo dispositivo; al server va solo una prova derivata (header x-sgt-proof).
-const DATA_KEY_STORAGE = 'sgt_data_key';
+// Resta solo su questo dispositivo; al server va solo una prova derivata (header x-pt-proof).
+const DATA_KEY_STORAGE = 'pt_data_key';
 export function getDataKey() {
     try { return localStorage.getItem(DATA_KEY_STORAGE) || ''; } catch (e) { return ''; }
 }
@@ -52,7 +52,7 @@ export function setDataKey(key) {
         else localStorage.removeItem(DATA_KEY_STORAGE);
     } catch (e) {}
 }
-const GH_TOKEN_STORAGE = 'kronos_gh_token';
+const GH_TOKEN_STORAGE = 'pt_gh_token';
 export function getGhToken() {
     try { return localStorage.getItem(GH_TOKEN_STORAGE) || ''; } catch (e) { return ''; }
 }
@@ -88,7 +88,7 @@ export async function apiPost(path, body, opts = {}) {
         try { key = localStorage.getItem(APP_KEY_STORAGE) || ''; } catch (e) {}
         const headers = { 'Content-Type': 'application/json' };
         if (key) headers['x-app-key'] = key;
-        if (proof) headers['x-sgt-proof'] = proof;
+        if (proof) headers['x-pt-proof'] = proof;
         return fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
     };
     const dataKey = getDataKey();
@@ -158,14 +158,14 @@ export async function fetchData(name) {
 }
 
 // File cifrato: si decifra con la chiave dei dati. Senza chiave (o con quella sbagliata) risponde 423 come
-// se il file mancasse, e l'app avvisa una volta (evento "sgt-data-locked")
+// se il file mancasse, e l'app avvisa una volta (evento "pt-data-locked")
 async function openData(text) {
     if (!isEncrypted(text)) return new Response(text, { status: 200 });
     const key = getDataKey();
     if (key) {
         try { return new Response(await decryptText(text, key), { status: 200 }); } catch (e) { /* chiave sbagliata */ }
     }
-    window.dispatchEvent(new CustomEvent('sgt-data-locked', { detail: key ? 'wrong' : 'missing' }));
+    window.dispatchEvent(new CustomEvent('pt-data-locked', { detail: key ? 'wrong' : 'missing' }));
     return new Response('null', { status: 423 });
 }
 // prezzo all'italiana senza zeri inutili, separatore delle migliaia sempre (72.000 · 3.000,5 · 0,1234)

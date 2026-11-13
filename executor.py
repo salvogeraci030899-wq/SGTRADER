@@ -301,7 +301,7 @@ def run(cfg, ledger, client=None, mode="simulata", state_path=STATE_PATH, now=No
         stop = round(t["stop"], specs["price_place"])
         try:
             client.setup_symbol(t["symbol"], risk["max_leverage"])
-            client.open_position(t["symbol"], side, size, stop, client_oid="sgt" + hashlib.sha1(tid.encode()).hexdigest()[:24])
+            client.open_position(t["symbol"], side, size, stop, client_oid="pt" + hashlib.sha1(tid.encode()).hexdigest()[:24])
         except Exception as e:
             state["positions"][tid] = {"key": t["key"], "symbol": t["symbol"], "side": side, "status": "error", "reason": str(e)}
             log("error", id=tid, error=str(e))

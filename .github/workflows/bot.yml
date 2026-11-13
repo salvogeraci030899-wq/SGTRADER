@@ -49,7 +49,7 @@ permissions:
 
 # Registro degli eventi (events.py): i giri scrivono in events/AAAA-MM.jsonl
 env:
-  SGT_EVENTS_DIR: events
+  PT_EVENTS_DIR: events
 
 jobs:
   run:

@@ -1,6 +1,6 @@
 {
-    "name": "SGTRADER",
-    "short_name": "SGTRADER",
+    "name": "PinscherTrade",
+    "short_name": "Pinscher",
     "start_url": "./",
     "scope": "./",
     "display": "standalone",
@@ -25,5 +25,5 @@
             "purpose": "maskable"
         }
     ],
-    "description": "Segnali, rischio e automazione per BTC, ETH e SOL"
+    "description": "Trading con agenti, strategie validate e gestione del rischio su Bitget"
 }

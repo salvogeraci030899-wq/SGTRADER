@@ -315,7 +315,7 @@ export function updateChart() {
     if (data.last_update) {
         const d = new Date(data.last_update);
         $('last-update-footer').textContent = `Ultimo agg: ${d.toLocaleDateString('it-IT')} - ${d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;
-        const refreshTs = parseInt(localStorage.getItem('kronos_refresh_start_ts') || '0', 10);
+        const refreshTs = parseInt(localStorage.getItem('pt_refresh_start_ts') || '0', 10);
         if (refreshTs > 0 && d.getTime() > refreshTs) refreshDone('Aggiornato');
     }
 
@@ -606,7 +606,7 @@ export function startRefreshCountdown(remainingSeconds) {
     const tick = () => {
         if (left <= 0) {
             clearInterval(State.refreshTimerInterval);
-            localStorage.removeItem('kronos_refresh_start_ts');
+            localStorage.removeItem('pt_refresh_start_ts');
             refreshLabel('Aggiorna ora', false);
             return;
         }
@@ -618,16 +618,16 @@ export function startRefreshCountdown(remainingSeconds) {
 }
 
 export function initRefreshState() {
-    const startTs = localStorage.getItem('kronos_refresh_start_ts');
+    const startTs = localStorage.getItem('pt_refresh_start_ts');
     if (!startTs) return;
     const elapsedSecs = Math.floor((Date.now() - parseInt(startTs, 10)) / 1000);
     if (elapsedSecs >= 0 && elapsedSecs < CONFIG.REFRESH_MAX_WAIT) startRefreshCountdown(CONFIG.REFRESH_MAX_WAIT - elapsedSecs);
-    else localStorage.removeItem('kronos_refresh_start_ts');
+    else localStorage.removeItem('pt_refresh_start_ts');
 }
 
 function refreshDone(text) {
     if (State.refreshTimerInterval) clearInterval(State.refreshTimerInterval);
-    localStorage.removeItem('kronos_refresh_start_ts');
+    localStorage.removeItem('pt_refresh_start_ts');
     refreshLabel(text, true);
     setTimeout(() => refreshLabel('Aggiorna ora', false), 2000);
 }
@@ -635,14 +635,14 @@ function refreshDone(text) {
 export async function triggerRefresh() {
     const btn = $('btn-refresh');
     if (btn && btn.disabled) return;
-    localStorage.setItem('kronos_refresh_start_ts', Date.now());
+    localStorage.setItem('pt_refresh_start_ts', Date.now());
     startRefreshCountdown(CONFIG.REFRESH_MAX_WAIT);
     const before = latestUpdate(State.allData);
     try {
         const r = await apiPost('/api/trigger', { symbol: 'ALL', timeframe: 'ALL' });
         if (!r.ok) throw new Error('HTTP ' + r.status);
         const poll = setInterval(async () => {
-            if (!localStorage.getItem('kronos_refresh_start_ts')) { clearInterval(poll); return; }
+            if (!localStorage.getItem('pt_refresh_start_ts')) { clearInterval(poll); return; }
             try {
                 const nd = await (await fetchData('dashboard.json')).json();
                 if (latestUpdate(nd) > before) {

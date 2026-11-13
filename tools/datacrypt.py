@@ -1,6 +1,6 @@
 """Cifratura dei dati personali nel repository pubblico (saldo, posizioni, strategie, agente, registro).
 
-Nel repository i file elencati in .gitattributes (filter=sgtenc) sono sempre cifrati; nei workflow,
+Nel repository i file elencati in .gitattributes (filter=ptenc) sono sempre cifrati; nei workflow,
 dopo il passo "Dati cifrati" (.github/actions/data-key), git li decifra all'uscita (smudge) e li ricifra
 all'ingresso (clean). Il codice del bot legge e scrive JSON normale e non sa niente della cifratura.
 L'app e il server Cloudflare decifrano con la stessa chiave (src/core/datacrypt.js).
@@ -33,9 +33,9 @@ AAD = b"sgtrader-v1"
 
 
 def _key():
-    k = os.environ.get("SGT_DATA_KEY", "").strip()
+    k = os.environ.get("PT_DATA_KEY", "").strip()
     if not k:
-        path = os.environ.get("SGT_DATA_KEY_FILE") or os.path.expanduser("~/.sgtcrypt/key")
+        path = os.environ.get("PT_DATA_KEY_FILE") or os.path.expanduser("~/.ptcrypt/key")
         try:
             with open(path) as f:
                 k = f.read().strip()

@@ -5,7 +5,7 @@ Un file al mese, una riga JSON per evento: events/AAAA-MM.jsonl. Lo scrivono tut
 I .jsonl si uniscono riga per riga quando due workflow salvano insieme (.gitattributes, merge=union);
 ogni evento ha un id ricavato dal contenuto, così l'app scarta gli eventuali doppioni.
 
-Si scrive solo se la variabile d'ambiente SGT_EVENTS_DIR è impostata (la impostano i workflow): i test e
+Si scrive solo se la variabile d'ambiente PT_EVENTS_DIR è impostata (la impostano i workflow): i test e
 le prove a mano non sporcano il registro vero.
 
 Campi: at (ISO, UTC), kind (ordini | posizioni | agente | carta | avvisi | strategie | sistema | conto),
@@ -24,7 +24,7 @@ KINDS = ("ordini", "posizioni", "agente", "carta", "avvisi", "strategie", "siste
 
 
 def _dir():
-    return os.environ.get("SGT_EVENTS_DIR", "").strip()
+    return os.environ.get("PT_EVENTS_DIR", "").strip()
 
 
 def record(kind, action, text, at=None, **data):
