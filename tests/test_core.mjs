@@ -308,6 +308,16 @@ test('worker: CORS solo per le origini ammesse', async () => {
     }
 });
 
+test('server: con il numero del repository i comandi non dipendono dal nome', async () => {
+    calls.length = 0;
+    const r = await handle('POST', '/api/command', { type: 'resume' }, ok, { ...env, GH_REPO_ID: '123456' }, fakeFetch);
+    assert.equal(r.status, 200);
+    assert.equal(calls[0].url, 'https://api.github.com/repositories/123456/actions/workflows/automation.yml/dispatches');
+    calls.length = 0;
+    await handle('POST', '/api/command', { type: 'resume' }, ok, { ...env, GH_REPO_ID: 'x/../y' }, fakeFetch);
+    assert.equal(calls[0].url, 'https://api.github.com/repos/io/repo/actions/workflows/automation.yml/dispatches');     // numero non valido: si usa il nome
+});
+
 test('orologio del bot: avvio programmato', async () => {
     calls.length = 0;
     const r = await scheduled({ GH_TOKEN: 'tok', GH_REPO: 'io/repo' }, fakeFetch);

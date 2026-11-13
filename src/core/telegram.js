@@ -124,12 +124,18 @@ export function telegramAnswer(text, data) {
     return fn ? fn(data) : help();
 }
 
+// I file si leggono dal repository per numero (API di GitHub, con il token del server): sempre aggiornati e
+// indipendenti dal nome del repository. Senza numero o token: dal sito di GitHub Pages.
 async function loadData(env, fetchFn) {
     const base = String(env.DATA_BASE || CONFIG.DATA_SOURCES[0]);
+    const id = String(env.GH_REPO_ID || '').trim(), token = String(env.GH_TOKEN || '').trim();
+    const viaApi = /^\d+$/.test(id) && token;
     const out = {};
     await Promise.all(FILES.map(async f => {
         try {
-            const r = await fetchFn(`${base}${f}?t=${Date.now()}`);
+            const r = viaApi
+                ? await fetchFn(`https://api.github.com/repositories/${id}/contents/${f}?ref=main`, { headers: { Accept: 'application/vnd.github.raw', Authorization: `Bearer ${token}`, 'User-Agent': 'PinscherTrade-server' } })
+                : await fetchFn(`${base}${f}?t=${Date.now()}`);
             if (!r.ok) { out[f] = null; return; }
             const text = await r.text();
             out[f] = JSON.parse(isEncrypted(text) ? await decryptText(text, String(env.DATA_KEY || '')) : text);
