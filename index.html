@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <link rel="manifest" href="./manifest.json">
-    <link rel="apple-touch-icon" href="./icons/icon-180.png?v=2">
-    <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png?v=2">
+    <!-- icona: sulla schermata home di iPhone una sola (la scura, iOS non la cambia con il tema); nella scheda del browser segue il tema -->
+    <link rel="apple-touch-icon" href="./icons/icon-180.png?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png?v=3" media="(prefers-color-scheme: dark)">
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-light-32.png?v=3" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#000000" id="metaThemeColor">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" id="metaStatusBar">
@@ -53,47 +55,47 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=169">
-    <meta name="app-version" content="169">
+    <link rel="stylesheet" href="./style.css?v=170">
+    <meta name="app-version" content="170">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=169",
-            "./src/core/commands.js": "./src/core/commands.js?v=169",
-            "./src/core/config.js": "./src/core/config.js?v=169",
-            "./src/core/datacrypt.js": "./src/core/datacrypt.js?v=169",
-            "./src/core/labEngine.js": "./src/core/labEngine.js?v=169",
-            "./src/core/logger.js": "./src/core/logger.js?v=169",
-            "./src/core/rules.js": "./src/core/rules.js?v=169",
-            "./src/core/state.js": "./src/core/state.js?v=169",
-            "./src/core/telegram.js": "./src/core/telegram.js?v=169",
-            "./src/core/theme.js": "./src/core/theme.js?v=169",
-            "./src/main.js": "./src/main.js?v=169",
-            "./src/ui/account.js": "./src/ui/account.js?v=169",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=169",
-            "./src/ui/assistant.js": "./src/ui/assistant.js?v=169",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=169",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=169",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=169",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=169",
-            "./src/ui/history.js": "./src/ui/history.js?v=169",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=169",
-            "./src/ui/home.js": "./src/ui/home.js?v=169",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=169",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=169",
-            "./src/ui/lock.js": "./src/ui/lock.js?v=169",
-            "./src/ui/log.js": "./src/ui/log.js?v=169",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=169",
-            "./src/ui/market.js": "./src/ui/market.js?v=169",
-            "./src/ui/orders.js": "./src/ui/orders.js?v=169",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=169",
-            "./src/ui/results.js": "./src/ui/results.js?v=169",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=169",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=169",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=169",
-            "./src/ui/windows.js": "./src/ui/windows.js?v=169",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=169"
+            "./src/core/backup.js": "./src/core/backup.js?v=170",
+            "./src/core/commands.js": "./src/core/commands.js?v=170",
+            "./src/core/config.js": "./src/core/config.js?v=170",
+            "./src/core/datacrypt.js": "./src/core/datacrypt.js?v=170",
+            "./src/core/labEngine.js": "./src/core/labEngine.js?v=170",
+            "./src/core/logger.js": "./src/core/logger.js?v=170",
+            "./src/core/rules.js": "./src/core/rules.js?v=170",
+            "./src/core/state.js": "./src/core/state.js?v=170",
+            "./src/core/telegram.js": "./src/core/telegram.js?v=170",
+            "./src/core/theme.js": "./src/core/theme.js?v=170",
+            "./src/main.js": "./src/main.js?v=170",
+            "./src/ui/account.js": "./src/ui/account.js?v=170",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=170",
+            "./src/ui/assistant.js": "./src/ui/assistant.js?v=170",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=170",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=170",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=170",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=170",
+            "./src/ui/history.js": "./src/ui/history.js?v=170",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=170",
+            "./src/ui/home.js": "./src/ui/home.js?v=170",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=170",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=170",
+            "./src/ui/lock.js": "./src/ui/lock.js?v=170",
+            "./src/ui/log.js": "./src/ui/log.js?v=170",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=170",
+            "./src/ui/market.js": "./src/ui/market.js?v=170",
+            "./src/ui/orders.js": "./src/ui/orders.js?v=170",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=170",
+            "./src/ui/results.js": "./src/ui/results.js?v=170",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=170",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=170",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=170",
+            "./src/ui/windows.js": "./src/ui/windows.js?v=170",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=170"
         }
     }
     </script>
@@ -103,7 +105,8 @@
 <!-- ==================== BLOCCO APP (codice e Face ID) ==================== -->
 <div id="lockScreen" class="lock-screen">
     <div class="lock-top">
-        <img src="./icons/icon-512.png?v=2" alt="" class="lock-icon">
+        <img src="./icons/icon-512.png?v=3" alt="" class="lock-icon lock-icon-dark">
+        <img src="./icons/icon-light-512.png?v=3" alt="" class="lock-icon lock-icon-light">
         <div class="lock-title">SGTRADER</div>
         <div class="lock-msg" id="lockMsg">Inserisci il codice</div>
         <div class="lock-dots" id="lockDots"></div>
@@ -1077,6 +1080,7 @@
                     </div>
                     <div class="rule-card">
                         <div class="rule-card-title default">Sicurezza</div>
+                        <div class="rule-step"><div class="content"><b>Icona:</b> sulla schermata home di iPhone c'è la versione scura (iOS ne usa una sola per le app aggiunte da Safari e non la cambia con il tema; per vedere quella nuova va tolta e riaggiunta l'app dalla schermata home). Nella schermata di sblocco e nella scheda di Safari l'icona segue il tema chiaro o scuro.</div></div>
                         <div class="rule-step"><div class="content"><b>Blocco app:</b> codice di 6 cifre e Face ID (Impostazioni → Blocco app).</div></div>
                         <div class="rule-step"><div class="content"><b>Dati cifrati:</b> saldo, posizioni, strategie, agente e registro sono cifrati nel repository pubblico; chi apre il link senza la chiave dei dati vede l'app vuota e non può usare l'assistente. La chiave sta nel segreto DATA_KEY su GitHub e, una volta inserita, in Impostazioni → Connessioni. Conservala in Password di iPhone: senza, i dati non si aprono. Ordini e comandi restano protetti dal token GitHub o dalla chiave app.</div></div>
                         <div class="rule-step"><div class="content"><b>Risultati:</b> Reale, Simulato e Carta separati, mai mescolati, per oggi, settimana, mese, anno o tutto. In Reale: guadagno del conto al netto di versamenti e prelievi, posizioni chiuse su Bitget e vendite spot. <b>Registro:</b> tutto quello che succede (ordini, chiusure, agente, carta, avvisi, comandi), un giorno per pagina.</div></div>
@@ -1269,6 +1273,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=169"></script>
+<script type="module" src="./src/main.js?v=170"></script>
 </body>
 </html>
