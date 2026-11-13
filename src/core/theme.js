@@ -47,7 +47,7 @@ export function initTheme() {
 // Colore di una variabile CSS del tema (per i grafici, che non leggono il CSS da soli)
 export const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-// Vetro (stile Liquid Glass) su barra, tasti e schede: 'off' | 'on' (sfondo fermo) | 'anim' (sfondo che si muove piano), spento all'inizio
+// Vetro (stile Liquid Glass) su barra, tasti e schede: 'off' | 'on' (sfondo statico) | 'anim' (sfondo dinamico: luci che cambiano colore e posizione piano), spento all'inizio
 const GLASS_KEY = 'pt_glass';
 const GLASS = ['off', 'on', 'anim'];
 export function getGlassPref() {
