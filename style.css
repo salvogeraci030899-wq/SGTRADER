@@ -1002,7 +1002,7 @@ html.app-locked .lock-screen, .lock-screen.active { display: flex; }
 .order-status:empty { display: none; }
 
 /* Posizioni: viste Aperte / Ordini */
-.pos-views { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; height: 36px; flex: 0 0 36px; min-height: 36px; background: var(--field); border: 1px solid var(--border); border-radius: var(--r-pill); overflow: hidden; margin-bottom: 10px; flex-shrink: 0; padding: 3px; }
+.pos-views { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; height: 36px; flex: 0 0 36px; min-height: 36px; background: var(--field); border: 1px solid var(--border); border-radius: var(--r-pill); overflow: hidden; margin-bottom: 10px; flex-shrink: 0; padding: 3px; }
 .pos-views button { background: transparent; border: none; color: var(--text-secondary); font-size: 13px; font-weight: 700; min-height: 0; cursor: pointer; font-family: var(--font); border-radius: var(--r-pill); }
 .pos-views button.active { background: var(--surface-hover); color: var(--text); }
 .orders-view { flex: 1; min-height: 0; overflow: hidden; display: grid; grid-auto-rows: max-content; align-content: start; gap: 10px; padding-bottom: 4px; }
@@ -1313,3 +1313,9 @@ html.glass-anim .assist-box, html.glass-anim .lock-screen, html.glass-anim .moda
    attimo un livello a parte e il vetro delle schede non vede lo sfondo: si notava un lampo di luminosità. */
 html.glass .page { animation-name: pt-page-in; }
 @keyframes pt-page-in { from { transform: translateY(5px); } to { transform: none; } }
+/* riga della Home che apre una pagina */
+.home-line.tap { cursor: pointer; }
+/* Posizioni → Bot su carta: righe impilate in pagine larghe quanto lo schermo, da scorrere di lato */
+.ord-list .ord-page { flex: 0 0 100%; display: flex; flex-direction: column; gap: 8px; scroll-snap-align: start; min-width: 0; }
+.ord-list .ord-page .ord-row { flex: none; }
+
