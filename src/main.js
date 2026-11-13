@@ -139,6 +139,8 @@ window.executeReset = JournalUI.executeReset;
 
 // Signals
 window.scanAllSignals = SignalsUI.scanAllSignals;
+window.goToSignalPage = SignalsUI.goToSignalPage;
+window.updateSignalDots = SignalsUI.updateSignalDots;
 window.refreshKronosSignalsInMatrix = SignalsUI.refreshKronosSignalsInMatrix;
 window.openSignalDetail = SignalsUI.openSignalDetail;
 window.closeSignalDetailModal = SignalsUI.closeSignalDetailModal;

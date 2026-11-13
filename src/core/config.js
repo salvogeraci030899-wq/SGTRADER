@@ -11,7 +11,8 @@ export const CONFIG = {
     FEE_RATE: 0.001,
     REFRESH_MAX_WAIT: 900,
     SIGNAL_SCAN_INTERVAL_MS: 600000,
-    SIGNAL_ASSETS: ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'],
+    // segnali tecnici (Mercato → Segnali): le 8 coin delle strategie; Kronos c'è solo su BTC, ETH e SOL
+    SIGNAL_ASSETS: ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'XRPUSDT', 'DOGEUSDT', 'BNBUSDT', 'ADAUSDT', 'LINKUSDT'],
     SIGNAL_TFS: ['1d', '4h', '1h'],
     SIGNAL_STRATEGIES: ['breakout', 'mean_reversion', 'ma_crossover'],
     SIGNAL_STRATEGY_LABELS: {

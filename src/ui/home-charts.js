@@ -2,11 +2,9 @@ import { State } from '../core/state.js';
 import { Logger } from '../core/logger.js';
 import { createChart, setCandles, setVolume } from './chart.js';
 
-const COINS = [
-    { symbol: 'BTCUSDT', label: 'BTC / USDT' },
-    { symbol: 'ETHUSDT', label: 'ETH / USDT' },
-    { symbol: 'SOLUSDT', label: 'SOL / USDT' }
-];
+// Coin dei grafici della Home: le 3 scelte dalla Home (home.js, setHomeChartCoins), all'inizio BTC, ETH, SOL
+const coin = symbol => ({ symbol, label: `${symbol.replace('USDT', '')} / USDT` });
+let COINS = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'].map(coin);
 const TF_MAP = { '1d': '1day', '4h': '4h', '1h': '1h' };
 
 const ICON_EXPAND = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>`;
@@ -156,6 +154,61 @@ export function refresh() {
     });
 }
 
+function wireCard(card) {
+    const symbol = card.dataset.symbol;
+    card.querySelectorAll('.home-tf-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            card.querySelectorAll('.home-tf-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (charts[symbol]) {
+                charts[symbol].tf = btn.dataset.tf;
+                loadCandles(symbol);
+            }
+        });
+    });
+    card.querySelector('[data-act="alert"]').addEventListener('click', e => {
+        e.stopPropagation();
+        window.openChartAlert(symbol, State.livePx[symbol] || (charts[symbol] && charts[symbol].last));
+    });
+    card.querySelector('[data-act="share"]').addEventListener('click', e => {
+        e.stopPropagation();
+        const tf = (charts[symbol] && charts[symbol].tf) || '1d';
+        window.takeSnapshot(e.currentTarget, card, `${symbol.replace('USDT', '')} · ${tf.toUpperCase()}`);
+    });
+    const fsBtn = card.querySelector('.home-chart-fullscreen');
+    if (fsBtn) {
+        fsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleFullscreen(symbol);
+        });
+    }
+}
+
+// Cambio delle coin mostrate: si tolgono i grafici delle coin uscite e si creano quelli delle nuove, nell'ordine dato
+export function setHomeChartCoins(symbols) {
+    const next = symbols.slice(0, 3);
+    if (next.join() === COINS.map(c => c.symbol).join()) return;
+    COINS = next.map(coin);
+    const container = document.getElementById('homeChartsList');
+    if (!initialized || !container) return;
+    for (const sym of Object.keys(charts)) {
+        if (!next.includes(sym)) {
+            try { charts[sym].handle.destroy(); } catch (e) { /* già tolto */ }
+            delete charts[sym];
+        }
+    }
+    const old = Object.fromEntries([...container.querySelectorAll('.home-chart-item')].map(c => [c.dataset.symbol, c]));
+    container.replaceChildren(...COINS.map(c => {
+        if (old[c.symbol]) return old[c.symbol];
+        const card = createChartCard(c);
+        wireCard(card);
+        return card;
+    }));
+    COINS.forEach(c => { if (!charts[c.symbol]) { initChart(c.symbol); loadCandles(c.symbol); } });
+    container.scrollLeft = 0;
+    updateHomeChartDots();
+}
+
 export function initHomeCharts() {
     if (initialized) { refresh(); return; }
 
@@ -169,35 +222,7 @@ export function initHomeCharts() {
         initChart(coin.symbol);
     }
 
-    container.querySelectorAll('.home-chart-item').forEach(card => {
-        const symbol = card.dataset.symbol;
-        card.querySelectorAll('.home-tf-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                card.querySelectorAll('.home-tf-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                if (charts[symbol]) {
-                    charts[symbol].tf = btn.dataset.tf;
-                    loadCandles(symbol);
-                }
-            });
-        });
-        card.querySelector('[data-act="alert"]').addEventListener('click', e => {
-            e.stopPropagation();
-            window.openChartAlert(symbol, State.livePx[symbol] || (charts[symbol] && charts[symbol].last));
-        });
-        card.querySelector('[data-act="share"]').addEventListener('click', e => {
-            e.stopPropagation();
-            const tf = (charts[symbol] && charts[symbol].tf) || '1d';
-            window.takeSnapshot(e.currentTarget, card, `${symbol.replace('USDT', '')} · ${tf.toUpperCase()}`);
-        });
-        const fsBtn = card.querySelector('.home-chart-fullscreen');
-        if (fsBtn) {
-            fsBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleFullscreen(symbol);
-            });
-        }
-    });
+    container.querySelectorAll('.home-chart-item').forEach(wireCard);
 
     container.addEventListener('scroll', () => {
         clearTimeout(window._homeChartsScrollTimeout);

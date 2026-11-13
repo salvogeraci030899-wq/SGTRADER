@@ -53,47 +53,47 @@
 
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="./style.css?v=167">
-    <meta name="app-version" content="167">
+    <link rel="stylesheet" href="./style.css?v=168">
+    <meta name="app-version" content="168">
     <!-- importmap:start (generata da tools/bump_version.py, non modificare a mano) -->
     <script type="importmap">
     {
         "imports": {
-            "./src/core/backup.js": "./src/core/backup.js?v=167",
-            "./src/core/commands.js": "./src/core/commands.js?v=167",
-            "./src/core/config.js": "./src/core/config.js?v=167",
-            "./src/core/datacrypt.js": "./src/core/datacrypt.js?v=167",
-            "./src/core/labEngine.js": "./src/core/labEngine.js?v=167",
-            "./src/core/logger.js": "./src/core/logger.js?v=167",
-            "./src/core/rules.js": "./src/core/rules.js?v=167",
-            "./src/core/state.js": "./src/core/state.js?v=167",
-            "./src/core/telegram.js": "./src/core/telegram.js?v=167",
-            "./src/core/theme.js": "./src/core/theme.js?v=167",
-            "./src/main.js": "./src/main.js?v=167",
-            "./src/ui/account.js": "./src/ui/account.js?v=167",
-            "./src/ui/ai.js": "./src/ui/ai.js?v=167",
-            "./src/ui/assistant.js": "./src/ui/assistant.js?v=167",
-            "./src/ui/automation.js": "./src/ui/automation.js?v=167",
-            "./src/ui/backtest.js": "./src/ui/backtest.js?v=167",
-            "./src/ui/calculator.js": "./src/ui/calculator.js?v=167",
-            "./src/ui/chart.js": "./src/ui/chart.js?v=167",
-            "./src/ui/history.js": "./src/ui/history.js?v=167",
-            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=167",
-            "./src/ui/home.js": "./src/ui/home.js?v=167",
-            "./src/ui/journal.js": "./src/ui/journal.js?v=167",
-            "./src/ui/lab.js": "./src/ui/lab.js?v=167",
-            "./src/ui/lock.js": "./src/ui/lock.js?v=167",
-            "./src/ui/log.js": "./src/ui/log.js?v=167",
-            "./src/ui/manual.js": "./src/ui/manual.js?v=167",
-            "./src/ui/market.js": "./src/ui/market.js?v=167",
-            "./src/ui/orders.js": "./src/ui/orders.js?v=167",
-            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=167",
-            "./src/ui/results.js": "./src/ui/results.js?v=167",
-            "./src/ui/signals.js": "./src/ui/signals.js?v=167",
-            "./src/ui/terminal.js": "./src/ui/terminal.js?v=167",
-            "./src/ui/trade.js": "./src/ui/trade.js?v=167",
-            "./src/ui/windows.js": "./src/ui/windows.js?v=167",
-            "./src/utils/helpers.js": "./src/utils/helpers.js?v=167"
+            "./src/core/backup.js": "./src/core/backup.js?v=168",
+            "./src/core/commands.js": "./src/core/commands.js?v=168",
+            "./src/core/config.js": "./src/core/config.js?v=168",
+            "./src/core/datacrypt.js": "./src/core/datacrypt.js?v=168",
+            "./src/core/labEngine.js": "./src/core/labEngine.js?v=168",
+            "./src/core/logger.js": "./src/core/logger.js?v=168",
+            "./src/core/rules.js": "./src/core/rules.js?v=168",
+            "./src/core/state.js": "./src/core/state.js?v=168",
+            "./src/core/telegram.js": "./src/core/telegram.js?v=168",
+            "./src/core/theme.js": "./src/core/theme.js?v=168",
+            "./src/main.js": "./src/main.js?v=168",
+            "./src/ui/account.js": "./src/ui/account.js?v=168",
+            "./src/ui/ai.js": "./src/ui/ai.js?v=168",
+            "./src/ui/assistant.js": "./src/ui/assistant.js?v=168",
+            "./src/ui/automation.js": "./src/ui/automation.js?v=168",
+            "./src/ui/backtest.js": "./src/ui/backtest.js?v=168",
+            "./src/ui/calculator.js": "./src/ui/calculator.js?v=168",
+            "./src/ui/chart.js": "./src/ui/chart.js?v=168",
+            "./src/ui/history.js": "./src/ui/history.js?v=168",
+            "./src/ui/home-charts.js": "./src/ui/home-charts.js?v=168",
+            "./src/ui/home.js": "./src/ui/home.js?v=168",
+            "./src/ui/journal.js": "./src/ui/journal.js?v=168",
+            "./src/ui/lab.js": "./src/ui/lab.js?v=168",
+            "./src/ui/lock.js": "./src/ui/lock.js?v=168",
+            "./src/ui/log.js": "./src/ui/log.js?v=168",
+            "./src/ui/manual.js": "./src/ui/manual.js?v=168",
+            "./src/ui/market.js": "./src/ui/market.js?v=168",
+            "./src/ui/orders.js": "./src/ui/orders.js?v=168",
+            "./src/ui/page-fit.js": "./src/ui/page-fit.js?v=168",
+            "./src/ui/results.js": "./src/ui/results.js?v=168",
+            "./src/ui/signals.js": "./src/ui/signals.js?v=168",
+            "./src/ui/terminal.js": "./src/ui/terminal.js?v=168",
+            "./src/ui/trade.js": "./src/ui/trade.js?v=168",
+            "./src/ui/windows.js": "./src/ui/windows.js?v=168",
+            "./src/utils/helpers.js": "./src/utils/helpers.js?v=168"
         }
     }
     </script>
@@ -298,15 +298,23 @@
                 <button type="button" id="mkt-tab-alerts" onclick="setMarketView('alerts')">Avvisi</button>
             </div>
             <div id="mktChart" class="mkt-view">
-            <div class="asset-bar">
-                <button class="pill-btn active" onclick="setAsset('BTCUSDT')" id="btn-BTCUSDT">BTC</button>
-                <button class="pill-btn" onclick="setAsset('ETHUSDT')" id="btn-ETHUSDT">ETH</button>
-                <button class="pill-btn" onclick="setAsset('SOLUSDT')" id="btn-SOLUSDT">SOL</button>
-            </div>
-            <div class="tf-bar">
-                <button class="pill-btn active" onclick="setTF('1d')" id="btn-1d">1D</button>
-                <button class="pill-btn" onclick="setTF('4h')" id="btn-4h">4H</button>
-                <button class="pill-btn" onclick="setTF('1h')" id="btn-1h">1H</button>
+            <!-- coin (scorrono di lato) e timeframe (sempre visibili) su una riga: il grafico resta alto -->
+            <div class="mkt-row">
+                <div class="mkt-coins" id="mktCoins">
+                    <button class="pill-btn active" onclick="setAsset('BTCUSDT')" id="btn-BTCUSDT">BTC</button>
+                    <button class="pill-btn" onclick="setAsset('ETHUSDT')" id="btn-ETHUSDT">ETH</button>
+                    <button class="pill-btn" onclick="setAsset('SOLUSDT')" id="btn-SOLUSDT">SOL</button>
+                    <button class="pill-btn" onclick="setAsset('XRPUSDT')" id="btn-XRPUSDT">XRP</button>
+                    <button class="pill-btn" onclick="setAsset('DOGEUSDT')" id="btn-DOGEUSDT">DOGE</button>
+                    <button class="pill-btn" onclick="setAsset('BNBUSDT')" id="btn-BNBUSDT">BNB</button>
+                    <button class="pill-btn" onclick="setAsset('ADAUSDT')" id="btn-ADAUSDT">ADA</button>
+                    <button class="pill-btn" onclick="setAsset('LINKUSDT')" id="btn-LINKUSDT">LINK</button>
+                </div>
+                <div class="market-toggle mkt-tf">
+                    <button type="button" class="active" onclick="setTF('1d')" id="btn-1d">1D</button>
+                    <button type="button" onclick="setTF('4h')" id="btn-4h">4H</button>
+                    <button type="button" onclick="setTF('1h')" id="btn-1h">1H</button>
+                </div>
             </div>
             <div class="chart-container" id="mainChartContainer">
                 <!-- barra visibile solo a schermo intero: stessa della Home -->
@@ -424,7 +432,8 @@
                 <button class="btn-generic" id="btnScanSignals" onclick="scanAllSignals(true)">Scansiona Ora</button>
                 <button class="btn-generic" onclick="openSignalSettings()" style="background:var(--surface); border:1px solid var(--border);">Impostazioni</button>
             </div>
-            <div class="signal-grid" id="signalGrid"></div>
+            <div class="signal-grid" id="signalGrid" onscroll="updateSignalDots()"></div>
+            <div class="info-dots signal-dots" id="signalDots"></div>
             <div class="signal-legend">
                 <span><span class="legend-dot k"></span>SGTRADER</span>
                 <span><span class="legend-dot long"></span>LONG</span>
@@ -1026,7 +1035,7 @@
                     </div>
                     <div class="rule-card">
                         <div class="rule-card-title blue">Il percorso di una strategia</div>
-                        <div class="rule-step"><div class="content"><b>Coin:</b> le strategie lavorano su BTC, ETH, SOL, XRP, DOGE, BNB, ADA e LINK (più mercati = più trade e più conferme). Kronos, grafici e segnali tecnici restano su BTC, ETH e SOL.</div></div>
+                        <div class="rule-step"><div class="content"><b>Coin:</b> le strategie lavorano su BTC, ETH, SOL, XRP, DOGE, BNB, ADA e LINK (più mercati = più trade e più conferme). Nel Mercato le 8 coin sono sulla riga in alto (scorrono di lato), accanto ai timeframe; per XRP, DOGE, BNB, ADA e LINK il grafico mostra le candele vere di Bitget ma non la previsione di Kronos (solo BTC, ETH e SOL): per un'analisi c'è Analisi AI live. I segnali tecnici sono su tutte le 8, a pagine da 3 coin. In Home le 3 coin in alto si scelgono da sole ogni minuto: prima quelle con una posizione aperta (vera, simulata o su carta), poi quelle con un avviso di prezzo entro il 3%, poi quelle che si muovono di più nelle 24 ore.</div></div>
                         <div class="rule-step"><div class="content"><b>1. Candidata</b> → il laboratorio la trova migliore del mercato dopo i costi, e regge il controllo sulle prove multiple.</div></div>
                         <div class="rule-step"><div class="content"><b>2. Su carta</b> → segue i segnali dal vivo senza soldi. Va peggio dello storico? Spenta. Con meno di 4 strategie accese, l'agente aggiunge le più promettenti non candidate <b>in osservazione</b>: solo carta, per avere dati prima; niente prova finale né reale finché non diventano candidate.</div></div>
                         <div class="rule-step"><div class="content"><b>3. Prova finale</b> → con almeno 20 trade su carta, guadagno medio positivo e in linea con lo storico, la domenica l'agente la prova sui 12 mesi sigillati. Una volta sola.</div></div>
@@ -1259,6 +1268,6 @@
     </div>
 </div>
 
-<script type="module" src="./src/main.js?v=167"></script>
+<script type="module" src="./src/main.js?v=168"></script>
 </body>
 </html>
