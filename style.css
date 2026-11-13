@@ -1279,3 +1279,7 @@ html.glass[data-theme="light"] .signal-cell, html.glass[data-theme="light"] .aut
 .mkt-coins::-webkit-scrollbar { display: none; }
 .mkt-coins .pill-btn { flex: 0 0 auto; min-width: 52px; padding: 0 10px; min-height: 36px; font-size: 12px; scroll-snap-align: start; }
 .mkt-row .mkt-tf { flex-shrink: 0; }
+/* schermata di sblocco: icona chiara o scura secondo il tema dell'app */
+.lock-icon-light { display: none; }
+html[data-theme="light"] .lock-icon-light { display: inline-block; }
+html[data-theme="light"] .lock-icon-dark { display: none; }
