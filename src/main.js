@@ -213,6 +213,7 @@ Object.assign(window, { lockKey: Lock.lockKey, lockFaceId: Lock.lockFaceId, lock
 normalizeWindows();          // finestre a schermo intero con l'intestazione delle pagine
 Lock.initLock();
 window.setPosView = Orders.setPosView;
+window.updateCoinFade = TerminalUI.updateCoinFade;
 window.orderSignalAssets = SignalsUI.orderSignalAssets;
 window.renderSignalGrid = SignalsUI.renderSignalGrid;
 window.coinRelevance = HomeUI.coinRelevance;

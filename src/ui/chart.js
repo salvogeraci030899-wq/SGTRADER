@@ -166,6 +166,26 @@ export function createChart(el, opts = {}) {
     return handle;
 }
 
+// Apertura/chiusura dello schermo intero senza sfarfallio: il grafico sparisce per due fotogrammi mentre la pagina
+// cambia misura, poi ricompare con la stessa porzione di storico (niente "adatta tutto", che faceva saltare lo zoom).
+// Un secondo assestamento a 300 ms serve a iOS, che a volte aggiorna le misure in ritardo.
+export function relayout(handle, el, change) {
+    if (!handle || !el) { change(); return; }
+    const ts = handle.chart.timeScale();
+    let range = null;
+    try { range = ts.getVisibleLogicalRange(); } catch (e) {}
+    const restore = () => { handle.resize(); if (range) { try { ts.setVisibleLogicalRange(range); } catch (e) {} } };
+    el.style.transition = 'none';
+    el.style.opacity = '0';
+    change();
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        restore();
+        el.style.transition = 'opacity 0.15s ease-out';
+        el.style.opacity = '1';
+    }));
+    setTimeout(restore, 300);
+}
+
 // ---------- Helpers di set ----------
 
 export function setCandles(handle, candles) {

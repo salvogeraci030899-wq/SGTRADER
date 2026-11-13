@@ -1,6 +1,6 @@
 import { State } from '../core/state.js';
 import { Logger } from '../core/logger.js';
-import { createChart, setCandles, setVolume } from './chart.js';
+import { createChart, setCandles, setVolume, relayout } from './chart.js';
 
 // Coin dei grafici della Home: le 3 scelte dalla Home (home.js, setHomeChartCoins), all'inizio BTC, ETH, SOL
 const coin = symbol => ({ symbol, label: `${symbol.replace('USDT', '')} / USDT` });
@@ -104,9 +104,12 @@ export function toggleFullscreen(symbol) {
     if (!card) return;
 
     const isEntering = !card.classList.contains('fullscreen');
-
-    card.classList.toggle('fullscreen', isEntering);
-    document.body.classList.toggle('chart-fullscreen', isEntering);
+    const s0 = charts[symbol];
+    relayout(s0 && s0.handle, s0 && s0.el, () => {
+        card.classList.toggle('fullscreen', isEntering);
+        document.body.classList.toggle('chart-fullscreen', isEntering);
+        if (!isEntering) goToHomeChart(COINS.findIndex(c => c.symbol === symbol), 'instant');
+    });
 
     const btn = card.querySelector('.home-chart-fullscreen');
     if (btn) {
@@ -114,16 +117,8 @@ export function toggleFullscreen(symbol) {
         btn.title = isEntering ? 'Chiudi' : 'Schermo intero';
     }
 
-    // all'uscita il riquadro torna stretto: il grafico va rimisurato sulla scheda (non sullo schermo),
-    // altrimenti la larghezza dello schermo intero resta e allarga la scheda
-    [60, 300].forEach(ms => setTimeout(() => {
-        const s = charts[symbol];
-        if (s && s.handle && s.el) {
-            s.handle.resize();
-            s.handle.fitContent();
-        }
-        if (!isEntering) goToHomeChart(COINS.findIndex(c => c.symbol === symbol), 'instant');
-    }, ms));
+    // all'uscita il riquadro torna stretto: relayout rimisura il grafico sulla scheda (non sullo schermo)
+    if (!isEntering) setTimeout(() => goToHomeChart(COINS.findIndex(c => c.symbol === symbol), 'instant'), 300);
 }
 
 export function goToHomeChart(idx, behavior = 'smooth') {

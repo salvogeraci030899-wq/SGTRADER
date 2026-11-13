@@ -1274,8 +1274,11 @@ html.glass[data-theme="light"] .active-trade-card, html.glass[data-theme="light"
 html.glass[data-theme="light"] .signal-cell, html.glass[data-theme="light"] .auto-item { box-shadow: var(--glass-light), 0 2px 10px rgba(30, 40, 80, 0.07); }
 /* Mercato: coin e timeframe su una riga (le coin scorrono di lato, il bordo destro sfuma) */
 .mkt-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-shrink: 0; }
-.mkt-coins { flex: 1; min-width: 0; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity;
-    -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
+.mkt-coins { flex: 1; min-width: 0; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; }
+/* sfumatura solo dal lato dove ci sono altre coin da scoprire (a fine riga LINK resta pulita) */
+.mkt-coins.more-right { -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
+.mkt-coins.more-left { -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%); mask-image: linear-gradient(90deg, transparent, #000 15%); }
+.mkt-coins.more-left.more-right { -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent); mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent); }
 .mkt-coins::-webkit-scrollbar { display: none; }
 .mkt-coins .pill-btn { flex: 0 0 auto; min-width: 52px; padding: 0 10px; min-height: 36px; font-size: 12px; scroll-snap-align: start; }
 .mkt-row .mkt-tf { flex-shrink: 0; }
@@ -1283,3 +1286,6 @@ html.glass[data-theme="light"] .signal-cell, html.glass[data-theme="light"] .aut
 .lock-icon-light { display: none; }
 html[data-theme="light"] .lock-icon-light { display: inline-block; }
 html[data-theme="light"] .lock-icon-dark { display: none; }
+/* Trade: tasto d'invio fisso in fondo alla pagina (la scheda sopra si adatta, il tasto non si sposta) */
+#page-calculator .calc-actions { flex-shrink: 0; }
+#page-calculator .calc-actions .btn-cta-primary { margin-top: 8px; }
